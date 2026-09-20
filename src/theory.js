@@ -90,10 +90,12 @@
     { id: 'scale', label: 'Write a Scale', blurb: 'Fill in a scale ascending from its first note.', est: 75 },
     { id: 'keysig', label: 'Name the Key', blurb: 'Identify a key from its key signature.', est: 20 },
     { id: 'custom', label: 'Custom Chord', blurb: 'Teacher-written chord symbol questions.', est: 40, custom: true },
-    { id: 'voicing', label: 'Chord Voicing', blurb: 'Voice a chord symbol on the grand staff, or in the treble or bass clef alone.', est: 55, custom: true },
+    { id: 'voicing', label: 'Single Voiced Chords', blurb: 'Voice one chord with a named technique — stacked thirds, chorale, block, drops, planes, pop horn or inner sevenths — or read a voicing and name the chord.', est: 55, custom: true },
     { id: 'progression', label: 'Chord Progression', blurb: 'Name each chord of a progression with Roman numerals, chord symbols, or both.', est: 70, custom: true },
     { id: 'figured', label: 'Figured Bass Chord', blurb: 'Read a chord and write its Roman numeral with figures, or spell a numeral on the staff.', est: 35 },
     { id: 'figprog', label: 'Figured Bass Progression', blurb: 'Write the Roman numeral and figures for every chord of a progression.', est: 80 },
+    // Added last so the numbers older report codes use keep their meaning.
+    { id: 'vprog', label: 'Voiced Progressions', blurb: 'Voice a whole progression with one technique, or name each chord of a voiced progression.', est: 90, custom: true },
   ];
   const BUILT_IN = TYPES.filter((t) => !t.custom);
   const MAX_CUSTOM = 20, MAX_CUSTOM_NOTES = 6, MAX_VOICING_NOTES = 8;
@@ -147,9 +149,9 @@
       // Per-tab staff override: 0 use the quiz setting, 1 treble, 2 bass, 3 grand staff.
       staffOv: { place: 0, identify: 0, interval: 0, scale: 0, keysig: 0, chord: 0, figured: 0, figprog: 0 },
       // Per-tab notes setting: 0 use the quiz setting, 1 print the helper note, 2 students write every note.
-      helpOv: { interval: 0, chord: 0, custom: 2, voicing: 2 },
+      helpOv: { interval: 0, chord: 0, custom: 2, voicing: 2, vprog: 2 },
       figpAsk: 1, // figured bass progression: 1 analyse, 2 spell, 3 both
-      counts: { place: 4, identify: 3, interval: 3, chord: 2, scale: 1, keysig: 2, custom: 0, voicing: 0, progression: 0, figured: 0, figprog: 0 },
+      counts: { place: 4, identify: 3, interval: 3, chord: 2, scale: 1, keysig: 2, custom: 0, voicing: 0, vprog: 0, progression: 0, figured: 0, figprog: 0 },
       ledger: 1,
       accMode: 3,
       intervals: maskOf(INTERVALS, ['M2', 'm3', 'M3', 'P4', 'P5', 'P8']),
@@ -175,6 +177,13 @@
       keyMode: 1,
       keyMax: 4,
       timeLimit: 0,
+      // The two voicing categories. `tech` holds how many questions use each technique; `opts` holds
+      // the per-technique choices. sizes: bit 0 triads, 1 sevenths, 2 ninths and above.
+      // quals: bit 0 major, 1 minor, 2 augmented, 3 diminished, 4 suspended.
+      // key: 0 major, 1 minor, 2 dorian, 3 chromatic. ask: 1 print the symbol and voice it,
+      // 2 print the voicing and name the chord, 3 both.
+      vc: { sizes: 0b011, quals: 0b00011, alts: 0, key: 3, slash: 0, ask: 1, tech: {}, opts: { thirdsStaff: 0, thirdsOmitRoot: 0, blockStaff: 0, planesOpen: 0, popNotes: 3, popStaff: 0, inner2: 0 } },
+      vp: { sizes: 0b011, quals: 0b00011, alts: 0, key: 0, slash: 0, ask: 1, len: 4, tech: {}, opts: { thirdsStaff: 0, thirdsOmitRoot: 0, blockStaff: 0, planesOpen: 0, popNotes: 3, popStaff: 0, inner2: 0 } },
       custom: [],
       customGrade: 0,
       voicings: [],
@@ -183,7 +192,7 @@
       flags: { shuffle: true, partial: true, feedback: false, labels: false, enharmonic: false, strictOctave: false, noHelpers: false },
     };
   }
-  const zeroCounts = () => ({ place: 0, identify: 0, interval: 0, chord: 0, scale: 0, keysig: 0, custom: 0, voicing: 0, progression: 0, figured: 0, figprog: 0 });
+  const zeroCounts = () => ({ place: 0, identify: 0, interval: 0, chord: 0, scale: 0, keysig: 0, custom: 0, voicing: 0, vprog: 0, progression: 0, figured: 0, figprog: 0 });
   const withCfg = (c, patch) => Object.assign(JSON.parse(JSON.stringify(c)), patch);
 
   const PRESETS = [
@@ -581,7 +590,7 @@
     // Variety: no interval, chord type, root, key or scale more than twice in a short quiz
     // (three times past 20 questions). When the settings are narrow, the roots vary the most.
     const total = BUILT_IN.reduce((n, t) => n + (cfg.counts[t.id] || 0), 0)
-      + ['custom', 'voicing', 'progression'].reduce((n, k) => n + (cfg.counts[k] || 0), 0);
+      + ['custom', 'voicing', 'vprog', 'progression'].reduce((n, k) => n + (cfg.counts[k] || 0), 0);
     const cap = total > 20 ? 3 : 2;
     const used = {};
     function pickVaried(make) {
@@ -629,7 +638,10 @@
       return idx.map((i) => list[i]);
     };
     draw(cfg.custom, cfg.counts.custom == null ? (cfg.custom || []).length : cfg.counts.custom).forEach((c) => qs.push(customQuestion(c, cfg)));
-    draw(cfg.voicings, cfg.counts.voicing || 0).forEach((v) => qs.push(voicingQuestion(v, cfg)));
+    // Quizzes made before version 12 keep the old teacher-written voicings; newer ones use the
+    // voicing techniques.
+    if (cfg.v != null && cfg.v < 12) draw(cfg.voicings, cfg.counts.voicing || 0).forEach((v) => qs.push(voicingQuestion(v, cfg)));
+    else if (MQ.voicingQuestions) MQ.voicingQuestions(cfg, rng, draw, pickVaried).forEach((q) => qs.push(q));
     if (MQ.progressionQuestions) MQ.progressionQuestions(cfg, rng, draw).forEach((q) => qs.push(q));
     if (cfg.flags.shuffle) shuffle(qs, rng);
     return qs;
@@ -662,6 +674,10 @@
   function gradeQuestion(q, response, cfg) {
     if (q.type === 'figured' || q.type === 'figprog') return MQ.gradeFigured(q, response, cfg);
     if (q.type === 'progression') return MQ.gradeProgression(q, response, cfg);
+    if (q.symbolAnswers) {
+      const got = q.symbolAnswers.filter((a, i) => MQ.gradeVoiceSymbol(a.q, (response || [])[i], cfg)).length;
+      return got / q.symbolAnswers.length;
+    }
     if (q.symbolAnswer) return MQ.gradeChordSymbol(q, response, cfg);
     if (q.choices) return response === q.answer ? 1 : 0;
     if (q.dropdowns) {
@@ -682,11 +698,13 @@
     q.type === 'figured' || q.type === 'figprog' ? MQ.hasFiguredAnswer(q, response)
       : q.colSpecs ? !!response && response.some((col) => col && col.some(Boolean))
         : q.type === 'progression' ? !!response && ['r', 's'].some((k) => (response[k] || []).some((x) => x && x.trim()))
-      : q.symbolAnswer ? !!String(response || '').trim()
+      : q.symbolAnswers ? !!response && response.some((v) => String(v || '').trim())
+        : q.symbolAnswer ? !!String(response || '').trim()
         : q.dropdowns ? !!response && response.some((v) => v != null)
         : q.choices ? response != null : !!response && response.some((col) => col && col.some(Boolean));
 
   function describeAnswer(q, cfg) {
+    if (q.symbolAnswers) return q.symbolAnswers.map((a) => a.shown).join('  ');
     if (q.symbolAnswer) return q.symbolAnswer.shown;
     if (q.dropdowns) return q.dropdowns.map((d) => d.options[d.answer]).join(' · ');
     if (q.choices) return q.choices[q.answer];

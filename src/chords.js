@@ -289,6 +289,8 @@
   // Marking a typed chord symbol: the right root and quality; a slash bass must be the right one.
   function gradeChordSymbol(q, resp, cfg) {
     const want = q.symbolAnswer;
+    // Voicing questions allow altered chords, which have their own reader.
+    if (want.voice) return MQ.gradeVoiceSymbol(want.q, resp, cfg);
     const got = MQ.parseSymbol(String(resp || '').trim());
     if (!got) return 0;
     const wantChord = MQ.parseSymbol(want.q);

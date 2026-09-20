@@ -68,14 +68,21 @@
   const fmtDate = (ms) => new Date(ms).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' });
   const fmtPts = (p) => (Math.abs(p - Math.round(p)) < 0.05 ? String(Math.round(p)) : p.toFixed(1));
   const typeOf = (id) => MQ.TYPES.find((t) => t.id === id);
+  // How many questions a technique-driven or list-driven category actually asks.
+  const techCount = (cfg, key) => {
+    const b = MQ.voiceSettings(cfg[key]);
+    return MQ.TECHNIQUES.reduce((n, t) => n + (t.id === 'custom' && !(cfg.voicings || []).length ? 0 : (b.tech[t.id] || 0)), 0);
+  };
   const listCount = (cfg, key) => {
     if (key === 'progression') return Math.min(cfg.counts.progression || 0, MQ.progPool(cfg).length, 30);
+    if (key === 'voicing') return cfg.v != null && cfg.v < 12 ? Math.min(cfg.counts.voicing || 0, (cfg.voicings || []).length) : techCount(cfg, 'vc');
+    if (key === 'vprog') return techCount(cfg, 'vp');
     const list = key === 'custom' ? cfg.custom || [] : cfg.voicings || [];
     const n = cfg.counts[key] == null ? list.length : cfg.counts[key];
     return Math.min(n, list.length);
   };
-  const sumCounts = (cfg) => MQ.BUILT_IN.reduce((s, t) => s + (cfg.counts[t.id] || 0), 0) + listCount(cfg, 'custom') + listCount(cfg, 'voicing') + listCount(cfg, 'progression');
-  const usesGrand = (cfg) => (listCount(cfg, 'voicing') > 0 && cfg.voicings.some((v) => (v.staff || 'grand') === 'grand'))
+  const sumCounts = (cfg) => MQ.BUILT_IN.reduce((s, t) => s + (cfg.counts[t.id] || 0), 0) + listCount(cfg, 'custom') + listCount(cfg, 'voicing') + listCount(cfg, 'vprog') + listCount(cfg, 'progression');
+  const usesGrand = (cfg) => (listCount(cfg, 'voicing') > 0 || listCount(cfg, 'vprog') > 0)
     || (listCount(cfg, 'progression') > 0 && cfg.progs.some((e) => e.staff === 'grand'))
     || ((cfg.counts.chord || 0) > 0 && !!(cfg.chordStaff & 4) && !(cfg.v && cfg.v < 7));
   const clefsText = (cfg) => [cfg.clefs & 1 ? 'treble' : null, cfg.clefs & 2 ? 'bass' : null].filter(Boolean).join(' & ') + ' clef' + (usesGrand(cfg) ? ' + grand staff' : '');
@@ -235,7 +242,11 @@
     if (q.type === 'place') return [[all], 1.5];
     if (q.type === 'interval') return [cols.concat([all]), 1];         // printed note, student's note, both
     if (q.type === 'scale') return [cols, 0.6];                        // note by note
-    if (q.symbolAnswer) return [[[].concat(...q.columns.map((c) => c.given))], 2];
+    if ((q.type === 'voicing' || q.type === 'vprog') && q.columns.length > 1) {
+      const chords = q.columns.map((c, i) => (c.given.length ? c.given : cols[i] || []).filter(Boolean));
+      return [chords.filter((c) => c.length), 1];
+    }
+    if (q.symbolAnswer || q.symbolAnswers) return [[[].concat(...q.columns.map((c) => c.given))], 2];
     if (q.dropdowns) return q.columns && q.columns.length ? [q.columns.map((c) => c.given).filter((c) => c.length), 0.6] : 'There is nothing to play for this question.';
     if (q.type === 'identify') {
       if (choice == null) return 'Choose an answer first.';
@@ -536,9 +547,10 @@
     const preview = h('span', { class: 'fig-preview' });
     const draw = () => {
       const t = inp.value.trim();
-      const ch = t ? MQ.parseSymbol(t) : null;
+      const voice = q.symbolAnswer && q.symbolAnswer.voice;
+      const ch = t ? (voice ? MQ.parseVoiceSymbol(t) : MQ.parseSymbol(t)) : null;
       inp.classList.toggle('is-invalid', !!t && !ch);
-      preview.replaceChildren(ch ? accText(MQ.symbolOf(ch)) : t ? h('span', { class: 'fig-unread is-bad' }, 'not a chord symbol') : '');
+      preview.replaceChildren(ch ? accText(voice ? MQ.prettySymbol(t) : MQ.symbolOf(ch)) : t ? h('span', { class: 'fig-unread is-bad' }, 'not a chord symbol') : '');
     };
     inp.addEventListener('input', () => {
       if (/^[a-g]/.test(inp.value)) {
@@ -557,6 +569,41 @@
       h('div', { class: 'fig-row' }, inp), preview,
       o.reveal && !o.keyMode ? h('span', { class: 'fig-mark ' + (right ? 'is-right' : 'is-wrong') }, right ? '✓' : ['✗ ', accText(q.symbolAnswer.shown)]) : null);
   }
+
+  // A voiced progression the students name: one chord symbol box per chord.
+  function symbolRowBlock(q, o, cfg) {
+    const resp = (o.response || []).slice();
+    const boxes = q.symbolAnswers.map((want, i) => {
+      const id = 'sym-' + ++symUid;
+      const inp = h('input', { type: 'text', id, class: 'fig-in sym-in', placeholder: 'Dmi7', autocomplete: 'off', autocapitalize: 'off', autocorrect: 'off', spellcheck: 'false', maxlength: 14, 'aria-label': `Chord symbol ${i + 1}` });
+      inp.value = o.keyMode ? want.shown : resp[i] || '';
+      const preview = h('span', { class: 'fig-preview' });
+      const draw = () => {
+        const t = inp.value.trim();
+        const ok = t ? MQ.parseVoiceSymbol(t) : null;
+        inp.classList.toggle('is-invalid', !!t && !ok);
+        preview.replaceChildren(ok ? accText(MQ.prettySymbol(t)) : t ? h('span', { class: 'fig-unread is-bad' }, 'not a chord symbol') : '');
+      };
+      inp.addEventListener('input', () => {
+        if (/^[a-g]/.test(inp.value)) {
+          const at = inp.selectionStart;
+          inp.value = inp.value[0].toUpperCase() + inp.value.slice(1);
+          try { inp.setSelectionRange(at, at); } catch (e) { /* not focused */ }
+        }
+        resp[i] = inp.value;
+        draw();
+        if (o.onResponse) o.onResponse(resp.slice());
+      });
+      if (o.locked || o.keyMode) inp.disabled = true;
+      draw();
+      const right = o.reveal && !o.keyMode && MQ.gradeVoiceSymbol(want.q, resp[i], cfg) === 1;
+      return h('div', { class: 'sym-cell' },
+        h('span', { class: 'mini-label' }, `Chord ${i + 1}`), inp, preview,
+        o.reveal && !o.keyMode ? h('span', { class: 'fig-mark ' + (right ? 'is-right' : 'is-wrong') }, right ? '✓' : ['✗ ', accText(want.shown)]) : null);
+    });
+    return h('div', { class: 'sym-row' }, ...boxes);
+  }
+
   function questionCard(q, cfg, o) {
     if (q.type === 'figured' || q.type === 'figprog') return figuredCard(q, cfg, o);
     if (q.type === 'progression' && !q.colSpecs) return progressionCard(q, cfg, o);
@@ -565,7 +612,7 @@
     wrap.append(h('div', { class: 'q-eyebrow' }, t.label, h('span', { class: 'q-clef' }, MQ.clefLabel(q.clef))));
     wrap.append(h(o.compact ? 'h3' : 'h2', { class: 'q-text' }, q.text));
     if (q.hint && !o.locked) wrap.append(h('p', { class: 'q-hint' }, q.hint));
-    const isChoice = !!q.choices || !!q.dropdowns || !!q.symbolAnswer;
+    const isChoice = !!q.choices || !!q.dropdowns || !!q.symbolAnswer || !!q.symbolAnswers;
     const staffBox = h('div', { class: 'staff-box' });
     if (!q.noStaff) wrap.append(staffBox);
     const placed = isChoice ? null : clonePlaced(o.response) || q.columns.map(() => []);
@@ -580,7 +627,8 @@
     let choice = o.response;
     const what = isChoice ? 'your answer' : q.type === 'place' ? 'your note' : 'your notes';
     if (staff) staffBox.append(playButton(() => { const r = questionSound(q, staff, choice); return typeof r === 'string' ? r : { chords: r[0], dur: r[1] }; }, 1, what));
-    if (q.symbolAnswer) wrap.append(symbolAnswerBlock(q, o));
+    if (q.symbolAnswers) wrap.append(symbolRowBlock(q, o, cfg));
+    else if (q.symbolAnswer) wrap.append(symbolAnswerBlock(q, o));
     else if (q.dropdowns) wrap.append(dropdownGroup(q, o));
     else if (q.choices) wrap.append(choiceGroup(q, Object.assign({}, o, { onResponse: (i) => { choice = i; if (o.onResponse) o.onResponse(i); } })));
     else if (!o.locked) wrap.append(palette(staff));
@@ -687,7 +735,8 @@
         grp('What students do', seg('q-keyask', [{ v: 1, label: 'Name the key from its signature' }, { v: 2, label: 'Choose the signature for a named key' }, { v: 3, label: 'A mix of both' }], cfg.keyAsk, (v) => { cfg.keyAsk = v; changed(); }),
           'Choosing a signature uses one list with every option, from 7 flats to 7 sharps.')],
       custom: () => [notesPick('custom', 'Print the lowest note', 'Students write every note'), customChordSection(cfg, changed, 'custom')],
-      voicing: () => [notesPick('voicing', 'Print the lowest note', 'Students write every note'), customChordSection(cfg, changed, 'voicing')],
+      voicing: () => [voicePanel(cfg, changed, 'vc', notesPick)],
+      vprog: () => [voicePanel(cfg, changed, 'vp', notesPick)],
       progression: () => [progressionSection(cfg, changed)],
       figured: () => [
         h('p', { class: 'help' }, 'Clefwork builds a chord on a scale degree of a key you choose, in root position or an inversion, and prints its key signature. Figures: 6 and 6/4 for triads; 7, 6/5, 4/3 and 4/2 for sevenths.'),
@@ -721,14 +770,14 @@
       { id: 'place', label: 'Place the Note' }, { id: 'identify', label: 'Name the Note' },
       { id: 'interval', label: 'Intervals' }, { id: 'chord', label: 'Chords' },
       { id: 'scale', label: 'Scales' }, { id: 'keysig', label: 'Key Signatures' },
-      { id: 'custom', label: 'Custom Chords', list: 'custom' }, { id: 'voicing', label: 'Chord Voicings', list: 'voicings' },
+      { id: 'custom', label: 'Custom Chords', list: 'custom' },
+      { id: 'voicing', label: 'Single Voiced Chords', tech: 'vc' }, { id: 'vprog', label: 'Voiced Progressions', tech: 'vp' },
       { id: 'progression', label: 'Chord Progressions', list: 'progs', pool: true },
       { id: 'figured', label: 'Figured Bass Chord' }, { id: 'figprog', label: 'Figured Bass Progression' },
     ];
-    // Custom Chords and Chord Voicings are hidden while they are being reworked.
-    for (let i = TABS.length - 1; i >= 0; i--) if (TABS[i].id === 'custom' || TABS[i].id === 'voicing') TABS.splice(i, 1);
+    // Custom Chords is hidden while it is being reworked.
+    for (let i = TABS.length - 1; i >= 0; i--) if (TABS[i].id === 'custom') TABS.splice(i, 1);
     cfg.counts.custom = 0;
-    cfg.counts.voicing = 0;
     if (!TABS.some((t) => t.id === S.buildTab)) S.buildTab = 'place';
     const strip = h('div', { class: 'qt-strip', role: 'tablist', 'aria-label': 'Question types' });
     const panels = h('div', { class: 'qt-panels' });
@@ -746,7 +795,17 @@
       const type = typeOf(tb.id);
       const btn = h('button', { type: 'button', role: 'tab', id: 'tab-' + tb.id, 'aria-controls': 'panel-' + tb.id, class: 'qt-tab', onclick: () => select(tb.id) },
         h('span', { class: 'qt-name' }, tb.label), h('span', { class: 'qt-status' }));
-      const ctr = counter('count-' + tb.id, tb.label, (v) => { cfg.counts[tb.id] = v; changed(); });
+      const ctr = counter('count-' + tb.id, tb.label, (v) => {
+        if (!tb.tech) { cfg.counts[tb.id] = v; changed(); return; }
+        // These tabs count their techniques: + adds to the first one, − takes from the last.
+        const b = cfg[tb.tech] = MQ.voiceSettings(cfg[tb.tech]);
+        const ids = MQ.TECHNIQUES.map((t) => t.id).filter((x) => !(tb.tech === 'vp' && x === 'custom'));
+        let n = ids.reduce((sum, x) => sum + (b.tech[x] || 0), 0);
+        while (n < v) { const k = ids.find((x) => b.tech[x]) || ids[0]; b.tech[k] = (b.tech[k] || 0) + 1; n++; }
+        while (n > v) { const k = ids.filter((x) => b.tech[x]).pop(); b.tech[k]--; n--; }
+        cfg.counts[tb.id] = v;
+        changed();
+      });
       const card = h('div', { class: 'qt' }, btn, ctr);
       const panel = h('div', { role: 'tabpanel', id: 'panel-' + tb.id, 'aria-labelledby': 'tab-' + tb.id, class: 'qt-panel' },
         h('div', { class: 'qt-panel-head' }, h('h3', null, type.label), h('p', null, type.blurb)),
@@ -766,6 +825,10 @@
     });
     R.syncTabs = () => R.tabs.forEach((t) => {
       // Progressions: an automatic entry can supply several questions, so the limit is the pool size.
+      if (t.tech) {
+        const b = cfg[t.tech] = MQ.voiceSettings(cfg[t.tech]);
+        cfg.counts[t.id] = MQ.TECHNIQUES.reduce((n, x) => n + (b.tech[x.id] || 0), 0);
+      }
       const len = t.pool ? Math.min(30, MQ.progPool(cfg).length) : t.list ? cfg[t.list].length : 0;
       if (t.list) cfg.counts[t.id] = Math.min(cfg.counts[t.id] || 0, len);
       const n = cfg.counts[t.id] || 0;
@@ -865,7 +928,7 @@
         S.qs = MQ.generateQuiz(cfg);
         if (R.code) R.code.textContent = S.code;
         [R.copy, R.link, R.tryBtn, R.exportBtn, R.startBtn].forEach((b) => b && (b.disabled = false));
-        const est = Math.max(1, Math.round((MQ.BUILT_IN.reduce((s, t) => s + t.est * (cfg.counts[t.id] || 0), 0) + 40 * listCount(cfg, 'custom') + 55 * listCount(cfg, 'voicing') + 70 * listCount(cfg, 'progression')) / 60));
+        const est = Math.max(1, Math.round((MQ.BUILT_IN.reduce((s, t) => s + t.est * (cfg.counts[t.id] || 0), 0) + 40 * listCount(cfg, 'custom') + 55 * listCount(cfg, 'voicing') + 90 * listCount(cfg, 'vprog') + 70 * listCount(cfg, 'progression')) / 60));
         R.summary.replaceChildren(h('b', null, STUDENT ? 'Your practice' : cfg.title || 'Untitled quiz'), ` — ${total} questions · ${clefsText(cfg)} · about ${est} min${cfg.timeLimit ? ` · ${cfg.timeLimit}-minute limit` : ''}`);
       }
       R.keyList.replaceChildren(...S.qs.map((q) => h('li', null, h('span', { class: 'key-q' }, q.text, h('span', { class: 'key-clef' }, ' · ' + MQ.clefLabel(q.clef))), h('span', { class: 'key-a' }, MQ.describeAnswer(q, cfg)))));
@@ -992,6 +1055,69 @@
           h('li', null, 'A natural 9th in an 11th or 13th chord, and a natural 11th in a 13th chord, may be left out or added.'),
           h('li', null, 'Any note the symbol sharpens or flattens (♭9, ♯11, ♭13, ♭5 …) is required. A sharpened or flattened note the symbol doesn’t ask for is wrong.'))),
       list, editor);
+  }
+
+
+  // ---------- voicing categories: one chord, or a whole progression, in a named technique ----------
+  function voicePanel(cfg, changed, key, notesPick) {
+    const block = cfg[key] = MQ.voiceSettings(cfg[key]);
+    const isProg = key === 'vp';
+    const id = (n) => key + '-' + n;
+    const set = (k, v) => { block[k] = v; changed(); };
+    const opt = (k, v) => { block.opts[k] = v; changed(); };
+    const staffSeg = (name, k) => grp('Staff', seg(id(name), [{ v: 0, label: 'A mix of both' }, { v: 1, label: 'Treble only' }, { v: 2, label: 'Bass only' }], block.opts[k] || 0, (v) => opt(k, v)));
+    // One row per technique: how many questions use it, and the choices it offers.
+    const rows = MQ.TECHNIQUES.filter((t) => !(isProg && t.id === 'custom')).map((t) => {
+      const ctr = counter(id('n-' + t.id), t.label, (v) => { block.tech[t.id] = v; changed(); });
+      ctr.sync(block.tech[t.id] || 0, 20);
+      const body = {
+        thirds: () => [staffSeg('thirds-staff', 'thirdsStaff'),
+          toggle(id('omit'), 'Leave out the root', 'The voicing starts on the third.', block.opts.thirdsOmitRoot, (v) => opt('thirdsOmitRoot', v ? 1 : 0))],
+        block: () => [staffSeg('block-staff', 'blockStaff')],
+        planes: () => [grp('Spelling', seg(id('open'), [{ v: 0, label: 'Closed' }, { v: 1, label: 'Open' }, { v: 2, label: 'A mix of both' }], block.opts.planesOpen || 0, (v) => opt('planesOpen', v)))],
+        pophorn: () => [grp('Notes', seg(id('pop'), [{ v: 3, label: '3 notes' }, { v: 4, label: '4 notes (root in the bass)' }], block.opts.popNotes === 4 ? 4 : 3, (v) => opt('popNotes', v))),
+          block.opts.popNotes === 4 ? null : staffSeg('pop-staff', 'popStaff')],
+        inner7: () => [toggle(id('inner2'), 'Inner 2nds', 'Brings the top voice down so it makes a second with its pair.', block.opts.inner2, (v) => opt('inner2', v ? 1 : 0))],
+        custom: () => [h('p', { class: 'help' }, 'Write the chord symbol and the exact voicing yourself. Students write that voicing note for note, or name the chord when the notes are printed.'),
+          customChordSection(cfg, changed, 'voicing')],
+      }[t.id];
+      const notes = {
+        chorale: 'Root, fifth, third and top note on the grand staff. A ninth takes the top note’s place; an eleventh or thirteenth takes the fifth’s.',
+        drop2: 'A block voicing with the second note from the top dropped an octave. Low notes move to the bass clef of a grand staff.',
+        drop24: 'A block voicing with the second and fourth notes from the top dropped an octave.',
+        planes: 'Always the grand staff: root, 3 plane, 5 plane, 7 plane and 9 plane.',
+        block: 'Four notes within an octave, no root. An eleventh or thirteenth replaces the fifth; a sixth or seventh replaces the octave.',
+        inner7: 'Always the grand staff. The voices pair off a seventh apart, with thirds, sevenths and thirteenths low.',
+        thirds: 'Every note of the chord stacked in thirds. In an eleventh chord the ninth is optional; in a thirteenth the ninth and eleventh are, unless they are altered.',
+        pophorn: 'Three-note shapes such as 3-5-1 or 7-3-1. Four-note shapes add the root underneath on a grand staff.',
+        custom: '',
+      }[t.id];
+      const extra = body ? body().filter(Boolean) : [];
+      return h('div', { class: 'vt-row' + (block.tech[t.id] ? ' is-on' : '') },
+        h('div', { class: 'vt-head' }, h('strong', null, t.label), ctr),
+        notes ? h('p', { class: 'help' }, notes) : null,
+        extra.length ? h('div', { class: 'vt-opts' }, ...extra) : null);
+    });
+    return h('div', { class: 'qt-body' },
+      h('p', { class: 'help' }, isProg
+        ? 'A progression of chords, every chord voiced with the same technique. Set how many progressions use each technique below.'
+        : 'One voiced chord per question. Set how many questions use each technique below — the tab’s counter adds them up.'),
+      h('div', { class: 'row2' },
+        grp('Chord sizes', chips(id('sizes'), [{ label: 'Triads' }, { label: 'Sevenths' }, { label: '9ths and above' }], block.sizes, (m) => set('sizes', m), (x) => x.label)),
+        grp('Chord qualities', chips(id('quals'), [{ label: 'Major' }, { label: 'Minor' }, { label: 'Augmented' }, { label: 'Diminished' }, { label: 'Suspended' }], block.quals, (m) => set('quals', m), (x) => x.label))),
+      grp('Chords come from', seg(id('key'), MQ.VOICE_KEYS.map((k, i) => ({ v: i, label: k.label })), block.key, (v) => set('key', v)),
+        'A key keeps the chords diatonic. Chromatic allows any root and any quality you turned on.'),
+      h('div', { class: 'toggles' },
+        toggle(id('alts'), 'Include altered notes', 'Lets chords carry a ♭5, ♯5, ♭9, ♯9, ♯11 or ♭13.', block.alts, (v) => set('alts', v ? 1 : 0)),
+        toggle(id('slash'), 'Allow slash chords', 'A chord tone other than the root can be written underneath.', block.slash, (v) => set('slash', v ? 1 : 0))),
+      isProg ? grp('Chords in each progression', seg(id('len'), [2, 3, 4, 5, 6].map((v) => ({ v, label: String(v) })), block.len, (v) => set('len', v))) : null,
+      grp('Notes on the staff', seg(id('ask'), [
+        { v: 1, label: 'Print the chord symbol — students write the notes' },
+        { v: 2, label: 'Print the voicing — students write the chord symbol' },
+        { v: 3, label: 'A mix of both' }], block.ask, (v) => set('ask', v))),
+      notesPick(isProg ? 'vprog' : 'voicing', 'Print the lowest note', 'Students write every note'),
+      h('h4', { class: 'vt-title' }, 'Voicing techniques'),
+      h('div', { class: 'vt-list' }, ...rows));
   }
 
   // ---------- chord progressions (teacher writes chords or lets the rules generate them) ----------
@@ -1387,7 +1513,8 @@
     name.addEventListener('keydown', (e) => { if (e.key === 'Enter') start(); });
     const types = MQ.BUILT_IN.filter((ty) => cfg.counts[ty.id]).map((ty) => `${ty.label} (${cfg.counts[ty.id]})`);
     if (listCount(cfg, 'custom')) types.push(`Custom chords (${listCount(cfg, 'custom')})`);
-    if (listCount(cfg, 'voicing')) types.push(`Chord voicings (${listCount(cfg, 'voicing')})`);
+    if (listCount(cfg, 'voicing')) types.push(`Single voiced chords (${listCount(cfg, 'voicing')})`);
+    if (listCount(cfg, 'vprog')) types.push(`Voiced progressions (${listCount(cfg, 'vprog')})`);
     if (listCount(cfg, 'progression')) types.push(`Chord progressions (${listCount(cfg, 'progression')})`);
     main.append(h('div', { class: 'narrow' }, h('section', { class: 'card stage' },
       h('div', { class: 'eyebrow' }, t.preview ? 'Preview — this is what students see' : 'Quiz'),

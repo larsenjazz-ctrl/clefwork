@@ -524,3 +524,15 @@ select.fig-sel { min-width: 0; }
   body { background: #fff; }
   .card { box-shadow: none; }
 }
+
+/* voicing techniques: one row per technique, with its own counter and choices */
+.vt-title { margin: 4px 0 -6px; font-size: 14px; letter-spacing: .02em; text-transform: uppercase; color: var(--ink-2); }
+.vt-list { display: flex; flex-direction: column; gap: 10px; }
+.vt-row { border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; background: var(--surface-2); display: flex; flex-direction: column; gap: 8px; }
+.vt-row.is-on { border-color: var(--accent); background: var(--surface); }
+.vt-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.vt-head strong { font-size: 15px; }
+.vt-row .help { margin: 0; }
+.vt-opts { display: flex; flex-direction: column; gap: 10px; padding-top: 2px; }
+.sym-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; }
+.sym-cell { display: flex; flex-direction: column; gap: 4px; }

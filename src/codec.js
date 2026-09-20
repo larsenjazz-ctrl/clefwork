@@ -128,7 +128,7 @@
     const w = new Writer();
     // Version 2 added teacher-defined chords after the flags; version 3 adds how many to ask
     // plus grand-staff voicings. Older codes still decode.
-    w.u(11, 4).u(cfg.seed, 20).str(cfg.title, 60).str(cfg.teacher, 40).u(cfg.clefs, 2);
+    w.u(12, 4).u(cfg.seed, 20).str(cfg.title, 60).str(cfg.teacher, 40).u(cfg.clefs, 2);
     COUNT_KEYS.forEach((k) => w.u(Math.min(31, cfg.counts[k] || 0), 5));
     w.u(cfg.ledger, 2).u(cfg.accMode, 2).u(cfg.intervals, 13).u(cfg.intervalDir, 2).u(cfg.chords, 8)
       .u(cfg.scales, 4).u(cfg.scaleLen, 1).u(cfg.keyMode, 2).u(cfg.keyMax, 3).u(Math.min(127, cfg.timeLimit), 7);
@@ -196,6 +196,17 @@
         if (c.bass) w.u(c.bass.step, 3).u(c.bass.alt + 2, 3);
       });
     });
+    // Version 12: the single-chord and progression voicing categories.
+    w.u((cfg.helpOv && cfg.helpOv.vprog) == null ? 2 : cfg.helpOv.vprog, 2);
+    [cfg.vc, cfg.vp].forEach((b, i) => {
+      const s2 = MQ.voiceSettings(b);
+      w.u(s2.sizes, 3).u(s2.quals, 5).u(s2.alts ? 1 : 0, 1).u(s2.key, 2).u(s2.slash ? 1 : 0, 1).u(s2.ask, 2);
+      if (i === 1) w.u(Math.max(2, Math.min(9, s2.len)) - 2, 3);
+      MQ.TECHNIQUES.forEach((t) => w.u(Math.min(31, (s2.tech && s2.tech[t.id]) || 0), 5));
+      const o = s2.opts || {};
+      w.u(o.thirdsStaff || 0, 2).u(o.thirdsOmitRoot ? 1 : 0, 1).u(o.blockStaff || 0, 2)
+        .u(o.planesOpen || 0, 2).u(o.popNotes === 4 ? 1 : 0, 1).u(o.popStaff || 0, 2).u(o.inner2 ? 1 : 0, 1);
+    });
     return pack(KIND_QUIZ, w.b);
   }
 
@@ -207,7 +218,7 @@
     r.u(4);
     try {
       const v = r.u(4);
-      if (v < 1 || v > 11) throw new CodeError('This quiz was made with a newer version of Clefwork.');
+      if (v < 1 || v > 12) throw new CodeError('This quiz was made with a newer version of Clefwork.');
       const cfg = { seed: r.u(20), title: r.str(), teacher: r.str(), clefs: r.u(2), counts: {} };
       COUNT_KEYS.forEach((k) => (cfg.counts[k] = r.u(5)));
       Object.assign(cfg, {
@@ -284,7 +295,7 @@
         cfg.counts.figprog = r.u(5);
       }
       cfg.staffOv = { place: 0, identify: 0, interval: 0, scale: 0, keysig: 0, chord: 0, figured: 0, figprog: 0 };
-      cfg.helpOv = { interval: 0, chord: 0, custom: 2, voicing: 2 };
+      cfg.helpOv = { interval: 0, chord: 0, custom: 2, voicing: 2, vprog: 2 };
       cfg.figpAsk = 1;
       cfg.chordAsk = 1;
       Object.assign(cfg, { scaleModes: 0, scaleAsk: 1, keyAsk: 1, figpKey: cfg.figKey, figpMax: cfg.figMax, figpAlt: cfg.figAlt, figpSize: cfg.figSize, figpPos: cfg.figPos, figpClefs: cfg.figClefs });
@@ -309,6 +320,22 @@
           if (e.kind === 'auto') return;
           e.chords.forEach((c) => { if (r.u(1)) c.bass = { step: r.u(3), alt: r.u(3) - 2 }; });
         });
+      }
+      cfg.vc = MQ.defaultConfig().vc;
+      cfg.vp = MQ.defaultConfig().vp;
+      if (cfg.helpOv.vprog == null) cfg.helpOv.vprog = 2;
+      if (v >= 12) {
+        cfg.helpOv.vprog = r.u(2);
+        [cfg.vc, cfg.vp].forEach((b, i) => {
+          b.sizes = r.u(3); b.quals = r.u(5); b.alts = r.u(1); b.key = r.u(2); b.slash = r.u(1); b.ask = r.u(2);
+          if (i === 1) b.len = r.u(3) + 2;
+          b.tech = {};
+          MQ.TECHNIQUES.forEach((t) => { const n = r.u(5); if (n) b.tech[t.id] = n; });
+          b.opts = { thirdsStaff: r.u(2), thirdsOmitRoot: r.u(1), blockStaff: r.u(2), planesOpen: r.u(2), popNotes: r.u(1) ? 4 : 3, popStaff: r.u(2), inner2: r.u(1) };
+        });
+        const sum = (b) => MQ.TECHNIQUES.reduce((n, t) => n + ((b.tech && b.tech[t.id]) || 0), 0);
+        cfg.counts.voicing = sum(cfg.vc);
+        cfg.counts.vprog = sum(cfg.vp);
       }
       cfg.v = v; // older quizzes keep their original questions
       return cfg;
@@ -343,6 +370,17 @@
     return s;
   }
   function writeAnswer(w, q, resp) {
+    if (q.type === 'voicing' || q.type === 'vprog') {
+      // A voicing answer is either notes on the staff or one typed chord symbol per chord.
+      const list = q.symbolAnswers || (q.symbolAnswer ? [q.symbolAnswer] : null);
+      w.u(list ? 1 : 0, 1);
+      if (list) {
+        const n = Math.min(15, list.length);
+        w.u(n, 4);
+        for (let j = 0; j < n; j++) writeText(w, q.symbolAnswers ? (resp && resp[j]) : resp);
+        return;
+      }
+    }
     if (q.type === 'chord') {
       w.u(q.symbolAnswer ? 1 : 0, 1);
       if (q.symbolAnswer) { writeText(w, resp); return; }
@@ -378,6 +416,13 @@
     }
   }
   function readAnswer(r, type, ver) {
+    if ((type === 'voicing' || type === 'vprog') && ver >= 6) {
+      if (r.u(1)) {
+        const n = r.u(4), out = [];
+        for (let j = 0; j < n; j++) out.push(readText(r));
+        return { kind: 'text', value: out.length === 1 ? out[0] : out };
+      }
+    }
     // Chord questions come in two shapes: notes written on the staff, or a typed chord symbol.
     if (type === 'chord' && ver >= 5) {
       if (r.u(1)) return { kind: 'text', value: readText(r) };
@@ -428,7 +473,7 @@
   function encodeReport(report, cfg, quizCode) {
     const qid = quizId(quizCode);
     const w = new Writer();
-    w.u(5, 4).u(qid, 16).str(report.name, 40)
+    w.u(6, 4).u(qid, 16).str(report.name, 40)
       .u(Math.max(0, Math.round((report.submittedAt - EPOCH) / 60000)), 24)
       .u(Math.min(65535, Math.round(report.totalSec)), 16)
       .u(report.partial ? 1 : 0, 1).u(report.items.length, 7);
@@ -453,7 +498,7 @@
     const restBits = body.slice(20);
     try {
       const ver = r.u(4);
-      if (ver < 1 || ver > 5) throw new CodeError('This report was made with a newer version of Clefwork.');
+      if (ver < 1 || ver > 6) throw new CodeError('This report was made with a newer version of Clefwork.');
       const rep = { code: group(clean), quizId: r.u(16), name: r.str() };
       rep.submittedAt = EPOCH + r.u(24) * 60000;
       rep.totalSec = r.u(16);
