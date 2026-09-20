@@ -121,7 +121,9 @@
     slot: 'take',
     practiceFeedback: store.get('practiceFeedback', true),
     grade: { input: '', quiz: '', sel: 0 },
+    print: Object.assign({ course: '', date: '', paper: 'letter', staffH: 1.25, qr: 0.75 }, store.get('print', null)),
   };
+  const savePrint = () => store.set('print', S.print);
   // S.take is whichever quiz the current tab works with: a teacher's quiz, or (student version) a practice run.
   Object.defineProperty(S, 'take', { get: () => S.slots[S.slot], set: (v) => { S.slots[S.slot] = v; } });
   const tv = () => (S.slot === 'practice' ? 'practice' : 'take');
@@ -1887,10 +1889,176 @@
     });
   }
 
+
+  // ---------- print: a paper copy of the quiz, as PDF or a Word document ----------
+  // A standalone SVG for one question's staff: no colours from the app, drawn clefs when the
+  // picture has to be rasterised, and cropped to the part of the staff that is used.
+  function exportStaffSVG(q, opts) {
+    const o = opts || {};
+    const box = h('div');
+    const wasFont = MQ.clefFont;
+    if (o.drawnClefs) MQ.clefFont = false;
+    const st = new MQ.Staff(box, {
+      clef: q.clef, grand: !!q.grand, keySig: q.keySig || 0, keyAware: !!q.keyAware,
+      columns: q.columns, readOnly: true, labels: false,
+      chordLabels: q.chordLabels || null, barlines: !!q.chordLabels || q.type === 'figprog',
+      colW: q.chordLabels ? 62 : null,
+    });
+    MQ.clefFont = wasFont;
+    const svg = st.svg;
+    const view = (svg.getAttribute('viewBox') || '').split(/\s+/).map(Number);
+    const W = view[2] || 600;
+    // Keep the staff plus room above and below for the notes students add.
+    const staffTop = st.staves[0].by - 48, staffBottom = st.staves[st.staves.length - 1].by;
+    const pad = 32;
+    const top = Math.max(0, staffTop - pad), height = Math.min(st.vbH - top, staffBottom + pad - top);
+    svg.setAttribute('viewBox', `0 ${top} ${W} ${height}`);
+    svg.removeAttribute('style');
+    svg.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+    const inch = (q.grand ? 1.45 : 1) * (o.height || 1.25);
+    svg.setAttribute('width', (W / height) * inch * 96);
+    svg.setAttribute('height', inch * 96);
+    // The picture carries its own styling so it stands alone in a file or a Word document.
+    const style = document.createElementNS('http://www.w3.org/2000/svg', 'style');
+    style.textContent = 'svg{background:#fff}.sl{stroke:#000;stroke-width:1.1;fill:none}.brace{fill:#000}'
+      + '.clef-glyph{fill:#000;font-family:"Noto Music","Bravura Text",serif}.note{color:#000}.note .head{fill:#000}'
+      + '.ledger{stroke:#000;stroke-width:1.3}.slot{display:none}.nlabel{display:none}'
+      + '.clabel{font:bold 13px Georgia,serif;fill:#000}.clabel.is-small{font-size:10.5px;fill:#333}'
+      + '.sacc{font-family:"Noto Music",serif}';
+    svg.insertBefore(style, svg.firstChild);
+    return { svg, markup: new XMLSerializer().serializeToString(svg), wIn: (W / height) * inch, hIn: inch };
+  }
+
+  // Draw an SVG into a canvas and hand back PNG bytes for the Word document.
+  function svgToPNG(markup, wIn, hIn, dpi) {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        canvas.width = Math.max(1, Math.round(wIn * dpi));
+        canvas.height = Math.max(1, Math.round(hIn * dpi));
+        const ctx = canvas.getContext('2d');
+        ctx.fillStyle = '#fff';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        canvas.toBlob((blob) => {
+          if (!blob) { reject(new Error('no image')); return; }
+          blob.arrayBuffer().then((buf) => resolve(new Uint8Array(buf)), reject);
+        }, 'image/png');
+      };
+      img.onerror = () => reject(new Error('That staff could not be turned into a picture.'));
+      img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(markup);
+    });
+  }
+
+  const printInfo = () => ({
+    title: S.cfg.title || 'Music quiz',
+    teacher: S.cfg.teacher || '',
+    course: S.print.course || '',
+    date: MQ.validDate(S.print.date) ? S.print.date : MQ.today(),
+  });
+  const printOpts = (extra) => Object.assign({
+    paper: S.print.paper, staffHeight: S.print.staffH, qrSize: S.print.qr,
+    quizId: S.code ? MQ.quizId(S.code) : 0,
+  }, extra || {});
+  const printPayload = () => (S.code ? (quizLink(S.code) || 'Clefwork quiz ' + MQ.normalize(S.code)) : 'Clefwork');
+
+  function renderPrint(main) {
+    const wrap = h('div', { class: 'print-view' });
+    const form = h('div', { class: 'card print-form' });
+    const preview = h('div', { class: 'print-preview' });
+    main.append(h('div', { class: 'narrow-wide' }, wrap));
+    wrap.append(form, preview);
+    if (!S.print.date) S.print.date = MQ.today();
+    const qs = S.code ? MQ.generateQuiz(S.cfg) : [];
+    const frame = h('iframe', { class: 'print-frame', title: 'Print preview' });
+    const status = h('p', { class: 'help print-status' });
+
+    const draw = () => {
+      if (!qs.length) { preview.replaceChildren(h('p', { class: 'empty' }, 'Add some questions on the Build a quiz tab first.')); return; }
+      const model = MQ.printModel(qs, S.cfg);
+      const opts = printOpts({ qrSVG: MQ.qrSVG(printPayload(), 96 * S.print.qr, { ecc: 'L' }) });
+      const html = MQ.printHTML(model, printInfo(), opts, (q) => exportStaffSVG(q, { height: S.print.staffH }).markup);
+      preview.replaceChildren(h('div', { class: 'print-head' },
+        h('span', { class: 'mini-label' }, 'Preview'),
+        h('span', { class: 'help' }, `${qs.length} question${qs.length === 1 ? '' : 's'} · ${MQ.paperOf(S.print.paper).label}`)), frame);
+      const doc = frame.contentDocument;
+      doc.open(); doc.write(html); doc.close();
+    };
+    const changed = () => { savePrint(); draw(); };
+
+    const paperSeg = grp('Paper size', seg('pr-paper', MQ.PAPERS.map((p) => ({ v: p.id, label: p.label })), S.print.paper, (v) => { S.print.paper = v; changed(); }));
+    const dateIn = textIn('pr-date', S.print.date, 10, 'mm/dd/yyyy', (v) => {
+      S.print.date = v;
+      dateIn.classList.toggle('is-invalid', !!v.trim() && !MQ.validDate(v));
+      if (MQ.validDate(v)) changed(); else savePrint();
+    });
+    const courseIn = textIn('pr-course', S.print.course, 60, 'e.g. Music Theory I', (v) => { S.print.course = v; changed(); });
+    const printBtn = h('button', { type: 'button', class: 'btn btn-primary', onclick: () => doPrint() }, 'Print or save as PDF');
+    const wordBtn = h('button', { type: 'button', class: 'btn', onclick: () => doWord(wordBtn) }, 'Export Word (.docx)');
+    form.append(
+      h('div', { class: 'card-head' }, h('div', null, h('span', { class: 'eyebrow' }, 'For teachers'), h('h1', { class: 'display' }, 'Print the quiz'))),
+      h('p', { class: 'lede' }, 'A paper copy with a blank for the point value beside every question, room to answer, and a QR code in the footer that opens the quiz.'),
+      h('div', { class: 'row2' },
+        fld('Quiz title', textIn('pr-title', S.cfg.title, 60, 'Quiz title', (v) => { S.cfg.title = v; saveDraft(); draw(); }), 'Copied from the quiz.'),
+        fld('Teacher', textIn('pr-teacher', S.cfg.teacher, 40, 'Teacher', (v) => { S.cfg.teacher = v; saveDraft(); draw(); }), 'Copied from the quiz.')),
+      h('div', { class: 'row2' },
+        fld('Course', courseIn, 'Printed under the title.'),
+        fld('Date created', dateIn, 'mm/dd/yyyy — today’s date unless you change it.')),
+      paperSeg,
+      h('div', { class: 'row2' },
+        grp('Staff height', seg('pr-staff', [{ v: 1, label: '1 in' }, { v: 1.25, label: '1¼ in' }, { v: 1.5, label: '1½ in' }], S.print.staffH, (v) => { S.print.staffH = v; changed(); }), 'Never smaller than an inch.'),
+        grp('QR code', seg('pr-qr', [{ v: 0.5, label: '½ in' }, { v: 0.75, label: '¾ in' }, { v: 1, label: '1 in' }], S.print.qr, (v) => { S.print.qr = v; changed(); }), 'Printed in the footer with the quiz ID.')),
+      h('div', { class: 'btn-row' }, printBtn, wordBtn), status);
+
+    function doPrint() {
+      if (!qs.length) { toast('There are no questions to print'); return; }
+      const model = MQ.printModel(qs, S.cfg);
+      const opts = printOpts({ qrSVG: MQ.qrSVG(printPayload(), 96 * S.print.qr, { ecc: 'L' }) });
+      const html = MQ.printHTML(model, printInfo(), opts, (q) => exportStaffSVG(q, { height: S.print.staffH }).markup);
+      const box = h('iframe', { class: 'print-hidden', 'aria-hidden': 'true' });
+      document.body.append(box);
+      const doc = box.contentDocument;
+      doc.open(); doc.write(html); doc.close();
+      const go = () => {
+        try { box.contentWindow.focus(); box.contentWindow.print(); }
+        catch (e) { toast('Your browser blocked printing here'); }
+        setTimeout(() => box.remove(), 1000);
+      };
+      if (doc.fonts && doc.fonts.ready) doc.fonts.ready.then(go, go); else setTimeout(go, 300);
+    }
+
+    async function doWord(btn) {
+      if (!qs.length) { toast('There are no questions to print'); return; }
+      btn.disabled = true;
+      status.textContent = 'Building the Word document…';
+      try {
+        const model = MQ.printModel(qs, S.cfg);
+        const byQuestion = [];
+        for (const it of model) {
+          if (!it.staff) { byQuestion.push(null); continue; }
+          const art = exportStaffSVG(it.q, { height: S.print.staffH, drawnClefs: true });
+          const bytes = await svgToPNG(art.markup, art.wIn, art.hIn, 200);
+          byQuestion.push({ bytes, wIn: art.wIn, hIn: art.hIn });
+        }
+        const qr = MQ.qrPNG(printPayload(), { scale: 4, ecc: 'L' });
+        const bytes = MQ.docxBytes(model, printInfo(), printOpts(), { byQuestion, qr: { bytes: qr.bytes, wIn: S.print.qr } });
+        const name = (S.cfg.title || 'quiz').replace(/[^\w -]+/g, '').trim().replace(/\s+/g, '-').toLowerCase() || 'quiz';
+        const res = await saveFile(name + '.docx', new Blob([bytes], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' }));
+        status.textContent = res === 'saved' ? 'Word document saved.' : res === 'declined' ? 'Save cancelled.' : 'That download didn’t go through.';
+      } catch (e) {
+        status.textContent = 'Something went wrong building the document: ' + (e && e.message ? e.message : e);
+      }
+      btn.disabled = false;
+    }
+
+    draw();
+  }
+
   // ---------- shell ----------
-  const VIEWS = { build: renderBuild, take: renderTake, grade: renderGrade, practice: (main) => (S.slots.practice ? renderTake(main) : renderBuild(main)) };
+  const VIEWS = { build: renderBuild, take: renderTake, grade: renderGrade, print: renderPrint, practice: (main) => (S.slots.practice ? renderTake(main) : renderBuild(main)) };
   function go(view) {
-    if (STUDENT && view === 'grade') view = 'build';
+    if (STUDENT && (view === 'grade' || view === 'print')) view = 'build';
     S.slot = view === 'practice' ? 'practice' : 'take';
     stopTicker();
     MQ.Audio.stop();
@@ -1912,6 +2080,7 @@
       const nav = document.querySelector('.nav');
       nav.querySelector('[data-view="build"]').textContent = 'Practice';
       nav.querySelector('[data-view="grade"]').remove();
+      nav.querySelector('[data-view="print"]').remove();
       document.querySelector('.flow').replaceChildren(
         h('li', null, h('b', null, '1'), ' Choose what to practise and check your answers as you go'),
         h('li', null, h('b', null, '2'), ' For a quiz from your teacher, open ', h('strong', null, 'Take a quiz'), ' and paste the code'),

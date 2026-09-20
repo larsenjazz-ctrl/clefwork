@@ -543,6 +543,20 @@ select.fig-sel { min-width: 0; }
 .vt-opts { display: flex; flex-direction: column; gap: 10px; padding-top: 2px; }
 .sym-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; }
 .sym-cell { display: flex; flex-direction: column; gap: 4px; }
+
+/* print tab: settings on the left, a page preview on the right */
+.narrow-wide { max-width: 1180px; margin: 0 auto; }
+.print-view { display: grid; grid-template-columns: minmax(0, 420px) minmax(0, 1fr); gap: 20px; align-items: start; }
+.print-form { display: flex; flex-direction: column; gap: 14px; }
+.print-form .display { font-size: clamp(24px, 3vw, 32px); margin: 4px 0 0; }
+.print-form .lede { margin: 0; }
+.print-status { min-height: 1.2em; }
+.print-preview { display: flex; flex-direction: column; gap: 8px; position: sticky; top: calc(12px + env(safe-area-inset-top, 0px)); }
+.print-head { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+.print-frame { width: 100%; height: min(78vh, 900px); border: 1px solid var(--line); border-radius: 10px; background: #fff; }
+.print-hidden { position: fixed; width: 0; height: 0; border: 0; visibility: hidden; }
+input.is-invalid { border-color: var(--bad); background: var(--bad-soft); }
+@media (max-width: 960px) { .print-view { grid-template-columns: minmax(0, 1fr); } .print-preview { position: static; } }
 </style>
 <div class="shell">
   <header class="mast">
@@ -553,6 +567,7 @@ select.fig-sel { min-width: 0; }
     <nav class="nav" aria-label="Sections">
       <button type="button" data-view="build">Build a quiz</button>
       <button type="button" data-view="take">Take a quiz</button>
+      <button type="button" data-view="print">Print</button>
       <button type="button" data-view="grade">Grade reports</button>
     </nav>
   </header>
@@ -2991,6 +3006,670 @@ select.fig-sel { min-width: 0; }
     makeChord, voiceTechnique: voiceChord, voiceSuits: suits, voicingQuestions, parseVoiceSymbol, gradeVoiceSymbol, voiceSettings: settingsOf, chordTones: tonesOf, chordSymbolOf: symbolOf, chordTone: tone,
   });
 })(typeof window !== 'undefined' ? window : globalThis);
+/* Clefwork — QR codes, so a printed quiz can be scanned back open. Byte mode, versions 1–20,
+   error correction L or M. Returns a square matrix of 0 (light) and 1 (dark) modules. */
+(function (root) {
+  'use strict';
+  const MQ = (root.MQ = root.MQ || {});
+
+  // Per version and level: [error-correction codewords per block, then blocks × data codewords].
+  const BLOCKS = {
+    L: [[7,1,19],[10,1,34],[15,1,55],[20,1,80],[26,1,108],[18,2,68],[20,2,78],[24,2,97],[30,2,116],[18,2,68,2,69],[20,4,81],[24,2,92,2,93],[26,4,107],[30,3,115,1,116],[22,5,87,1,88],[24,5,98,1,99],[28,1,107,5,108],[30,5,120,1,121],[28,3,113,4,114],[28,3,107,5,108]],
+    M: [[10,1,16],[16,1,28],[26,1,44],[18,2,32],[24,2,43],[16,4,27],[18,4,31],[22,2,38,2,39],[22,3,36,2,37],[26,4,43,1,44],[30,1,50,4,51],[22,6,36,2,37],[22,8,37,1,38],[24,4,40,5,41],[24,5,41,5,42],[28,7,45,3,46],[28,10,46,1,47],[26,9,43,4,44],[26,3,44,11,45],[26,3,41,13,42]],
+  };
+  // Alignment-pattern centres, from version 2 up.
+  const ALIGN = [[6,18],[6,22],[6,26],[6,30],[6,34],[6,22,38],[6,24,42],[6,26,46],[6,28,50],[6,30,54],[6,32,58],[6,34,62],[6,26,46,66],[6,26,48,70],[6,26,50,74],[6,30,54,78],[6,30,56,82],[6,30,58,86],[6,34,62,90]];
+  const REMAINDER = [0,7,7,7,7,7,0,0,0,0,0,0,0,3,3,3,3,3,3,3];
+  const ECC_BITS = { L: 1, M: 0 };
+
+  const dataCapacity = (ver, level) => {
+    const b = BLOCKS[level][ver - 1];
+    let n = 0;
+    for (let i = 1; i < b.length; i += 2) n += b[i] * b[i + 1];
+    return n;
+  };
+
+  // ---------- GF(256) ----------
+  const EXP = new Uint8Array(512), LOG = new Uint8Array(256);
+  for (let i = 0, x = 1; i < 255; i++) {
+    EXP[i] = x; LOG[x] = i;
+    x <<= 1;
+    if (x & 0x100) x ^= 0x11d;
+  }
+  for (let i = 255; i < 512; i++) EXP[i] = EXP[i - 255];
+  const mul = (a, b) => (a && b ? EXP[LOG[a] + LOG[b]] : 0);
+
+  function generator(n) {
+    let g = [1];
+    for (let i = 0; i < n; i++) {
+      const next = new Array(g.length + 1).fill(0);
+      g.forEach((c, j) => { next[j] ^= mul(c, EXP[i]); next[j + 1] ^= c; });
+      g = next;
+    }
+    return g.reverse();   // highest power first, the order the division below expects
+  }
+  function ecBytes(data, n) {
+    const g = generator(n);
+    const rem = new Array(n).fill(0);
+    data.forEach((byte) => {
+      const factor = byte ^ rem.shift();
+      rem.push(0);
+      g.slice(1).forEach((c, i) => (rem[i] ^= mul(c, factor)));
+    });
+    return rem;
+  }
+
+  // ---------- the bit stream ----------
+  function encodeData(bytes, ver, level) {
+    const bits = [];
+    const put = (val, len) => { for (let i = len - 1; i >= 0; i--) bits.push((val >> i) & 1); };
+    put(4, 4);                              // byte mode
+    put(bytes.length, ver < 10 ? 8 : 16);
+    bytes.forEach((b) => put(b, 8));
+    const cap = dataCapacity(ver, level) * 8;
+    for (let i = 0; i < 4 && bits.length < cap; i++) bits.push(0);
+    while (bits.length % 8) bits.push(0);
+    const words = [];
+    for (let i = 0; i < bits.length; i += 8) words.push(bits.slice(i, i + 8).reduce((v, b) => v * 2 + b, 0));
+    const PAD = [0xec, 0x11];
+    for (let i = 0; words.length < dataCapacity(ver, level); i++) words.push(PAD[i % 2]);
+    // Split into blocks, add error correction, then interleave.
+    const spec = BLOCKS[level][ver - 1];
+    const ecLen = spec[0];
+    const blocks = [];
+    let at = 0;
+    for (let i = 1; i < spec.length; i += 2) {
+      for (let b = 0; b < spec[i]; b++) {
+        const d = words.slice(at, at + spec[i + 1]);
+        at += spec[i + 1];
+        blocks.push({ d, e: ecBytes(d, ecLen) });
+      }
+    }
+    const out = [];
+    const longest = Math.max(...blocks.map((b) => b.d.length));
+    for (let i = 0; i < longest; i++) blocks.forEach((b) => { if (i < b.d.length) out.push(b.d[i]); });
+    for (let i = 0; i < ecLen; i++) blocks.forEach((b) => out.push(b.e[i]));
+    const stream = [];
+    out.forEach((w) => { for (let i = 7; i >= 0; i--) stream.push((w >> i) & 1); });
+    for (let i = 0; i < REMAINDER[ver - 1]; i++) stream.push(0);
+    return stream;
+  }
+
+  // ---------- the symbol ----------
+  function frame(ver) {
+    const size = ver * 4 + 17;
+    const m = Array.from({ length: size }, () => new Array(size).fill(null));   // null = still free
+    const set = (r, c, v) => { if (r >= 0 && c >= 0 && r < size && c < size) m[r][c] = v; };
+    const finder = (r0, c0) => {
+      for (let r = -1; r <= 7; r++) for (let c = -1; c <= 7; c++) {
+        const on = r >= 0 && r <= 6 && c >= 0 && c <= 6
+          && (r === 0 || r === 6 || c === 0 || c === 6 || (r >= 2 && r <= 4 && c >= 2 && c <= 4));
+        set(r0 + r, c0 + c, on ? 1 : 0);
+      }
+    };
+    finder(0, 0); finder(0, size - 7); finder(size - 7, 0);
+    if (ver > 1) {
+      const pos = ALIGN[ver - 2];
+      pos.forEach((r) => pos.forEach((c) => {
+        if ((r < 8 && c < 8) || (r < 8 && c > size - 9) || (r > size - 9 && c < 8)) return;
+        for (let dr = -2; dr <= 2; dr++) for (let dc = -2; dc <= 2; dc++) {
+          set(r + dr, c + dc, Math.max(Math.abs(dr), Math.abs(dc)) !== 1 ? 1 : 0);
+        }
+      }));
+    }
+    for (let i = 8; i < size - 8; i++) { const v = i % 2 ? 0 : 1; set(6, i, v); set(i, 6, v); }
+    set(size - 8, 8, 1);                                  // the always-dark module
+    for (let i = 0; i < 9; i++) { set(8, i, m[8][i] == null ? 2 : m[8][i]); set(i, 8, m[i][8] == null ? 2 : m[i][8]); }
+    for (let i = 0; i < 8; i++) { set(8, size - 1 - i, 2); set(size - 1 - i, 8, 2); }
+    if (ver >= 7) {
+      for (let i = 0; i < 18; i++) { set(Math.floor(i / 3), size - 11 + (i % 3), 2); set(size - 11 + (i % 3), Math.floor(i / 3), 2); }
+    }
+    return m;   // 2 marks format/version areas, filled in later
+  }
+
+  const bch = (value, gen, len) => {
+    let v = value << (len - 1);
+    const top = 1 << (len - 1);
+    for (let i = 14; i >= len - 1; i--) if (v & (1 << i)) v ^= gen << (i - (len - 1));
+    return v;
+  };
+  function formatBits(level, mask) {
+    const data = (ECC_BITS[level] << 3) | mask;
+    let v = data << 10;
+    for (let i = 14; i >= 10; i--) if (v & (1 << i)) v ^= 0x537 << (i - 10);
+    return ((data << 10) | v) ^ 0x5412;
+  }
+  function versionBits(ver) {
+    let v = ver << 12;
+    for (let i = 17; i >= 12; i--) if (v & (1 << i)) v ^= 0x1f25 << (i - 12);
+    return (ver << 12) | v;
+  }
+
+  const MASKS = [
+    (r, c) => (r + c) % 2 === 0,
+    (r) => r % 2 === 0,
+    (r, c) => c % 3 === 0,
+    (r, c) => (r + c) % 3 === 0,
+    (r, c) => (Math.floor(r / 2) + Math.floor(c / 3)) % 2 === 0,
+    (r, c) => ((r * c) % 2) + ((r * c) % 3) === 0,
+    (r, c) => (((r * c) % 2) + ((r * c) % 3)) % 2 === 0,
+    (r, c) => (((r + c) % 2) + ((r * c) % 3)) % 2 === 0,
+  ];
+
+  function penalty(m) {
+    const n = m.length;
+    let score = 0;
+    const run = (get) => {
+      for (let a = 0; a < n; a++) {
+        let last = -1, len = 0;
+        const hist = [];
+        for (let b = 0; b < n; b++) {
+          const v = get(a, b);
+          if (v === last) len++;
+          else { if (len >= 5) score += len - 2; hist.push(len); last = v; len = 1; }
+        }
+        if (len >= 5) score += len - 2;
+        hist.push(len);
+        // 1:1:3:1:1 patterns with four light modules on one side
+        const line = [];
+        for (let b = 0; b < n; b++) line.push(get(a, b));
+        for (let b = 0; b <= n - 7; b++) {
+          const seg = line.slice(b, b + 7).join('');
+          if (seg === '1011101') {
+            const before = line.slice(Math.max(0, b - 4), b);
+            const after = line.slice(b + 7, b + 11);
+            if ((before.length === 4 && before.every((x) => !x)) || (after.length === 4 && after.every((x) => !x))) score += 40;
+          }
+        }
+      }
+    };
+    run((r, c) => m[r][c]);
+    run((c, r) => m[r][c]);
+    for (let r = 0; r < n - 1; r++) for (let c = 0; c < n - 1; c++) {
+      const v = m[r][c];
+      if (v === m[r][c + 1] && v === m[r + 1][c] && v === m[r + 1][c + 1]) score += 3;
+    }
+    let dark = 0;
+    m.forEach((row) => row.forEach((v) => (dark += v)));
+    score += Math.floor(Math.abs((dark * 100) / (n * n) - 50) / 5) * 10;
+    return score;
+  }
+
+  function place(base, stream, ver, level, mask) {
+    const size = base.length;
+    const m = base.map((row) => row.slice());
+    let i = 0, up = true;
+    for (let right = size - 1; right > 0; right -= 2) {
+      if (right === 6) right--;                      // skip the vertical timing line
+      for (let step = 0; step < size; step++) {
+        const r = up ? size - 1 - step : step;
+        for (const c of [right, right - 1]) {
+          if (m[r][c] !== null && m[r][c] !== 2) continue;
+          if (m[r][c] === 2) continue;
+          const bit = i < stream.length ? stream[i++] : 0;
+          m[r][c] = MASKS[mask](r, c) ? bit ^ 1 : bit;
+        }
+      }
+      up = !up;
+    }
+    // Format and version information.
+    const f = formatBits(level, mask);
+    const bit = (x, k) => (x >> k) & 1;
+    for (let k = 0; k < 15; k++) {
+      const v = bit(f, k);
+      if (k < 6) m[k][8] = v;
+      else if (k < 8) m[k + 1][8] = v;
+      else if (k === 8) m[8][7] = v;
+      else m[8][14 - k] = v;
+      if (k < 8) m[8][size - 1 - k] = v;
+      else m[size - 15 + k][8] = v;
+    }
+    m[size - 8][8] = 1;
+    if (ver >= 7) {
+      const vb = versionBits(ver);
+      for (let k = 0; k < 18; k++) {
+        const v = bit(vb, k);
+        m[Math.floor(k / 3)][size - 11 + (k % 3)] = v;
+        m[size - 11 + (k % 3)][Math.floor(k / 3)] = v;
+      }
+    }
+    return m;
+  }
+
+  // The matrix for `text`: {version, size, modules}. Throws when the text is too long for version 20.
+  function qrMatrix(text, opts) {
+    const level = (opts && opts.ecc) === 'L' ? 'L' : 'M';
+    const bytes = [];
+    for (const ch of String(text)) {
+      const cp = ch.codePointAt(0);
+      if (cp < 128) bytes.push(cp);
+      else encodeURIComponent(ch).split('%').slice(1).forEach((h) => bytes.push(parseInt(h, 16)));
+    }
+    let ver = 0;
+    for (let v = 1; v <= 20; v++) {
+      const head = 4 + (v < 10 ? 8 : 16);
+      if (head + bytes.length * 8 <= dataCapacity(v, level) * 8) { ver = v; break; }
+    }
+    if (!ver) throw new Error('That is too much text for one QR code.');
+    const stream = encodeData(bytes, ver, level);
+    const base = frame(ver);
+    let best = null;
+    for (let mask = 0; mask < 8; mask++) {
+      const m = place(base, stream, ver, level, mask);
+      const score = penalty(m);
+      if (!best || score < best.score) best = { m, score };
+    }
+    return { version: ver, size: best.m.length, modules: best.m };
+  }
+
+  // The matrix as an SVG square of the given size in CSS units, with a light quiet zone.
+  function qrSVG(text, px, opts) {
+    const q = qrMatrix(text, opts);
+    const quiet = 4, n = q.size + quiet * 2;
+    let d = '';
+    q.modules.forEach((row, r) => row.forEach((v, c) => { if (v) d += `M${c + quiet} ${r + quiet}h1v1h-1z`; }));
+    return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${n} ${n}" width="${px}" height="${px}" shape-rendering="crispEdges" role="img" aria-label="QR code"><rect width="${n}" height="${n}" fill="#fff"/><path d="${d}" fill="#000"/></svg>`;
+  }
+
+  Object.assign(MQ, { qrMatrix, qrSVG });
+})(typeof window !== 'undefined' ? window : globalThis);
+/* Clefwork — printing. Builds a printable page for a quiz (PDF through the browser's print
+   dialog) and a Word document, both with the teacher's header and a QR footer on every page. */
+(function (root) {
+  'use strict';
+  const MQ = (root.MQ = root.MQ || {});
+
+  const PAPERS = [
+    { id: 'letter', label: 'Letter — 8.5 × 11 in', css: 'letter', w: 8.5, h: 11, unit: 'in', margin: 0.75, twW: 12240, twH: 15840 },
+    { id: 'legal', label: 'Legal — 8.5 × 14 in', css: 'legal', w: 8.5, h: 14, unit: 'in', margin: 0.75, twW: 12240, twH: 20160 },
+    { id: 'a4', label: 'A4 — 210 × 297 mm', css: 'A4', w: 210, h: 297, unit: 'mm', margin: 19, twW: 11906, twH: 16838 },
+  ];
+  const paperOf = (id) => PAPERS.find((p) => p.id === id) || PAPERS[0];
+  const dim = (p, v) => v + p.unit;
+  // The header may take up 15% of the page at most.
+  const headHeight = (p) => Math.round(p.h * 0.15 * 100) / 100;
+
+  const two = (n) => String(n).padStart(2, '0');
+  const formatDate = (d) => `${two(d.getMonth() + 1)}/${two(d.getDate())}/${d.getFullYear()}`;
+  const today = () => formatDate(new Date());
+  // Accepts mm/dd/yyyy; anything else is kept as the teacher typed it.
+  function validDate(str) {
+    const m = String(str || '').match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+    if (!m) return false;
+    const [mm, dd, yy] = [+m[1], +m[2], +m[3]];
+    if (mm < 1 || mm > 12 || dd < 1 || yy < 1000) return false;
+    return dd <= new Date(yy, mm, 0).getDate();
+  }
+
+  // ---------- what each question needs on paper ----------
+  const chordCount = (q) =>
+    (q.symbolAnswers && q.symbolAnswers.length) || (q.figuredList && q.figuredList.length)
+    || (q.prog && q.prog.chords && q.prog.chords.length) || 1;
+
+  function answerFor(q) {
+    if (q.choices) return { kind: 'choices', items: q.choices.slice() };
+    if (q.dropdowns) return { kind: 'lines', items: q.dropdowns.map((d, i) => d.label || `Answer ${i + 1}`) };
+    if (q.symbolAnswers) return { kind: 'lines', items: q.symbolAnswers.map((_, i) => `Chord ${i + 1}`) };
+    if (q.symbolAnswer) return { kind: 'lines', items: ['Chord symbol'] };
+    if (q.type === 'figured' || q.type === 'figprog') {
+      const spell = q.figured && q.figured.ask === 'spell';
+      if (spell) return { kind: 'staff', items: [] };
+      const n = q.type === 'figprog' ? chordCount(q) : 1;
+      return { kind: 'lines', items: Array.from({ length: n }, (_, i) => (n > 1 ? `Chord ${i + 1}` : 'Numeral and figures')) };
+    }
+    if (q.type === 'progression' && q.prog && q.prog.answer !== 'spell') {
+      const what = q.prog.answer === 'roman' ? 'Numeral' : q.prog.answer === 'symbol' ? 'Symbol' : 'Numeral and symbol';
+      return { kind: 'lines', items: q.prog.chords.map((_, i) => `${what} ${i + 1}`) };
+    }
+    // Everything else is written on the staff itself.
+    return { kind: 'staff', items: [] };
+  }
+
+  // One entry per question: its number, prompt, the staff to print, and the space to answer in.
+  function printModel(qs, cfg) {
+    return qs.map((q, i) => ({
+      n: i + 1,
+      q,
+      prompt: q.text,
+      hint: q.hint || '',
+      staff: q.noStaff ? null : q,
+      answer: answerFor(q),
+    }));
+  }
+
+  const esc = (s) => String(s == null ? '' : s)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+
+  // ---------- the printable page ----------
+  function printCSS(opts) {
+    const p = paperOf(opts.paper);
+    const m = dim(p, p.margin);
+    const staffH = opts.staffHeight || 1.25;
+    const qr = opts.qrSize || 0.75;
+    const foot = qr + 0.15;
+    return `
+@page { size: ${p.css}; margin: ${m}; }
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; background: #fff; color: #000; }
+body { font: 12pt/1.4 Georgia, 'Times New Roman', serif; }
+table.sheet { width: ${dim(p, p.w - p.margin * 2)}; margin: 0 auto; border-collapse: collapse; }
+table.sheet > tbody > tr > td, table.sheet > tfoot > tr > td { padding: 0; vertical-align: top; }
+table.sheet > tfoot { display: table-footer-group; }
+.head { max-height: ${dim(p, headHeight(p))}; border-bottom: 1.5pt solid #000; padding-bottom: 8pt; margin-bottom: 14pt; overflow: hidden; }
+.head h1 { font-size: 20pt; line-height: 1.15; margin: 0 0 4pt; letter-spacing: -0.01em; }
+.head .meta { font-size: 10.5pt; margin: 0 0 6pt; }
+.head .meta span + span::before { content: ' · '; }
+.head .name { font-size: 11pt; margin: 0; }
+.head .name b { font-weight: normal; }
+.head .rule { display: inline-block; border-bottom: 0.75pt solid #000; min-width: 2.6in; }
+ol.qs { list-style: none; margin: 0; padding: 0; }
+li.q { display: flex; gap: 8pt; align-items: flex-start; margin: 0 0 14pt; page-break-inside: avoid; break-inside: avoid; }
+li.q .pts { flex: none; width: 0.55in; border-bottom: 0.75pt solid #000; height: 1.05em; }
+li.q .num { flex: none; font-weight: bold; font-size: 12pt; }
+li.q .body { flex: 1; min-width: 0; }
+li.q .prompt { font-size: 12pt; margin: 0; }
+li.q .hint { font-size: 10pt; margin: 2pt 0 0; color: #333; }
+.example { margin: 6pt 0 0; }
+.example svg { display: block; height: ${staffH}in; width: auto; max-width: 100%; }
+.lines { margin: 8pt 0 0; display: flex; flex-wrap: wrap; gap: 6pt 16pt; }
+.lines .slot { font-size: 10pt; }
+.lines .slot i { font-style: normal; display: inline-block; border-bottom: 0.75pt solid #000; min-width: 1.5in; margin-left: 4pt; }
+.choices { margin: 8pt 0 0; padding: 0; list-style: none; display: flex; flex-wrap: wrap; gap: 4pt 20pt; font-size: 11pt; }
+.choices li { min-width: 1.2in; }
+.choices b { font-weight: normal; }
+.pfoot { display: flex; align-items: flex-end; gap: 8pt; font-size: 8pt; color: #000; padding-top: 10pt; height: ${foot}in; }
+.pfoot svg { width: ${qr}in; height: ${qr}in; display: block; }
+.pfoot .fid { padding-bottom: 2pt; }
+/* Staff drawing, independent of the app's colours. */
+svg.staff { color: #000; }
+svg.staff .sl { stroke: #000; stroke-width: 1.1; fill: none; }
+svg.staff .brace { fill: #000; }
+svg.staff .clef-glyph { fill: #000; font-family: 'Noto Music', 'Bravura Text', 'Apple Symbols', serif; }
+svg.staff .note { color: #000; }
+svg.staff .note .head { fill: #000; }
+svg.staff .ledger { stroke: #000; stroke-width: 1.3; }
+svg.staff .slot { display: none; }
+svg.staff .clabel { font: bold 13px Georgia, serif; fill: #000; }
+svg.staff .clabel.is-small { font-size: 10.5px; fill: #333; }
+svg.staff .sacc { font-family: 'Noto Music', serif; }
+svg.staff .nlabel { display: none; }
+@media screen {
+  body { background: #f1f2f6; padding: 16px 0; }
+  table.sheet { background: #fff; width: ${dim(p, p.w)}; padding: ${m}; box-shadow: 0 2px 14px rgba(0,0,0,.18); }
+}`;
+  }
+
+  // `staffSVG(q)` returns the SVG for a question, or '' when there is nothing to draw.
+  function sheetHTML(model, info, opts, staffSVG) {
+    const rows = model.map((it) => {
+      const svg = it.staff && staffSVG ? staffSVG(it.q) : '';
+      const a = it.answer;
+      let answer = '';
+      if (a.kind === 'lines') {
+        answer = `<div class="lines">${a.items.map((t) => `<span class="slot">${esc(t)}<i></i></span>`).join('')}</div>`;
+      } else if (a.kind === 'choices') {
+        answer = `<ol class="choices">${a.items.map((t, i) => `<li><b>${'ABCD'[i] || i + 1}.</b> ${esc(t)}</li>`).join('')}</ol>`;
+      }
+      return `<li class="q"><span class="pts"></span><span class="num">${it.n}.</span><div class="body">`
+        + `<p class="prompt">${esc(it.prompt)}</p>`
+        + (it.hint ? `<p class="hint">${esc(it.hint)}</p>` : '')
+        + (svg ? `<div class="example">${svg}</div>` : '')
+        + answer + '</div></li>';
+    }).join('');
+    const meta = [info.course, info.teacher, info.date].filter((x) => x && String(x).trim())
+      .map((x) => `<span>${esc(x)}</span>`).join('');
+    const qr = opts.qrSVG || '';
+    // A table footer is what browsers repeat at the bottom of every printed page.
+    return `<table class="sheet"><tfoot><tr><td>`
+      + `<div class="pfoot">${qr}<span class="fid">Quiz ID ${esc(opts.quizId)}</span></div>`
+      + `</td></tr></tfoot><tbody><tr><td><header class="head">`
+      + `<h1>${esc(info.title || 'Music quiz')}</h1>`
+      + (meta ? `<p class="meta">${meta}</p>` : '')
+      + `<p class="name">Name: <span class="rule"></span></p>`
+      + `</header><ol class="qs">${rows}</ol></td></tr></tbody></table>`;
+  }
+
+  function printHTML(model, info, opts, staffSVG) {
+    return '<!doctype html><html><head><meta charset="utf-8"><title>' + esc(info.title || 'Music quiz') + '</title>'
+      + '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Music&display=swap">'
+      + '<style>' + printCSS(opts) + '</style></head><body>' + sheetHTML(model, info, opts, staffSVG) + '</body></html>';
+  }
+
+  Object.assign(MQ, {
+    PAPERS, paperOf, headHeight, formatDate, today, validDate,
+    printModel, printAnswerFor: answerFor, printCSS, sheetHTML, printHTML, printEscape: esc,
+  });
+})(typeof window !== 'undefined' ? window : globalThis);
+/* Clefwork — writing a Word document (and the small pieces it needs: a zip container and a
+   PNG encoder) with no outside libraries. */
+(function (root) {
+  'use strict';
+  const MQ = (root.MQ = root.MQ || {});
+
+  const TABLE = (() => {
+    const t = new Uint32Array(256);
+    for (let n = 0; n < 256; n++) {
+      let c = n;
+      for (let k = 0; k < 8; k++) c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1;
+      t[n] = c >>> 0;
+    }
+    return t;
+  })();
+  function crc32(bytes) {
+    let c = 0xffffffff;
+    for (let i = 0; i < bytes.length; i++) c = TABLE[(c ^ bytes[i]) & 0xff] ^ (c >>> 8);
+    return (c ^ 0xffffffff) >>> 0;
+  }
+  const utf8 = (s) => new TextEncoder().encode(s);
+  const bytesOf = (d) => (typeof d === 'string' ? utf8(d) : d instanceof Uint8Array ? d : new Uint8Array(d));
+
+  // ---------- zip (stored, no compression) ----------
+  function zipBytes(files) {
+    const parts = [];
+    const dir = [];
+    let at = 0;
+    const put = (arr) => { parts.push(arr); at += arr.length; };
+    const u16 = (v) => [v & 0xff, (v >> 8) & 0xff];
+    const u32 = (v) => [v & 0xff, (v >> 8) & 0xff, (v >> 16) & 0xff, (v >>> 24) & 0xff];
+    files.forEach((f) => {
+      const name = utf8(f.name);
+      const data = bytesOf(f.data);
+      const crc = crc32(data);
+      const offset = at;
+      put(new Uint8Array([...u32(0x04034b50), ...u16(20), ...u16(0x0800), ...u16(0), ...u16(0), ...u16(0),
+        ...u32(crc), ...u32(data.length), ...u32(data.length), ...u16(name.length), ...u16(0)]));
+      put(name); put(data);
+      dir.push({ name, crc, size: data.length, offset });
+    });
+    const dirStart = at;
+    dir.forEach((e) => {
+      put(new Uint8Array([...u32(0x02014b50), ...u16(20), ...u16(20), ...u16(0x0800), ...u16(0), ...u16(0), ...u16(0),
+        ...u32(e.crc), ...u32(e.size), ...u32(e.size), ...u16(e.name.length), ...u16(0), ...u16(0), ...u16(0), ...u16(0),
+        ...u32(0), ...u32(e.offset)]));
+      put(e.name);
+    });
+    put(new Uint8Array([...u32(0x06054b50), ...u16(0), ...u16(0), ...u16(dir.length), ...u16(dir.length),
+      ...u32(at - dirStart), ...u32(dirStart), ...u16(0)]));
+    const out = new Uint8Array(at);
+    let i = 0;
+    parts.forEach((p) => { out.set(p, i); i += p.length; });
+    return out;
+  }
+
+  // ---------- PNG (greyscale, stored deflate blocks) ----------
+  function adler32(bytes) {
+    let a = 1, b = 0;
+    for (let i = 0; i < bytes.length; i++) { a = (a + bytes[i]) % 65521; b = (b + a) % 65521; }
+    return ((b << 16) | a) >>> 0;
+  }
+  function pngBytes(width, height, pixels) {
+    const raw = new Uint8Array((width + 1) * height);
+    for (let y = 0; y < height; y++) {
+      raw[y * (width + 1)] = 0;                                   // no filter on this row
+      raw.set(pixels.subarray(y * width, (y + 1) * width), y * (width + 1) + 1);
+    }
+    // zlib stream: 0x78 0x01 then stored deflate blocks
+    const blocks = [];
+    for (let i = 0; i < raw.length; i += 65535) {
+      const chunk = raw.subarray(i, Math.min(i + 65535, raw.length));
+      const last = i + 65535 >= raw.length ? 1 : 0;
+      const len = chunk.length;
+      blocks.push(new Uint8Array([last, len & 0xff, (len >> 8) & 0xff, ~len & 0xff, (~len >> 8) & 0xff]), chunk);
+    }
+    const ad = adler32(raw);
+    const zlen = 2 + blocks.reduce((n, b) => n + b.length, 0) + 4;
+    const z = new Uint8Array(zlen);
+    z[0] = 0x78; z[1] = 0x01;
+    let at = 2;
+    blocks.forEach((b) => { z.set(b, at); at += b.length; });
+    z.set([(ad >>> 24) & 0xff, (ad >>> 16) & 0xff, (ad >>> 8) & 0xff, ad & 0xff], at);
+    const chunk = (type, body) => {
+      const out = new Uint8Array(12 + body.length);
+      const dv = new DataView(out.buffer);
+      dv.setUint32(0, body.length);
+      out.set(utf8(type), 4);
+      out.set(body, 8);
+      const crcOver = new Uint8Array(4 + body.length);
+      crcOver.set(utf8(type), 0); crcOver.set(body, 4);
+      dv.setUint32(8 + body.length, crc32(crcOver));
+      return out;
+    };
+    const ihdr = new Uint8Array(13);
+    const dv = new DataView(ihdr.buffer);
+    dv.setUint32(0, width); dv.setUint32(4, height);
+    ihdr[8] = 8; ihdr[9] = 0; ihdr[10] = 0; ihdr[11] = 0; ihdr[12] = 0;   // 8-bit greyscale
+    const sig = new Uint8Array([137, 80, 78, 71, 13, 10, 26, 10]);
+    const parts = [sig, chunk('IHDR', ihdr), chunk('IDAT', z), chunk('IEND', new Uint8Array(0))];
+    const total = parts.reduce((n, p) => n + p.length, 0);
+    const out = new Uint8Array(total);
+    let i = 0;
+    parts.forEach((p) => { out.set(p, i); i += p.length; });
+    return out;
+  }
+  // A QR matrix as a PNG, one module per `scale` pixels, with a light quiet zone.
+  function qrPNG(text, opts) {
+    const o = Object.assign({ scale: 8, quiet: 4, ecc: 'L' }, opts);
+    const q = MQ.qrMatrix(text, { ecc: o.ecc });
+    const n = (q.size + o.quiet * 2) * o.scale;
+    const px = new Uint8Array(n * n).fill(255);
+    q.modules.forEach((row, r) => row.forEach((v, c) => {
+      if (!v) return;
+      for (let y = 0; y < o.scale; y++) {
+        const at = ((r + o.quiet) * o.scale + y) * n + (c + o.quiet) * o.scale;
+        px.fill(0, at, at + o.scale);
+      }
+    }));
+    return { bytes: pngBytes(n, n, px), size: n, version: q.version };
+  }
+
+  // ---------- Word ----------
+  const EMU = 914400;
+  const xesc = (s) => String(s == null ? '' : s)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  const XML = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n';
+  const W_NS = 'xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" '
+    + 'xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" '
+    + 'xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing" '
+    + 'xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" '
+    + 'xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture"';
+
+  // half-points for w:sz, twentieths of a point for spacing and indents
+  const run = (text, o) => {
+    const p = o || {};
+    const props = `<w:rPr>${p.b ? '<w:b/>' : ''}${p.u ? '<w:u w:val="single"/>' : ''}`
+      + `<w:sz w:val="${(p.pt || 12) * 2}"/><w:szCs w:val="${(p.pt || 12) * 2}"/>`
+      + `${p.color ? `<w:color w:val="${p.color}"/>` : ''}</w:rPr>`;
+    return `<w:r>${props}<w:t xml:space="preserve">${xesc(text)}</w:t></w:r>`;
+  };
+  const para = (runs, o) => {
+    const p = o || {};
+    const pr = `<w:pPr>${p.indent ? `<w:ind w:left="${p.indent}"/>` : ''}`
+      + `<w:spacing w:before="${p.before == null ? 0 : p.before}" w:after="${p.after == null ? 60 : p.after}"/>`
+      + `${p.border ? '<w:pBdr><w:bottom w:val="single" w:sz="12" w:space="4" w:color="000000"/></w:pBdr>' : ''}`
+      + `${p.keep ? '<w:keepNext/><w:keepLines/>' : ''}</w:pPr>`;
+    return `<w:p>${pr}${[].concat(runs).join('')}</w:p>`;
+  };
+  const drawing = (id, rid, wIn, hIn, name) =>
+    `<w:r><w:drawing><wp:inline distT="0" distB="0" distL="0" distR="0">`
+    + `<wp:extent cx="${Math.round(wIn * EMU)}" cy="${Math.round(hIn * EMU)}"/>`
+    + `<wp:docPr id="${id}" name="${xesc(name || 'Image ' + id)}"/><a:graphic><a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/picture">`
+    + `<pic:pic><pic:nvPicPr><pic:cNvPr id="${id}" name="${xesc(name || 'Image ' + id)}"/><pic:cNvPicPr/></pic:nvPicPr>`
+    + `<pic:blipFill><a:blip r:embed="${rid}"/><a:stretch><a:fillRect/></a:stretch></pic:blipFill>`
+    + `<pic:spPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="${Math.round(wIn * EMU)}" cy="${Math.round(hIn * EMU)}"/></a:xfrm>`
+    + `<a:prstGeom prst="rect"><a:avLst/></a:prstGeom></pic:spPr></pic:pic></a:graphicData></a:graphic></wp:inline></w:drawing></w:r>`;
+
+  const BLANK = '                                        ';
+
+  // model: what printModel() returns. images: {byQuestion: [{bytes, wIn, hIn} | null], qr: {bytes, wIn}}
+  function docxBytes(model, info, opts, images) {
+    const paper = MQ.paperOf(opts.paper);
+    const marginTw = Math.round((paper.unit === 'mm' ? paper.margin / 25.4 : paper.margin) * 1440);
+    const media = [];
+    const addImage = (img, name) => {
+      if (!img) return null;
+      const idx = media.length + 1;
+      media.push({ name: `image${idx}.png`, bytes: img.bytes });
+      return { rid: `rIdImg${idx}`, idx, wIn: img.wIn, hIn: img.hIn, name };
+    };
+    const body = [];
+    body.push(para(run(info.title || 'Music quiz', { b: true, pt: 20 }), { after: 40 }));
+    const meta = [info.course, info.teacher, info.date].filter((x) => x && String(x).trim()).join('   ·   ');
+    if (meta) body.push(para(run(meta, { pt: 10.5 }), { after: 40 }));
+    body.push(para([run('Name: ', { pt: 11 }), run(BLANK, { pt: 11, u: true })], { after: 160, border: true }));
+    model.forEach((it, i) => {
+      const img = addImage((images.byQuestion || [])[i], `Question ${it.n}`);
+      body.push(para([
+        run('_______', { pt: 12 }),
+        run('  ' + it.n + '. ', { b: true, pt: 12 }),
+        run(it.prompt, { pt: 12 }),
+      ], { before: i ? 180 : 0, after: 40, keep: true }));
+      if (it.hint) body.push(para(run(it.hint, { pt: 10, color: '444444' }), { indent: 720, after: 40, keep: true }));
+      if (img) body.push(para(drawing(100 + i, img.rid, img.wIn, img.hIn, img.name), { indent: 720, after: 60 }));
+      const a = it.answer;
+      if (a.kind === 'lines') {
+        a.items.forEach((label) => body.push(para([run(label + ': ', { pt: 10 }), run(BLANK, { pt: 10, u: true })], { indent: 720, after: 40 })));
+      } else if (a.kind === 'choices') {
+        body.push(para(a.items.map((t, k) => run(`${'ABCD'[k] || k + 1}. ${t}    `, { pt: 11 })), { indent: 720, after: 40 }));
+      }
+    });
+    const qr = images.qr ? addImage(images.qr, 'Quiz QR code') : null;
+    const sect = `<w:sectPr><w:footerReference w:type="default" r:id="rIdFooter"/>`
+      + `<w:pgSz w:w="${paper.twW}" w:h="${paper.twH}"/>`
+      + `<w:pgMar w:top="${marginTw}" w:right="${marginTw}" w:bottom="${marginTw}" w:left="${marginTw}" w:header="480" w:footer="480" w:gutter="0"/>`
+      + `</w:sectPr>`;
+    const document = XML + `<w:document ${W_NS}><w:body>${body.join('')}${sect}</w:body></w:document>`;
+    const footerRuns = [];
+    if (qr) footerRuns.push(drawing(9000, qr.rid, qr.wIn, qr.wIn, 'Quiz QR code'), run('  ', { pt: 8 }));
+    footerRuns.push(run('Quiz ID ' + opts.quizId, { pt: 8 }));
+    const footer = XML + `<w:ftr ${W_NS}>${para(footerRuns, { after: 0 })}</w:ftr>`;
+    const rels = (list) => XML + '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'
+      + list.join('') + '</Relationships>';
+    const imgRel = (m, i) => `<Relationship Id="rIdImg${i + 1}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="media/${m.name}"/>`;
+    const docRels = rels([
+      '<Relationship Id="rIdFooter" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/footer" Target="footer1.xml"/>',
+    ].concat(media.map(imgRel)));
+    const footerRels = rels(media.map(imgRel));
+    const types = XML + '<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">'
+      + '<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>'
+      + '<Default Extension="xml" ContentType="application/xml"/>'
+      + '<Default Extension="png" ContentType="image/png"/>'
+      + '<Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/>'
+      + '<Override PartName="/word/footer1.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.footer+xml"/>'
+      + '</Types>';
+    const rootRels = rels(['<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/>']);
+    const files = [
+      { name: '[Content_Types].xml', data: types },
+      { name: '_rels/.rels', data: rootRels },
+      { name: 'word/document.xml', data: document },
+      { name: 'word/_rels/document.xml.rels', data: docRels },
+      { name: 'word/footer1.xml', data: footer },
+      { name: 'word/_rels/footer1.xml.rels', data: footerRels },
+    ].concat(media.map((m) => ({ name: 'word/media/' + m.name, data: m.bytes })));
+    return zipBytes(files);
+  }
+
+  Object.assign(MQ, { crc32, zipBytes, pngBytes, qrPNG, docxBytes });
+})(typeof window !== 'undefined' ? window : globalThis);
 /* Clefwork — serverless quiz and report codes.
    Layout of every code: [CRC-16][kind:4][seal:16, reports only][payload…], written in
    Crockford base-32 (digits + letters without I, L, O, U) and grouped in fives. */
@@ -4157,7 +4836,9 @@ select.fig-sel { min-width: 0; }
     slot: 'take',
     practiceFeedback: store.get('practiceFeedback', true),
     grade: { input: '', quiz: '', sel: 0 },
+    print: Object.assign({ course: '', date: '', paper: 'letter', staffH: 1.25, qr: 0.75 }, store.get('print', null)),
   };
+  const savePrint = () => store.set('print', S.print);
   // S.take is whichever quiz the current tab works with: a teacher's quiz, or (student version) a practice run.
   Object.defineProperty(S, 'take', { get: () => S.slots[S.slot], set: (v) => { S.slots[S.slot] = v; } });
   const tv = () => (S.slot === 'practice' ? 'practice' : 'take');
@@ -5923,10 +6604,176 @@ select.fig-sel { min-width: 0; }
     });
   }
 
+
+  // ---------- print: a paper copy of the quiz, as PDF or a Word document ----------
+  // A standalone SVG for one question's staff: no colours from the app, drawn clefs when the
+  // picture has to be rasterised, and cropped to the part of the staff that is used.
+  function exportStaffSVG(q, opts) {
+    const o = opts || {};
+    const box = h('div');
+    const wasFont = MQ.clefFont;
+    if (o.drawnClefs) MQ.clefFont = false;
+    const st = new MQ.Staff(box, {
+      clef: q.clef, grand: !!q.grand, keySig: q.keySig || 0, keyAware: !!q.keyAware,
+      columns: q.columns, readOnly: true, labels: false,
+      chordLabels: q.chordLabels || null, barlines: !!q.chordLabels || q.type === 'figprog',
+      colW: q.chordLabels ? 62 : null,
+    });
+    MQ.clefFont = wasFont;
+    const svg = st.svg;
+    const view = (svg.getAttribute('viewBox') || '').split(/\s+/).map(Number);
+    const W = view[2] || 600;
+    // Keep the staff plus room above and below for the notes students add.
+    const staffTop = st.staves[0].by - 48, staffBottom = st.staves[st.staves.length - 1].by;
+    const pad = 32;
+    const top = Math.max(0, staffTop - pad), height = Math.min(st.vbH - top, staffBottom + pad - top);
+    svg.setAttribute('viewBox', `0 ${top} ${W} ${height}`);
+    svg.removeAttribute('style');
+    svg.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+    const inch = (q.grand ? 1.45 : 1) * (o.height || 1.25);
+    svg.setAttribute('width', (W / height) * inch * 96);
+    svg.setAttribute('height', inch * 96);
+    // The picture carries its own styling so it stands alone in a file or a Word document.
+    const style = document.createElementNS('http://www.w3.org/2000/svg', 'style');
+    style.textContent = 'svg{background:#fff}.sl{stroke:#000;stroke-width:1.1;fill:none}.brace{fill:#000}'
+      + '.clef-glyph{fill:#000;font-family:"Noto Music","Bravura Text",serif}.note{color:#000}.note .head{fill:#000}'
+      + '.ledger{stroke:#000;stroke-width:1.3}.slot{display:none}.nlabel{display:none}'
+      + '.clabel{font:bold 13px Georgia,serif;fill:#000}.clabel.is-small{font-size:10.5px;fill:#333}'
+      + '.sacc{font-family:"Noto Music",serif}';
+    svg.insertBefore(style, svg.firstChild);
+    return { svg, markup: new XMLSerializer().serializeToString(svg), wIn: (W / height) * inch, hIn: inch };
+  }
+
+  // Draw an SVG into a canvas and hand back PNG bytes for the Word document.
+  function svgToPNG(markup, wIn, hIn, dpi) {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        canvas.width = Math.max(1, Math.round(wIn * dpi));
+        canvas.height = Math.max(1, Math.round(hIn * dpi));
+        const ctx = canvas.getContext('2d');
+        ctx.fillStyle = '#fff';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        canvas.toBlob((blob) => {
+          if (!blob) { reject(new Error('no image')); return; }
+          blob.arrayBuffer().then((buf) => resolve(new Uint8Array(buf)), reject);
+        }, 'image/png');
+      };
+      img.onerror = () => reject(new Error('That staff could not be turned into a picture.'));
+      img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(markup);
+    });
+  }
+
+  const printInfo = () => ({
+    title: S.cfg.title || 'Music quiz',
+    teacher: S.cfg.teacher || '',
+    course: S.print.course || '',
+    date: MQ.validDate(S.print.date) ? S.print.date : MQ.today(),
+  });
+  const printOpts = (extra) => Object.assign({
+    paper: S.print.paper, staffHeight: S.print.staffH, qrSize: S.print.qr,
+    quizId: S.code ? MQ.quizId(S.code) : 0,
+  }, extra || {});
+  const printPayload = () => (S.code ? (quizLink(S.code) || 'Clefwork quiz ' + MQ.normalize(S.code)) : 'Clefwork');
+
+  function renderPrint(main) {
+    const wrap = h('div', { class: 'print-view' });
+    const form = h('div', { class: 'card print-form' });
+    const preview = h('div', { class: 'print-preview' });
+    main.append(h('div', { class: 'narrow-wide' }, wrap));
+    wrap.append(form, preview);
+    if (!S.print.date) S.print.date = MQ.today();
+    const qs = S.code ? MQ.generateQuiz(S.cfg) : [];
+    const frame = h('iframe', { class: 'print-frame', title: 'Print preview' });
+    const status = h('p', { class: 'help print-status' });
+
+    const draw = () => {
+      if (!qs.length) { preview.replaceChildren(h('p', { class: 'empty' }, 'Add some questions on the Build a quiz tab first.')); return; }
+      const model = MQ.printModel(qs, S.cfg);
+      const opts = printOpts({ qrSVG: MQ.qrSVG(printPayload(), 96 * S.print.qr, { ecc: 'L' }) });
+      const html = MQ.printHTML(model, printInfo(), opts, (q) => exportStaffSVG(q, { height: S.print.staffH }).markup);
+      preview.replaceChildren(h('div', { class: 'print-head' },
+        h('span', { class: 'mini-label' }, 'Preview'),
+        h('span', { class: 'help' }, `${qs.length} question${qs.length === 1 ? '' : 's'} · ${MQ.paperOf(S.print.paper).label}`)), frame);
+      const doc = frame.contentDocument;
+      doc.open(); doc.write(html); doc.close();
+    };
+    const changed = () => { savePrint(); draw(); };
+
+    const paperSeg = grp('Paper size', seg('pr-paper', MQ.PAPERS.map((p) => ({ v: p.id, label: p.label })), S.print.paper, (v) => { S.print.paper = v; changed(); }));
+    const dateIn = textIn('pr-date', S.print.date, 10, 'mm/dd/yyyy', (v) => {
+      S.print.date = v;
+      dateIn.classList.toggle('is-invalid', !!v.trim() && !MQ.validDate(v));
+      if (MQ.validDate(v)) changed(); else savePrint();
+    });
+    const courseIn = textIn('pr-course', S.print.course, 60, 'e.g. Music Theory I', (v) => { S.print.course = v; changed(); });
+    const printBtn = h('button', { type: 'button', class: 'btn btn-primary', onclick: () => doPrint() }, 'Print or save as PDF');
+    const wordBtn = h('button', { type: 'button', class: 'btn', onclick: () => doWord(wordBtn) }, 'Export Word (.docx)');
+    form.append(
+      h('div', { class: 'card-head' }, h('div', null, h('span', { class: 'eyebrow' }, 'For teachers'), h('h1', { class: 'display' }, 'Print the quiz'))),
+      h('p', { class: 'lede' }, 'A paper copy with a blank for the point value beside every question, room to answer, and a QR code in the footer that opens the quiz.'),
+      h('div', { class: 'row2' },
+        fld('Quiz title', textIn('pr-title', S.cfg.title, 60, 'Quiz title', (v) => { S.cfg.title = v; saveDraft(); draw(); }), 'Copied from the quiz.'),
+        fld('Teacher', textIn('pr-teacher', S.cfg.teacher, 40, 'Teacher', (v) => { S.cfg.teacher = v; saveDraft(); draw(); }), 'Copied from the quiz.')),
+      h('div', { class: 'row2' },
+        fld('Course', courseIn, 'Printed under the title.'),
+        fld('Date created', dateIn, 'mm/dd/yyyy — today’s date unless you change it.')),
+      paperSeg,
+      h('div', { class: 'row2' },
+        grp('Staff height', seg('pr-staff', [{ v: 1, label: '1 in' }, { v: 1.25, label: '1¼ in' }, { v: 1.5, label: '1½ in' }], S.print.staffH, (v) => { S.print.staffH = v; changed(); }), 'Never smaller than an inch.'),
+        grp('QR code', seg('pr-qr', [{ v: 0.5, label: '½ in' }, { v: 0.75, label: '¾ in' }, { v: 1, label: '1 in' }], S.print.qr, (v) => { S.print.qr = v; changed(); }), 'Printed in the footer with the quiz ID.')),
+      h('div', { class: 'btn-row' }, printBtn, wordBtn), status);
+
+    function doPrint() {
+      if (!qs.length) { toast('There are no questions to print'); return; }
+      const model = MQ.printModel(qs, S.cfg);
+      const opts = printOpts({ qrSVG: MQ.qrSVG(printPayload(), 96 * S.print.qr, { ecc: 'L' }) });
+      const html = MQ.printHTML(model, printInfo(), opts, (q) => exportStaffSVG(q, { height: S.print.staffH }).markup);
+      const box = h('iframe', { class: 'print-hidden', 'aria-hidden': 'true' });
+      document.body.append(box);
+      const doc = box.contentDocument;
+      doc.open(); doc.write(html); doc.close();
+      const go = () => {
+        try { box.contentWindow.focus(); box.contentWindow.print(); }
+        catch (e) { toast('Your browser blocked printing here'); }
+        setTimeout(() => box.remove(), 1000);
+      };
+      if (doc.fonts && doc.fonts.ready) doc.fonts.ready.then(go, go); else setTimeout(go, 300);
+    }
+
+    async function doWord(btn) {
+      if (!qs.length) { toast('There are no questions to print'); return; }
+      btn.disabled = true;
+      status.textContent = 'Building the Word document…';
+      try {
+        const model = MQ.printModel(qs, S.cfg);
+        const byQuestion = [];
+        for (const it of model) {
+          if (!it.staff) { byQuestion.push(null); continue; }
+          const art = exportStaffSVG(it.q, { height: S.print.staffH, drawnClefs: true });
+          const bytes = await svgToPNG(art.markup, art.wIn, art.hIn, 200);
+          byQuestion.push({ bytes, wIn: art.wIn, hIn: art.hIn });
+        }
+        const qr = MQ.qrPNG(printPayload(), { scale: 4, ecc: 'L' });
+        const bytes = MQ.docxBytes(model, printInfo(), printOpts(), { byQuestion, qr: { bytes: qr.bytes, wIn: S.print.qr } });
+        const name = (S.cfg.title || 'quiz').replace(/[^\w -]+/g, '').trim().replace(/\s+/g, '-').toLowerCase() || 'quiz';
+        const res = await saveFile(name + '.docx', new Blob([bytes], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' }));
+        status.textContent = res === 'saved' ? 'Word document saved.' : res === 'declined' ? 'Save cancelled.' : 'That download didn’t go through.';
+      } catch (e) {
+        status.textContent = 'Something went wrong building the document: ' + (e && e.message ? e.message : e);
+      }
+      btn.disabled = false;
+    }
+
+    draw();
+  }
+
   // ---------- shell ----------
-  const VIEWS = { build: renderBuild, take: renderTake, grade: renderGrade, practice: (main) => (S.slots.practice ? renderTake(main) : renderBuild(main)) };
+  const VIEWS = { build: renderBuild, take: renderTake, grade: renderGrade, print: renderPrint, practice: (main) => (S.slots.practice ? renderTake(main) : renderBuild(main)) };
   function go(view) {
-    if (STUDENT && view === 'grade') view = 'build';
+    if (STUDENT && (view === 'grade' || view === 'print')) view = 'build';
     S.slot = view === 'practice' ? 'practice' : 'take';
     stopTicker();
     MQ.Audio.stop();
@@ -5948,6 +6795,7 @@ select.fig-sel { min-width: 0; }
       const nav = document.querySelector('.nav');
       nav.querySelector('[data-view="build"]').textContent = 'Practice';
       nav.querySelector('[data-view="grade"]').remove();
+      nav.querySelector('[data-view="print"]').remove();
       document.querySelector('.flow').replaceChildren(
         h('li', null, h('b', null, '1'), ' Choose what to practise and check your answers as you go'),
         h('li', null, h('b', null, '2'), ' For a quiz from your teacher, open ', h('strong', null, 'Take a quiz'), ' and paste the code'),

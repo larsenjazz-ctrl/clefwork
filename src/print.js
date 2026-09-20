@@ -1,0 +1,167 @@
+/* Clefwork — printing. Builds a printable page for a quiz (PDF through the browser's print
+   dialog) and a Word document, both with the teacher's header and a QR footer on every page. */
+(function (root) {
+  'use strict';
+  const MQ = (root.MQ = root.MQ || {});
+
+  const PAPERS = [
+    { id: 'letter', label: 'Letter — 8.5 × 11 in', css: 'letter', w: 8.5, h: 11, unit: 'in', margin: 0.75, twW: 12240, twH: 15840 },
+    { id: 'legal', label: 'Legal — 8.5 × 14 in', css: 'legal', w: 8.5, h: 14, unit: 'in', margin: 0.75, twW: 12240, twH: 20160 },
+    { id: 'a4', label: 'A4 — 210 × 297 mm', css: 'A4', w: 210, h: 297, unit: 'mm', margin: 19, twW: 11906, twH: 16838 },
+  ];
+  const paperOf = (id) => PAPERS.find((p) => p.id === id) || PAPERS[0];
+  const dim = (p, v) => v + p.unit;
+  // The header may take up 15% of the page at most.
+  const headHeight = (p) => Math.round(p.h * 0.15 * 100) / 100;
+
+  const two = (n) => String(n).padStart(2, '0');
+  const formatDate = (d) => `${two(d.getMonth() + 1)}/${two(d.getDate())}/${d.getFullYear()}`;
+  const today = () => formatDate(new Date());
+  // Accepts mm/dd/yyyy; anything else is kept as the teacher typed it.
+  function validDate(str) {
+    const m = String(str || '').match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+    if (!m) return false;
+    const [mm, dd, yy] = [+m[1], +m[2], +m[3]];
+    if (mm < 1 || mm > 12 || dd < 1 || yy < 1000) return false;
+    return dd <= new Date(yy, mm, 0).getDate();
+  }
+
+  // ---------- what each question needs on paper ----------
+  const chordCount = (q) =>
+    (q.symbolAnswers && q.symbolAnswers.length) || (q.figuredList && q.figuredList.length)
+    || (q.prog && q.prog.chords && q.prog.chords.length) || 1;
+
+  function answerFor(q) {
+    if (q.choices) return { kind: 'choices', items: q.choices.slice() };
+    if (q.dropdowns) return { kind: 'lines', items: q.dropdowns.map((d, i) => d.label || `Answer ${i + 1}`) };
+    if (q.symbolAnswers) return { kind: 'lines', items: q.symbolAnswers.map((_, i) => `Chord ${i + 1}`) };
+    if (q.symbolAnswer) return { kind: 'lines', items: ['Chord symbol'] };
+    if (q.type === 'figured' || q.type === 'figprog') {
+      const spell = q.figured && q.figured.ask === 'spell';
+      if (spell) return { kind: 'staff', items: [] };
+      const n = q.type === 'figprog' ? chordCount(q) : 1;
+      return { kind: 'lines', items: Array.from({ length: n }, (_, i) => (n > 1 ? `Chord ${i + 1}` : 'Numeral and figures')) };
+    }
+    if (q.type === 'progression' && q.prog && q.prog.answer !== 'spell') {
+      const what = q.prog.answer === 'roman' ? 'Numeral' : q.prog.answer === 'symbol' ? 'Symbol' : 'Numeral and symbol';
+      return { kind: 'lines', items: q.prog.chords.map((_, i) => `${what} ${i + 1}`) };
+    }
+    // Everything else is written on the staff itself.
+    return { kind: 'staff', items: [] };
+  }
+
+  // One entry per question: its number, prompt, the staff to print, and the space to answer in.
+  function printModel(qs, cfg) {
+    return qs.map((q, i) => ({
+      n: i + 1,
+      q,
+      prompt: q.text,
+      hint: q.hint || '',
+      staff: q.noStaff ? null : q,
+      answer: answerFor(q),
+    }));
+  }
+
+  const esc = (s) => String(s == null ? '' : s)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+
+  // ---------- the printable page ----------
+  function printCSS(opts) {
+    const p = paperOf(opts.paper);
+    const m = dim(p, p.margin);
+    const staffH = opts.staffHeight || 1.25;
+    const qr = opts.qrSize || 0.75;
+    const foot = qr + 0.15;
+    return `
+@page { size: ${p.css}; margin: ${m}; }
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; background: #fff; color: #000; }
+body { font: 12pt/1.4 Georgia, 'Times New Roman', serif; }
+table.sheet { width: ${dim(p, p.w - p.margin * 2)}; margin: 0 auto; border-collapse: collapse; }
+table.sheet > tbody > tr > td, table.sheet > tfoot > tr > td { padding: 0; vertical-align: top; }
+table.sheet > tfoot { display: table-footer-group; }
+.head { max-height: ${dim(p, headHeight(p))}; border-bottom: 1.5pt solid #000; padding-bottom: 8pt; margin-bottom: 14pt; overflow: hidden; }
+.head h1 { font-size: 20pt; line-height: 1.15; margin: 0 0 4pt; letter-spacing: -0.01em; }
+.head .meta { font-size: 10.5pt; margin: 0 0 6pt; }
+.head .meta span + span::before { content: ' · '; }
+.head .name { font-size: 11pt; margin: 0; }
+.head .name b { font-weight: normal; }
+.head .rule { display: inline-block; border-bottom: 0.75pt solid #000; min-width: 2.6in; }
+ol.qs { list-style: none; margin: 0; padding: 0; }
+li.q { display: flex; gap: 8pt; align-items: flex-start; margin: 0 0 14pt; page-break-inside: avoid; break-inside: avoid; }
+li.q .pts { flex: none; width: 0.55in; border-bottom: 0.75pt solid #000; height: 1.05em; }
+li.q .num { flex: none; font-weight: bold; font-size: 12pt; }
+li.q .body { flex: 1; min-width: 0; }
+li.q .prompt { font-size: 12pt; margin: 0; }
+li.q .hint { font-size: 10pt; margin: 2pt 0 0; color: #333; }
+.example { margin: 6pt 0 0; }
+.example svg { display: block; height: ${staffH}in; width: auto; max-width: 100%; }
+.lines { margin: 8pt 0 0; display: flex; flex-wrap: wrap; gap: 6pt 16pt; }
+.lines .slot { font-size: 10pt; }
+.lines .slot i { font-style: normal; display: inline-block; border-bottom: 0.75pt solid #000; min-width: 1.5in; margin-left: 4pt; }
+.choices { margin: 8pt 0 0; padding: 0; list-style: none; display: flex; flex-wrap: wrap; gap: 4pt 20pt; font-size: 11pt; }
+.choices li { min-width: 1.2in; }
+.choices b { font-weight: normal; }
+.pfoot { display: flex; align-items: flex-end; gap: 8pt; font-size: 8pt; color: #000; padding-top: 10pt; height: ${foot}in; }
+.pfoot svg { width: ${qr}in; height: ${qr}in; display: block; }
+.pfoot .fid { padding-bottom: 2pt; }
+/* Staff drawing, independent of the app's colours. */
+svg.staff { color: #000; }
+svg.staff .sl { stroke: #000; stroke-width: 1.1; fill: none; }
+svg.staff .brace { fill: #000; }
+svg.staff .clef-glyph { fill: #000; font-family: 'Noto Music', 'Bravura Text', 'Apple Symbols', serif; }
+svg.staff .note { color: #000; }
+svg.staff .note .head { fill: #000; }
+svg.staff .ledger { stroke: #000; stroke-width: 1.3; }
+svg.staff .slot { display: none; }
+svg.staff .clabel { font: bold 13px Georgia, serif; fill: #000; }
+svg.staff .clabel.is-small { font-size: 10.5px; fill: #333; }
+svg.staff .sacc { font-family: 'Noto Music', serif; }
+svg.staff .nlabel { display: none; }
+@media screen {
+  body { background: #f1f2f6; padding: 16px 0; }
+  table.sheet { background: #fff; width: ${dim(p, p.w)}; padding: ${m}; box-shadow: 0 2px 14px rgba(0,0,0,.18); }
+}`;
+  }
+
+  // `staffSVG(q)` returns the SVG for a question, or '' when there is nothing to draw.
+  function sheetHTML(model, info, opts, staffSVG) {
+    const rows = model.map((it) => {
+      const svg = it.staff && staffSVG ? staffSVG(it.q) : '';
+      const a = it.answer;
+      let answer = '';
+      if (a.kind === 'lines') {
+        answer = `<div class="lines">${a.items.map((t) => `<span class="slot">${esc(t)}<i></i></span>`).join('')}</div>`;
+      } else if (a.kind === 'choices') {
+        answer = `<ol class="choices">${a.items.map((t, i) => `<li><b>${'ABCD'[i] || i + 1}.</b> ${esc(t)}</li>`).join('')}</ol>`;
+      }
+      return `<li class="q"><span class="pts"></span><span class="num">${it.n}.</span><div class="body">`
+        + `<p class="prompt">${esc(it.prompt)}</p>`
+        + (it.hint ? `<p class="hint">${esc(it.hint)}</p>` : '')
+        + (svg ? `<div class="example">${svg}</div>` : '')
+        + answer + '</div></li>';
+    }).join('');
+    const meta = [info.course, info.teacher, info.date].filter((x) => x && String(x).trim())
+      .map((x) => `<span>${esc(x)}</span>`).join('');
+    const qr = opts.qrSVG || '';
+    // A table footer is what browsers repeat at the bottom of every printed page.
+    return `<table class="sheet"><tfoot><tr><td>`
+      + `<div class="pfoot">${qr}<span class="fid">Quiz ID ${esc(opts.quizId)}</span></div>`
+      + `</td></tr></tfoot><tbody><tr><td><header class="head">`
+      + `<h1>${esc(info.title || 'Music quiz')}</h1>`
+      + (meta ? `<p class="meta">${meta}</p>` : '')
+      + `<p class="name">Name: <span class="rule"></span></p>`
+      + `</header><ol class="qs">${rows}</ol></td></tr></tbody></table>`;
+  }
+
+  function printHTML(model, info, opts, staffSVG) {
+    return '<!doctype html><html><head><meta charset="utf-8"><title>' + esc(info.title || 'Music quiz') + '</title>'
+      + '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Music&display=swap">'
+      + '<style>' + printCSS(opts) + '</style></head><body>' + sheetHTML(model, info, opts, staffSVG) + '</body></html>';
+  }
+
+  Object.assign(MQ, {
+    PAPERS, paperOf, headHeight, formatDate, today, validDate,
+    printModel, printAnswerFor: answerFor, printCSS, sheetHTML, printHTML, printEscape: esc,
+  });
+})(typeof window !== 'undefined' ? window : globalThis);

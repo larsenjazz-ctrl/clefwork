@@ -536,3 +536,17 @@ select.fig-sel { min-width: 0; }
 .vt-opts { display: flex; flex-direction: column; gap: 10px; padding-top: 2px; }
 .sym-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; }
 .sym-cell { display: flex; flex-direction: column; gap: 4px; }
+
+/* print tab: settings on the left, a page preview on the right */
+.narrow-wide { max-width: 1180px; margin: 0 auto; }
+.print-view { display: grid; grid-template-columns: minmax(0, 420px) minmax(0, 1fr); gap: 20px; align-items: start; }
+.print-form { display: flex; flex-direction: column; gap: 14px; }
+.print-form .display { font-size: clamp(24px, 3vw, 32px); margin: 4px 0 0; }
+.print-form .lede { margin: 0; }
+.print-status { min-height: 1.2em; }
+.print-preview { display: flex; flex-direction: column; gap: 8px; position: sticky; top: calc(12px + env(safe-area-inset-top, 0px)); }
+.print-head { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+.print-frame { width: 100%; height: min(78vh, 900px); border: 1px solid var(--line); border-radius: 10px; background: #fff; }
+.print-hidden { position: fixed; width: 0; height: 0; border: 0; visibility: hidden; }
+input.is-invalid { border-color: var(--bad); background: var(--bad-soft); }
+@media (max-width: 960px) { .print-view { grid-template-columns: minmax(0, 1fr); } .print-preview { position: static; } }
