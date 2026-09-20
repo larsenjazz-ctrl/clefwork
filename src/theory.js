@@ -251,6 +251,34 @@
     return out;
   }
   const ALT_SETS = [[0], [0, 1], [0, -1], [0, 1, -1]];
+  // How often each spelling turns up when a note, chord root or key is chosen: plain letters half
+  // the time, the four everyday flats most of the rest, and the remote spellings rarely.
+  const PC_TIERS = [
+    { weight: 50, names: ['C', 'D', 'E', 'F', 'G', 'A', 'B'] },
+    { weight: 40, names: ['B♭', 'E♭', 'A♭', 'D♭'] },
+    { weight: 10, names: ['C♯', 'F♯', 'G♭', 'C♭'] },
+  ];
+  // Anything not listed (G♯, D♯, F♭ …) is as remote as the last group.
+  const tierOf = (name) => {
+    const i = PC_TIERS.findIndex((t) => t.names.includes(name));
+    return i < 0 ? PC_TIERS.length - 1 : i;
+  };
+  // Pick from `items` by those weights; empty groups pass their share to the others.
+  function pickSpelled(rng, items, nameOf) {
+    if (!items.length) return null;
+    const buckets = PC_TIERS.map(() => []);
+    items.forEach((it) => buckets[tierOf(nameOf(it))].push(it));
+    const total = PC_TIERS.reduce((n, t, i) => n + (buckets[i].length ? t.weight : 0), 0);
+    if (!total) return items[Math.floor(rng() * items.length)];
+    let r = rng() * total;
+    for (let i = 0; i < buckets.length; i++) {
+      if (!buckets[i].length) continue;
+      r -= PC_TIERS[i].weight;
+      if (r <= 0) return buckets[i][Math.floor(rng() * buckets[i].length)];
+    }
+    const last = buckets.filter((b) => b.length).pop();
+    return last[Math.floor(rng() * last.length)];
+  }
   function randAlt(rng, cfg) {
     const set = ALT_SETS[cfg.accMode] || [0];
     if (set.length === 1 || rng() < 0.5) return 0;
@@ -259,6 +287,8 @@
   // Quizzes made before version 7 keep their original questions (uniform note choice, older chord rules).
   const legacy = (cfg) => cfg.v != null && cfg.v < 7;
   const legacyPick = (cfg) => cfg.v != null && cfg.v < 9;
+  // Quizzes from version 13 on weight how often each spelling is chosen.
+  const spelledPick = (cfg) => cfg.v == null || cfg.v >= 13;
   // Positions near `center` (4 = the middle line) are much more likely than ones out on ledger lines.
   function centeredPos(rng, lo, hi, center) {
     const w = [];
@@ -271,6 +301,28 @@
   function randPitch(rng, clef, cfg, lo, hi, center) {
     const bottom = CLEFS[clef].bottom;
     if (hi < lo) hi = lo;
+    if (spelledPick(cfg)) {
+      // Choose the note's name by how common it is, then a place on the staff for it.
+      const alts = ALT_SETS[cfg.accMode] || [0];
+      const names = [];
+      LETTERS.forEach((l, step) => alts.forEach((alt) => {
+        const p = { step, alt, oct: 4 };
+        if (isCommon(p)) names.push({ step, alt, name: pcName(p) });
+      }));
+      for (let k = 0; k < 24; k++) {
+        const want = pickSpelled(rng, names, (x) => x.name);
+        const spots = [];
+        for (let pos = lo; pos <= hi; pos++) if (((bottom + pos) % 7 + 7) % 7 === want.step) spots.push(pos);
+        if (!spots.length) continue;
+        const pos = center == null ? spots[Math.floor(rng() * spots.length)]
+          : spots.reduce((best, p) => {
+            // Favour the middle of the staff, as before, among the places this note can sit.
+            const bias = (x) => Math.exp(-((x - center) * (x - center)) / (2 * 2.6 * 2.6));
+            return bias(p) > bias(best) * (0.5 + rng()) ? p : best;
+          }, spots[Math.floor(rng() * spots.length)]);
+        return fromDia(bottom + pos, want.alt);
+      }
+    }
     for (let k = 0; k < 60; k++) {
       const pos = center == null || legacy(cfg) ? ri(rng, lo, hi) : centeredPos(rng, lo, hi, center);
       const p = fromDia(bottom + pos, randAlt(rng, cfg));
@@ -491,8 +543,10 @@
     },
     keysig(rng, clef, cfg) {
       const max = Math.max(1, cfg.keyMax);
-      const fifths = ri(rng, -max, max);
       const mode = cfg.keyMode === 2 ? 'minor' : cfg.keyMode === 3 ? (rng() < 0.5 ? 'major' : 'minor') : 'major';
+      const all = [];
+      for (let f = -max; f <= max; f++) all.push(f);
+      const fifths = spelledPick(cfg) ? pickSpelled(rng, all, (f) => keyName(f, mode).split(' ')[0]) : ri(rng, -max, max);
       const correct = keyName(fifths, mode);
       const ask = cfg.keyAsk === 2 ? 'count' : cfg.keyAsk === 3 ? (rng() < 0.5 ? 'name' : 'count') : 'name';
       if (ask === 'count') {
@@ -730,6 +784,6 @@
     LETTERS, CLEFS, clefLabel, INTERVALS, SIMPLE_INTERVALS, CHORDS, INVERSIONS, SCALES, SIMPLE_SCALES, SIG_OPTIONS, FLAG_KEYS_V1, TYPES, BUILT_IN, MAX_CUSTOM, MAX_CUSTOM_NOTES, MAX_VOICING_NOTES, prettySymbol, PRESETS, FLAG_KEYS, MAJOR_KEYS, MINOR_KEYS,
     normalizeSuffix, dia, midi, fromDia, transpose, pcName, fullName, samePitch, posOf, keyName, typeIndex,
     defaultConfig, randomSeed, maskOf, generateQuiz, resolveStaff, helpersOn, toGrand, STAFF_NAMES, gradeQuestion, markResponse, hasAnswer, describeAnswer,
-    mulberry32, randPitchFor: randPitch,
+    mulberry32, randPitchFor: randPitch, pickSpelled, spelledPick,
   });
 })(typeof window !== 'undefined' ? window : globalThis);

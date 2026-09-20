@@ -31,7 +31,7 @@
   function clefSVG(clef, by, x) {
     if (MQ.clefFont === false) {
       return clef === 'treble'
-        ? `<g transform="translate(${x + 18} ${by - 12})" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M1 -3C-3 -3 -4 3 1 4C7 5 9 -3 6 -7C2 -12 -9 -10 -10 -1C-11 8 -3 14 5 13C13 12 16 2 12 -5C8 -12 0 -20 -1 -32C-2 -44 2 -56 6 -58C10 -60 9 -48 4 -42C-1 -36 -2 -24 0 -10L3 18C4 26 -6 28 -6 21"/><circle cx="-4" cy="21" r="3.6" fill="currentColor" stroke="none"/></g>`
+        ? `<g transform="translate(${x + 23} ${by - 12})" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M-1 -3C3 -3 4 3 -1 4C-7 5 -9 -3 -6 -7C-2 -12 9 -10 10 -1C11 8 3 14 -5 13C-13 12 -16 2 -12 -5C-8 -12 0 -20 1 -32C2 -44 -2 -56 -6 -58C-10 -60 -9 -48 -4 -42C1 -36 2 -24 0 -10L-3 18C-4 26 6 28 6 21"/><circle cx="4" cy="21" r="3.6" fill="currentColor" stroke="none"/></g>`
         : `<g transform="translate(${x + 14} ${by - 36})" fill="currentColor"><circle cx="-2" cy="0" r="4.4"/><path d="M-2 -1C-2 -10 8 -12 13 -7C19 -1 16 10 -6 22" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><circle cx="22" cy="-6" r="2.2"/><circle cx="22" cy="6" r="2.2"/></g>`;
     }
     return clef === 'treble'

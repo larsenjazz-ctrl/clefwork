@@ -556,7 +556,7 @@ select.fig-sel { min-width: 0; }
 .print-preview { display: flex; flex-direction: column; gap: 8px; position: sticky; top: calc(12px + env(safe-area-inset-top, 0px)); }
 .print-head { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
 .print-frame { width: 100%; height: min(78vh, 900px); border: 1px solid var(--line); border-radius: 10px; background: #fff; }
-.print-hidden { position: fixed; width: 0; height: 0; border: 0; visibility: hidden; }
+.print-hidden { position: fixed; left: -12000px; top: 0; width: 8.5in; height: 11in; border: 0; }
 input.is-invalid { border-color: var(--bad); background: var(--bad-soft); }
 @media (max-width: 960px) { .print-view { grid-template-columns: minmax(0, 1fr); } .print-preview { position: static; } }
 </style>
@@ -835,6 +835,34 @@ input.is-invalid { border-color: var(--bad); background: var(--bad-soft); }
     return out;
   }
   const ALT_SETS = [[0], [0, 1], [0, -1], [0, 1, -1]];
+  // How often each spelling turns up when a note, chord root or key is chosen: plain letters half
+  // the time, the four everyday flats most of the rest, and the remote spellings rarely.
+  const PC_TIERS = [
+    { weight: 50, names: ['C', 'D', 'E', 'F', 'G', 'A', 'B'] },
+    { weight: 40, names: ['B♭', 'E♭', 'A♭', 'D♭'] },
+    { weight: 10, names: ['C♯', 'F♯', 'G♭', 'C♭'] },
+  ];
+  // Anything not listed (G♯, D♯, F♭ …) is as remote as the last group.
+  const tierOf = (name) => {
+    const i = PC_TIERS.findIndex((t) => t.names.includes(name));
+    return i < 0 ? PC_TIERS.length - 1 : i;
+  };
+  // Pick from `items` by those weights; empty groups pass their share to the others.
+  function pickSpelled(rng, items, nameOf) {
+    if (!items.length) return null;
+    const buckets = PC_TIERS.map(() => []);
+    items.forEach((it) => buckets[tierOf(nameOf(it))].push(it));
+    const total = PC_TIERS.reduce((n, t, i) => n + (buckets[i].length ? t.weight : 0), 0);
+    if (!total) return items[Math.floor(rng() * items.length)];
+    let r = rng() * total;
+    for (let i = 0; i < buckets.length; i++) {
+      if (!buckets[i].length) continue;
+      r -= PC_TIERS[i].weight;
+      if (r <= 0) return buckets[i][Math.floor(rng() * buckets[i].length)];
+    }
+    const last = buckets.filter((b) => b.length).pop();
+    return last[Math.floor(rng() * last.length)];
+  }
   function randAlt(rng, cfg) {
     const set = ALT_SETS[cfg.accMode] || [0];
     if (set.length === 1 || rng() < 0.5) return 0;
@@ -843,6 +871,8 @@ input.is-invalid { border-color: var(--bad); background: var(--bad-soft); }
   // Quizzes made before version 7 keep their original questions (uniform note choice, older chord rules).
   const legacy = (cfg) => cfg.v != null && cfg.v < 7;
   const legacyPick = (cfg) => cfg.v != null && cfg.v < 9;
+  // Quizzes from version 13 on weight how often each spelling is chosen.
+  const spelledPick = (cfg) => cfg.v == null || cfg.v >= 13;
   // Positions near `center` (4 = the middle line) are much more likely than ones out on ledger lines.
   function centeredPos(rng, lo, hi, center) {
     const w = [];
@@ -855,6 +885,28 @@ input.is-invalid { border-color: var(--bad); background: var(--bad-soft); }
   function randPitch(rng, clef, cfg, lo, hi, center) {
     const bottom = CLEFS[clef].bottom;
     if (hi < lo) hi = lo;
+    if (spelledPick(cfg)) {
+      // Choose the note's name by how common it is, then a place on the staff for it.
+      const alts = ALT_SETS[cfg.accMode] || [0];
+      const names = [];
+      LETTERS.forEach((l, step) => alts.forEach((alt) => {
+        const p = { step, alt, oct: 4 };
+        if (isCommon(p)) names.push({ step, alt, name: pcName(p) });
+      }));
+      for (let k = 0; k < 24; k++) {
+        const want = pickSpelled(rng, names, (x) => x.name);
+        const spots = [];
+        for (let pos = lo; pos <= hi; pos++) if (((bottom + pos) % 7 + 7) % 7 === want.step) spots.push(pos);
+        if (!spots.length) continue;
+        const pos = center == null ? spots[Math.floor(rng() * spots.length)]
+          : spots.reduce((best, p) => {
+            // Favour the middle of the staff, as before, among the places this note can sit.
+            const bias = (x) => Math.exp(-((x - center) * (x - center)) / (2 * 2.6 * 2.6));
+            return bias(p) > bias(best) * (0.5 + rng()) ? p : best;
+          }, spots[Math.floor(rng() * spots.length)]);
+        return fromDia(bottom + pos, want.alt);
+      }
+    }
     for (let k = 0; k < 60; k++) {
       const pos = center == null || legacy(cfg) ? ri(rng, lo, hi) : centeredPos(rng, lo, hi, center);
       const p = fromDia(bottom + pos, randAlt(rng, cfg));
@@ -1075,8 +1127,10 @@ input.is-invalid { border-color: var(--bad); background: var(--bad-soft); }
     },
     keysig(rng, clef, cfg) {
       const max = Math.max(1, cfg.keyMax);
-      const fifths = ri(rng, -max, max);
       const mode = cfg.keyMode === 2 ? 'minor' : cfg.keyMode === 3 ? (rng() < 0.5 ? 'major' : 'minor') : 'major';
+      const all = [];
+      for (let f = -max; f <= max; f++) all.push(f);
+      const fifths = spelledPick(cfg) ? pickSpelled(rng, all, (f) => keyName(f, mode).split(' ')[0]) : ri(rng, -max, max);
       const correct = keyName(fifths, mode);
       const ask = cfg.keyAsk === 2 ? 'count' : cfg.keyAsk === 3 ? (rng() < 0.5 ? 'name' : 'count') : 'name';
       if (ask === 'count') {
@@ -1314,7 +1368,7 @@ input.is-invalid { border-color: var(--bad); background: var(--bad-soft); }
     LETTERS, CLEFS, clefLabel, INTERVALS, SIMPLE_INTERVALS, CHORDS, INVERSIONS, SCALES, SIMPLE_SCALES, SIG_OPTIONS, FLAG_KEYS_V1, TYPES, BUILT_IN, MAX_CUSTOM, MAX_CUSTOM_NOTES, MAX_VOICING_NOTES, prettySymbol, PRESETS, FLAG_KEYS, MAJOR_KEYS, MINOR_KEYS,
     normalizeSuffix, dia, midi, fromDia, transpose, pcName, fullName, samePitch, posOf, keyName, typeIndex,
     defaultConfig, randomSeed, maskOf, generateQuiz, resolveStaff, helpersOn, toGrand, STAFF_NAMES, gradeQuestion, markResponse, hasAnswer, describeAnswer,
-    mulberry32, randPitchFor: randPitch,
+    mulberry32, randPitchFor: randPitch, pickSpelled, spelledPick,
   });
 })(typeof window !== 'undefined' ? window : globalThis);
 /* Clefwork — chord progressions: keys, chord qualities, Roman numeral and chord-symbol
@@ -2200,8 +2254,13 @@ input.is-invalid { border-color: var(--bad); background: var(--bad-soft); }
   // ---------- questions ----------
   function pickKey(rng, cfg) {
     const max = Math.max(0, Math.min(7, cfg.figMax == null ? 4 : cfg.figMax));
-    const fifths = Math.floor(rng() * (2 * max + 1)) - max;
     const mode = cfg.figKey === 2 ? 'minor' : cfg.figKey === 3 ? (rng() < 0.5 ? 'major' : 'minor') : 'major';
+    const all = [];
+    for (let f = -max; f <= max; f++) all.push(f);
+    // Everyday keys come up far more often than remote ones.
+    const fifths = MQ.spelledPick(cfg)
+      ? MQ.pickSpelled(rng, all, (f) => (mode === 'minor' ? MQ.MINOR_KEYS : MQ.MAJOR_KEYS)[f + 7])
+      : Math.floor(rng() * (2 * max + 1)) - max;
     return MQ.makeKey(mode, fifths, null, 'harmonic');
   }
   function pickChord(rng, cfg, kd) {
@@ -2509,6 +2568,8 @@ input.is-invalid { border-color: var(--bad); background: var(--bad-soft); }
   };
 
   // ---------- the techniques ----------
+  const DEG = { 1: 'root', 3: '3rd', 5: '5th', 6: '6th', 7: '7th', 9: '9th', 11: '11th', 13: '13th' };
+  const degName = (d, asOctave) => (d === 1 && asOctave ? 'octave' : DEG[d] || String(d));
   const TECHNIQUES = [
     { id: 'thirds', label: 'Stacked Thirds' }, { id: 'chorale', label: 'Chorale' },
     { id: 'block', label: 'Block Voicing' }, { id: 'drop2', label: 'Drop 2' },
@@ -2544,7 +2605,11 @@ input.is-invalid { border-color: var(--bad); background: var(--bad-soft); }
     let voices = build(mid === 5 ? D('G3') : D('D3'));
     if (midi(voices[2]) > M('A5')) voices = build(D('D3'));
     const fifth = voices[0], upper = voices.slice(1);
-    return { notes: [Object.assign({}, rootNote, { st: 1 }), Object.assign({}, fifth, { st: dia(fifth) < 28 ? 1 : 0 })].concat(onStaff(upper, 0)), staff: 'grand' };
+    return {
+      notes: [Object.assign({}, rootNote, { st: 1 }), Object.assign({}, fifth, { st: dia(fifth) < 28 ? 1 : 0 })].concat(onStaff(upper, 0)),
+      staff: 'grand',
+      shape: `root, ${degName(mid)}, 3rd, ${degName(top, true)} from the bottom`,
+    };
   }
 
   // 3. Block Voicing — four notes inside one octave, no root.
@@ -2577,13 +2642,17 @@ input.is-invalid { border-color: var(--bad); background: var(--bad-soft); }
       if (topGap === 1) score += 4;          // no half-step as the top two notes
       if (span > 10) score += 2;             // prefer a 7th or smaller between outer notes
       score += Math.max(0, midi(notes[0]) - M('F4')) / 3;   // and near the middle of the staff
-      cands.push({ notes, score });
+      cands.push({ notes, score, start, bottom: order[0] });
     });
     cands.sort((a, b) => a.score - b.score);
     const best = cands[0];
     const staff = opt.staff === 'bass' ? 'bass' : 'treble';
     const notes = centerOn(best.notes, staff);
-    return { notes: onStaff(notes, staff === 'bass' ? 1 : 0), staff };
+    return {
+      notes: onStaff(notes, staff === 'bass' ? 1 : 0), staff,
+      start: best.bottom,
+      shape: `no root, ${degName(best.bottom, true)} on the bottom`,
+    };
   }
 
   // 4 & 5. Drop 2, Drop 2 & 4 — block voicing with notes dropped an octave.
@@ -2607,9 +2676,11 @@ input.is-invalid { border-color: var(--bad); background: var(--bad-soft); }
     }
     notes = best;
     // A note more than two ledger lines below the treble staff moves to the bass clef of a grand staff.
+    const shape = `from a block voicing with the ${degName(block.start, true)} on the bottom, `
+      + (which === 'drop24' ? 'the 2nd and 4th notes from the top dropped an octave' : 'the 2nd note from the top dropped an octave');
     const low = notes.filter((p) => dia(p) < D('A3')).length;
-    if (low > 0) return { notes: notes.map((p, i) => Object.assign({}, p, { st: i < Math.min(low, deep) ? 1 : 0 })), staff: 'grand' };
-    return { notes: onStaff(notes, 0), staff: 'treble' };
+    if (low > 0) return { notes: notes.map((p, i) => Object.assign({}, p, { st: i < Math.min(low, deep) ? 1 : 0 })), staff: 'grand', shape };
+    return { notes: onStaff(notes, 0), staff: 'treble', shape };
   }
 
   // 6. 5 Plane, 9 Plane.
@@ -2640,7 +2711,7 @@ input.is-invalid { border-color: var(--bad); background: var(--bad-soft); }
       // All four fit in the bass between E♭3 and G4, or the whole stack moves up into the treble.
       if (midi(notes[notes.length - 1]) > G4) notes = fitPos(stack(order, D('C4')), D('C4'), D('C6'));
       const all = [rootNote].concat(byStaff(notes));
-      return { notes: all, staff: 'grand' };
+      return { notes: all, staff: 'grand', shape: `close with the ${layout ? '7th' : '3rd'} plane on the bottom` };
     }
     // Open: root, 3p, 7p, 9p, 5p — or root, 7p, 3p, 5p, 9p.
     const lower = (layout ? [t(pl.p7), t(3)] : [t(3), t(pl.p7)]).filter(Boolean);
@@ -2649,7 +2720,11 @@ input.is-invalid { border-color: var(--bad); background: var(--bad-soft); }
     let low = stack(lower, D('D3'));
     if (midi(low[low.length - 1]) > G4) low = stack(lower, D('D3'));
     const high = stack(upper, Math.max(dia(low[low.length - 1]) + 1, D('C4')));
-    return { notes: [rootNote].concat(onStaff(low, dia(low[0]) < 28 ? 1 : 0).map((p) => Object.assign({}, p, { st: dia(p) < 28 ? 1 : 0 })), onStaff(high, 0)), staff: 'grand' };
+    return {
+      notes: [rootNote].concat(onStaff(low, dia(low[0]) < 28 ? 1 : 0).map((p) => Object.assign({}, p, { st: dia(p) < 28 ? 1 : 0 })), onStaff(high, 0)),
+      staff: 'grand',
+      shape: `open with the ${layout ? '7th' : '3rd'} plane on the bottom`,
+    };
   }
 
   // 7. Pop Horn — three or four notes in set orders.
@@ -2663,16 +2738,17 @@ input.is-invalid { border-color: var(--bad); background: var(--bad-soft); }
       ? [[seventh, three, one], [three, seventh, five]]
       : [[three, five, one], [three, one, five]];
     const degs = shapes[opt.layout ? 1 % shapes.length : 0].filter((d) => ch.has.includes(d) || d === 1);
+    const order = degs.map((d, i) => degName(d, i > 0 || opt.four)).join(', ');
     if (opt.four) {
       const upper = stack(degs.map((d) => tone(ch, d)), D('G3'));   // the lowest note above the root is G3 or higher
       const rootNote = Object.assign(bassRoot(ch, M('E2')), { st: 1 });
       const fitted = fitAbove(upper, G3);
-      return { notes: [rootNote].concat(byStaff(fitted)), staff: 'grand' };
+      return { notes: [rootNote].concat(byStaff(fitted)), staff: 'grand', shape: `4 notes: root, ${order} from the bottom` };
     }
     const staff = opt.staff === 'bass' ? 'bass' : 'treble';
     const floorD = staff === 'bass' ? D('A2') : D('G3');
     const notes = fitAbove(stack(degs.map((d) => tone(ch, d)), floorD), staff === 'bass' ? M('A2') : M('G3'), staff === 'bass' ? M('E4') : M('A5'));
-    return { notes: onStaff(notes, staff === 'bass' ? 1 : 0), staff };
+    return { notes: onStaff(notes, staff === 'bass' ? 1 : 0), staff, shape: `3 notes: ${order} from the bottom` };
   }
 
   // 8. Inner Sevenths — as many pairs a 7th apart as the chord allows.
@@ -2709,7 +2785,11 @@ input.is-invalid { border-color: var(--bad); background: var(--bad-soft); }
     let all = notes.concat(tops.map((t) => t.p)).sort((a, b) => dia(a) - dia(b));
     all = all.filter((p, i) => !i || dia(p) !== dia(all[i - 1]) || p.alt !== all[i - 1].alt);
     const rootNote = Object.assign(bassRoot(ch, M('E2')), { st: 1 });
-    return { notes: [rootNote].concat(byStaff(all)), staff: 'grand' };
+    const pairText = pairs.map(([a, b]) => `${degName(a)} with ${degName(b, true)}`).join(' and ');
+    return {
+      notes: [rootNote].concat(byStaff(all)), staff: 'grand',
+      shape: (pairText ? `${pairText} a seventh apart` : 'the voices paired a seventh apart') + (opt.inner2 ? ', with inner 2nds' : ''),
+    };
   }
 
   // Inner sevenths needs pairs a seventh apart, so it is only offered for sevenths and larger chords.
@@ -2727,7 +2807,10 @@ input.is-invalid { border-color: var(--bad); background: var(--bad-soft); }
     if (dia(low) >= dia(notes[0])) low = fromDia(dia(low) - 7, low.alt);
     const staff = v.staff === 'grand' || midi(low) < M('E3') ? 'grand' : v.staff;
     notes = [low].concat(notes);
-    return { notes: staff === 'grand' ? byStaff(notes) : onStaff(notes, staff === 'bass' ? 1 : 0), staff };
+    return {
+      notes: staff === 'grand' ? byStaff(notes) : onStaff(notes, staff === 'bass' ? 1 : 0), staff,
+      shape: v.shape ? v.shape + `, over ${MQ.pcName({ ...ch.bass, oct: 4 })} in the bass` : v.shape,
+    };
   }
   function voiceChord(ch, technique, opt) {
     const o = Object.assign({ staff: 'treble', open: 'closed', layout: 0, four: false, omitRoot: false, thin: true, inner2: false }, opt);
@@ -2758,13 +2841,20 @@ input.is-invalid { border-color: var(--bad); background: var(--bad-soft); }
   const on = (mask, i) => !!(mask & (1 << i));
   const pick = (rng, list) => list[Math.floor(rng() * list.length)];
 
+  // Fills in anything missing and hands back the same object, so a settings panel and the quiz
+  // it builds are always looking at one block, not at copies of it.
   function settingsOf(block) {
     const b = block || {};
-    return {
-      sizes: b.sizes == null ? 3 : b.sizes, quals: b.quals == null ? 3 : b.quals,
-      alts: !!b.alts, key: b.key || 0, slash: !!b.slash, ask: b.ask || 1,
-      tech: b.tech || {}, opts: b.opts || {}, len: b.len || 4,
-    };
+    if (b.sizes == null) b.sizes = 3;
+    if (b.quals == null) b.quals = 3;
+    b.alts = b.alts ? 1 : 0;
+    b.key = b.key || 0;
+    b.slash = b.slash ? 1 : 0;
+    b.ask = b.ask || 1;
+    b.tech = b.tech || {};
+    b.opts = b.opts || {};
+    b.len = b.len || 4;
+    return b;
   }
   // A chord built from the teacher's complexity settings: quality, size, alterations, slash bass.
   function pickChordFrom(rng, set, keyRoot, degree) {
@@ -2805,7 +2895,11 @@ input.is-invalid { border-color: var(--bad); background: var(--bad-soft); }
     return ch;
   }
   const ROOTS = [[0, 0], [0, 1], [1, -1], [1, 0], [2, -1], [2, 0], [3, 0], [3, 1], [4, -1], [4, 0], [5, -1], [5, 0], [6, -1], [6, 0]];
-  const randomRoot = (rng) => { const r = pick(rng, ROOTS); return { step: r[0], alt: r[1] }; };
+  const randomRoot = (rng, weighted) => {
+    const r = weighted === false ? pick(rng, ROOTS)
+      : MQ.pickSpelled(rng, ROOTS, (x) => MQ.pcName({ step: x[0], alt: x[1], oct: 4 }));
+    return { step: r[0], alt: r[1] };
+  };
 
   // Which options a technique uses, and how they turn into voicing settings.
   function optionsFor(tech, o, rng) {
@@ -2878,6 +2972,8 @@ input.is-invalid { border-color: var(--bad); background: var(--bad-soft); }
   function chordQuestion(ch, tech, v, cfg, ask, extra) {
     const notes = v.notes.slice().sort((a, b) => dia(a) - dia(b));
     const shown = MQ.prettySymbol(ch.symbol);
+    // Say which arrangement of the technique this is, so students know what to write.
+    const shapeText = v.shape ? v.shape.charAt(0).toUpperCase() + v.shape.slice(1) + '.' : HOW[tech];
     const tag = ['pc:' + MQ.pcName({ ...ch.root, oct: 4 }), 'vt:' + tech, 'vq:' + ch.quality + ch.size];
     const sig = 'v' + tech + ch.symbol + v.staff + notes.map((p) => MQ.fullName(p)).join('');
     if (ask === 'name') {
@@ -2885,7 +2981,7 @@ input.is-invalid { border-color: var(--bad); background: var(--bad-soft); }
         type: 'voicing', clef: v.staff, grand: v.staff === 'grand', symbol: ch.symbol,
         symbolAnswer: { voice: true, q: ch.symbol, shown, root: ch.root, bass: ch.bass || null },
         text: `Write the chord symbol for this voicing — ${LABEL(tech)}.`,
-        hint: 'For example Dmi7, G13♭9, Cma7. Write a slash chord when the bass note is not the root.',
+        hint: `${shapeText} For example Dmi7, G13♭9, Cma7. Write a slash chord when the bass note is not the root.`.trim(),
         columns: [{ given: notes, cap: 0 }], answer: [notes], tags: tag, sig: 'n' + sig,
       }, extra || {});
     }
@@ -2896,7 +2992,8 @@ input.is-invalid { border-color: var(--bad); background: var(--bad-soft); }
     return Object.assign({
       type: 'voicing', clef: v.staff, grand: v.staff === 'grand', symbol: ch.symbol,
       text: `Voice ${shown} — ${LABEL(tech)}.`,
-      hint: `${HOW[tech]} Place ${counts}. Exact pitches count.` + (helper ? ' The lowest note is printed.' : ''),
+      hint: `${shapeText} Place ${counts}. Exact pitches count.`.replace(/\s+/g, ' ').trim()
+        + (helper ? ' The lowest note is printed.' : ''),
       columns: [{ given: helper ? [notes[0]] : [], cap: helper ? notes.length - 1 : notes.length }],
       answer: [helper ? notes.slice(1) : notes], tags: tag, sig: 's' + sig,
     }, extra || {});
@@ -2933,7 +3030,7 @@ input.is-invalid { border-color: var(--bad); background: var(--bad-soft); }
   }
   function singleQuestion(rng, cfg, set, tech, ask) {
     const kind = KEY_KINDS[set.key] ? KEY_KINDS[set.key].id : 'chromatic';
-    const keyRoot = randomRoot(rng);
+    const keyRoot = randomRoot(rng, MQ.spelledPick(cfg));
     const ch = chordFor(rng, set, tech, keyRoot, kind === 'chromatic' ? 0 : 1 + Math.floor(rng() * 7));
     const v = voiceChord(ch, tech, optionsFor(tech, set.opts, rng));
     return chordQuestion(ch, tech, v, cfg, ask);
@@ -2941,16 +3038,19 @@ input.is-invalid { border-color: var(--bad); background: var(--bad-soft); }
   function progQuestion(rng, cfg, set, tech, ask) {
     const kind = KEY_KINDS[set.key] ? KEY_KINDS[set.key].id : 'chromatic';
     const len = Math.max(2, Math.min(6, set.len || 4));
-    const keyRoot = randomRoot(rng);
+    const keyRoot = randomRoot(rng, MQ.spelledPick(cfg));
     const degrees = kind === 'chromatic' ? null : (MQ.autoDegrees ? MQ.autoDegrees(rng, len, false) : [1, 4, 5, 1]);
     const opt = optionsFor(tech, set.opts, rng);
     const chords = [], voicings = [];
     for (let i = 0; i < len; i++) {
-      const ch = chordFor(rng, set, tech, kind === 'chromatic' ? randomRoot(rng) : keyRoot, degrees ? degrees[i] : 0);
+      const ch = chordFor(rng, set, tech, kind === 'chromatic' ? randomRoot(rng, MQ.spelledPick(cfg)) : keyRoot, degrees ? degrees[i] : 0);
       chords.push(ch);
       voicings.push(voiceChord(ch, tech, opt));
     }
     const staff = voicings.some((v) => v.staff === 'grand') ? 'grand' : voicings[0].staff;
+    const shapeText = voicings[0].shape
+      ? `Every chord uses the same shape: ${voicings[0].shape}.`
+      : HOW[tech];
     const fix = (v) => (staff === 'grand' ? v.notes.map((p) => Object.assign({}, p, { st: p.st == null ? (dia(p) < 28 ? 1 : 0) : p.st })) : v.notes.map(({ st, ...p }) => p));
     const cols = voicings.map(fix);
     const symbols = chords.map((c) => MQ.prettySymbol(c.symbol));
@@ -2960,7 +3060,7 @@ input.is-invalid { border-color: var(--bad); background: var(--bad-soft); }
       return {
         type: 'vprog', clef: staff, grand: staff === 'grand',
         text: `Write the chord symbol for each chord in this progression — ${LABEL(tech)}.`,
-        hint: 'One chord symbol per chord, such as Dmi7 or G13♭9.',
+        hint: `${shapeText} One chord symbol per chord, such as Dmi7 or G13♭9.`.trim(),
         columns: cols.map((notes) => ({ given: notes, cap: 0 })),
         symbolAnswers: chords.map((c) => ({ voice: true, q: c.symbol, shown: MQ.prettySymbol(c.symbol) })),
         answer: cols, chordLabels: { top: cols.map(() => '') }, tags, sig: 'n' + sig,
@@ -2969,7 +3069,7 @@ input.is-invalid { border-color: var(--bad); background: var(--bad-soft); }
     return {
       type: 'vprog', clef: staff, grand: staff === 'grand',
       text: `Voice this progression — ${LABEL(tech)}.`,
-      hint: `${HOW[tech]} Exact pitches count.`,
+      hint: `${shapeText} Exact pitches count.`.replace(/\s+/g, ' ').trim(),
       columns: cols.map((notes) => ({ given: [], cap: notes.length })),
       chordLabels: { top: symbols }, answer: cols, tags, sig: 's' + sig,
     };
@@ -3396,8 +3496,24 @@ svg.staff .clabel.is-small { font-size: 10.5px; fill: #333; }
 svg.staff .sacc { font-family: 'Noto Music', serif; }
 svg.staff .nlabel { display: none; }
 @media screen {
+  /* The preview draws the whole sheet of paper with its margins marked. */
   body { background: #f1f2f6; padding: 16px 0; }
-  table.sheet { background: #fff; width: ${dim(p, p.w)}; padding: ${m}; box-shadow: 0 2px 14px rgba(0,0,0,.18); }
+  .page {
+    position: relative; background: #fff; width: ${dim(p, p.w)}; min-height: ${dim(p, p.h)};
+    padding: ${m}; margin: 0 auto; box-shadow: 0 2px 14px rgba(0,0,0,.18);
+  }
+  .page::before {
+    content: ''; position: absolute; inset: ${m}; border: 1px dashed #98a1b5; pointer-events: none;
+    /* A faint line wherever a new page starts. */
+    background: repeating-linear-gradient(to bottom,
+      transparent 0, transparent calc(${dim(p, p.h - p.margin * 2)} - 1px),
+      rgba(152, 161, 181, 0.6) calc(${dim(p, p.h - p.margin * 2)} - 1px), rgba(152, 161, 181, 0.6) ${dim(p, p.h - p.margin * 2)});
+  }
+  .page::after {
+    content: 'Margin ${p.margin}${p.unit}'; position: absolute; top: 3px; right: 6px;
+    font: 8pt/1 -apple-system, system-ui, sans-serif; color: #98a1b5;
+  }
+  table.sheet { width: 100%; }
 }`;
   }
 
@@ -3422,13 +3538,13 @@ svg.staff .nlabel { display: none; }
       .map((x) => `<span>${esc(x)}</span>`).join('');
     const qr = opts.qrSVG || '';
     // A table footer is what browsers repeat at the bottom of every printed page.
-    return `<table class="sheet"><tfoot><tr><td>`
+    return `<div class="page"><table class="sheet"><tfoot><tr><td>`
       + `<div class="pfoot">${qr}<span class="fid">Quiz ID ${esc(opts.quizId)}</span></div>`
       + `</td></tr></tfoot><tbody><tr><td><header class="head">`
       + `<h1>${esc(info.title || 'Music quiz')}</h1>`
       + (meta ? `<p class="meta">${meta}</p>` : '')
       + `<p class="name">Name: <span class="rule"></span></p>`
-      + `</header><ol class="qs">${rows}</ol></td></tr></tbody></table>`;
+      + `</header><ol class="qs">${rows}</ol></td></tr></tbody></table></div>`;
   }
 
   function printHTML(model, info, opts, staffSVG) {
@@ -3802,7 +3918,7 @@ svg.staff .nlabel { display: none; }
     const w = new Writer();
     // Version 2 added teacher-defined chords after the flags; version 3 adds how many to ask
     // plus grand-staff voicings. Older codes still decode.
-    w.u(12, 4).u(cfg.seed, 20).str(cfg.title, 60).str(cfg.teacher, 40).u(cfg.clefs, 2);
+    w.u(13, 4).u(cfg.seed, 20).str(cfg.title, 60).str(cfg.teacher, 40).u(cfg.clefs, 2);
     COUNT_KEYS.forEach((k) => w.u(Math.min(31, cfg.counts[k] || 0), 5));
     w.u(cfg.ledger, 2).u(cfg.accMode, 2).u(cfg.intervals, 13).u(cfg.intervalDir, 2).u(cfg.chords, 8)
       .u(cfg.scales, 4).u(cfg.scaleLen, 1).u(cfg.keyMode, 2).u(cfg.keyMax, 3).u(Math.min(127, cfg.timeLimit), 7);
@@ -3892,7 +4008,7 @@ svg.staff .nlabel { display: none; }
     r.u(4);
     try {
       const v = r.u(4);
-      if (v < 1 || v > 12) throw new CodeError('This quiz was made with a newer version of Clefwork.');
+      if (v < 1 || v > 13) throw new CodeError('This quiz was made with a newer version of Clefwork.');
       const cfg = { seed: r.u(20), title: r.str(), teacher: r.str(), clefs: r.u(2), counts: {} };
       COUNT_KEYS.forEach((k) => (cfg.counts[k] = r.u(5)));
       Object.assign(cfg, {
@@ -4257,7 +4373,7 @@ svg.staff .nlabel { display: none; }
   function clefSVG(clef, by, x) {
     if (MQ.clefFont === false) {
       return clef === 'treble'
-        ? `<g transform="translate(${x + 18} ${by - 12})" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M1 -3C-3 -3 -4 3 1 4C7 5 9 -3 6 -7C2 -12 -9 -10 -10 -1C-11 8 -3 14 5 13C13 12 16 2 12 -5C8 -12 0 -20 -1 -32C-2 -44 2 -56 6 -58C10 -60 9 -48 4 -42C-1 -36 -2 -24 0 -10L3 18C4 26 -6 28 -6 21"/><circle cx="-4" cy="21" r="3.6" fill="currentColor" stroke="none"/></g>`
+        ? `<g transform="translate(${x + 23} ${by - 12})" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M-1 -3C3 -3 4 3 -1 4C-7 5 -9 -3 -6 -7C-2 -12 9 -10 10 -1C11 8 3 14 -5 13C-13 12 -16 2 -12 -5C-8 -12 0 -20 1 -32C2 -44 -2 -56 -6 -58C-10 -60 -9 -48 -4 -42C1 -36 2 -24 0 -10L-3 18C-4 26 6 28 6 21"/><circle cx="4" cy="21" r="3.6" fill="currentColor" stroke="none"/></g>`
         : `<g transform="translate(${x + 14} ${by - 36})" fill="currentColor"><circle cx="-2" cy="0" r="4.4"/><path d="M-2 -1C-2 -10 8 -12 13 -7C19 -1 16 10 -6 22" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><circle cx="22" cy="-6" r="2.2"/><circle cx="22" cy="6" r="2.2"/></g>`;
     }
     return clef === 'treble'
@@ -6691,11 +6807,15 @@ svg.staff .nlabel { display: none; }
     const frame = h('iframe', { class: 'print-frame', title: 'Print preview' });
     const status = h('p', { class: 'help print-status' });
 
-    const draw = () => {
-      if (!qs.length) { preview.replaceChildren(h('p', { class: 'empty' }, 'Add some questions on the Build a quiz tab first.')); return; }
+    const buildSheet = () => {
       const model = MQ.printModel(qs, S.cfg);
       const opts = printOpts({ qrSVG: MQ.qrSVG(printPayload(), 96 * S.print.qr, { ecc: 'L' }) });
-      const html = MQ.printHTML(model, printInfo(), opts, (q) => exportStaffSVG(q, { height: S.print.staffH }).markup);
+      return MQ.printHTML(model, printInfo(), opts, (q) => exportStaffSVG(q, { height: S.print.staffH }).markup);
+    };
+    const fileStem = () => (S.cfg.title || 'quiz').replace(/[^\w -]+/g, '').trim().replace(/\s+/g, '-').toLowerCase() || 'quiz';
+    const draw = () => {
+      if (!qs.length) { preview.replaceChildren(h('p', { class: 'empty' }, 'Add some questions on the Build a quiz tab first.')); return; }
+      const html = buildSheet();
       preview.replaceChildren(h('div', { class: 'print-head' },
         h('span', { class: 'mini-label' }, 'Preview'),
         h('span', { class: 'help' }, `${qs.length} question${qs.length === 1 ? '' : 's'} · ${MQ.paperOf(S.print.paper).label}`)), frame);
@@ -6730,19 +6850,40 @@ svg.staff .nlabel { display: none; }
 
     function doPrint() {
       if (!qs.length) { toast('There are no questions to print'); return; }
-      const model = MQ.printModel(qs, S.cfg);
-      const opts = printOpts({ qrSVG: MQ.qrSVG(printPayload(), 96 * S.print.qr, { ecc: 'L' }) });
-      const html = MQ.printHTML(model, printInfo(), opts, (q) => exportStaffSVG(q, { height: S.print.staffH }).markup);
-      const box = h('iframe', { class: 'print-hidden', 'aria-hidden': 'true' });
+      const html = buildSheet();
+      // The frame sits off to the side rather than being hidden: browsers skip printing
+      // a frame that isn't rendered.
+      const box = h('iframe', { class: 'print-hidden', title: 'Printable copy' });
       document.body.append(box);
       const doc = box.contentDocument;
       doc.open(); doc.write(html); doc.close();
+      let started = false;
+      try { box.contentWindow.addEventListener('beforeprint', () => { started = true; }); } catch (e) { /* cross-origin */ }
       const go = () => {
-        try { box.contentWindow.focus(); box.contentWindow.print(); }
-        catch (e) { toast('Your browser blocked printing here'); }
-        setTimeout(() => box.remove(), 1000);
+        status.textContent = '';
+        try { box.contentWindow.focus(); box.contentWindow.print(); } catch (e) { /* blocked below */ }
+        setTimeout(() => {
+          box.remove();
+          // Some places — a preview pane, an embedded copy — refuse to open a print dialog.
+          if (!started) openInstead(html);
+        }, 800);
       };
       if (doc.fonts && doc.fonts.ready) doc.fonts.ready.then(go, go); else setTimeout(go, 300);
+    }
+
+    // When printing is blocked, hand the teacher the page itself to print from.
+    async function openInstead(html) {
+      const blob = new Blob([html], { type: 'text/html' });
+      let win = null;
+      try { win = window.open(URL.createObjectURL(blob), '_blank'); } catch (e) { win = null; }
+      if (win) {
+        status.textContent = 'This page can’t open a print dialog, so the quiz opened in a new tab — print or save as PDF from there.';
+        return;
+      }
+      const res = await saveFile(fileStem() + '.html', blob);
+      status.textContent = res === 'saved'
+        ? 'This page can’t open a print dialog, so the printable quiz was saved as an HTML file — open it and print from your browser.'
+        : 'This page can’t open a print dialog. Open Clefwork in its own browser tab and print from there.';
     }
 
     async function doWord(btn) {
@@ -6760,8 +6901,7 @@ svg.staff .nlabel { display: none; }
         }
         const qr = MQ.qrPNG(printPayload(), { scale: 4, ecc: 'L' });
         const bytes = MQ.docxBytes(model, printInfo(), printOpts(), { byQuestion, qr: { bytes: qr.bytes, wIn: S.print.qr } });
-        const name = (S.cfg.title || 'quiz').replace(/[^\w -]+/g, '').trim().replace(/\s+/g, '-').toLowerCase() || 'quiz';
-        const res = await saveFile(name + '.docx', new Blob([bytes], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' }));
+        const res = await saveFile(fileStem() + '.docx', new Blob([bytes], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' }));
         status.textContent = res === 'saved' ? 'Word document saved.' : res === 'declined' ? 'Save cancelled.' : 'That download didn’t go through.';
       } catch (e) {
         status.textContent = 'Something went wrong building the document: ' + (e && e.message ? e.message : e);

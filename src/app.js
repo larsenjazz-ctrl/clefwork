@@ -1974,11 +1974,15 @@
     const frame = h('iframe', { class: 'print-frame', title: 'Print preview' });
     const status = h('p', { class: 'help print-status' });
 
-    const draw = () => {
-      if (!qs.length) { preview.replaceChildren(h('p', { class: 'empty' }, 'Add some questions on the Build a quiz tab first.')); return; }
+    const buildSheet = () => {
       const model = MQ.printModel(qs, S.cfg);
       const opts = printOpts({ qrSVG: MQ.qrSVG(printPayload(), 96 * S.print.qr, { ecc: 'L' }) });
-      const html = MQ.printHTML(model, printInfo(), opts, (q) => exportStaffSVG(q, { height: S.print.staffH }).markup);
+      return MQ.printHTML(model, printInfo(), opts, (q) => exportStaffSVG(q, { height: S.print.staffH }).markup);
+    };
+    const fileStem = () => (S.cfg.title || 'quiz').replace(/[^\w -]+/g, '').trim().replace(/\s+/g, '-').toLowerCase() || 'quiz';
+    const draw = () => {
+      if (!qs.length) { preview.replaceChildren(h('p', { class: 'empty' }, 'Add some questions on the Build a quiz tab first.')); return; }
+      const html = buildSheet();
       preview.replaceChildren(h('div', { class: 'print-head' },
         h('span', { class: 'mini-label' }, 'Preview'),
         h('span', { class: 'help' }, `${qs.length} question${qs.length === 1 ? '' : 's'} · ${MQ.paperOf(S.print.paper).label}`)), frame);
@@ -2013,19 +2017,40 @@
 
     function doPrint() {
       if (!qs.length) { toast('There are no questions to print'); return; }
-      const model = MQ.printModel(qs, S.cfg);
-      const opts = printOpts({ qrSVG: MQ.qrSVG(printPayload(), 96 * S.print.qr, { ecc: 'L' }) });
-      const html = MQ.printHTML(model, printInfo(), opts, (q) => exportStaffSVG(q, { height: S.print.staffH }).markup);
-      const box = h('iframe', { class: 'print-hidden', 'aria-hidden': 'true' });
+      const html = buildSheet();
+      // The frame sits off to the side rather than being hidden: browsers skip printing
+      // a frame that isn't rendered.
+      const box = h('iframe', { class: 'print-hidden', title: 'Printable copy' });
       document.body.append(box);
       const doc = box.contentDocument;
       doc.open(); doc.write(html); doc.close();
+      let started = false;
+      try { box.contentWindow.addEventListener('beforeprint', () => { started = true; }); } catch (e) { /* cross-origin */ }
       const go = () => {
-        try { box.contentWindow.focus(); box.contentWindow.print(); }
-        catch (e) { toast('Your browser blocked printing here'); }
-        setTimeout(() => box.remove(), 1000);
+        status.textContent = '';
+        try { box.contentWindow.focus(); box.contentWindow.print(); } catch (e) { /* blocked below */ }
+        setTimeout(() => {
+          box.remove();
+          // Some places — a preview pane, an embedded copy — refuse to open a print dialog.
+          if (!started) openInstead(html);
+        }, 800);
       };
       if (doc.fonts && doc.fonts.ready) doc.fonts.ready.then(go, go); else setTimeout(go, 300);
+    }
+
+    // When printing is blocked, hand the teacher the page itself to print from.
+    async function openInstead(html) {
+      const blob = new Blob([html], { type: 'text/html' });
+      let win = null;
+      try { win = window.open(URL.createObjectURL(blob), '_blank'); } catch (e) { win = null; }
+      if (win) {
+        status.textContent = 'This page can’t open a print dialog, so the quiz opened in a new tab — print or save as PDF from there.';
+        return;
+      }
+      const res = await saveFile(fileStem() + '.html', blob);
+      status.textContent = res === 'saved'
+        ? 'This page can’t open a print dialog, so the printable quiz was saved as an HTML file — open it and print from your browser.'
+        : 'This page can’t open a print dialog. Open Clefwork in its own browser tab and print from there.';
     }
 
     async function doWord(btn) {
@@ -2043,8 +2068,7 @@
         }
         const qr = MQ.qrPNG(printPayload(), { scale: 4, ecc: 'L' });
         const bytes = MQ.docxBytes(model, printInfo(), printOpts(), { byQuestion, qr: { bytes: qr.bytes, wIn: S.print.qr } });
-        const name = (S.cfg.title || 'quiz').replace(/[^\w -]+/g, '').trim().replace(/\s+/g, '-').toLowerCase() || 'quiz';
-        const res = await saveFile(name + '.docx', new Blob([bytes], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' }));
+        const res = await saveFile(fileStem() + '.docx', new Blob([bytes], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' }));
         status.textContent = res === 'saved' ? 'Word document saved.' : res === 'declined' ? 'Save cancelled.' : 'That download didn’t go through.';
       } catch (e) {
         status.textContent = 'Something went wrong building the document: ' + (e && e.message ? e.message : e);

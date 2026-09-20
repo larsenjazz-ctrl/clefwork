@@ -119,8 +119,24 @@ svg.staff .clabel.is-small { font-size: 10.5px; fill: #333; }
 svg.staff .sacc { font-family: 'Noto Music', serif; }
 svg.staff .nlabel { display: none; }
 @media screen {
+  /* The preview draws the whole sheet of paper with its margins marked. */
   body { background: #f1f2f6; padding: 16px 0; }
-  table.sheet { background: #fff; width: ${dim(p, p.w)}; padding: ${m}; box-shadow: 0 2px 14px rgba(0,0,0,.18); }
+  .page {
+    position: relative; background: #fff; width: ${dim(p, p.w)}; min-height: ${dim(p, p.h)};
+    padding: ${m}; margin: 0 auto; box-shadow: 0 2px 14px rgba(0,0,0,.18);
+  }
+  .page::before {
+    content: ''; position: absolute; inset: ${m}; border: 1px dashed #98a1b5; pointer-events: none;
+    /* A faint line wherever a new page starts. */
+    background: repeating-linear-gradient(to bottom,
+      transparent 0, transparent calc(${dim(p, p.h - p.margin * 2)} - 1px),
+      rgba(152, 161, 181, 0.6) calc(${dim(p, p.h - p.margin * 2)} - 1px), rgba(152, 161, 181, 0.6) ${dim(p, p.h - p.margin * 2)});
+  }
+  .page::after {
+    content: 'Margin ${p.margin}${p.unit}'; position: absolute; top: 3px; right: 6px;
+    font: 8pt/1 -apple-system, system-ui, sans-serif; color: #98a1b5;
+  }
+  table.sheet { width: 100%; }
 }`;
   }
 
@@ -145,13 +161,13 @@ svg.staff .nlabel { display: none; }
       .map((x) => `<span>${esc(x)}</span>`).join('');
     const qr = opts.qrSVG || '';
     // A table footer is what browsers repeat at the bottom of every printed page.
-    return `<table class="sheet"><tfoot><tr><td>`
+    return `<div class="page"><table class="sheet"><tfoot><tr><td>`
       + `<div class="pfoot">${qr}<span class="fid">Quiz ID ${esc(opts.quizId)}</span></div>`
       + `</td></tr></tfoot><tbody><tr><td><header class="head">`
       + `<h1>${esc(info.title || 'Music quiz')}</h1>`
       + (meta ? `<p class="meta">${meta}</p>` : '')
       + `<p class="name">Name: <span class="rule"></span></p>`
-      + `</header><ol class="qs">${rows}</ol></td></tr></tbody></table>`;
+      + `</header><ol class="qs">${rows}</ol></td></tr></tbody></table></div>`;
   }
 
   function printHTML(model, info, opts, staffSVG) {

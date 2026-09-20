@@ -547,6 +547,6 @@ select.fig-sel { min-width: 0; }
 .print-preview { display: flex; flex-direction: column; gap: 8px; position: sticky; top: calc(12px + env(safe-area-inset-top, 0px)); }
 .print-head { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
 .print-frame { width: 100%; height: min(78vh, 900px); border: 1px solid var(--line); border-radius: 10px; background: #fff; }
-.print-hidden { position: fixed; width: 0; height: 0; border: 0; visibility: hidden; }
+.print-hidden { position: fixed; left: -12000px; top: 0; width: 8.5in; height: 11in; border: 0; }
 input.is-invalid { border-color: var(--bad); background: var(--bad-soft); }
 @media (max-width: 960px) { .print-view { grid-template-columns: minmax(0, 1fr); } .print-preview { position: static; } }

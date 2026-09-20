@@ -110,8 +110,13 @@
   // ---------- questions ----------
   function pickKey(rng, cfg) {
     const max = Math.max(0, Math.min(7, cfg.figMax == null ? 4 : cfg.figMax));
-    const fifths = Math.floor(rng() * (2 * max + 1)) - max;
     const mode = cfg.figKey === 2 ? 'minor' : cfg.figKey === 3 ? (rng() < 0.5 ? 'major' : 'minor') : 'major';
+    const all = [];
+    for (let f = -max; f <= max; f++) all.push(f);
+    // Everyday keys come up far more often than remote ones.
+    const fifths = MQ.spelledPick(cfg)
+      ? MQ.pickSpelled(rng, all, (f) => (mode === 'minor' ? MQ.MINOR_KEYS : MQ.MAJOR_KEYS)[f + 7])
+      : Math.floor(rng() * (2 * max + 1)) - max;
     return MQ.makeKey(mode, fifths, null, 'harmonic');
   }
   function pickChord(rng, cfg, kd) {
