@@ -2013,7 +2013,12 @@
       h('div', { class: 'row2' },
         grp('Staff height', seg('pr-staff', [{ v: 1, label: '1 in' }, { v: 1.25, label: '1¼ in' }, { v: 1.5, label: '1½ in' }], S.print.staffH, (v) => { S.print.staffH = v; changed(); }), 'Never smaller than an inch.'),
         grp('QR code', seg('pr-qr', [{ v: 0.5, label: '½ in' }, { v: 0.75, label: '¾ in' }, { v: 1, label: '1 in' }], S.print.qr, (v) => { S.print.qr = v; changed(); }), 'Printed in the footer with the quiz ID.')),
-      h('div', { class: 'btn-row' }, printBtn, wordBtn), status);
+      h('div', { class: 'btn-row' }, printBtn, wordBtn),
+      inFrame ? h('p', { class: 'help' },
+        'This copy of Clefwork is embedded in another page, which may block the print dialog. If it does, the quiz is saved as an HTML file to print from — or open ',
+        SITE ? h('a', { href: SITE, target: '_blank', rel: 'noopener' }, 'Clefwork in its own tab') : 'Clefwork in its own browser tab',
+        ' to print straight away.') : null,
+      status);
 
     function doPrint() {
       if (!qs.length) { toast('There are no questions to print'); return; }
@@ -2050,7 +2055,9 @@
       const res = await saveFile(fileStem() + '.html', blob);
       status.textContent = res === 'saved'
         ? 'This page can’t open a print dialog, so the printable quiz was saved as an HTML file — open it and print from your browser.'
-        : 'This page can’t open a print dialog. Open Clefwork in its own browser tab and print from there.';
+        : res === 'declined'
+          ? 'Nothing was saved. This page can’t open a print dialog, so print from Clefwork in its own browser tab.'
+          : 'This page can’t open a print dialog. Open Clefwork in its own browser tab and print from there.';
     }
 
     async function doWord(btn) {
