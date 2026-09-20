@@ -546,7 +546,15 @@ select.fig-sel { min-width: 0; }
 .print-status { min-height: 1.2em; }
 .print-preview { display: flex; flex-direction: column; gap: 8px; position: sticky; top: calc(12px + env(safe-area-inset-top, 0px)); }
 .print-head { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
-.print-frame { width: 100%; height: min(78vh, 900px); border: 1px solid var(--line); border-radius: 10px; background: #fff; }
+.print-stage { height: min(78vh, 900px); overflow: auto; background: var(--surface-2); border: 1px solid var(--line); border-radius: 10px; padding: 12px; }
+.print-holder { margin: 0 auto; }
+.print-frame { border: 0; background: #fff; transform-origin: top left; box-shadow: 0 1px 6px rgba(20, 27, 46, .18); display: block; }
+.zoom-bar { display: flex; align-items: center; gap: 6px; margin-left: auto; }
+.zoom-bar .btn.sm { min-width: 34px; padding: 0 8px; }
+.zoom-bar .btn.sm.is-on { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
+.zoom-range { width: 110px; accent-color: var(--accent); }
+.zoom-pct { font: 500 12.5px var(--f-mono); color: var(--muted); min-width: 3.4em; text-align: right; }
+.print-head { flex-wrap: wrap; }
 input.is-invalid { border-color: var(--bad); background: var(--bad-soft); }
 @media (max-width: 960px) { .print-view { grid-template-columns: minmax(0, 1fr); } .print-preview { position: static; } }
 

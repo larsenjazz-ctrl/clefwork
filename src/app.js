@@ -1949,7 +1949,7 @@
     svg.setAttribute('viewBox', `0 ${top} ${W} ${height}`);
     svg.removeAttribute('style');
     svg.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
-    const inch = (q.grand ? 1.45 : 1) * (o.height || 1.25);
+    const inch = (q.grand ? 1.65 : 1) * (o.height || 1.25);   // a grand staff needs the extra room
     svg.setAttribute('width', (W / height) * inch * 96);
     svg.setAttribute('height', inch * 96);
     // The picture carries its own styling so it stands alone in a file or a Word document.
@@ -2014,14 +2014,65 @@
       return MQ.printHTML(model, printInfo(), opts, (q) => exportStaffSVG(q, { height: S.print.staffH }).markup);
     };
     const fileStem = () => (S.cfg.title || 'quiz').replace(/[^\w -]+/g, '').trim().replace(/\s+/g, '-').toLowerCase() || 'quiz';
+    // The page is drawn at its true size and scaled to fit the space, or to whatever the slider says.
+    const stage = h('div', { class: 'print-stage' });
+    const holder = h('div', { class: 'print-holder' }, frame);
+    stage.append(holder);
+    const zoomOut = h('button', { type: 'button', class: 'btn sm', 'aria-label': 'Zoom out', onclick: () => setZoom(zoom - 10) }, '−');
+    const zoomIn = h('button', { type: 'button', class: 'btn sm', 'aria-label': 'Zoom in', onclick: () => setZoom(zoom + 10) }, '+');
+    const slider = h('input', { type: 'range', min: 25, max: 200, step: 5, class: 'zoom-range', 'aria-label': 'Preview zoom' });
+    const zoomLabel = h('span', { class: 'zoom-pct' });
+    const fitBtn = h('button', { type: 'button', class: 'btn sm', onclick: () => { fitting = true; savePrint(); applyZoom(); } }, 'Fit page');
+    slider.addEventListener('input', () => setZoom(+slider.value));
+    let zoom = S.print.zoom || 100;
+    let fitting = S.print.zoom == null || S.print.zoom === 0;
+    function setZoom(v) {
+      zoom = Math.max(25, Math.min(200, Math.round(v / 5) * 5));
+      fitting = false;
+      S.print.zoom = zoom;
+      savePrint();
+      applyZoom();
+    }
+    function pageSize() {
+      const p = MQ.paperOf(S.print.paper);
+      const k = p.unit === 'mm' ? 96 / 25.4 : 96;
+      return { w: p.w * k, h: p.h * k };
+    }
+    function applyZoom() {
+      const page = pageSize();
+      const box = stage.getBoundingClientRect();
+      if (fitting && box.width > 40) {
+        const pad = 24;
+        zoom = Math.max(10, Math.min(200, Math.floor(((Math.min((box.width - pad) / page.w, (box.height - pad) / page.h)) * 100) / 5) * 5));
+        S.print.zoom = 0;
+      }
+      const k = zoom / 100;
+      const doc = frame.contentDocument;
+      const tall = doc && doc.body ? Math.max(doc.body.scrollHeight, page.h) : page.h;
+      frame.style.width = page.w + 'px';
+      frame.style.height = tall + 'px';
+      frame.style.transform = `scale(${k})`;
+      holder.style.width = page.w * k + 'px';
+      holder.style.height = tall * k + 'px';
+      slider.value = zoom;
+      zoomLabel.textContent = zoom + '%';
+      fitBtn.classList.toggle('is-on', fitting);
+    }
     const draw = () => {
       if (!qs.length) { preview.replaceChildren(h('p', { class: 'empty' }, 'Add some questions on the Build a quiz tab first.')); return; }
       const html = buildSheet();
       preview.replaceChildren(h('div', { class: 'print-head' },
         h('span', { class: 'mini-label' }, 'Preview'),
-        h('span', { class: 'help' }, `${qs.length} question${qs.length === 1 ? '' : 's'} · ${MQ.paperOf(S.print.paper).label}`)), frame);
+        h('span', { class: 'help' }, `${qs.length} question${qs.length === 1 ? '' : 's'} · ${MQ.paperOf(S.print.paper).label}`),
+        h('div', { class: 'zoom-bar' }, zoomOut, slider, zoomIn, zoomLabel, fitBtn)), stage);
       const doc = frame.contentDocument;
       doc.open(); doc.write(html); doc.close();
+      // The sheet's height is only known once it has laid out.
+      applyZoom();
+      const settle = () => applyZoom();
+      if (doc.fonts && doc.fonts.ready) doc.fonts.ready.then(settle, settle);
+      setTimeout(settle, 120);
+      setTimeout(settle, 600);
     };
     const changed = () => { savePrint(); draw(); };
 
@@ -2105,6 +2156,12 @@
     }
 
     draw();
+    // Re-fit when the window changes size.
+    if (S.printObserver) S.printObserver.disconnect();
+    if (window.ResizeObserver) {
+      S.printObserver = new ResizeObserver(() => { if (S.view === 'print') applyZoom(); });
+      S.printObserver.observe(stage);
+    }
   }
 
   // ---------- shell ----------

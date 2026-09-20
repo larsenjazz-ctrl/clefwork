@@ -17,7 +17,7 @@ Two tabs build chords from the teacher's complexity settings (sizes, qualities, 
 
 ### Printing
 
-The **Print** tab makes a paper copy of the current quiz: a header with the quiz title, teacher, course and date (mm/dd/yyyy, today's by default) and a blank for the student's name, then every question with a blank line beside its number for the point value, the printed example, and room to answer. Staves print at an inch or more, question text at 12pt, margins at 0.75 in (19 mm on A4), on Letter, Legal or A4. Every page carries a footer with the quiz ID and a QR code that opens the quiz. "Save as PDF" writes the PDF itself — the staves are drawn as line work, so they stay sharp at any size — and "Export Word" writes a .docx with the staves as pictures.
+The **Print** tab makes a paper copy of the current quiz: a header with the quiz title, teacher, course and date (mm/dd/yyyy, today's by default) and a blank for the student's name, then every question with a blank line beside its number for the point value, the printed example, and room to answer. Staves print at an inch or more — a grand staff 65% taller again, so there is room to write in both clefs — question text at 12pt, margins at 0.75 in (19 mm on A4), on Letter, Legal or A4. Every page carries a footer with the quiz ID and a QR code that opens the quiz. The preview zooms to fit a whole page, with a slider for a closer look. "Save as PDF" writes the PDF itself — the staves are drawn as line work, so they stay sharp at any size — and "Export Word" writes a .docx with the staves as pictures.
 
 ## Building
 

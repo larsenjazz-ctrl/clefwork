@@ -97,6 +97,8 @@ li.q .prompt { font-size: 12pt; margin: 0; }
 li.q .hint { font-size: 10pt; margin: 2pt 0 0; color: #333; }
 .example { margin: 6pt 0 0; }
 .example svg { display: block; height: ${staffH}in; width: auto; max-width: 100%; }
+/* A grand staff is drawn larger, so there is room to write in both clefs. */
+.example.is-grand svg { height: ${Math.round(staffH * 1.65 * 100) / 100}in; }
 .lines { margin: 8pt 0 0; display: flex; flex-wrap: wrap; gap: 6pt 16pt; }
 .lines .slot { font-size: 10pt; }
 .lines .slot i { font-style: normal; display: inline-block; border-bottom: 0.75pt solid #000; min-width: 1.5in; margin-left: 4pt; }
@@ -152,10 +154,11 @@ svg.staff .nlabel { display: none; }
       } else if (a.kind === 'choices') {
         answer = `<ol class="choices">${a.items.map((t, i) => `<li><b>${'ABCD'[i] || i + 1}.</b> ${esc(t)}</li>`).join('')}</ol>`;
       }
+      const grand = !!(it.q && (it.q.grand || it.q.clef === 'grand'));
       return `<li class="q"><span class="pts"></span><span class="num">${it.n}.</span><div class="body">`
         + `<p class="prompt">${esc(it.prompt)}</p>`
         + (it.hint ? `<p class="hint">${esc(it.hint)}</p>` : '')
-        + (svg ? `<div class="example">${svg}</div>` : '')
+        + (svg ? `<div class="example${grand ? ' is-grand' : ''}">${svg}</div>` : '')
         + answer + '</div></li>';
     }).join('');
     const meta = [info.course, info.teacher, info.date].filter((x) => x && String(x).trim())

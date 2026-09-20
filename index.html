@@ -555,7 +555,15 @@ select.fig-sel { min-width: 0; }
 .print-status { min-height: 1.2em; }
 .print-preview { display: flex; flex-direction: column; gap: 8px; position: sticky; top: calc(12px + env(safe-area-inset-top, 0px)); }
 .print-head { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
-.print-frame { width: 100%; height: min(78vh, 900px); border: 1px solid var(--line); border-radius: 10px; background: #fff; }
+.print-stage { height: min(78vh, 900px); overflow: auto; background: var(--surface-2); border: 1px solid var(--line); border-radius: 10px; padding: 12px; }
+.print-holder { margin: 0 auto; }
+.print-frame { border: 0; background: #fff; transform-origin: top left; box-shadow: 0 1px 6px rgba(20, 27, 46, .18); display: block; }
+.zoom-bar { display: flex; align-items: center; gap: 6px; margin-left: auto; }
+.zoom-bar .btn.sm { min-width: 34px; padding: 0 8px; }
+.zoom-bar .btn.sm.is-on { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
+.zoom-range { width: 110px; accent-color: var(--accent); }
+.zoom-pct { font: 500 12.5px var(--f-mono); color: var(--muted); min-width: 3.4em; text-align: right; }
+.print-head { flex-wrap: wrap; }
 input.is-invalid { border-color: var(--bad); background: var(--bad-soft); }
 @media (max-width: 960px) { .print-view { grid-template-columns: minmax(0, 1fr); } .print-preview { position: static; } }
 
@@ -3851,6 +3859,8 @@ li.q .prompt { font-size: 12pt; margin: 0; }
 li.q .hint { font-size: 10pt; margin: 2pt 0 0; color: #333; }
 .example { margin: 6pt 0 0; }
 .example svg { display: block; height: ${staffH}in; width: auto; max-width: 100%; }
+/* A grand staff is drawn larger, so there is room to write in both clefs. */
+.example.is-grand svg { height: ${Math.round(staffH * 1.65 * 100) / 100}in; }
 .lines { margin: 8pt 0 0; display: flex; flex-wrap: wrap; gap: 6pt 16pt; }
 .lines .slot { font-size: 10pt; }
 .lines .slot i { font-style: normal; display: inline-block; border-bottom: 0.75pt solid #000; min-width: 1.5in; margin-left: 4pt; }
@@ -3906,10 +3916,11 @@ svg.staff .nlabel { display: none; }
       } else if (a.kind === 'choices') {
         answer = `<ol class="choices">${a.items.map((t, i) => `<li><b>${'ABCD'[i] || i + 1}.</b> ${esc(t)}</li>`).join('')}</ol>`;
       }
+      const grand = !!(it.q && (it.q.grand || it.q.clef === 'grand'));
       return `<li class="q"><span class="pts"></span><span class="num">${it.n}.</span><div class="body">`
         + `<p class="prompt">${esc(it.prompt)}</p>`
         + (it.hint ? `<p class="hint">${esc(it.hint)}</p>` : '')
-        + (svg ? `<div class="example">${svg}</div>` : '')
+        + (svg ? `<div class="example${grand ? ' is-grand' : ''}">${svg}</div>` : '')
         + answer + '</div></li>';
     }).join('');
     const meta = [info.course, info.teacher, info.date].filter((x) => x && String(x).trim())
@@ -7264,7 +7275,7 @@ svg.staff .nlabel { display: none; }
     svg.setAttribute('viewBox', `0 ${top} ${W} ${height}`);
     svg.removeAttribute('style');
     svg.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
-    const inch = (q.grand ? 1.45 : 1) * (o.height || 1.25);
+    const inch = (q.grand ? 1.65 : 1) * (o.height || 1.25);   // a grand staff needs the extra room
     svg.setAttribute('width', (W / height) * inch * 96);
     svg.setAttribute('height', inch * 96);
     // The picture carries its own styling so it stands alone in a file or a Word document.
@@ -7329,14 +7340,65 @@ svg.staff .nlabel { display: none; }
       return MQ.printHTML(model, printInfo(), opts, (q) => exportStaffSVG(q, { height: S.print.staffH }).markup);
     };
     const fileStem = () => (S.cfg.title || 'quiz').replace(/[^\w -]+/g, '').trim().replace(/\s+/g, '-').toLowerCase() || 'quiz';
+    // The page is drawn at its true size and scaled to fit the space, or to whatever the slider says.
+    const stage = h('div', { class: 'print-stage' });
+    const holder = h('div', { class: 'print-holder' }, frame);
+    stage.append(holder);
+    const zoomOut = h('button', { type: 'button', class: 'btn sm', 'aria-label': 'Zoom out', onclick: () => setZoom(zoom - 10) }, '−');
+    const zoomIn = h('button', { type: 'button', class: 'btn sm', 'aria-label': 'Zoom in', onclick: () => setZoom(zoom + 10) }, '+');
+    const slider = h('input', { type: 'range', min: 25, max: 200, step: 5, class: 'zoom-range', 'aria-label': 'Preview zoom' });
+    const zoomLabel = h('span', { class: 'zoom-pct' });
+    const fitBtn = h('button', { type: 'button', class: 'btn sm', onclick: () => { fitting = true; savePrint(); applyZoom(); } }, 'Fit page');
+    slider.addEventListener('input', () => setZoom(+slider.value));
+    let zoom = S.print.zoom || 100;
+    let fitting = S.print.zoom == null || S.print.zoom === 0;
+    function setZoom(v) {
+      zoom = Math.max(25, Math.min(200, Math.round(v / 5) * 5));
+      fitting = false;
+      S.print.zoom = zoom;
+      savePrint();
+      applyZoom();
+    }
+    function pageSize() {
+      const p = MQ.paperOf(S.print.paper);
+      const k = p.unit === 'mm' ? 96 / 25.4 : 96;
+      return { w: p.w * k, h: p.h * k };
+    }
+    function applyZoom() {
+      const page = pageSize();
+      const box = stage.getBoundingClientRect();
+      if (fitting && box.width > 40) {
+        const pad = 24;
+        zoom = Math.max(10, Math.min(200, Math.floor(((Math.min((box.width - pad) / page.w, (box.height - pad) / page.h)) * 100) / 5) * 5));
+        S.print.zoom = 0;
+      }
+      const k = zoom / 100;
+      const doc = frame.contentDocument;
+      const tall = doc && doc.body ? Math.max(doc.body.scrollHeight, page.h) : page.h;
+      frame.style.width = page.w + 'px';
+      frame.style.height = tall + 'px';
+      frame.style.transform = `scale(${k})`;
+      holder.style.width = page.w * k + 'px';
+      holder.style.height = tall * k + 'px';
+      slider.value = zoom;
+      zoomLabel.textContent = zoom + '%';
+      fitBtn.classList.toggle('is-on', fitting);
+    }
     const draw = () => {
       if (!qs.length) { preview.replaceChildren(h('p', { class: 'empty' }, 'Add some questions on the Build a quiz tab first.')); return; }
       const html = buildSheet();
       preview.replaceChildren(h('div', { class: 'print-head' },
         h('span', { class: 'mini-label' }, 'Preview'),
-        h('span', { class: 'help' }, `${qs.length} question${qs.length === 1 ? '' : 's'} · ${MQ.paperOf(S.print.paper).label}`)), frame);
+        h('span', { class: 'help' }, `${qs.length} question${qs.length === 1 ? '' : 's'} · ${MQ.paperOf(S.print.paper).label}`),
+        h('div', { class: 'zoom-bar' }, zoomOut, slider, zoomIn, zoomLabel, fitBtn)), stage);
       const doc = frame.contentDocument;
       doc.open(); doc.write(html); doc.close();
+      // The sheet's height is only known once it has laid out.
+      applyZoom();
+      const settle = () => applyZoom();
+      if (doc.fonts && doc.fonts.ready) doc.fonts.ready.then(settle, settle);
+      setTimeout(settle, 120);
+      setTimeout(settle, 600);
     };
     const changed = () => { savePrint(); draw(); };
 
@@ -7420,6 +7482,12 @@ svg.staff .nlabel { display: none; }
     }
 
     draw();
+    // Re-fit when the window changes size.
+    if (S.printObserver) S.printObserver.disconnect();
+    if (window.ResizeObserver) {
+      S.printObserver = new ResizeObserver(() => { if (S.view === 'print') applyZoom(); });
+      S.printObserver.observe(stage);
+    }
   }
 
   // ---------- shell ----------
