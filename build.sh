@@ -14,7 +14,7 @@ body() {
   echo "<script>window.CLEFWORK_BASE = '$BASE';</script>"
   echo "<style>"; cat src/styles.css; echo "</style>"
   cat src/shell.html
-  echo "<script>"; cat src/theory.js src/progressions.js src/chords.js src/figured.js src/voicings.js src/qr.js src/print.js src/docx.js src/codec.js src/staff.js src/audio.js src/app.js; echo "</script>"
+  echo "<script>"; cat src/theory.js src/progressions.js src/chords.js src/figured.js src/voicings.js src/qr.js src/pdf.js src/print.js src/docx.js src/codec.js src/staff.js src/audio.js src/app.js; echo "</script>"
 }
 # Student version: same app with practice + take-a-quiz only (no quiz codes, no grading tab).
 SHEAD=$(printf '%s' "$HEAD" | sed 's#<title>Clefwork Music Quizzes</title>#<title>Clefwork Practice</title>#; s#Build music theory quizzes, have students write notes on the staff, and grade them from report codes#Practise music theory on the staff, and take quizzes from your teacher#')

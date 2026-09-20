@@ -195,7 +195,8 @@
   function counter(id, label, onChange) {
     let max = 30;
     const inp = h('input', { type: 'number', id, min: 0, inputmode: 'numeric', 'aria-label': `Number of ${label} questions` });
-    const set = (v) => { v = Math.max(0, Math.min(max, Math.round(+v || 0))); inp.value = v; onChange(v); };
+    const paint = (v) => { dec.disabled = v <= 0; inc.disabled = v >= max; };
+    const set = (v) => { v = Math.max(0, Math.min(max, Math.round(+v || 0))); inp.value = v; paint(v); onChange(v); };
     inp.addEventListener('change', () => set(inp.value));
     const dec = h('button', { type: 'button', 'aria-label': `Fewer ${label} questions`, onclick: () => set(+inp.value - 1) }, '−');
     const inc = h('button', { type: 'button', 'aria-label': `More ${label} questions`, onclick: () => set(+inp.value + 1) }, '+');
@@ -204,8 +205,7 @@
       max = m;
       inp.max = m;
       if (document.activeElement !== inp) inp.value = v;
-      dec.disabled = v <= 0;
-      inc.disabled = v >= m;
+      paint(v);
     };
     return el;
   }
@@ -422,18 +422,20 @@
   let figUid = 0;
   function figuredCard(q, cfg, o) {
     const uid = ++figUid;
-    const spell = q.type === 'figured' && q.figured.ask === 'spell';
+    // A question with column specs is one the students write out: single chord or progression.
+    const spell = q.colSpecs ? true : q.type === 'figured' && q.figured.ask === 'spell';
     const wrap = h('div', { class: 'qcard' + (o.compact ? ' is-compact' : '') });
     wrap.append(h('div', { class: 'q-eyebrow' }, typeOf(q.type).label, h('span', { class: 'q-clef' }, MQ.clefLabel(q.clef))));
     wrap.append(h(o.compact ? 'h3' : 'h2', { class: 'q-text' }, q.text));
     if (q.hint && !o.locked) wrap.append(h('p', { class: 'q-hint' }, q.hint));
-    if (spell) wrap.append(h('div', { class: 'fig-given' }, figuredDisplay(q.figured.answer.numeral, q.figured.answer.figure, 'is-big')));
+    if (spell && q.figured) wrap.append(h('div', { class: 'fig-given' }, figuredDisplay(q.figured.answer.numeral, q.figured.answer.figure, 'is-big')));
     const staffBox = h('div', { class: 'staff-box' });
     wrap.append(staffBox);
     const placed = spell ? clonePlaced(o.response) || q.columns.map(() => []) : null;
     const marks = spell && o.reveal ? MQ.markResponse(q, placed, cfg) : null;
     const staff = new MQ.Staff(staffBox, {
       clef: q.clef, keySig: q.keySig, keyAware: true, columns: q.columns, placed, barlines: q.type === 'figprog',
+      chordLabels: q.chordLabels || null,   // the printed numerals of a progression to spell
       readOnly: !spell || !!o.locked, labels: cfg.flags.labels, colW: q.type === 'figprog' ? 62 : null,
       reveal: spell && o.reveal && !o.keyMode ? q.answer : null, revealPc: true, marks,
       onChange: (pl) => o.onResponse && o.onResponse(pl),
@@ -825,7 +827,14 @@
       R.tabs[j].btn.focus();
       e.preventDefault();
     });
-    R.syncTabs = () => R.tabs.forEach((t) => {
+    R.syncTabs = () => {
+      // Keep the per-technique counters showing what the config actually holds.
+      panels.querySelectorAll('.stepper[data-tech]').forEach((el) => {
+        const [key, tech] = el.dataset.tech.split(':');
+        const b = MQ.voiceSettings(cfg[key]);
+        el.sync(b.tech[tech] || 0, 20);
+      });
+      R.tabs.forEach((t) => {
       // Progressions: an automatic entry can supply several questions, so the limit is the pool size.
       if (t.tech) {
         const b = cfg[t.tech] = MQ.voiceSettings(cfg[t.tech]);
@@ -840,10 +849,32 @@
       t.btn.querySelector('.qt-status').textContent = t.pool
         ? (cfg.progs.length ? `${cfg.progs.length} saved · up to ${len}` : 'None saved')
         : t.list ? (len ? `${len} saved` : 'None saved') : n ? '' : 'Off';
-    });
+      });
+    };
     select(S.buildTab);
     syncInvWarn();
+    // Empty every counter so a teacher can start a fresh quiz. Two clicks, so it can't happen by accident.
+    let armed = false;
+    const clearBtn = h('button', { type: 'button', class: 'btn sm clear-all', onclick: () => {
+      if (!armed) {
+        armed = true;
+        clearBtn.textContent = 'Clear everything?';
+        clearBtn.classList.add('is-armed');
+        setTimeout(() => { if (!armed) return; armed = false; clearBtn.textContent = 'Clear all questions'; clearBtn.classList.remove('is-armed'); }, 4000);
+        return;
+      }
+      armed = false;
+      clearBtn.textContent = 'Clear all questions';
+      clearBtn.classList.remove('is-armed');
+      Object.keys(cfg.counts).forEach((k) => (cfg.counts[k] = 0));
+      ['vc', 'vp'].forEach((k) => { cfg[k] = MQ.voiceSettings(cfg[k]); cfg[k].tech = {}; });
+      cfg.seed = MQ.randomSeed();
+      changed();
+      go('build');
+      toast('Cleared — the quiz is empty');
+    } }, 'Clear all questions');
     form.append(sec('types', 'Question types', 'Choose a type to change its settings. The counter on each tab sets how many of those questions the quiz asks.',
+      h('div', { class: 'types-top' }, clearBtn),
       strip, panels, h('div', { class: 'mix-foot' }, R.total)));
 
     const timeIn = h('input', { type: 'number', id: 'q-time', min: 0, max: 120, inputmode: 'numeric' });
@@ -1071,6 +1102,7 @@
     // One row per technique: how many questions use it, and the choices it offers.
     const rows = MQ.TECHNIQUES.filter((t) => !(isProg && t.id === 'custom')).map((t) => {
       const ctr = counter(id('n-' + t.id), t.label, (v) => { block.tech[t.id] = v; changed(); });
+      ctr.dataset.tech = key + ':' + t.id;        // so the tab counter can keep this one in step
       ctr.sync(block.tech[t.id] || 0, 20);
       const body = {
         thirds: () => [staffSeg('thirds-staff', 'thirdsStaff'),
@@ -1911,7 +1943,9 @@
     // Keep the staff plus room above and below for the notes students add.
     const staffTop = st.staves[0].by - 48, staffBottom = st.staves[st.staves.length - 1].by;
     const pad = 32;
-    const top = Math.max(0, staffTop - pad), height = Math.min(st.vbH - top, staffBottom + pad - top);
+    // Chord symbols and Roman numerals are drawn below the staff, so keep them in view.
+    const below = q.chordLabels ? st.vbH - staffBottom : pad;
+    const top = Math.max(0, staffTop - pad), height = Math.min(st.vbH - top, staffBottom + below - top);
     svg.setAttribute('viewBox', `0 ${top} ${W} ${height}`);
     svg.removeAttribute('style');
     svg.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
@@ -1998,7 +2032,7 @@
       if (MQ.validDate(v)) changed(); else savePrint();
     });
     const courseIn = textIn('pr-course', S.print.course, 60, 'e.g. Music Theory I', (v) => { S.print.course = v; changed(); });
-    const printBtn = h('button', { type: 'button', class: 'btn btn-primary', onclick: () => doPrint() }, 'Print or save as PDF');
+    const printBtn = h('button', { type: 'button', class: 'btn btn-primary', onclick: () => doPDF(printBtn) }, 'Save as PDF');
     const wordBtn = h('button', { type: 'button', class: 'btn', onclick: () => doWord(wordBtn) }, 'Export Word (.docx)');
     form.append(
       h('div', { class: 'card-head' }, h('div', null, h('span', { class: 'eyebrow' }, 'For teachers'), h('h1', { class: 'display' }, 'Print the quiz'))),
@@ -2014,50 +2048,37 @@
         grp('Staff height', seg('pr-staff', [{ v: 1, label: '1 in' }, { v: 1.25, label: '1¼ in' }, { v: 1.5, label: '1½ in' }], S.print.staffH, (v) => { S.print.staffH = v; changed(); }), 'Never smaller than an inch.'),
         grp('QR code', seg('pr-qr', [{ v: 0.5, label: '½ in' }, { v: 0.75, label: '¾ in' }, { v: 1, label: '1 in' }], S.print.qr, (v) => { S.print.qr = v; changed(); }), 'Printed in the footer with the quiz ID.')),
       h('div', { class: 'btn-row' }, printBtn, wordBtn),
-      inFrame ? h('p', { class: 'help' },
-        'This copy of Clefwork is embedded in another page, which may block the print dialog. If it does, the quiz is saved as an HTML file to print from — or open ',
-        SITE ? h('a', { href: SITE, target: '_blank', rel: 'noopener' }, 'Clefwork in its own tab') : 'Clefwork in its own browser tab',
-        ' to print straight away.') : null,
       status);
 
-    function doPrint() {
-      if (!qs.length) { toast('There are no questions to print'); return; }
-      const html = buildSheet();
-      // The frame sits off to the side rather than being hidden: browsers skip printing
-      // a frame that isn't rendered.
-      const box = h('iframe', { class: 'print-hidden', title: 'Printable copy' });
-      document.body.append(box);
-      const doc = box.contentDocument;
-      doc.open(); doc.write(html); doc.close();
-      let started = false;
-      try { box.contentWindow.addEventListener('beforeprint', () => { started = true; }); } catch (e) { /* cross-origin */ }
-      const go = () => {
-        status.textContent = '';
-        try { box.contentWindow.focus(); box.contentWindow.print(); } catch (e) { /* blocked below */ }
-        setTimeout(() => {
-          box.remove();
-          // Some places — a preview pane, an embedded copy — refuse to open a print dialog.
-          if (!started) openInstead(html);
-        }, 800);
+    // Measure with the same fonts the PDF uses, so lines wrap where they will print.
+    function pdfMeasurer() {
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      const FACE = { F1: '"Times New Roman", Times, serif', F2: 'bold "Times New Roman", Times, serif',
+        F3: 'italic "Times New Roman", Times, serif', F4: 'Helvetica, Arial, sans-serif', F5: 'bold Helvetica, Arial, sans-serif' };
+      return (str, size, font) => {
+        ctx.font = `${size}px ${FACE[font] || FACE.F1}`.replace(/^(\d)/, '$1').replace(/^(.*?)px (bold|italic) /, '$2 $1px ');
+        return ctx.measureText(str).width;
       };
-      if (doc.fonts && doc.fonts.ready) doc.fonts.ready.then(go, go); else setTimeout(go, 300);
     }
 
-    // When printing is blocked, hand the teacher the page itself to print from.
-    async function openInstead(html) {
-      const blob = new Blob([html], { type: 'text/html' });
-      let win = null;
-      try { win = window.open(URL.createObjectURL(blob), '_blank'); } catch (e) { win = null; }
-      if (win) {
-        status.textContent = 'This page can’t open a print dialog, so the quiz opened in a new tab — print or save as PDF from there.';
-        return;
+    async function doPDF(btn) {
+      if (!qs.length) { toast('There are no questions to print'); return; }
+      btn.disabled = true;
+      status.textContent = 'Building the PDF…';
+      try {
+        MQ.pdfMeasurer = pdfMeasurer();
+        const model = MQ.printModel(qs, S.cfg);
+        // The PDF draws the staves as line work, so it uses the drawn clefs, not the music font.
+        const art = new Map();
+        model.forEach((it) => { if (it.staff) art.set(it.q, exportStaffSVG(it.q, { height: S.print.staffH, drawnClefs: true })); });
+        const bytes = MQ.pdfSheet(model, printInfo(), printOpts({ qrPayload: printPayload() }), (q) => art.get(q) || null);
+        const res = await saveFile(fileStem() + '.pdf', new Blob([bytes], { type: 'application/pdf' }));
+        status.textContent = res === 'saved' ? 'PDF saved.' : res === 'declined' ? 'Save cancelled.' : 'That download didn’t go through.';
+      } catch (e) {
+        status.textContent = 'Something went wrong building the PDF: ' + (e && e.message ? e.message : e);
       }
-      const res = await saveFile(fileStem() + '.html', blob);
-      status.textContent = res === 'saved'
-        ? 'This page can’t open a print dialog, so the printable quiz was saved as an HTML file — open it and print from your browser.'
-        : res === 'declined'
-          ? 'Nothing was saved. This page can’t open a print dialog, so print from Clefwork in its own browser tab.'
-          : 'This page can’t open a print dialog. Open Clefwork in its own browser tab and print from there.';
+      btn.disabled = false;
     }
 
     async function doWord(btn) {

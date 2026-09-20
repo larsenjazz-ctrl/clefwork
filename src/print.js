@@ -37,7 +37,8 @@
     if (q.symbolAnswers) return { kind: 'lines', items: q.symbolAnswers.map((_, i) => `Chord ${i + 1}`) };
     if (q.symbolAnswer) return { kind: 'lines', items: ['Chord symbol'] };
     if (q.type === 'figured' || q.type === 'figprog') {
-      const spell = q.figured && q.figured.ask === 'spell';
+      // Column specs mean the students write the chords out; the numerals are printed for them.
+      const spell = q.colSpecs ? true : q.figured && q.figured.ask === 'spell';
       if (spell) return { kind: 'staff', items: [] };
       const n = q.type === 'figprog' ? chordCount(q) : 1;
       return { kind: 'lines', items: Array.from({ length: n }, (_, i) => (n > 1 ? `Chord ${i + 1}` : 'Numeral and figures')) };
@@ -176,8 +177,112 @@ svg.staff .nlabel { display: none; }
       + '<style>' + printCSS(opts) + '</style></head><body>' + sheetHTML(model, info, opts, staffSVG) + '</body></html>';
   }
 
+
+  // ---------- the same sheet, as a PDF ----------
+  const PT = (paper, v) => (paper.unit === 'mm' ? (v * 72) / 25.4 : v * 72);
+
+  // `artFor(q)` gives {svg, wIn, hIn} for a question's staff, or null when there is nothing to draw.
+  function pdfSheet(model, info, opts, artFor) {
+    const paper = paperOf(opts.paper);
+    const W = PT(paper, paper.w), H = PT(paper, paper.h), M = PT(paper, paper.margin);
+    const right = W - M;
+    const doc = MQ.pdfDoc({ width: W, height: H, title: info.title || 'Music quiz' });
+    const qr = opts.qrPayload ? MQ.qrMatrix(opts.qrPayload, { ecc: 'L' }) : null;
+    const qrPt = (opts.qrSize || 0.75) * 72;
+    const footTop = H - M - (qr ? qrPt : 10);
+    const bottom = footTop - 12;
+    const PTS_W = 40, NUM_W = 22, GAP = 6;
+    const textX = M + PTS_W + GAP + NUM_W;
+    const textW = right - textX;
+    let y = M;
+
+    function footer() {
+      doc.save().gray(0);
+      if (qr) {
+        const mod = qrPt / (qr.size + 8);
+        qr.modules.forEach((row, r) => row.forEach((v, c) => {
+          if (v) doc.rect(M + (c + 4) * mod, footTop + (r + 4) * mod, mod * 1.02, mod * 1.02);
+        }));
+        doc.fill();
+      }
+      MQ.pdfText(doc, 'Quiz ID ' + opts.quizId, M + (qr ? qrPt + 8 : 0), H - M - 2, 8, 'F4');
+      doc.restore();
+    }
+    function page() { doc.addPage(); footer(); y = M; }
+    page();
+
+    // ---------- header ----------
+    const title = info.title || 'Music quiz';
+    y += 17;
+    MQ.pdfText(doc, title, M, y, 20, 'F2');
+    y += 5;
+    const meta = [info.course, info.teacher, info.date].filter((x) => x && String(x).trim()).join('   ·   ');
+    if (meta) { y += 12; MQ.pdfText(doc, meta, M, y, 10.5, 'F1'); }
+    y += 16;
+    const nameW = MQ.pdfTextWidth('Name: ', 11, 'F1');
+    MQ.pdfText(doc, 'Name: ', M, y, 11, 'F1');
+    doc.gray(0).line(M + nameW, y + 2, M + nameW + 260, y + 2, 0.75);
+    y += 8;
+    doc.line(M, y, right, y, 1.2);          // the header ends here, inside the top 15% of the page
+    y += 16;
+
+    // ---------- questions ----------
+    model.forEach((it) => {
+      const prompt = MQ.pdfWrap(it.prompt, textW, 12, 'F1');
+      const hint = it.hint ? MQ.pdfWrap(it.hint, textW, 10, 'F1') : [];
+      const art = artFor ? artFor(it.q) : null;
+      const artW = art ? Math.min(textW, art.wIn * 72) : 0;
+      const artH = art ? (artW / (art.wIn * 72)) * art.hIn * 72 : 0;
+      const a = it.answer;
+      const slotW = Math.min(textW, 190);
+      const perRow = Math.max(1, Math.floor(textW / slotW));
+      const choiceCols = a.kind === 'choices'
+        ? Math.max(1, Math.min(a.items.length, Math.floor(textW / Math.max(90, ...a.items.map((t, i) => MQ.pdfTextWidth(`${'ABCD'[i] || i + 1}.  ${t}`, 11, 'F1') + 18)))))
+        : 1;
+      const answerH = a.kind === 'lines' ? Math.ceil(a.items.length / perRow) * 18 + 4
+        : a.kind === 'choices' ? Math.ceil(a.items.length / choiceCols) * 16 + 4 : 0;
+      const blockH = prompt.length * 15 + hint.length * 12.5 + (art ? artH + 8 : 0) + answerH + 14;
+      if (y + blockH > bottom && y > M + 10) page();
+      let ty = y + 11;
+      doc.gray(0).line(M, ty + 2, M + PTS_W, ty + 2, 0.75);
+      const numText = it.n + '.';
+      MQ.pdfText(doc, numText, M + PTS_W + GAP + NUM_W - 6 - MQ.pdfTextWidth(numText, 12, 'F2'), ty, 12, 'F2');
+      prompt.forEach((line, i) => { MQ.pdfText(doc, line, textX, ty + i * 15, 12, 'F1'); });
+      let by = ty + prompt.length * 15;
+      if (hint.length) {
+        doc.gray(0.3);
+        hint.forEach((line, i) => { MQ.pdfText(doc, line, textX, by + 1 + i * 12.5, 10, 'F1'); });
+        doc.gray(0);
+        by += hint.length * 12.5;
+      }
+      if (art) {
+        MQ.drawSVG(doc, art.svg, { x: textX, y: by + 4, w: artW, h: artH });
+        by += artH + 8;
+      }
+      if (a.kind === 'lines') {
+        a.items.forEach((label, i) => {
+          const col = i % perRow, row = Math.floor(i / perRow);
+          const lx = textX + col * slotW, ly = by + 12 + row * 18;
+          const lw = MQ.pdfTextWidth(label + ': ', 10, 'F1');
+          MQ.pdfText(doc, label + ': ', lx, ly, 10, 'F1');
+          doc.gray(0).line(lx + lw, ly + 2, lx + slotW - 14, ly + 2, 0.75);
+        });
+        by += Math.ceil(a.items.length / perRow) * 18 + 4;
+      } else if (a.kind === 'choices') {
+        const colW = textW / choiceCols;
+        a.items.forEach((t, i) => {
+          const col = i % choiceCols, row = Math.floor(i / choiceCols);
+          MQ.pdfText(doc, `${'ABCD'[i] || i + 1}.  ${t}`, textX + col * colW, by + 13 + row * 16, 11, 'F1');
+        });
+        by += Math.ceil(a.items.length / choiceCols) * 16 + 4;
+      }
+      y = by + 14;
+    });
+    return doc.bytes();
+  }
+
   Object.assign(MQ, {
     PAPERS, paperOf, headHeight, formatDate, today, validDate,
-    printModel, printAnswerFor: answerFor, printCSS, sheetHTML, printHTML, printEscape: esc,
+    printModel, printAnswerFor: answerFor, printCSS, sheetHTML, printHTML, printEscape: esc, pdfSheet, pdfPoints: PT,
   });
 })(typeof window !== 'undefined' ? window : globalThis);
