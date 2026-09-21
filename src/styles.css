@@ -741,3 +741,16 @@ input.an-in { width: 100%; min-height: 34px; padding: 4px 2px; text-align: cente
   .home-logo { width: 118px; height: 130px; }
 }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .tool-art-hl { fill: #e6b65c; } }
+
+/* ---------- start over: held at the top of the window while taking a quiz ---------- */
+.take-bar {
+  position: sticky; top: calc(8px + env(safe-area-inset-top, 0px)); z-index: 6;
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  margin-bottom: 14px; padding: 8px 8px 8px 14px;
+  background: var(--surface); border: 1px solid var(--line); border-radius: 12px; box-shadow: var(--shadow);
+}
+.take-bar-about { min-width: 0; font-size: 14px; font-weight: 700; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.take-bar .btn { flex: none; }
+.confirm-dialog { width: min(440px, calc(100vw - 32px)); }
+.confirm-dialog h2 { margin: 0; font: 700 22px/1.2 var(--f-display); }
+.confirm-dialog p { margin: 0; color: var(--ink-2); }

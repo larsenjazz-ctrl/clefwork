@@ -1720,6 +1720,68 @@
       h('p', { class: 'fine' }, h('b', null, about + '. '), note));
   }
 
+  // ---------- start over ----------
+  // A bar held at the top of the window on every screen of a quiz. Starting over goes back to the
+  // start screen with a blank name and blank answers. It records no attempt: only submitting does.
+  // An unsubmitted try keeps its attempt number; after submitting, starting over is the next attempt,
+  // so it's only offered while the quiz allows another one.
+  function startOverBar(t) {
+    const noRetake = !!(t && t.done && retakesLeft(t) <= 0);
+    const limit = t ? MQ.retakeLimit(t.cfg) : null;
+    const about = !t ? 'No quiz open'
+      : [t.cfg.title || 'Music quiz', t.preview ? 'preview' : `attempt ${t.attempt || 1}${limit != null ? ' of ' + (limit + 1) : ''}`].join(' · ');
+    return h('div', { class: 'take-bar' },
+      h('span', { class: 'take-bar-about' }, about),
+      h('button', {
+        type: 'button', class: 'btn sm', disabled: !t || noRetake || null,
+        title: !t ? 'Open a quiz first' : noRetake ? 'There are no attempts left at this quiz' : 'Go back to the start of this quiz',
+        onclick: startOver,
+      }, '↺ Start over'));
+  }
+  function startOver() {
+    const t = S.take;
+    if (!t || S.slot !== 'take') return;
+    if (t.done && retakesLeft(t) <= 0) { toast('There are no attempts left at this quiz.'); return; }
+    const fresh = () => {
+      const { code, attempt, preview, done } = t;
+      if (!openQuiz(code, { preview })) return;
+      // Not submitted: the same attempt again. Submitted: openQuiz has already numbered the next one.
+      if (!done) S.take.attempt = attempt || 1;
+      else if (preview) S.take.attempt = (attempt || 1) + 1;
+      saveAttempt();
+      go(tv());
+      window.scrollTo(0, 0);
+    };
+    const answered = t.resp.some((r, i) => MQ.hasAnswer(t.qs[i], r));
+    if (!t.started) { fresh(); return; }           // the start screen: nothing to lose but the name
+    const next = (t.attempt || 1) + 1;
+    confirmBox({
+      title: 'Start over?',
+      text: t.done
+        ? [`You’ll go back to the start of the quiz and enter your name again. Your next submission will be attempt ${next}.`,
+          h('strong', null, ' Send your report code first'), ' — this screen won’t come back.']
+        : [`You’ll go back to the start of the quiz and enter your name again${answered ? ', and your answers will be cleared' : ''}. `,
+          'This doesn’t count as an attempt — only submitting does.'],
+      ok: 'Start over',
+      onOk: fresh,
+    });
+  }
+  // A small yes/no dialog. opts: title, text, ok (button label), onOk.
+  function confirmBox(opts) {
+    const dlg = h('dialog', { class: 'ex-dialog confirm-dialog', 'aria-labelledby': 'cf-title' });
+    const close = () => dlg.close();
+    dlg.append(
+      h('h2', { id: 'cf-title' }, opts.title),
+      h('p', null, opts.text),
+      h('div', { class: 'btn-row' },
+        h('button', { type: 'button', class: 'btn btn-primary', onclick: () => { close(); opts.onOk(); } }, opts.ok),
+        h('button', { type: 'button', class: 'btn btn-quiet', onclick: close }, 'Cancel')));
+    dlg.addEventListener('close', () => dlg.remove());
+    document.body.append(dlg);
+    dlg.showModal();
+    dlg.querySelector('.btn-quiet').focus();
+  }
+
   const slotKey = (slot) => (slot === 'practice' ? 'practice' : 'attempt');
   function saveAttempt() {
     const t = S.take;
@@ -1760,6 +1822,7 @@
 
   function renderTake(main) {
     const t = S.take;
+    if (S.slot === 'take') main.append(startOverBar(t));
     if (!t) return takeLoad(main);
     if (!t.started) return takeIntro(main);
     if (t.done) return takeDone(main);
