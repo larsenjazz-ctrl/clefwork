@@ -561,3 +561,16 @@ input.is-invalid { border-color: var(--bad); background: var(--bad-soft); }
 /* clearing a quiz: a second click confirms */
 .types-top { display: flex; justify-content: flex-end; margin-top: -6px; }
 .clear-all.is-armed { border-color: var(--bad); color: var(--bad); background: var(--bad-soft); }
+
+/* Canvas: the setup dialog, the hand-in steps, and the results page */
+.canvas-dialog { width: min(680px, calc(100vw - 32px)); max-height: calc(100vh - 48px); overflow: auto; }
+.cv-body { display: flex; flex-direction: column; gap: 14px; }
+.cv-steps { margin: 0; padding-left: 22px; display: grid; gap: 6px; font-size: 14.5px; color: var(--ink-2); }
+.cv-item { display: flex; flex-direction: column; gap: 6px; }
+.cv-item-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+textarea.cv-code, textarea.cv-result { font: 500 12.5px/1.5 var(--f-mono); resize: vertical; background: var(--surface-2); word-break: break-all; }
+textarea.cv-result { margin-top: 10px; }
+.canvas-score { margin-top: 4px; font-size: 14px; color: var(--ink-2); }
+.canvas-score b { color: var(--accent); font-size: 16px; }
+.results-page { padding-top: 4px; }
+.results-foot { text-align: center; margin: 4px auto 24px; }

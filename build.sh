@@ -24,8 +24,19 @@ DOC='<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="view
 { echo "$DOC"; echo "$HEAD"; echo '</head><body>'; body; echo '</body></html>'; } > dist/clefwork-standalone.html
 { echo "$SHEAD"; echo "$FLAG"; body; } > dist/clefwork-student.html
 { echo "$DOC"; echo "$SHEAD"; echo "$FLAG"; echo '</head><body>'; body; echo '</body></html>'; } > dist/clefwork-student-standalone.html
-# Copies for GitHub Pages: the teacher app at index.html, the student app at student.html.
+# The Canvas edition: take.html only takes a quiz and ends with a results link to submit;
+# results.html shows one student's results from that link (it opens in SpeedGrader).
+THEAD=$(printf '%s' "$HEAD" | sed 's#<title>Clefwork Music Quizzes</title>#<title>Clefwork Quiz</title>#; s#Build music theory quizzes, have students write notes on the staff, and grade them from report codes#Take a music theory quiz on the staff and hand in your results link#')
+RHEAD=$(printf '%s' "$HEAD" | sed 's#<title>Clefwork Music Quizzes</title>#<title>Clefwork Results</title>#; s#Build music theory quizzes, have students write notes on the staff, and grade them from report codes#One student’s quiz results#')
+TFLAG='<script>window.CLEFWORK_STUDENT = true; window.CLEFWORK_MODE = "canvas";</script>'
+RFLAG='<script>window.CLEFWORK_MODE = "results";</script>'
+{ echo "$DOC"; echo "$THEAD"; echo "$TFLAG"; echo '</head><body>'; body; echo '</body></html>'; } > dist/clefwork-take-standalone.html
+{ echo "$DOC"; echo "$RHEAD"; echo "$RFLAG"; echo '</head><body>'; body; echo '</body></html>'; } > dist/clefwork-results-standalone.html
+# Copies for GitHub Pages: the teacher app at index.html, the student app at student.html,
+# and the Canvas pages at take.html and results.html.
 mkdir -p dist/site
 cp dist/clefwork-standalone.html dist/site/index.html
 cp dist/clefwork-student-standalone.html dist/site/student.html
+cp dist/clefwork-take-standalone.html dist/site/take.html
+cp dist/clefwork-results-standalone.html dist/site/results.html
 wc -c dist/*.html

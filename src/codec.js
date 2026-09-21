@@ -128,7 +128,7 @@
     const w = new Writer();
     // Version 2 added teacher-defined chords after the flags; version 3 adds how many to ask
     // plus grand-staff voicings. Older codes still decode.
-    w.u(13, 4).u(cfg.seed, 20).str(cfg.title, 60).str(cfg.teacher, 40).u(cfg.clefs, 2);
+    w.u(14, 4).u(cfg.seed, 20).str(cfg.title, 60).str(cfg.teacher, 40).u(cfg.clefs, 2);
     COUNT_KEYS.forEach((k) => w.u(Math.min(31, cfg.counts[k] || 0), 5));
     w.u(cfg.ledger, 2).u(cfg.accMode, 2).u(cfg.intervals, 13).u(cfg.intervalDir, 2).u(cfg.chords, 8)
       .u(cfg.scales, 4).u(cfg.scaleLen, 1).u(cfg.keyMode, 2).u(cfg.keyMax, 3).u(Math.min(127, cfg.timeLimit), 7);
@@ -207,6 +207,8 @@
       w.u(o.thirdsStaff || 0, 2).u(o.thirdsOmitRoot ? 1 : 0, 1).u(o.blockStaff || 0, 2)
         .u(o.planesOpen || 0, 2).u(o.popNotes === 4 ? 1 : 0, 1).u(o.popStaff || 0, 2).u(o.inner2 ? 1 : 0, 1);
     });
+    // Version 14: how many points the quiz is worth in Canvas, so results pages can scale the score.
+    w.u(Math.max(0, Math.min(1000, Math.round(cfg.canvasPts || 0))), 10);
     return pack(KIND_QUIZ, w.b);
   }
 
@@ -218,7 +220,7 @@
     r.u(4);
     try {
       const v = r.u(4);
-      if (v < 1 || v > 13) throw new CodeError('This quiz was made with a newer version of Clefwork.');
+      if (v < 1 || v > 14) throw new CodeError('This quiz was made with a newer version of Clefwork.');
       const cfg = { seed: r.u(20), title: r.str(), teacher: r.str(), clefs: r.u(2), counts: {} };
       COUNT_KEYS.forEach((k) => (cfg.counts[k] = r.u(5)));
       Object.assign(cfg, {
@@ -323,6 +325,7 @@
       }
       cfg.vc = MQ.defaultConfig().vc;
       cfg.vp = MQ.defaultConfig().vp;
+      cfg.canvasPts = 0;
       if (cfg.helpOv.vprog == null) cfg.helpOv.vprog = 2;
       if (v >= 12) {
         cfg.helpOv.vprog = r.u(2);
@@ -333,6 +336,7 @@
           MQ.TECHNIQUES.forEach((t) => { const n = r.u(5); if (n) b.tech[t.id] = n; });
           b.opts = { thirdsStaff: r.u(2), thirdsOmitRoot: r.u(1), blockStaff: r.u(2), planesOpen: r.u(2), popNotes: r.u(1) ? 4 : 3, popStaff: r.u(2), inner2: r.u(1) };
         });
+        if (v >= 14) cfg.canvasPts = r.u(10);
         const sum = (b) => MQ.TECHNIQUES.reduce((n, t) => n + ((b.tech && b.tech[t.id]) || 0), 0);
         cfg.counts.voicing = sum(cfg.vc);
         cfg.counts.vprog = sum(cfg.vp);

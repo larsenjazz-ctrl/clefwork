@@ -4,6 +4,7 @@ Music theory quizzes that run entirely in the browser — no server, no accounts
 
 - **Teacher app:** [index.html](https://larsenjazz-ctrl.github.io/clefwork/) — build a quiz, share its code or link, and grade the report codes students send back.
 - **Student app:** [student.html](https://larsenjazz-ctrl.github.io/clefwork/student.html) — practise with instant feedback, or take a teacher's quiz and send back a report code.
+- **Canvas pages:** [take.html](https://larsenjazz-ctrl.github.io/clefwork/take.html) takes one quiz and ends with a results link to hand in; [results.html](https://larsenjazz-ctrl.github.io/clefwork/results.html) shows one student's results from that link.
 
 ## How it works
 
@@ -14,6 +15,12 @@ Question types: place a note, name a note, intervals (simple and compound), chor
 ### Voicings
 
 Two tabs build chords from the teacher's complexity settings (sizes, qualities, altered notes, chords from a key or chromatic, slash chords) and voice them with a named technique: stacked thirds, chorale, block voicing, drop 2, drop 2 & 4, 5 plane / 9 plane, pop horn voicings, inner sevenths, or a voicing the teacher writes out. Each technique has its own counter and its own choices — staff, open or closed, three or four notes, inner 2nds. Students either write the notes for a printed chord symbol, or write the chord symbol for a printed voicing.
+
+### Canvas
+
+"Set up in Canvas" on the teacher's share card gives everything needed to run a quiz through a Canvas assignment: the quiz link, a ready-made assignment description to paste into the HTML editor, an embed for a Canvas page, and an optional number of points the quiz is worth there. Students take the quiz on `take.html`, then submit their results link as a **Website URL**. SpeedGrader shows a snapshot of each student's results page — name, score, the score scaled to the Canvas points, and every answer — with a link to the live page.
+
+Canvas can't receive the grade by itself: that needs an LTI tool running on a server, which this app deliberately doesn't have. The teacher types the score from SpeedGrader. Correct answers stay off shared results pages unless the quiz lets students check answers; on the computer the quiz was built on, the results page marks everything against the saved quiz.
 
 ### Printing
 
