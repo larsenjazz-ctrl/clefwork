@@ -138,6 +138,8 @@
   const quizId = (code) => crc16(utf8(normalize(code)));
 
   // ---------- quiz codes ----------
+  // Retakes a quiz allows after the first attempt: a number from 0 to 31, or null for no limit.
+  const retakeLimit = (cfg) => (cfg && Number.isInteger(cfg.retakes) && cfg.retakes >= 0 ? Math.min(31, cfg.retakes) : null);
   function encodeQuiz(cfg) {
     const w = new Writer();
     // Version 2 added teacher-defined chords after the flags; version 3 adds how many to ask
@@ -230,17 +232,21 @@
     // Codes from before have only padding here. Extension 1: Clefwork Analysis — the boxes on the
     // score and their answers, and a fingerprint of the picture (which travels in the link).
     // Quizzes without it keep exactly the codes they had.
+    // Extension 2: a limit on retakes (0–31). Unlimited retakes — the default — write nothing,
+    // so those quizzes keep their codes too; a limit also writes the (possibly empty) block before it.
     const an = MQ.analysisSettings(cfg.analysis);
     const regions = an.regions.slice(0, MQ.ANALYSIS_MAX);
-    if (regions.length || an.img) {
+    const limit = retakeLimit(cfg);
+    if (regions.length || an.img || limit != null) {
       const q10 = (v) => Math.max(0, Math.min(1023, Math.round(v * 1023)));
-      w.u(1, 8).u(an.override, 2).u(an.img ? 1 : 0, 1);
+      w.u(limit != null ? 2 : 1, 8).u(an.override, 2).u(an.img ? 1 : 0, 1);
       if (an.img) w.u(an.img.hash >>> 0, 32);
       w.strN(an.notes, 200, 8).u(regions.length, 6);
       regions.forEach((r) => {
         w.u(q10(r.x), 10).u(q10(r.y), 10).u(q10(r.w), 10).u(q10(r.h), 10)
           .u(Math.max(1, MQ.ANALYSIS_ASKS.indexOf(r.ask)), 2).str(r.roman, 63).str(r.symbol, 63);
       });
+      if (limit != null) w.u(limit, 5);
     }
     return pack(KIND_QUIZ, w.b);
   }
@@ -359,6 +365,7 @@
       cfg.vc = MQ.defaultConfig().vc;
       cfg.vp = MQ.defaultConfig().vp;
       cfg.canvasPts = 0;
+      cfg.retakes = null;
       cfg.keys = MQ.defaultConfig().keys;
       cfg.counts.keys = 0;
       cfg.analysis = MQ.defaultConfig().analysis;
@@ -390,6 +397,7 @@
             cfg.analysis = an;
             cfg.counts.analysis = n;
           }
+          if (ext >= 2) cfg.retakes = r.u(5);
         }
         const sum = (b) => MQ.TECHNIQUES.reduce((n, t) => n + ((b.tech && b.tech[t.id]) || 0), 0);
         cfg.counts.voicing = sum(cfg.vc);
@@ -546,7 +554,7 @@
   function encodeReport(report, cfg, quizCode) {
     const qid = quizId(quizCode);
     const w = new Writer();
-    w.u(8, 4).u(qid, 16).str(report.name, 40)
+    w.u(9, 4).u(qid, 16).str(report.name, 40)
       .u(Math.max(0, Math.round((report.submittedAt - EPOCH) / 60000)), 24)
       .u(Math.min(65535, Math.round(report.totalSec)), 16)
       .u(report.partial ? 1 : 0, 1).u(report.items.length, 7);
@@ -558,6 +566,7 @@
     const ans = report.answers;
     w.u(ans ? 1 : 0, 1);
     if (ans) ans.qs.forEach((q, i) => writeAnswer(w, q, ans.resp[i]));
+    w.u(Math.max(1, Math.min(31, Math.round(report.attempt || 1))), 5);   // version 9: which attempt this was
     return pack(KIND_REPORT, w.b, sealKey(cfg, qid));
   }
 
@@ -571,7 +580,7 @@
     const restBits = body.slice(20);
     try {
       const ver = r.u(4);
-      if (ver < 1 || ver > 8) throw new CodeError('This report was made with a newer version of Clefwork.');
+      if (ver < 1 || ver > 9) throw new CodeError('This report was made with a newer version of Clefwork.');
       const rep = { code: group(clean), quizId: r.u(16), name: r.str() };
       rep.submittedAt = EPOCH + r.u(24) * 60000;
       rep.totalSec = r.u(16);
@@ -588,6 +597,7 @@
       }
       rep.answers = null;
       if (ver >= 4 && r.u(1)) rep.answers = rep.items.map((it) => readAnswer(r, it.type, ver));
+      rep.attempt = ver >= 9 ? r.u(5) || 1 : null;              // older reports didn't say
       // True when the seal matches the quiz this report claims to belong to.
       rep.verifySeal = (cfg) => seal16(bitsToBytes(restBits), sealKey(cfg, rep.quizId)) === seal;
       return rep;
@@ -621,5 +631,5 @@
     };
   }
 
-  Object.assign(MQ, { encodeQuiz, decodeQuiz, encodeReport, decodeReport, answerFor, reportStats, quizId, normalize, CodeError });
+  Object.assign(MQ, { retakeLimit, encodeQuiz, decodeQuiz, encodeReport, decodeReport, answerFor, reportStats, quizId, normalize, CodeError });
 })(typeof window !== 'undefined' ? window : globalThis);

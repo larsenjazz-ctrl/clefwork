@@ -32,6 +32,12 @@ Students see the whole score with each box lightly highlighted in its own colour
 
 The picture travels inside the quiz link as a compressed black-and-white copy — about 8–15 KB for a passage, more for a dense full page — so nothing is hosted anywhere. Detail (Standard, High, Highest) and ink (Lighter, Normal, Darker) trade link length against sharpness. The quiz code on its own doesn't carry the picture, so students open the link; the code still works for grading on another computer. Report codes, the grade checker, results pages and Canvas work as they do everywhere else, and the grade checker shows each box cropped from the score with the student's answers marked. Analysis quizzes don't print.
 
+### Retakes
+
+Every Clefwork page ends a quiz with a **Retake quiz** button: the same quiz code, so the same questions, and a fresh start. Retakes are unlimited unless the teacher sets a limit under **Quiz rules** (none, or 1–10 retakes). The limit travels in the quiz code; quizzes without one keep exactly the codes they had.
+
+A student's device counts their attempts and stops offering retakes once the limit is used. Because there's no server, a student could start again on another device — so every report code also records its attempt number, and the grade checker and results pages show it ("Attempt 2"), with a warning when an attempt goes past the quiz's limit. Report codes are now version 9.
+
 ### Canvas
 
 "Set up in Canvas" on the teacher's share card gives everything needed to run a quiz through a Canvas assignment: the quiz link, a ready-made assignment description to paste into the HTML editor, an embed for a Canvas page, and an optional number of points the quiz is worth there. Students take the quiz on `take.html`, then submit their results link as a **Website URL**. SpeedGrader shows a snapshot of each student's results page — name, score, the score scaled to the Canvas points, and every answer — with a link to the live page.

@@ -1021,8 +1021,12 @@
     timeIn.value = cfg.timeLimit;
     timeIn.addEventListener('change', () => { const v = Math.max(0, Math.min(120, Math.round(+timeIn.value || 0))); timeIn.value = v; cfg.timeLimit = v; changed(); });
     const flag = (k, label, desc) => toggle('f-' + k, label, desc, cfg.flags[k], (v) => { cfg.flags[k] = v; changed(); });
+    const RETAKES = [{ v: 'u', label: 'Unlimited' }, { v: 0, label: 'None — one attempt' }, { v: 1, label: '1 retake' }, { v: 2, label: '2 retakes' },
+      { v: 3, label: '3 retakes' }, { v: 5, label: '5 retakes' }, { v: 10, label: '10 retakes' }];
+    const retakeIn = selectEl('q-retakes', RETAKES, cfg.retakes == null ? 'u' : cfg.retakes, (v) => { cfg.retakes = v === 'u' ? null : +v; changed(); });
     form.append(sec('rules', 'Quiz rules', null,
-      h('div', { class: 'row2' }, fld('Time limit in minutes', timeIn, '0 means no limit. The quiz submits itself when time runs out.')),
+      h('div', { class: 'row2' }, fld('Time limit in minutes', timeIn, '0 means no limit. The quiz submits itself when time runs out.'),
+        STUDENT ? null : fld('Retakes', retakeIn, 'Students can retake the quiz to improve their score — the same questions each time. Each report shows its attempt number.')),
       h('div', { class: 'toggles' },
         ANALYSIS ? null : flag('shuffle', 'Shuffle question order', 'Mixes the question types together instead of grouping them.'),
         KEYS ? null : ANALYSIS ? flag('partial', 'Partial credit', 'A box that asks for both earns half credit for each right answer.')
@@ -1643,8 +1647,16 @@
           throw new MQ.CodeError('This quiz is on a picture of the music, which comes in the quiz link — the code on its own doesn’t carry it. Open the link your teacher sent.');
         }
       }
+      const preview = !!(opts && opts.preview);
+      const limit = MQ.retakeLimit(cfg);
+      const used = preview ? 0 : attemptsUsed(code);
+      if (limit != null && used >= limit + 1) {
+        throw new MQ.CodeError(limit === 0 ? 'You’ve already taken this quiz on this device, and it can be taken once.'
+          : `You’ve used all ${limit + 1} attempts at this quiz on this device.`);
+      }
       const qs = MQ.generateQuiz(cfg);
       S.take = {
+        attempt: used + 1,
         code: code.replace(/[^0-9A-Za-z]/g, '').toUpperCase(), cfg, qs, name: '', idx: 0,
         resp: qs.map(() => null), secs: qs.map(() => 0), checked: qs.map(() => false),
         started: false, done: false, reviewing: false, preview: !!(opts && opts.preview),
@@ -1656,6 +1668,56 @@
       return false;
     }
   }
+
+  // ---------- retakes ----------
+  // Attempts are counted on this device, per quiz (a retake reuses the same code and questions).
+  // The limit comes from the quiz code; each report also records its attempt number, so the teacher
+  // can see it even though a device can't stop a student starting afresh somewhere else.
+  const attemptLog = () => store.get('attempts', {}) || {};
+  const attemptsUsed = (code) => ((attemptLog()[MQ.quizId(code)] || {}).count || 0);
+  function recordAttempt(code, pct) {
+    const log = attemptLog();
+    const id = MQ.quizId(code);
+    const a = log[id] || { count: 0, best: null };
+    a.count += 1;
+    a.best = a.best == null ? pct : Math.max(a.best, pct);
+    log[id] = a;
+    store.set('attempts', log);
+  }
+  const bestSoFar = (code) => { const a = attemptLog()[MQ.quizId(code)]; return a && a.best != null ? a.best : null; };
+  // Tries still allowed after the attempt just finished: Infinity when the quiz sets no limit.
+  function retakesLeft(t) {
+    const limit = MQ.retakeLimit(t.cfg);
+    if (t.preview || limit == null) return Infinity;
+    return Math.max(0, limit + 1 - attemptsUsed(t.code));
+  }
+  const retakeText = (limit) => (limit == null ? 'Unlimited' : limit === 0 ? 'None' : String(limit));
+  function retakeQuiz() {
+    const t = S.take;
+    if (!t) return;
+    if (retakesLeft(t) <= 0) { toast('There are no retakes left for this quiz.'); return; }
+    const { name, preview } = t;
+    if (!openQuiz(t.code, { preview })) return;
+    Object.assign(S.take, { name, started: true, startedAt: Date.now() });
+    if (preview) S.take.attempt = (t.attempt || 1) + 1;
+    saveAttempt();
+    go(tv());
+  }
+  // The retake button and what it says, for the end of a quiz.
+  function retakeBlock(t) {
+    if (t.practice) return null;
+    const left = retakesLeft(t);
+    const limit = MQ.retakeLimit(t.cfg);
+    const best = t.preview ? null : bestSoFar(t.code);
+    const about = [`Attempt ${t.attempt || 1}`, best != null ? `best so far ${Math.round(best)}%` : null].filter(Boolean).join(' · ');
+    const note = left === Infinity ? 'You can retake this quiz as many times as you like — the same questions, a fresh start.'
+      : left > 0 ? `You can retake this quiz ${left} more time${left === 1 ? '' : 's'}.`
+        : limit === 0 ? 'This quiz can be taken once.' : 'You’ve used every retake for this quiz.';
+    return h('div', { class: 'retake-row' },
+      left > 0 ? h('button', { type: 'button', class: 'btn', onclick: retakeQuiz }, 'Retake quiz') : null,
+      h('p', { class: 'fine' }, h('b', null, about + '. '), note));
+  }
+
   const slotKey = (slot) => (slot === 'practice' ? 'practice' : 'attempt');
   function saveAttempt() {
     const t = S.take;
@@ -1741,6 +1803,7 @@
       h('dl', { class: 'facts' },
         h('div', null, h('dt', null, 'Questions'), h('dd', null, String(t.qs.length))),
         h('div', null, h('dt', null, 'Time limit'), h('dd', null, cfg.timeLimit ? cfg.timeLimit + ' min' : 'None')),
+        h('div', null, h('dt', null, 'Retakes'), h('dd', null, retakeText(MQ.retakeLimit(cfg)))),
         // A quiz of only Keys questions is on the grand staff and the piano, whatever the clef setting.
         onlyAnalysis(cfg)
           ? h('div', null, h('dt', null, 'Uses'), h('dd', null, 'A picture of the score'))
@@ -1850,7 +1913,8 @@
       const credit = frac === 1 ? 7 : partial ? Math.min(6, Math.round(frac * 7)) : 0;
       return { type: q.type, clef: q.clef, credit, answered: MQ.hasAnswer(q, t.resp[i]), sec: t.secs[i] };
     });
-    t.report = { name: t.name, submittedAt: Date.now(), totalSec: t.secs.reduce((a, b) => a + b, 0), partial, items };
+    t.report = { name: t.name, submittedAt: Date.now(), totalSec: t.secs.reduce((a, b) => a + b, 0), partial, items, attempt: t.attempt || 1 };
+    if (!t.practice && !t.preview) recordAttempt(t.code, MQ.reportStats(t.report).pct);
     // The report code also carries what the student entered, so the teacher can see it on the staff.
     if (!t.practice) t.reportCode = MQ.encodeReport(Object.assign({}, t.report, { answers: { qs: t.qs, resp: t.resp } }), t.cfg, t.code);
     t.done = true;
@@ -1896,6 +1960,7 @@
           h('button', { type: 'button', class: 'btn btn-primary', onclick: () => copyText(t.reportCode, 'Report code') }, 'Copy report code'),
           SITE ? h('button', { type: 'button', class: 'btn', onclick: () => copyText(resultsLink(t.reportCode, t.code), 'Results link') }, 'Copy results link') : null,
           h('a', { class: 'btn', href: mail, target: '_blank', rel: 'noopener' }, 'Email it')),
+        retakeBlock(t),
         h('p', { class: 'fine' }, SITE
           ? 'Send the code, or the results link, which opens your results on their own page. Nothing was uploaded — reopen this tab on the same device if you lose it.'
           : 'The code contains your name, score and results. Nothing was uploaded — if you lose this code, you can reopen this tab on the same device to see it again.')),
@@ -1929,6 +1994,8 @@
           h('button', { type: 'button', class: 'btn btn-primary', onclick: () => copyText(link, 'Results link') }, 'Copy results link')),
         linkBox,
         h('p', { class: 'fine' }, 'If the button doesn’t copy, click the link above, then copy it yourself (Ctrl+C, or ⌘C on a Mac). Keep this tab open until Canvas shows your submission.'),
+        retakeBlock(t),
+        retakesLeft(t) > 0 ? h('p', { class: 'fine' }, 'Each attempt has its own results link. If you retake the quiz, hand in the link for the attempt you want counted.') : null,
         h('details', { class: 'fine-details' }, h('summary', null, 'Report code (a backup)'),
           h('output', { class: 'code' }, t.reportCode))),
       h('section', { class: 'card' }, h('h3', { class: 'card-title' }, 'How you did'), typeBars(st), questionTable(rep, review ? t : null))));
@@ -2040,7 +2107,17 @@
     return h('div', { class: 'vchips' },
       chip('good', '✓ Code intact'),
       r.quiz ? chip('good', '✓ Quiz: ' + (r.quiz.cfg.title || 'untitled')) : chip('warn', 'Quiz not on this device — add its code to see questions'),
-      r.sealOk === true ? chip('good', '✓ Seal verified') : r.sealOk === false ? chip('bad', '⚠ Seal doesn’t match — this code may have been edited') : null);
+      r.sealOk === true ? chip('good', '✓ Seal verified') : r.sealOk === false ? chip('bad', '⚠ Seal doesn’t match — this code may have been edited') : null,
+      attemptChip(r, chip));
+  }
+  // Which attempt this was, and a warning when it goes past the quiz's retake limit.
+  function attemptChip(r, chip) {
+    if (!r.attempt) return null;
+    const limit = r.quiz ? MQ.retakeLimit(r.quiz.cfg) : null;
+    if (limit != null && r.attempt > limit + 1) {
+      return chip('bad', `⚠ Attempt ${r.attempt} — the quiz allows ${limit + 1} attempt${limit ? 's' : ''}`);
+    }
+    return chip(r.attempt > 1 ? 'warn' : 'good', r.attempt > 1 ? `Attempt ${r.attempt}` : 'First attempt');
   }
   // opts: showKey (default true) — print the right answers; openAnswers — show the staff view
   // straight away; canvas — add the score scaled to the quiz's Canvas points.
@@ -2117,7 +2194,8 @@
     const tbody = h('tbody');
     reports.forEach((r, i) => {
       tbody.append(h('tr', { class: i === S.grade.sel ? 'is-sel' : null },
-        h('td', null, h('button', { type: 'button', class: 'linkish', onclick: () => { S.grade.sel = i; runGrade(host); } }, r.name || 'Unnamed')),
+        h('td', null, h('button', { type: 'button', class: 'linkish', onclick: () => { S.grade.sel = i; runGrade(host); } }, r.name || 'Unnamed'),
+          r.attempt > 1 ? h('span', { class: 'attempt-tag' }, ` · attempt ${r.attempt}`) : null),
         h('td', { class: 'num' }, `${fmtPts(r.stats.points)}/${r.stats.n}`),
         h('td', { class: 'num' }, Math.round(r.stats.pct) + '%'),
         h('td', { class: 'num' }, fmtDur(r.totalSec)),

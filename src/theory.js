@@ -187,6 +187,7 @@
       vc: { sizes: 0b011, quals: 0b00011, alts: 0, key: 3, slash: 0, ask: 1, tech: {}, opts: { thirdsStaff: 0, thirdsOmitRoot: 0, blockStaff: 0, planesOpen: 0, popNotes: 3, popStaff: 0, inner2: 0 } },
       vp: { sizes: 0b011, quals: 0b00011, alts: 0, key: 0, slash: 0, ask: 1, len: 4, tech: {}, opts: { thirdsStaff: 0, thirdsOmitRoot: 0, blockStaff: 0, planesOpen: 0, popNotes: 3, popStaff: 0, inner2: 0 } },
       canvasPts: 0, // points the quiz is worth in Canvas; 0 = show the raw score only
+      retakes: null, // retakes allowed after the first attempt; null = as many as a student likes
       // Keys & Notes: which ways a note is shown and answered (bit 0 grand staff, 1 name with
       // octave, 2 piano key), and the range of notes asked, as MIDI numbers.
       keys: { prompts: 0b111, answers: 0b111, low: 48, high: 72 },
