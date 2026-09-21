@@ -703,3 +703,34 @@ input.an-in { width: 100%; min-height: 34px; padding: 4px 2px; text-align: cente
 .retake-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--line); }
 .retake-row .fine { margin: 0; flex: 1; min-width: 14em; }
 .attempt-tag { font-size: 12.5px; color: var(--muted); white-space: nowrap; }
+
+/* ---------- landing page ---------- */
+.home { display: flex; flex-direction: column; gap: 22px; padding-bottom: 32px; }
+.home-hero .display { margin-bottom: 4px; }
+.home-hero .lede { margin: 0; }
+.home-tools { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+.tool-card {
+  display: flex; flex-direction: column; gap: 8px; padding: 18px; text-decoration: none; color: var(--ink);
+  background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); box-shadow: var(--shadow);
+  transition: border-color 0.12s, transform 0.12s;
+}
+.tool-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+.tool-card:focus-visible { outline: 2.5px solid var(--accent); outline-offset: 3px; }
+.tool-art { width: 100%; height: auto; color: var(--staff-ink); background: var(--paper); border: 1px solid var(--line); border-radius: 8px; padding: 8px 6px; margin-bottom: 4px; }
+.tool-art-hl { fill: #f2b441; }
+.tool-art-box { fill: rgba(47, 63, 191, 0.12); stroke: var(--accent); stroke-width: 1.5; }
+.tool-art-label { font: 700 11px var(--f-body); fill: var(--accent); }
+.tool-name { font: 700 20px/1.2 var(--f-display); letter-spacing: -0.01em; }
+.tool-blurb { font-size: 14.5px; color: var(--ink-2); flex: 1; }
+.tool-go { font-weight: 700; font-size: 14.5px; color: var(--accent); }
+.home-lower { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); gap: 16px; align-items: start; }
+.home-grade { display: flex; flex-direction: column; gap: 8px; }
+.home-grade .card-title, .home-student .card-title { margin: 2px 0 4px; }
+.home-grade .fine { margin: 0; }
+.home-student { display: flex; flex-direction: column; gap: 6px; text-decoration: none; color: var(--ink); transition: border-color 0.12s; }
+.home-student:hover { border-color: var(--accent); }
+.home-student .fine { margin: 0 0 4px; }
+.home-link { margin-right: auto; font-size: 14px; font-weight: 700; color: var(--muted); text-decoration: none; padding: 6px 10px; border-radius: 8px; }
+.home-link:hover { color: var(--accent); background: var(--accent-soft); }
+@media (max-width: 860px) { .home-tools, .home-lower { grid-template-columns: minmax(0, 1fr); } }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .tool-art-hl { fill: #e6b65c; } }

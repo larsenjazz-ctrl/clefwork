@@ -2,7 +2,8 @@
 
 Music theory quizzes that run entirely in the browser — no server, no accounts, nothing stored online.
 
-- **Teacher app:** [index.html](https://larsenjazz-ctrl.github.io/clefwork/) — build a quiz, share its code or link, and grade the report codes students send back.
+- **Landing page:** [index.html](https://larsenjazz-ctrl.github.io/clefwork/) — choose a tool, or paste report codes and results links to open them in the grade checker. Each teacher tool has an **← All tools** link back here. Old `index.html#grade=…` and `#take=…` links are passed on to the quiz builder.
+- **Teacher app:** [clefwork.html](https://larsenjazz-ctrl.github.io/clefwork/clefwork.html) — build a quiz, share its code or link, and grade the report codes or results links students send back.
 - **Student app:** [student.html](https://larsenjazz-ctrl.github.io/clefwork/student.html) — practise with instant feedback, or take a teacher's quiz and send back a report code.
 - **Clefwork Keys:** [keys.html](https://larsenjazz-ctrl.github.io/clefwork/keys.html) — a separate app for reading notes: the grand staff, note names with octaves, and the piano keyboard.
 - **Clefwork Analysis:** [analysis.html](https://larsenjazz-ctrl.github.io/clefwork/analysis.html) — harmonic analysis on real music: upload a picture of a score, box the chords, and students write Roman numerals or chord symbols beside the music.

@@ -42,10 +42,14 @@ AHEAD=$(printf '%s' "$HEAD" | sed 's#<title>Clefwork Music Quizzes</title>#<titl
 AFLAG='<script>window.CLEFWORK_MODE = "analysis";</script>'
 { echo "$AHEAD"; echo "$AFLAG"; body; } > dist/clefwork-analysis.html
 { echo "$DOC"; echo "$AHEAD"; echo "$AFLAG"; echo '</head><body>'; body; echo '</body></html>'; } > dist/clefwork-analysis-standalone.html
-# Copies for GitHub Pages: the teacher app at index.html, the student app at student.html,
-# and the Canvas pages at take.html and results.html.
+# The landing page: pick a tool, or paste report codes to grade.
+HHEAD=$(printf '%s' "$HEAD" | sed 's#<title>Clefwork Music Quizzes</title>#<title>Clefwork</title>#; s#Build music theory quizzes, have students write notes on the staff, and grade them from report codes — no server needed#Music theory quiz tools for teachers: build quizzes, share links, and grade the reports students send back#')
+{ echo "$DOC"; echo "$HHEAD"; echo "<style>"; cat src/styles.css; echo "</style>"; echo '</head><body>'; cat src/home.html; echo '</body></html>'; } > dist/clefwork-home.html
+# Copies for GitHub Pages: the landing page at index.html, the quiz builder at clefwork.html,
+# the student app at student.html, and the Canvas pages at take.html and results.html.
 mkdir -p dist/site
-cp dist/clefwork-standalone.html dist/site/index.html
+cp dist/clefwork-home.html dist/site/index.html
+cp dist/clefwork-standalone.html dist/site/clefwork.html
 cp dist/clefwork-student-standalone.html dist/site/student.html
 cp dist/clefwork-take-standalone.html dist/site/take.html
 cp dist/clefwork-results-standalone.html dist/site/results.html

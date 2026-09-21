@@ -107,7 +107,9 @@
   const canvasLink = (code) => (SITE ? SITE + 'take.html#take=' + withScore(code) : '');
   const resultsLink = (report, quiz) => (SITE
     ? SITE + 'results.html#r=' + MQ.normalize(report) + (quiz ? '&q=' + MQ.normalize(quiz) : '') : '');
-  const gradeLink = (report) => (SITE ? SITE + 'index.html#grade=' + MQ.normalize(report) : '');
+  const gradeLink = (report) => (SITE ? SITE + 'clefwork.html#grade=' + MQ.normalize(report) : '');
+  // Where the landing page lives: the site's front page, or the file beside this one.
+  const HOME = SITE || 'index.html';
   const inFrame = (() => { try { return window.top !== window.self; } catch (e) { return true; } })();
 
   // ---------- state ----------
@@ -2041,7 +2043,7 @@
   }
 
   // ---------- grading ----------
-  function knownQuizzes() {
+  function knownQuizzes(extra) {
     const out = [], seen = new Set();
     const add = (code, source) => {
       try {
@@ -2053,13 +2055,14 @@
       } catch (e) { /* ignore bad entries */ }
     };
     if (S.grade.quiz.trim()) add(S.grade.quiz, 'pasted');
+    (extra || []).forEach((c) => add(c, 'link'));
     if (S.code) add(S.code, 'builder');
     store.get('recent', []).forEach((r) => add(r.code, 'recent'));
     return out;
   }
   function renderGrade(main) {
     const g = S.grade;
-    const ta = h('textarea', { id: 'grade-codes', rows: 4, spellcheck: 'false', autocomplete: 'off', placeholder: 'Paste one report code per line' });
+    const ta = h('textarea', { id: 'grade-codes', rows: 4, spellcheck: 'false', autocomplete: 'off', placeholder: 'Paste one report code or results link per line' });
     ta.value = g.input;
     const qz = h('input', { type: 'text', id: 'grade-quiz', spellcheck: 'false', autocomplete: 'off', placeholder: 'Optional — the quiz code you shared' });
     qz.value = g.quiz;
@@ -2069,8 +2072,8 @@
       h('section', { class: 'card grade-input' },
         h('div', { class: 'eyebrow' }, 'For teachers'),
         h('h1', { class: 'display' }, 'Grade reports'),
-        h('p', { class: 'lede' }, 'Paste the report codes students send you. Paste several at once, one per line, for a class summary.'),
-        fld('Report codes', ta),
+        h('p', { class: 'lede' }, 'Paste the report codes or results links students send you. Paste several at once, one per line, for a class summary.'),
+        fld('Report codes or results links', ta),
         fld('Quiz code', qz, 'Quizzes you built or copied on this device are matched automatically. Adding the code shows each question and its answer.'),
         h('div', { class: 'btn-row' },
           h('button', { type: 'button', class: 'btn btn-primary', onclick: run }, 'Show results'),
@@ -2080,15 +2083,28 @@
       results));
     if (g.input.trim()) runGrade(results);
   }
+  // One pasted line: a bare report code, a results link (…results.html#r=REPORT&q=QUIZ),
+  // or a grade link (…#grade=REPORT). Returns the report code and the quiz code if the link has one.
+  function parseGradeLine(ln) {
+    const hashAt = ln.indexOf('#');
+    if (hashAt < 0) return { report: ln, quiz: '' };
+    let frag = ln.slice(hashAt + 1);
+    try { frag = decodeURIComponent(frag); } catch (e) { /* keep it as typed */ }
+    const parts = {};
+    frag.split('&').forEach((kv) => { const i = kv.indexOf('='); if (i > 0) parts[kv.slice(0, i)] = kv.slice(i + 1); });
+    return { report: parts.r || parts.grade || ln, quiz: parts.q || '' };
+  }
   function runGrade(host) {
     const g = S.grade;
     const lines = g.input.split(/\n+/).map((s) => s.trim()).filter(Boolean);
-    const errors = [], reports = [];
+    const errors = [], reports = [], linkQuizzes = [];
     lines.forEach((ln, i) => {
-      try { reports.push(MQ.decodeReport(ln)); } catch (e) { errors.push(h('li', null, h('b', null, `Line ${i + 1}: `), e.message)); }
+      const p = parseGradeLine(ln);
+      if (p.quiz) linkQuizzes.push(p.quiz);
+      try { reports.push(MQ.decodeReport(p.report)); } catch (e) { errors.push(h('li', null, h('b', null, `Line ${i + 1}: `), e.message)); }
     });
     if (g.quiz.trim()) { try { MQ.decodeQuiz(g.quiz); } catch (e) { errors.push(h('li', null, h('b', null, 'Quiz code: '), e.message)); } }
-    const quizzes = knownQuizzes();
+    const quizzes = knownQuizzes(linkQuizzes);
     reports.forEach((r) => {
       r.quiz = quizzes.find((q) => q.id === r.quizId) || null;
       r.sealOk = r.quiz ? r.verifySeal(r.quiz.cfg) : null;
@@ -3282,6 +3298,11 @@
         if (f) { e.preventDefault(); takePicture(f); }
       });
     }
+    if (!STUDENT && MODE !== 'results') {
+      // Teacher tools lead back to the landing page, where the other tools are.
+      const mast = document.querySelector('.mast');
+      mast.insertBefore(h('a', { class: 'home-link', href: HOME, title: 'Choose another Clefwork tool' }, '← All tools'), mast.querySelector('.nav'));
+    }
     if (MODE === 'results' || MODE === 'canvas') {
       // Single-purpose pages: no tabs, and the logo doesn't lead anywhere.
       document.querySelector('.nav').remove();
@@ -3318,7 +3339,7 @@
     document.querySelectorAll('.nav button').forEach((b) => b.addEventListener('click', () => go(b.dataset.view)));
     let view = 'build';
     const hash = decodeURIComponent(location.hash.slice(1));
-    const m = hash.match(/^(take|grade)=(.+)$/);
+    const m = hash.match(/^(take|grade)=([\s\S]+)$/);
     if (m && m[1] === 'take') {
       // Anything after the code is named: &img=… carries an Analysis quiz's picture.
       const [codePart, ...more] = m[2].split('&');
