@@ -10,9 +10,21 @@ HEAD='<title>Clefwork Music Quizzes</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=JetBrains+Mono:wght@500;700&family=Noto+Music&display=swap">'
+# The Clefwork logo (assets/), embedded so every page stays a single file. The dark-mode copies
+# have light lettering. logo_css NAME FILE → a CSS variable holding that image, light and dark.
+b64() { base64 < "$1" | tr -d '\n'; }
+logo_css() {
+  printf ':root{--%s:url(data:image/png;base64,%s)}' "$1" "$(b64 "assets/$2.png")"
+  printf '@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--%s:url(data:image/png;base64,%s)}}' "$1" "$(b64 "assets/$2-dark.png")"
+  printf ':root[data-theme="dark"]{--%s:url(data:image/png;base64,%s)}\n' "$1" "$(b64 "assets/$2-dark.png")"
+}
+MARK_CSS=$(logo_css logo-mark mark)
+HEAD="$HEAD
+<link rel=\"icon\" type=\"image/png\" href=\"data:image/png;base64,$(b64 assets/favicon.png)\">
+<link rel=\"apple-touch-icon\" href=\"data:image/png;base64,$(b64 assets/apple-touch-icon.png)\">"
 body() {
   echo "<script>window.CLEFWORK_BASE = '$BASE';</script>"
-  echo "<style>"; cat src/styles.css; echo "</style>"
+  echo "<style>"; cat src/styles.css; echo "$MARK_CSS"; echo "</style>"
   cat src/shell.html
   echo "<script>"; cat src/theory.js src/progressions.js src/chords.js src/figured.js src/voicings.js src/keys.js src/analysis.js src/qr.js src/pdf.js src/print.js src/docx.js src/codec.js src/staff.js src/piano.js src/audio.js src/app.js; echo "</script>"
 }
@@ -44,7 +56,7 @@ AFLAG='<script>window.CLEFWORK_MODE = "analysis";</script>'
 { echo "$DOC"; echo "$AHEAD"; echo "$AFLAG"; echo '</head><body>'; body; echo '</body></html>'; } > dist/clefwork-analysis-standalone.html
 # The landing page: pick a tool, or paste report codes to grade.
 HHEAD=$(printf '%s' "$HEAD" | sed 's#<title>Clefwork Music Quizzes</title>#<title>Clefwork</title>#; s#Build music theory quizzes, have students write notes on the staff, and grade them from report codes — no server needed#Music theory quiz tools for teachers: build quizzes, share links, and grade the reports students send back#')
-{ echo "$DOC"; echo "$HHEAD"; echo "<style>"; cat src/styles.css; echo "</style>"; echo '</head><body>'; cat src/home.html; echo '</body></html>'; } > dist/clefwork-home.html
+{ echo "$DOC"; echo "$HHEAD"; echo "<style>"; cat src/styles.css; echo "$MARK_CSS"; logo_css logo-full logo; echo "</style>"; echo '</head><body>'; cat src/home.html; echo '</body></html>'; } > dist/clefwork-home.html
 # Copies for GitHub Pages: the landing page at index.html, the quiz builder at clefwork.html,
 # the student app at student.html, and the Canvas pages at take.html and results.html.
 mkdir -p dist/site
