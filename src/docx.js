@@ -175,14 +175,14 @@
     if (meta) body.push(para(run(meta, { pt: 10.5 }), { after: 40 }));
     body.push(para([run('Name: ', { pt: 11 }), run(BLANK, { pt: 11, u: true })], { after: 160, border: true }));
     model.forEach((it, i) => {
-      const img = addImage((images.byQuestion || [])[i], `Question ${it.n}`);
+      const imgs = [].concat((images.byQuestion || [])[i] || []).map((x, j) => addImage(x, `Question ${it.n}${j ? ' (' + (j + 1) + ')' : ''}`));
       body.push(para([
         run('_______', { pt: 12 }),
         run('  ' + it.n + '. ', { b: true, pt: 12 }),
         run(it.prompt, { pt: 12 }),
       ], { before: i ? 180 : 0, after: 40, keep: true }));
       if (it.hint) body.push(para(run(it.hint, { pt: 10, color: '444444' }), { indent: 720, after: 40, keep: true }));
-      if (img) body.push(para(drawing(100 + i, img.rid, img.wIn, img.hIn, img.name), { indent: 720, after: 60 }));
+      imgs.forEach((img, j) => body.push(para(drawing(100 + i * 10 + j, img.rid, img.wIn, img.hIn, img.name), { indent: 720, after: 60 })));
       const a = it.answer;
       if (a.kind === 'lines') {
         a.items.forEach((label) => body.push(para([run(label + ': ', { pt: 10 }), run(BLANK, { pt: 10, u: true })], { indent: 720, after: 40 })));

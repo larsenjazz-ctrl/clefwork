@@ -32,6 +32,11 @@
     || (q.prog && q.prog.chords && q.prog.chords.length) || 1;
 
   function answerFor(q) {
+    if (q.type === 'keys') {
+      // The staff or keyboard to answer on is part of the question's pictures.
+      if (q.keys.answer === 'name') return { kind: 'lines', items: ['Note name with octave'] };
+      return { kind: 'staff', items: [] };
+    }
     if (q.choices) return { kind: 'choices', items: q.choices.slice() };
     if (q.dropdowns) return { kind: 'lines', items: q.dropdowns.map((d, i) => d.label || `Answer ${i + 1}`) };
     if (q.symbolAnswers) return { kind: 'lines', items: q.symbolAnswers.map((_, i) => `Chord ${i + 1}`) };
@@ -56,8 +61,10 @@
     return qs.map((q, i) => ({
       n: i + 1,
       q,
-      prompt: q.text,
-      hint: q.hint || '',
+      prompt: q.type === 'keys' && MQ.keysPrintText ? MQ.keysPrintText(q) : q.text,
+      hint: q.type === 'keys'
+        ? (q.keys.answer === 'piano' || q.keys.prompt === 'piano' ? 'Middle C is C4, marked with a dot on the keyboard.' : 'Middle C is C4.')
+        : q.hint || '',
       staff: q.noStaff ? null : q,
       answer: answerFor(q),
     }));
@@ -99,6 +106,7 @@ li.q .hint { font-size: 10pt; margin: 2pt 0 0; color: #333; }
 .example svg { display: block; height: ${staffH}in; width: auto; max-width: 100%; }
 /* A grand staff is drawn larger, so there is room to write in both clefs. */
 .example.is-grand svg { height: ${Math.round(staffH * 1.65 * 100) / 100}in; }
+.example svg.piano, .example.is-grand svg.piano { height: 1in; margin: 4pt 0; }
 .lines { margin: 8pt 0 0; display: flex; flex-wrap: wrap; gap: 6pt 16pt; }
 .lines .slot { font-size: 10pt; }
 .lines .slot i { font-style: normal; display: inline-block; border-bottom: 0.75pt solid #000; min-width: 1.5in; margin-left: 4pt; }
@@ -233,9 +241,12 @@ svg.staff .nlabel { display: none; }
     model.forEach((it) => {
       const prompt = MQ.pdfWrap(it.prompt, textW, 12, 'F1');
       const hint = it.hint ? MQ.pdfWrap(it.hint, textW, 10, 'F1') : [];
-      const art = artFor ? artFor(it.q) : null;
-      const artW = art ? Math.min(textW, art.wIn * 72) : 0;
-      const artH = art ? (artW / (art.wIn * 72)) * art.hIn * 72 : 0;
+      const arts = (artFor ? [].concat(artFor(it.q) || []) : []).map((a) => {
+        const w = Math.min(textW, a.wIn * 72);
+        return { a, w, h: (w / (a.wIn * 72)) * a.hIn * 72 };
+      });
+      const artH = arts.reduce((n, x) => n + x.h + 8, 0);
+      const art = arts.length > 0;
       const a = it.answer;
       const slotW = Math.min(textW, 190);
       const perRow = Math.max(1, Math.floor(textW / slotW));
@@ -244,7 +255,7 @@ svg.staff .nlabel { display: none; }
         : 1;
       const answerH = a.kind === 'lines' ? Math.ceil(a.items.length / perRow) * 18 + 4
         : a.kind === 'choices' ? Math.ceil(a.items.length / choiceCols) * 16 + 4 : 0;
-      const blockH = prompt.length * 15 + hint.length * 12.5 + (art ? artH + 8 : 0) + answerH + 14;
+      const blockH = prompt.length * 15 + hint.length * 12.5 + (art ? artH : 0) + answerH + 14;
       if (y + blockH > bottom && y > M + 10) page();
       let ty = y + 11;
       doc.gray(0).line(M, ty + 2, M + PTS_W, ty + 2, 0.75);
@@ -258,10 +269,10 @@ svg.staff .nlabel { display: none; }
         doc.gray(0);
         by += hint.length * 12.5;
       }
-      if (art) {
-        MQ.drawSVG(doc, art.svg, { x: textX, y: by + 4, w: artW, h: artH });
-        by += artH + 8;
-      }
+      arts.forEach((x) => {
+        MQ.drawSVG(doc, x.a.svg, { x: textX, y: by + 4, w: x.w, h: x.h });
+        by += x.h + 8;
+      });
       if (a.kind === 'lines') {
         a.items.forEach((label, i) => {
           const col = i % perRow, row = Math.floor(i / perRow);

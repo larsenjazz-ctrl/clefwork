@@ -81,11 +81,13 @@
     const n = cfg.counts[key] == null ? list.length : cfg.counts[key];
     return Math.min(n, list.length);
   };
-  const sumCounts = (cfg) => MQ.BUILT_IN.reduce((s, t) => s + (cfg.counts[t.id] || 0), 0) + listCount(cfg, 'custom') + listCount(cfg, 'voicing') + listCount(cfg, 'vprog') + listCount(cfg, 'progression');
+  const sumCounts = (cfg) => MQ.BUILT_IN.reduce((s, t) => s + (cfg.counts[t.id] || 0), 0) + listCount(cfg, 'custom') + listCount(cfg, 'voicing') + listCount(cfg, 'vprog') + listCount(cfg, 'progression')
+    + (MQ.keysCombos(cfg.keys).length ? cfg.counts.keys || 0 : 0);
   const usesGrand = (cfg) => (listCount(cfg, 'voicing') > 0 || listCount(cfg, 'vprog') > 0)
     || (listCount(cfg, 'progression') > 0 && cfg.progs.some((e) => e.staff === 'grand'))
     || ((cfg.counts.chord || 0) > 0 && !!(cfg.chordStaff & 4) && !(cfg.v && cfg.v < 7));
-  const clefsText = (cfg) => [cfg.clefs & 1 ? 'treble' : null, cfg.clefs & 2 ? 'bass' : null].filter(Boolean).join(' & ') + ' clef' + (usesGrand(cfg) ? ' + grand staff' : '');
+  const onlyKeys = (cfg) => !!(cfg.counts.keys && sumCounts(cfg) === cfg.counts.keys);
+  const clefsText = (cfg) => onlyKeys(cfg) ? 'grand staff, note names & piano' : [cfg.clefs & 1 ? 'treble' : null, cfg.clefs & 2 ? 'bass' : null].filter(Boolean).join(' & ') + ' clef' + (usesGrand(cfg) ? ' + grand staff' : '');
   const clonePlaced = (pl) => (pl ? pl.map((c) => (c || []).map((p) => ({ ...p }))) : null);
   // The student version (practice + take a quiz, no quiz codes shown) is the same app with this flag set.
   const STUDENT = !!window.CLEFWORK_STUDENT;
@@ -94,6 +96,8 @@
   const quizLink = (code) => (SITE ? SITE + 'student.html#take=' + MQ.normalize(code) : '');
   // The Canvas edition: a page that only takes the quiz, and a results page that stands alone.
   const MODE = window.CLEFWORK_MODE || '';
+  const KEYS = MODE === 'keys';                      // Clefwork Keys: the piano and note-name app
+  const DRAFT = KEYS ? 'draft-keys' : 'draft';
   const canvasLink = (code) => (SITE ? SITE + 'take.html#take=' + MQ.normalize(code) : '');
   const resultsLink = (report, quiz) => (SITE
     ? SITE + 'results.html#r=' + MQ.normalize(report) + (quiz ? '&q=' + MQ.normalize(quiz) : '') : '');
@@ -101,9 +105,16 @@
   const inFrame = (() => { try { return window.top !== window.self; } catch (e) { return true; } })();
 
   // ---------- state ----------
+  function keysDefault() {
+    const c = MQ.defaultConfig();
+    Object.keys(c.counts).forEach((k) => (c.counts[k] = 0));
+    c.counts.keys = 10;
+    c.title = 'Keys & Notes Check';
+    return c;
+  }
   function loadDraft() {
-    const d = store.get('draft', null);
-    const base = MQ.defaultConfig();
+    const d = store.get(DRAFT, null);
+    const base = KEYS ? keysDefault() : MQ.defaultConfig();
     if (d && d.counts && d.flags) {
       const custom = Array.isArray(d.custom) ? d.custom : [];
       const voicings = Array.isArray(d.voicings) ? d.voicings : [];
@@ -132,7 +143,7 @@
   // S.take is whichever quiz the current tab works with: a teacher's quiz, or (student version) a practice run.
   Object.defineProperty(S, 'take', { get: () => S.slots[S.slot], set: (v) => { S.slots[S.slot] = v; } });
   const tv = () => (S.slot === 'practice' ? 'practice' : 'take');
-  const saveDraft = () => store.set('draft', S.cfg);
+  const saveDraft = () => store.set(DRAFT, S.cfg);
   // Quizzes built or copied on this device. `created` is kept from the first time a code is seen.
   function rememberQuiz(code, cfg) {
     const id = MQ.quizId(code);
@@ -613,7 +624,108 @@
     return h('div', { class: 'sym-row' }, ...boxes);
   }
 
+
+  // ---------- Keys & Notes: one note, shown one way and answered another ----------
+  let keysUid = 0;
+  function keysCard(q, cfg, o) {
+    const k = q.keys;
+    const uid = ++keysUid;
+    const wrap = h('div', { class: 'qcard keys-card' + (o.compact ? ' is-compact' : '') });
+    const KIND = { staff: 'Grand staff', name: 'Note name', piano: 'Piano' };
+    wrap.append(h('div', { class: 'q-eyebrow' }, typeOf(q.type).label, h('span', { class: 'q-clef' }, `${KIND[k.prompt]} → ${KIND[k.answer]}`)));
+    wrap.append(h(o.compact ? 'h3' : 'h2', { class: 'q-text' }, q.text));
+    if (q.hint && !o.locked) wrap.append(h('p', { class: 'q-hint' }, q.hint));
+    const reveal = !!o.reveal && !o.keyMode;
+    const resp = o.response;
+    const got = MQ.keysResponsePitch(q, resp);
+    const right = reveal ? MQ.gradeQuestion(q, resp, cfg) === 1 : null;
+    const playNote = (m) => { if (MQ.Audio && m != null) MQ.Audio.play([[m]], 1.2); };
+
+    // ---------- what is shown ----------
+    const shown = h('div', { class: 'keys-prompt' });
+    if (k.prompt === 'staff') {
+      const box = h('div', { class: 'staff-box' });
+      new MQ.Staff(box, { clef: 'grand', grand: true, columns: [{ given: [k.pitch], cap: 0 }], readOnly: true, labels: false });
+      box.append(playButton(() => [[k.pitch]], 1.2, 'the note'));
+      shown.append(box);
+    } else if (k.prompt === 'name') {
+      shown.append(h('div', { class: 'keys-name', 'aria-label': 'Note name' }, MQ.noteName(k.pitch)));
+    } else {
+      const box = h('div', { class: 'piano-box' });
+      new MQ.Piano(box, { lo: k.kbLo, hi: k.kbHi, highlight: k.midi, readOnly: true });
+      shown.append(box);
+    }
+    wrap.append(shown);
+
+    // ---------- the answer ----------
+    const answer = h('div', { class: 'keys-answer' });
+    if (k.answer === 'piano') {
+      const box = h('div', { class: 'piano-box' });
+      const state = { lo: k.kbLo, hi: k.kbHi, selected: typeof resp === 'number' ? resp : null, readOnly: !!o.locked || !!o.keyMode };
+      if (o.keyMode) state.selected = k.midi;
+      if (reveal) {
+        if (right) state.right = resp;
+        else { if (typeof resp === 'number') state.wrong = resp; state.expected = k.midi; }
+      }
+      new MQ.Piano(box, Object.assign(state, { onPress: (m) => o.onResponse && o.onResponse(m) }));
+      answer.append(h('span', { class: 'mini-label' }, o.keyMode ? 'The key' : 'Your key'), box);
+    } else if (k.answer === 'name') {
+      const inp = h('input', { type: 'text', id: 'kn-' + uid, class: 'fig-in keys-in', placeholder: 'F♯4', autocomplete: 'off', autocapitalize: 'off', autocorrect: 'off', spellcheck: 'false', maxlength: 6, 'aria-label': 'Note name with octave' });
+      inp.value = o.keyMode ? MQ.noteName(k.pitch) : resp || '';
+      const preview = h('span', { class: 'fig-preview' });
+      let timer = null, lastPlayed = '';
+      const draw = () => {
+        const t = inp.value.trim();
+        const p = t ? MQ.parseNoteName(t) : null;
+        inp.classList.toggle('is-invalid', !!t && !p);
+        preview.replaceChildren(p ? accText(MQ.noteName(p)) : t ? h('span', { class: 'fig-unread is-bad' }, 'a letter, a sharp or flat if needed, then the octave — like F♯4') : '');
+        return p;
+      };
+      inp.addEventListener('input', () => {
+        if (/^[a-g]/.test(inp.value)) {
+          const at = inp.selectionStart;
+          inp.value = inp.value[0].toUpperCase() + inp.value.slice(1);
+          try { inp.setSelectionRange(at, at); } catch (e) { /* not focused */ }
+        }
+        const p = draw();
+        if (o.onResponse) o.onResponse(inp.value);
+        // Play the note once the name is complete — a moment after typing stops.
+        clearTimeout(timer);
+        if (p) timer = setTimeout(() => { const key = MQ.noteName(p); if (key !== lastPlayed) { lastPlayed = key; playNote(MQ.midi(p)); } }, 350);
+      });
+      inp.addEventListener('keydown', (e) => { if (e.key === 'Enter') { const p = draw(); if (p) { lastPlayed = MQ.noteName(p); playNote(MQ.midi(p)); } } });
+      if (o.locked || o.keyMode) inp.disabled = true;
+      draw();
+      answer.append(h('div', { class: 'fig-answer' },
+        h('label', { class: 'mini-label', for: 'kn-' + uid }, 'Note name with octave'),
+        h('div', { class: 'fig-row' }, inp,
+          h('button', { type: 'button', class: 'btn sm', 'aria-label': 'Hear it', onclick: () => { const p = draw(); if (p) playNote(MQ.midi(p)); } }, '♪ Hear it')),
+        preview,
+        reveal ? h('span', { class: 'fig-mark ' + (right ? 'is-right' : 'is-wrong') }, right ? '✓' : ['✗ ', accText(MQ.describeAnswer(q, cfg))]) : null));
+    } else {
+      const box = h('div', { class: 'staff-box' });
+      const placed = clonePlaced(resp) || [[]];
+      const staff = new MQ.Staff(box, {
+        clef: 'grand', grand: true, columns: q.columns, placed, readOnly: !!o.locked || !!o.keyMode, labels: cfg.flags.labels,
+        reveal: reveal || o.keyMode ? q.answer : null, marks: reveal ? [placed[0].map((p) => !!p && MQ.gradeQuestion(q, [[p]], cfg) === 1)] : null,
+        onChange: (pl) => {
+          const note = pl && pl[0] && pl[0].filter(Boolean).slice(-1)[0];
+          if (note) playNote(MQ.midi(note));
+          if (o.onResponse) o.onResponse(pl);
+        },
+      });
+      box.append(playButton(() => [[].concat(...staff.pitches())], 1.2, 'your note'));
+      answer.append(box);
+      if (!o.locked && !o.keyMode) answer.append(palette(staff));
+    }
+    wrap.append(answer);
+    if (o.keyMode) wrap.append(h('p', { class: 'result is-key' }, h('strong', null, 'Answer: '), MQ.describeAnswer(q, cfg)));
+    else if (o.reveal) wrap.append(resultLine(q, cfg, resp));
+    return wrap;
+  }
+
   function questionCard(q, cfg, o) {
+    if (q.type === 'keys') return keysCard(q, cfg, o);
     if (q.type === 'figured' || q.type === 'figprog') return figuredCard(q, cfg, o);
     if (q.type === 'progression' && !q.colSpecs) return progressionCard(q, cfg, o);
     const t = typeOf(q.type);
@@ -659,7 +771,7 @@
       STUDENT ? null : h('div', { class: 'row2' },
         fld('Title', textIn('q-title', cfg.title, 60, 'e.g. Unit 3 note reading', (v) => { cfg.title = v; changed(); })),
         fld('Teacher', textIn('q-teacher', cfg.teacher, 40, 'e.g. Ms. Rivera', (v) => { cfg.teacher = v; changed(); }))),
-      h('div', { class: 'presets' }, h('span', { class: 'mini-label' }, STUDENT ? 'Presets' : 'Or start from a preset'),
+      KEYS ? keysPresets(cfg) : h('div', { class: 'presets' }, h('span', { class: 'mini-label' }, STUDENT ? 'Presets' : 'Or start from a preset'),
         h('div', { class: 'preset-row' }, MQ.PRESETS.map((p) => h('button', { type: 'button', class: 'btn btn-quiet sm', onclick: () => {
           const keep = { custom: cfg.counts.custom, voicing: cfg.counts.voicing, progression: cfg.counts.progression };
           S.cfg = p.apply(S.cfg); Object.assign(S.cfg.counts, keep);
@@ -667,7 +779,8 @@
           saveDraft(); go('build'); toast(`Loaded the “${p.label}” preset`);
         } }, p.label))))));
 
-    form.append(sec('staff', 'Staff & notes', 'Applies to every question type.',
+    if (KEYS) form.append(keysSection(cfg, changed, R));
+    if (!KEYS) form.append(sec('staff', 'Staff & notes', 'Applies to every question type.',
       h('div', { class: 'row2' },
         grp('Clefs', chips('q-clefs', [{ label: 'Treble' }, { label: 'Bass' }, { label: 'Grand staff' }], cfg.clefs, (m) => { cfg.clefs = m; changed(); }, (x) => x.label), 'Each tab can override this.'),
         grp('Ledger lines', seg('q-ledger', [0, 1, 2, 3].map((v) => ({ v, label: v === 0 ? 'None' : v === 1 ? '1' : String(v) })), cfg.ledger, (v) => { cfg.ledger = v; changed(); }), 'Maximum above or below the staff.')),
@@ -675,7 +788,7 @@
         'Applies to printed and named notes. Answers can still need accidentals — a major 3rd above D is F♯.')));
 
     // ---------- question types: one tab each, with a counter for how many to ask ----------
-    R.total = h('span', { class: 'mix-total' });
+    if (!R.total) R.total = h('span', { class: 'mix-total' });
     R.invWarn = h('p', { class: 'warn-note', hidden: true }, '3rd inversion needs a chord with a 7th. Add 7ths, 9ths, 11ths or 13ths, or another position — until then these questions use root position.');
     R.chordWarn = h('p', { class: 'warn-note', hidden: true }, 'No chord fits these choices (for example, diminished chords only take 7ths, and only minor chords take 11ths). Until you change them, these questions use major triads.');
     const syncInvWarn = () => {
@@ -878,7 +991,7 @@
       go('build');
       toast('Cleared — the quiz is empty');
     } }, 'Clear all questions');
-    form.append(sec('types', 'Question types', 'Choose a type to change its settings. The counter on each tab sets how many of those questions the quiz asks.',
+    if (!KEYS) form.append(sec('types', 'Question types', 'Choose a type to change its settings. The counter on each tab sets how many of those questions the quiz asks.',
       h('div', { class: 'types-top' }, clearBtn),
       strip, panels, h('div', { class: 'mix-foot' }, R.total)));
 
@@ -890,11 +1003,11 @@
       h('div', { class: 'row2' }, fld('Time limit in minutes', timeIn, '0 means no limit. The quiz submits itself when time runs out.')),
       h('div', { class: 'toggles' },
         flag('shuffle', 'Shuffle question order', 'Mixes the question types together instead of grouping them.'),
-        flag('partial', 'Partial credit', 'Chords and scales earn credit for each correct note.'),
+        KEYS ? null : flag('partial', 'Partial credit', 'Chords and scales earn credit for each correct note.'),
         STUDENT ? null : flag('feedback', 'Let students check answers', 'Students can check each question and see the right answer. Best for practice.'),
         flag('labels', 'Show note names while dragging', STUDENT ? 'The note’s name appears as you move it.' : 'Practice mode: the note’s name appears as students move it.'),
         flag('enharmonic', 'Accept enharmonic spellings', 'Counts G♭ as correct when the answer is F♯.'),
-        flag('noHelpers', 'Hide starting and helper notes', 'Students write every note themselves: both notes of an interval, every note of a scale, and a chord’s bass note.'))));
+        KEYS ? null : flag('noHelpers', 'Hide starting and helper notes', 'Students write every note themselves: both notes of an interval, every note of a scale, and a chord’s bass note.'))));
 
     // Side: share + preview + answer key
     R.summary = h('p', { class: 'share-summary' });
@@ -1555,6 +1668,7 @@
     if (listCount(cfg, 'custom')) types.push(`Custom chords (${listCount(cfg, 'custom')})`);
     if (listCount(cfg, 'voicing')) types.push(`Single voiced chords (${listCount(cfg, 'voicing')})`);
     if (listCount(cfg, 'vprog')) types.push(`Voiced progressions (${listCount(cfg, 'vprog')})`);
+    if (cfg.counts.keys && MQ.keysCombos(cfg.keys).length) types.push(`Keys & notes (${cfg.counts.keys})`);
     if (listCount(cfg, 'progression')) types.push(`Chord progressions (${listCount(cfg, 'progression')})`);
     main.append(h('div', { class: 'narrow' }, h('section', { class: 'card stage' },
       h('div', { class: 'eyebrow' }, t.preview ? 'Preview — this is what students see' : 'Quiz'),
@@ -1563,7 +1677,10 @@
       h('dl', { class: 'facts' },
         h('div', null, h('dt', null, 'Questions'), h('dd', null, String(t.qs.length))),
         h('div', null, h('dt', null, 'Time limit'), h('dd', null, cfg.timeLimit ? cfg.timeLimit + ' min' : 'None')),
-        h('div', null, h('dt', null, 'Clefs'), h('dd', null, [cfg.clefs & 1 ? 'Treble' : null, cfg.clefs & 2 ? 'Bass' : null, usesGrand(cfg) ? 'Grand staff' : null].filter(Boolean).join(', ')))),
+        // A quiz of only Keys questions is on the grand staff and the piano, whatever the clef setting.
+        onlyKeys(cfg)
+          ? h('div', null, h('dt', null, 'Uses'), h('dd', null, 'Grand staff, piano'))
+          : h('div', null, h('dt', null, 'Clefs'), h('dd', null, [cfg.clefs & 1 ? 'Treble' : null, cfg.clefs & 2 ? 'Bass' : null, usesGrand(cfg) ? 'Grand staff' : null].filter(Boolean).join(', ')))),
       h('p', { class: 'types-line' }, types.join(' · ')),
       fld('Your name', name),
       h('div', { class: 'btn-row' }, h('button', { type: 'button', class: 'btn btn-primary', onclick: start }, 'Start quiz'),
@@ -2043,6 +2160,60 @@
     dlg.showModal();
   }
 
+
+  // ---------- Clefwork Keys: the builder ----------
+  const KEYS_PRESETS = [
+    { label: 'Name the key', prompts: 0b100, answers: 0b010 },
+    { label: 'Find the key', prompts: 0b010, answers: 0b100 },
+    { label: 'Read the staff', prompts: 0b001, answers: 0b110 },
+    { label: 'Write it on the staff', prompts: 0b110, answers: 0b001 },
+    { label: 'Every combination', prompts: 0b111, answers: 0b111 },
+  ];
+  function keysPresets(cfg) {
+    return h('div', { class: 'presets' }, h('span', { class: 'mini-label' }, 'Or start from a preset'),
+      h('div', { class: 'preset-row' }, KEYS_PRESETS.map((p) => h('button', { type: 'button', class: 'btn btn-quiet sm', onclick: () => {
+        const k = cfg.keys = MQ.keysSettings(cfg.keys);
+        k.prompts = p.prompts; k.answers = p.answers;
+        cfg.seed = MQ.randomSeed(); S.pvIdx = 0; S.pvShow = false; S.pvResp = null;
+        saveDraft(); go('build'); toast(`Loaded the “${p.label}” preset`);
+      } }, p.label))));
+  }
+  const NOTE_CHOICES = (() => {
+    const out = [];
+    for (let m = 36; m <= 84; m++) if (MQ.isWhiteKey(m)) out.push({ v: m, label: MQ.noteName({ step: [0, 0, 1, 1, 2, 3, 3, 4, 4, 5, 5, 6][m % 12], alt: 0, oct: Math.floor(m / 12) - 1 }) + (m === 60 ? ' (middle C)' : '') });
+    return out;
+  })();
+  function keysSection(cfg, changed, R) {
+    const k = cfg.keys = MQ.keysSettings(cfg.keys);
+    R.total = h('span', { class: 'mix-total' });
+    const combos = h('ul', { class: 'keys-combos' });
+    const warn = h('p', { class: 'warn-note', hidden: true }, 'Choose a way to show the note and a different way to answer — showing and answering the same way would just be copying.');
+    const LABEL = { staff: 'grand staff', name: 'note name', piano: 'piano key' };
+    const ANSWER = { staff: 'write it on the grand staff', name: 'type its name', piano: 'play it on the piano' };
+    const drawCombos = () => {
+      const list = MQ.keysCombos(k);
+      warn.hidden = list.length > 0;
+      combos.replaceChildren(...list.map(([a, b]) => h('li', null, h('b', null, 'Shown as a ' + LABEL[a]), ' → ', ANSWER[b])));
+    };
+    const count = counter('count-keys', 'Keys & Notes', (v) => { cfg.counts.keys = v; changed(); });
+    count.sync(cfg.counts.keys || 0, 60);
+    const low = selectEl('k-low', NOTE_CHOICES, k.low, (v) => { k.low = +v; if (k.high < k.low) { k.high = k.low; hi.value = k.high; } changed(); });
+    const hi = selectEl('k-high', NOTE_CHOICES, k.high, (v) => { k.high = +v; if (k.low > k.high) { k.low = k.high; low.value = k.low; } changed(); });
+    drawCombos();
+    return sec('keys', 'Keys & notes', 'Each question shows one note in one way and asks for it in another. The piano plays each note as it’s pressed or typed.',
+      h('div', { class: 'keys-count' }, h('span', { class: 'mini-label' }, 'How many questions'), count),
+      grp('Show the note as', chips('k-prompts', MQ.KEYS_KINDS.map((x) => ({ label: x.show })), k.prompts, (m) => { k.prompts = m; changed(); drawCombos(); }, (x) => x.label)),
+      grp('Students answer by', chips('k-answers', MQ.KEYS_KINDS.map((x) => ({ label: x.answer })), k.answers, (m) => { k.answers = m; changed(); drawCombos(); }, (x) => x.label)),
+      warn,
+      h('div', { class: 'keys-combo-box' }, h('span', { class: 'mini-label' }, 'The quiz mixes these'), combos),
+      h('div', { class: 'row2' },
+        grp('Lowest note', low, 'The piano starts at the C below it.'),
+        grp('Highest note', hi, 'And ends at the B above it.')),
+      grp('Sharps and flats', seg('k-acc', [{ v: 0, label: 'Naturals only' }, { v: 1, label: '+ Sharps' }, { v: 2, label: '+ Flats' }, { v: 3, label: 'Sharps & flats' }], cfg.accMode, (v) => { cfg.accMode = v; changed(); }),
+        'Plain letters come up about half the time, B♭ E♭ A♭ D♭ most of the rest, and remote spellings rarely.'),
+      h('div', { class: 'mix-foot' }, R.total));
+  }
+
   // ---------- print: a paper copy of the quiz, as PDF or a Word document ----------
   // A standalone SVG for one question's staff: no colours from the app, drawn clefs when the
   // picture has to be rasterised, and cropped to the part of the staff that is used.
@@ -2082,6 +2253,28 @@
       + '.sacc{font-family:"Noto Music",serif}';
     svg.insertBefore(style, svg.firstChild);
     return { svg, markup: new XMLSerializer().serializeToString(svg), wIn: (W / height) * inch, hIn: inch };
+  }
+
+
+  // Every picture a question prints with: its staff, or for Keys questions the note shown
+  // (staff or highlighted key) and the staff or keyboard to answer on.
+  function pianoArt(lo, hi, highlight) {
+    const markup = MQ.pianoMarkup(lo, hi, { highlight });
+    const svg = new DOMParser().parseFromString(markup, 'image/svg+xml').documentElement;
+    const vb = svg.getAttribute('viewBox').split(/\s+/).map(Number);
+    const hIn = 1;
+    return { svg, markup, wIn: (vb[2] / vb[3]) * hIn, hIn };
+  }
+  function exportArt(q, opts) {
+    if (q.type !== 'keys') return [exportStaffSVG(q, opts)];
+    const k = q.keys;
+    const staffOf = (notes) => exportStaffSVG({ type: 'keys', clef: 'grand', grand: true, columns: [{ given: notes, cap: notes.length ? 0 : 1 }] }, opts);
+    const out = [];
+    if (k.prompt === 'staff') out.push(staffOf([k.pitch]));
+    if (k.prompt === 'piano') out.push(pianoArt(k.kbLo, k.kbHi, k.midi));
+    if (k.answer === 'staff') out.push(staffOf([]));
+    if (k.answer === 'piano') out.push(pianoArt(k.kbLo, k.kbHi, null));
+    return out;
   }
 
   // Draw an SVG into a canvas and hand back PNG bytes for the Word document.
@@ -2132,7 +2325,7 @@
     const buildSheet = () => {
       const model = MQ.printModel(qs, S.cfg);
       const opts = printOpts({ qrSVG: MQ.qrSVG(printPayload(), 96 * S.print.qr, { ecc: 'L' }) });
-      return MQ.printHTML(model, printInfo(), opts, (q) => exportStaffSVG(q, { height: S.print.staffH }).markup);
+      return MQ.printHTML(model, printInfo(), opts, (q) => exportArt(q, { height: S.print.staffH }).map((a) => a.markup).join(''));
     };
     const fileStem = () => (S.cfg.title || 'quiz').replace(/[^\w -]+/g, '').trim().replace(/\s+/g, '-').toLowerCase() || 'quiz';
     // The page is drawn at its true size and scaled to fit the space, or to whatever the slider says.
@@ -2243,7 +2436,7 @@
         const model = MQ.printModel(qs, S.cfg);
         // The PDF draws the staves as line work, so it uses the drawn clefs, not the music font.
         const art = new Map();
-        model.forEach((it) => { if (it.staff) art.set(it.q, exportStaffSVG(it.q, { height: S.print.staffH, drawnClefs: true })); });
+        model.forEach((it) => { if (it.staff) art.set(it.q, exportArt(it.q, { height: S.print.staffH, drawnClefs: true })); });
         const bytes = MQ.pdfSheet(model, printInfo(), printOpts({ qrPayload: printPayload() }), (q) => art.get(q) || null);
         const res = await saveFile(fileStem() + '.pdf', new Blob([bytes], { type: 'application/pdf' }));
         status.textContent = res === 'saved' ? 'PDF saved.' : res === 'declined' ? 'Save cancelled.' : 'That download didn’t go through.';
@@ -2262,9 +2455,11 @@
         const byQuestion = [];
         for (const it of model) {
           if (!it.staff) { byQuestion.push(null); continue; }
-          const art = exportStaffSVG(it.q, { height: S.print.staffH, drawnClefs: true });
-          const bytes = await svgToPNG(art.markup, art.wIn, art.hIn, 200);
-          byQuestion.push({ bytes, wIn: art.wIn, hIn: art.hIn });
+          const pics = [];
+          for (const art of exportArt(it.q, { height: S.print.staffH, drawnClefs: true })) {
+            pics.push({ bytes: await svgToPNG(art.markup, art.wIn, art.hIn, 200), wIn: art.wIn, hIn: art.hIn });
+          }
+          byQuestion.push(pics);
         }
         const qr = MQ.qrPNG(printPayload(), { scale: 4, ecc: 'L' });
         const bytes = MQ.docxBytes(model, printInfo(), printOpts(), { byQuestion, qr: { bytes: qr.bytes, wIn: S.print.qr } });
@@ -2344,6 +2539,12 @@
     store.set('view', view);
   }
   function init() {
+    if (KEYS) {
+      // Clefwork Keys: the same tabs, its own name.
+      const name = document.querySelector('.brand-name');
+      if (name) name.textContent = 'Clefwork Keys';
+      document.title = 'Clefwork Keys';
+    }
     if (MODE === 'results' || MODE === 'canvas') {
       // Single-purpose pages: no tabs, and the logo doesn't lead anywhere.
       document.querySelector('.nav').remove();

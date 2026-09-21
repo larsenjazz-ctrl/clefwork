@@ -574,3 +574,30 @@ textarea.cv-result { margin-top: 10px; }
 .canvas-score b { color: var(--accent); font-size: 16px; }
 .results-page { padding-top: 4px; }
 .results-foot { text-align: center; margin: 4px auto 24px; }
+
+/* Clefwork Keys: the piano, note names, and the builder's combination list */
+.piano-box { background: var(--paper); border: 1px solid var(--line); border-radius: 10px; padding: 12px 10px; display: flex; justify-content: center; overflow-x: auto; }
+.piano-wrap { display: block; max-width: 100%; outline: none; border-radius: 6px; }
+.piano-wrap:focus-visible { box-shadow: 0 0 0 3px var(--accent-soft); }
+.piano-wrap svg.piano { display: block; width: 100%; max-width: 640px; height: auto; touch-action: manipulation; }
+.piano .pk { cursor: pointer; transition: fill 0.08s; }
+.piano-wrap.is-readonly .piano .pk { cursor: default; }
+.piano .pk-white { fill: #ffffff; stroke: #222; }
+.piano .pk-black { fill: #1b1f2b; stroke: #111; }
+.piano .pk-white:hover { fill: #eef1fb; }
+.piano .pk-black:hover { fill: #333a52; }
+.piano-wrap.is-readonly .pk-white:hover { fill: #ffffff; }
+.piano-wrap.is-readonly .pk-black:hover { fill: #1b1f2b; }
+.piano .pk.is-hl { fill: #f2b441; stroke: #8a5d0c; stroke-width: 1.6; }
+.piano .pk.is-sel { fill: #6f7fe6; stroke: #2f3fbf; stroke-width: 1.6; }
+.piano .pk.is-right { fill: #3fa877; stroke: #137a4b; stroke-width: 1.6; }
+.piano .pk.is-wrong { fill: #e0646b; stroke: #bf3139; stroke-width: 1.6; }
+.piano .pk.is-expected { fill: #9fdcbf; stroke: #137a4b; stroke-width: 1.6; stroke-dasharray: 3 2; }
+.piano .pk.is-cursor { stroke: #2f3fbf; stroke-width: 2.4; }
+.piano .pk-middle { pointer-events: none; fill: #8a93a8; }
+.keys-card .keys-prompt, .keys-card .keys-answer { display: flex; flex-direction: column; gap: 8px; }
+.keys-name { font: 800 clamp(40px, 7vw, 64px)/1 var(--f-display); text-align: center; padding: 14px 0 6px; letter-spacing: -0.01em; }
+input.keys-in { width: 6em; font-size: 20px; }
+.keys-count { display: flex; align-items: center; gap: 12px; }
+.keys-combo-box { background: var(--surface-2); border: 1px solid var(--line); border-radius: 10px; padding: 10px 14px; }
+.keys-combos { margin: 6px 0 0; padding-left: 18px; display: grid; gap: 3px; font-size: 14px; color: var(--ink-2); }

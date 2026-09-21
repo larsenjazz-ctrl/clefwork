@@ -219,6 +219,14 @@
     }
   }
 
+  // "#bdbdbd" → 0.74; anything that isn't a plain colour (none, currentColor) → null.
+  function grayOf(color) {
+    const m = String(color || '').trim().match(/^#([0-9a-f]{3}|[0-9a-f]{6})$/i);
+    if (!m) return null;
+    const hex = m[1].length === 3 ? m[1].split('').map((c) => c + c).join('') : m[1];
+    const [r, g, b] = [0, 2, 4].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255);
+    return 0.299 * r + 0.587 * g + 0.114 * b;
+  }
   // Draw one SVG element tree (as the app's staves are built) into `rect` on the page.
   function drawSVG(pdf, svg, rect) {
     const view = (svg.getAttribute('viewBox') || '').split(/[\s,]+/).map(Number);
@@ -268,6 +276,25 @@
           close: () => pdf.close(),
         });
         paint(fill !== false, evenOdd, width);
+      } else if (tag === 'rect') {
+        // Piano keys: filled and outlined in their own greys.
+        const x = +el.getAttribute('x') || 0, y = +el.getAttribute('y') || 0;
+        const w = +el.getAttribute('width') || 0, hgt = +el.getAttribute('height') || 0;
+        const corners = [[x, y], [x + w, y], [x + w, y + hgt], [x, y + hgt]].map(([ax, ay]) => apply(local, ax, ay));
+        const fg = grayOf(el.getAttribute('fill')), sg = grayOf(el.getAttribute('stroke'));
+        const doFill = el.getAttribute('fill') !== 'none';
+        const sw = el.getAttribute('stroke') && el.getAttribute('stroke') !== 'none'
+          ? (+el.getAttribute('stroke-width') || 1) * Math.sqrt(Math.abs(local[0] * local[3] - local[1] * local[2])) : 0;
+        pdf.save();
+        if (fg != null) pdf.op(`${num(fg)} g`);
+        if (sg != null) pdf.op(`${num(sg)} G`);
+        pdf.moveTo(corners[0][0], corners[0][1]);
+        corners.slice(1).forEach((c) => pdf.lineTo(c[0], c[1]));
+        pdf.close();
+        if (doFill && sw) pdf.lineWidth(sw).op('B');
+        else if (doFill) pdf.fill();
+        else if (sw) pdf.lineWidth(sw).stroke();
+        pdf.restore();
       } else if (tag === 'circle') {
         const cx = +el.getAttribute('cx') || 0, cy = +el.getAttribute('cy') || 0, r = +el.getAttribute('r') || 0;
         const k = 0.5523 * r;
@@ -370,5 +397,5 @@
     return lines.length ? lines : [''];
   }
 
-  Object.assign(MQ, { pdfDoc, pdfString, drawSVG, parseTransform, walkPath, arcToCurves, pdfText, pdfTextWidth, pdfWrap });
+  Object.assign(MQ, { pdfGray: grayOf, pdfDoc, pdfString, drawSVG, parseTransform, walkPath, arcToCurves, pdfText, pdfTextWidth, pdfWrap });
 })(typeof window !== 'undefined' ? window : globalThis);

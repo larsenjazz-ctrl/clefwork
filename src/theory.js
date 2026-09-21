@@ -96,6 +96,7 @@
     { id: 'figprog', label: 'Figured Bass Progression', blurb: 'Write the Roman numeral and figures for every chord of a progression.', est: 80 },
     // Added last so the numbers older report codes use keep their meaning.
     { id: 'vprog', label: 'Voiced Progressions', blurb: 'Voice a whole progression with one technique, or name each chord of a voiced progression.', est: 90, custom: true },
+    { id: 'keys', label: 'Keys & Notes', blurb: 'One note, shown on the grand staff, as a name with its octave, or as a piano key — answered another of those ways.', est: 15, custom: true },
   ];
   const BUILT_IN = TYPES.filter((t) => !t.custom);
   const MAX_CUSTOM = 20, MAX_CUSTOM_NOTES = 6, MAX_VOICING_NOTES = 8;
@@ -151,7 +152,7 @@
       // Per-tab notes setting: 0 use the quiz setting, 1 print the helper note, 2 students write every note.
       helpOv: { interval: 0, chord: 0, custom: 2, voicing: 2, vprog: 2 },
       figpAsk: 1, // figured bass progression: 1 analyse, 2 spell, 3 both
-      counts: { place: 4, identify: 3, interval: 3, chord: 2, scale: 1, keysig: 2, custom: 0, voicing: 0, vprog: 0, progression: 0, figured: 0, figprog: 0 },
+      counts: { place: 4, identify: 3, interval: 3, chord: 2, scale: 1, keysig: 2, custom: 0, voicing: 0, vprog: 0, progression: 0, figured: 0, figprog: 0, keys: 0 },
       ledger: 1,
       accMode: 3,
       intervals: maskOf(INTERVALS, ['M2', 'm3', 'M3', 'P4', 'P5', 'P8']),
@@ -185,6 +186,9 @@
       vc: { sizes: 0b011, quals: 0b00011, alts: 0, key: 3, slash: 0, ask: 1, tech: {}, opts: { thirdsStaff: 0, thirdsOmitRoot: 0, blockStaff: 0, planesOpen: 0, popNotes: 3, popStaff: 0, inner2: 0 } },
       vp: { sizes: 0b011, quals: 0b00011, alts: 0, key: 0, slash: 0, ask: 1, len: 4, tech: {}, opts: { thirdsStaff: 0, thirdsOmitRoot: 0, blockStaff: 0, planesOpen: 0, popNotes: 3, popStaff: 0, inner2: 0 } },
       canvasPts: 0, // points the quiz is worth in Canvas; 0 = show the raw score only
+      // Keys & Notes: which ways a note is shown and answered (bit 0 grand staff, 1 name with
+      // octave, 2 piano key), and the range of notes asked, as MIDI numbers.
+      keys: { prompts: 0b111, answers: 0b111, low: 48, high: 72 },
       custom: [],
       customGrade: 0,
       voicings: [],
@@ -193,7 +197,7 @@
       flags: { shuffle: true, partial: true, feedback: false, labels: false, enharmonic: false, strictOctave: false, noHelpers: false },
     };
   }
-  const zeroCounts = () => ({ place: 0, identify: 0, interval: 0, chord: 0, scale: 0, keysig: 0, custom: 0, voicing: 0, vprog: 0, progression: 0, figured: 0, figprog: 0 });
+  const zeroCounts = () => ({ place: 0, identify: 0, interval: 0, chord: 0, scale: 0, keysig: 0, custom: 0, voicing: 0, vprog: 0, progression: 0, figured: 0, figprog: 0, keys: 0 });
   const withCfg = (c, patch) => Object.assign(JSON.parse(JSON.stringify(c)), patch);
 
   const PRESETS = [
@@ -645,7 +649,7 @@
     // Variety: no interval, chord type, root, key or scale more than twice in a short quiz
     // (three times past 20 questions). When the settings are narrow, the roots vary the most.
     const total = BUILT_IN.reduce((n, t) => n + (cfg.counts[t.id] || 0), 0)
-      + ['custom', 'voicing', 'vprog', 'progression'].reduce((n, k) => n + (cfg.counts[k] || 0), 0);
+      + ['custom', 'voicing', 'vprog', 'progression', 'keys'].reduce((n, k) => n + (cfg.counts[k] || 0), 0);
     const cap = total > 20 ? 3 : 2;
     const used = {};
     function pickVaried(make) {
@@ -698,6 +702,7 @@
     if (cfg.v != null && cfg.v < 12) draw(cfg.voicings, cfg.counts.voicing || 0).forEach((v) => qs.push(voicingQuestion(v, cfg)));
     else if (MQ.voicingQuestions) MQ.voicingQuestions(cfg, rng, draw, pickVaried).forEach((q) => qs.push(q));
     if (MQ.progressionQuestions) MQ.progressionQuestions(cfg, rng, draw).forEach((q) => qs.push(q));
+    if (MQ.keysQuestions && cfg.counts.keys) MQ.keysQuestions(cfg, rng, pickVaried).forEach((q) => qs.push(q));
     if (cfg.flags.shuffle) shuffle(qs, rng);
     return qs;
   }
@@ -727,6 +732,7 @@
 
   // Fraction of the question answered correctly, 0..1.
   function gradeQuestion(q, response, cfg) {
+    if (q.type === 'keys') return MQ.gradeKeys(q, response, cfg);
     if (q.type === 'figured' || q.type === 'figprog') return MQ.gradeFigured(q, response, cfg);
     if (q.type === 'progression') return MQ.gradeProgression(q, response, cfg);
     if (q.symbolAnswers) {
@@ -750,7 +756,8 @@
   }
 
   const hasAnswer = (q, response) =>
-    q.type === 'figured' || q.type === 'figprog' ? MQ.hasFiguredAnswer(q, response)
+    q.type === 'keys' ? MQ.hasKeysAnswer(q, response)
+      : q.type === 'figured' || q.type === 'figprog' ? MQ.hasFiguredAnswer(q, response)
       : q.colSpecs ? !!response && response.some((col) => col && col.some(Boolean))
         : q.type === 'progression' ? !!response && ['r', 's'].some((k) => (response[k] || []).some((x) => x && x.trim()))
       : q.symbolAnswers ? !!response && response.some((v) => String(v || '').trim())
@@ -759,6 +766,7 @@
         : q.choices ? response != null : !!response && response.some((col) => col && col.some(Boolean));
 
   function describeAnswer(q, cfg) {
+    if (q.type === 'keys') return MQ.describeKeys(q);
     if (q.symbolAnswers) return q.symbolAnswers.map((a) => a.shown).join('  ');
     if (q.symbolAnswer) return q.symbolAnswer.shown;
     if (q.dropdowns) return q.dropdowns.map((d) => d.options[d.answer]).join(' · ');
