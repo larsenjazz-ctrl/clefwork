@@ -14,7 +14,7 @@ body() {
   echo "<script>window.CLEFWORK_BASE = '$BASE';</script>"
   echo "<style>"; cat src/styles.css; echo "</style>"
   cat src/shell.html
-  echo "<script>"; cat src/theory.js src/progressions.js src/chords.js src/figured.js src/voicings.js src/keys.js src/qr.js src/pdf.js src/print.js src/docx.js src/codec.js src/staff.js src/piano.js src/audio.js src/app.js; echo "</script>"
+  echo "<script>"; cat src/theory.js src/progressions.js src/chords.js src/figured.js src/voicings.js src/keys.js src/analysis.js src/qr.js src/pdf.js src/print.js src/docx.js src/codec.js src/staff.js src/piano.js src/audio.js src/app.js; echo "</script>"
 }
 # Student version: same app with practice + take-a-quiz only (no quiz codes, no grading tab).
 SHEAD=$(printf '%s' "$HEAD" | sed 's#<title>Clefwork Music Quizzes</title>#<title>Clefwork Practice</title>#; s#Build music theory quizzes, have students write notes on the staff, and grade them from report codes#Practise music theory on the staff, and take quizzes from your teacher#')
@@ -37,6 +37,11 @@ KHEAD=$(printf '%s' "$HEAD" | sed 's#<title>Clefwork Music Quizzes</title>#<titl
 KFLAG='<script>window.CLEFWORK_MODE = "keys";</script>'
 { echo "$KHEAD"; echo "$KFLAG"; body; } > dist/clefwork-keys.html
 { echo "$DOC"; echo "$KHEAD"; echo "$KFLAG"; echo '</head><body>'; body; echo '</body></html>'; } > dist/clefwork-keys-standalone.html
+# Clefwork Analysis: questions on a picture of the score, from the same engine.
+AHEAD=$(printf '%s' "$HEAD" | sed 's#<title>Clefwork Music Quizzes</title>#<title>Clefwork Analysis</title>#; s#Build music theory quizzes, have students write notes on the staff, and grade them from report codes#Harmonic analysis quizzes on real music: box the chords on a score and students write Roman numerals or chord symbols#')
+AFLAG='<script>window.CLEFWORK_MODE = "analysis";</script>'
+{ echo "$AHEAD"; echo "$AFLAG"; body; } > dist/clefwork-analysis.html
+{ echo "$DOC"; echo "$AHEAD"; echo "$AFLAG"; echo '</head><body>'; body; echo '</body></html>'; } > dist/clefwork-analysis-standalone.html
 # Copies for GitHub Pages: the teacher app at index.html, the student app at student.html,
 # and the Canvas pages at take.html and results.html.
 mkdir -p dist/site
@@ -45,4 +50,5 @@ cp dist/clefwork-student-standalone.html dist/site/student.html
 cp dist/clefwork-take-standalone.html dist/site/take.html
 cp dist/clefwork-results-standalone.html dist/site/results.html
 cp dist/clefwork-keys-standalone.html dist/site/keys.html
+cp dist/clefwork-analysis-standalone.html dist/site/analysis.html
 wc -c dist/*.html

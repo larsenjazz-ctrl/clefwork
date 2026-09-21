@@ -608,6 +608,103 @@ input.keys-in { width: 6em; font-size: 20px; }
 .keys-count { display: flex; align-items: center; gap: 12px; }
 .keys-combo-box { background: var(--surface-2); border: 1px solid var(--line); border-radius: 10px; padding: 10px 14px; }
 .keys-combos { margin: 6px 0 0; padding-left: 18px; display: grid; gap: 3px; font-size: 14px; color: var(--ink-2); }
+
+/* Clefwork Analysis: boxes on a picture of the score, answered beside the music */
+.an-build { display: flex; flex-direction: column; gap: 12px; }
+.an-drop { border: 2px dashed var(--line-2); border-radius: var(--r); padding: 28px 18px; text-align: center; background: var(--surface-2); transition: border-color 0.15s, background 0.15s; }
+.an-drop.is-over { border-color: var(--accent); background: var(--accent-soft); }
+.an-drop-title { margin: 0 0 4px; font: 700 18px/1.3 var(--f-display); }
+.an-drop .help { display: block; max-width: 460px; margin: 0 auto; }
+.an-status { font-size: 13px; color: var(--muted); }
+.an-tools { display: flex; flex-wrap: wrap; gap: 12px 20px; align-items: flex-end; }
+.an-tools .fld { flex: 0 1 auto; }
+.an-tools-end { display: flex; align-items: center; gap: 10px; margin-left: auto; }
+.an-how { margin: 0; font-size: 14px; color: var(--ink-2); }
+.an-stage { position: relative; background: #fff; border: 1px solid var(--line); border-radius: 10px; touch-action: none; cursor: crosshair; user-select: none; -webkit-user-select: none; }
+.an-stage > img { display: block; width: 100%; height: auto; pointer-events: none; border-radius: 9px; }
+.an-layer { position: absolute; inset: 0; }
+.an-reg { position: absolute; padding: 0; margin: 0; border: 2px solid var(--c); border-radius: 4px; background: color-mix(in srgb, var(--c) 16%, transparent); cursor: pointer; font: inherit; }
+.an-reg:hover, .an-reg:focus-visible { background: color-mix(in srgb, var(--c) 30%, transparent); }
+.an-reg.is-draft { border-style: dashed; background: color-mix(in srgb, var(--c) 12%, transparent); cursor: crosshair; pointer-events: none; }
+.an-reg-num { position: absolute; top: -2px; left: -2px; transform: translateY(-100%); background: var(--c); color: #fff; font: 700 11px/1 var(--f-body); padding: 3px 5px; border-radius: 4px 4px 0 0; white-space: nowrap; }
+.an-pop { position: absolute; z-index: 3; width: 290px; max-width: 100%; background: var(--surface); color: var(--ink); border: 1px solid var(--line-2); border-radius: 10px; box-shadow: var(--shadow); padding: 12px 14px; cursor: default; }
+.an-pop-q { margin: 0 0 8px; font-weight: 700; font-size: 14.5px; }
+.an-pop-row { display: flex; flex-wrap: wrap; gap: 6px; }
+.an-pop .btn-link { margin-top: 8px; }
+.an-editor-host:not(:empty) { position: sticky; bottom: 8px; z-index: 4; }
+.an-editor { background: var(--surface); border: 2px solid var(--accent); border-radius: var(--r); padding: 14px 16px; box-shadow: var(--shadow); display: flex; flex-direction: column; gap: 10px; }
+.an-editor .btn-row { margin-top: 0; }
+.an-editor .help { margin: 0; }
+.an-ed-head { display: flex; gap: 10px; align-items: baseline; flex-wrap: wrap; }
+.an-ed-head strong { font: 700 16px/1.2 var(--f-display); }
+.an-ed-fields { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
+.an-ed-field { display: flex; flex-direction: column; gap: 4px; }
+input.an-ed-in { font: 700 16px var(--f-mono); }
+.an-ed-in.is-invalid { border-color: var(--bad); background: var(--bad-soft); color: var(--bad); }
+.an-opt { font-weight: 400; color: var(--muted); }
+.an-or, .an-sep { font: 400 13px var(--f-body); color: var(--muted); }
+.an-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.an-item { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 8px 10px; border: 1px solid var(--line); border-left: 5px solid var(--c); border-radius: 8px; background: var(--surface); }
+.an-item.is-editing { border-color: var(--accent); border-left-color: var(--c); box-shadow: 0 0 0 2px var(--accent-soft); }
+.an-item-num { width: 26px; height: 26px; border-radius: 50%; background: var(--c); color: #fff; font: 700 13px/26px var(--f-body); text-align: center; }
+.an-item-main { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.an-item-ask { font-size: 12px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: var(--muted); }
+.an-item-ans { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px; }
+.an-item-ans .fig-rn { font-size: 18px; }
+.an-item-act { display: flex; gap: 4px; }
+.an-del { color: var(--bad); }
+@media (max-width: 640px) { .an-item { grid-template-columns: auto minmax(0, 1fr); } .an-item-act { grid-column: 1 / -1; justify-content: flex-end; } .an-tools-end { margin-left: 0; } }
+
+/* the student's sheet */
+.take.is-analysis { max-width: 1180px; }
+.an-take { display: flex; flex-direction: column; gap: 12px; }
+.an-take-top { display: flex; gap: 12px 20px; align-items: center; justify-content: space-between; flex-wrap: wrap; }
+.an-lede { margin: 0; color: var(--ink-2); font-size: 15px; max-width: 640px; }
+.an-notes { margin: 0; padding: 10px 14px; border-radius: 10px; background: var(--accent-soft); color: var(--ink); font-weight: 700; }
+.an-zoom { display: flex; align-items: center; gap: 4px; }
+.an-zoom-val { min-width: 3.4em; text-align: center; font-size: 13.5px; font-variant-numeric: tabular-nums; color: var(--muted); }
+.an-key { display: flex; flex-direction: column; gap: 6px; padding: 10px 14px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface-2); font-size: 13.5px; }
+.an-key-row { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 16px; }
+.an-key-row > b { min-width: 5.5em; }
+.an-key-item { display: inline-flex; align-items: center; gap: 6px; color: var(--ink-2); }
+.an-key-fig { font-size: 26px; min-width: 0.9em; display: inline-flex; justify-content: center; color: var(--ink); }
+.an-key-fig .fig-stack { margin-left: 0; }
+.an-key-none { font: 400 12.5px var(--f-body); color: var(--muted); }
+.an-key-how { margin: 0; color: var(--muted); }
+.an-scroll { overflow-x: auto; margin: 0 -4px; padding: 0 4px 4px; }
+.an-sheet { min-width: 560px; }
+.an-strip { position: relative; overflow: hidden; background: #fff; }
+.an-strip:first-child { border-top-left-radius: 8px; border-top-right-radius: 8px; }
+.an-strip:last-child { border-bottom-left-radius: 8px; border-bottom-right-radius: 8px; }
+.an-strip > img { position: absolute; left: 0; width: 100%; height: auto; pointer-events: none; user-select: none; }
+.an-hl { position: absolute; border-radius: 3px; background: color-mix(in srgb, var(--c) 20%, transparent); box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--c) 55%, transparent); cursor: pointer; transition: background 0.12s, box-shadow 0.12s; }
+.an-hl.is-hover, .an-hl.is-active { background: color-mix(in srgb, var(--c) 34%, transparent); box-shadow: inset 0 0 0 2.5px var(--c); }
+.an-crop .an-hl { cursor: default; }
+.an-lane { position: relative; min-height: 50px; background: var(--surface); }
+.an-box { position: absolute; top: 8px; left: 0; width: 78px; padding: 4px; border-radius: 8px; background: color-mix(in srgb, var(--c) 14%, var(--surface)); border: 1.5px solid color-mix(in srgb, var(--c) 60%, transparent); transition: box-shadow 0.12s; }
+.an-box.is-active { box-shadow: 0 0 0 2.5px var(--c); }
+.an-num { position: absolute; top: -8px; left: -6px; min-width: 18px; height: 18px; padding: 0 4px; border-radius: 9px; background: var(--c); color: #fff; font: 700 11px/18px var(--f-body); text-align: center; }
+.an-field { display: flex; flex-direction: column; align-items: stretch; gap: 1px; }
+input.an-in { width: 100%; min-height: 34px; padding: 4px 2px; text-align: center; font: 700 14px var(--f-mono); border-radius: 6px; background: var(--surface); }
+.an-in.is-invalid { border-color: var(--bad); color: var(--bad); }
+.an-pv { min-height: 20px; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 2px; font-size: 12px; color: var(--accent); text-align: center; line-height: 1.15; }
+.an-pv .fig-rn { font-size: 15px; }
+/* On the sheet, how an answer reads pops up under the box being typed in, without moving the others. */
+.an-box .an-pv { position: absolute; top: calc(100% + 4px); left: 50%; transform: translateX(-50%); z-index: 5; display: none; padding: 3px 9px; white-space: nowrap;
+  background: var(--surface); border: 1px solid var(--line-2); border-radius: 7px; box-shadow: var(--shadow); }
+.an-box:focus-within .an-pv:not(:empty) { display: flex; }
+.an-box.is-checked .an-pv { position: static; transform: none; display: flex; padding: 2px 0 0; white-space: normal; background: none; border: 0; box-shadow: none; }
+.an-pv .fig-mark { font-size: 12px; justify-content: center; flex-wrap: wrap; }
+.an-pv .fig-mark .fig-rn { font-size: 14px; }
+.an-field.is-right input.an-in { border-color: var(--good); background: var(--good-soft); color: var(--good); }
+.an-field.is-wrong input.an-in { border-color: var(--bad); background: var(--bad-soft); color: var(--bad); }
+.an-box .fig-unread { font-size: 11px; }
+/* one question on its own (grade checker, results) */
+.an-crop { position: relative; overflow: hidden; background: #fff; border: 1px solid var(--line); border-radius: 10px; }
+.an-crop > img { position: absolute; height: auto; pointer-events: none; }
+.an-answers { display: flex; flex-wrap: wrap; gap: 14px; }
+.an-answer { display: flex; flex-direction: column; gap: 4px; width: 150px; }
+.an-answer .an-pv { justify-content: flex-start; font-size: 13px; }
 </style>
 <div class="shell">
   <header class="mast">
@@ -730,6 +827,7 @@ input.keys-in { width: 6em; font-size: 20px; }
     // Added last so the numbers older report codes use keep their meaning.
     { id: 'vprog', label: 'Voiced Progressions', blurb: 'Voice a whole progression with one technique, or name each chord of a voiced progression.', est: 90, custom: true },
     { id: 'keys', label: 'Keys & Notes', blurb: 'One note, shown on the grand staff, as a name with its octave, or as a piano key — answered another of those ways.', est: 15, custom: true },
+    { id: 'analysis', label: 'Analysis', blurb: 'Boxes on a picture of real music, each answered with a Roman numeral, a chord symbol, or both.', est: 30, custom: true },
   ];
   const BUILT_IN = TYPES.filter((t) => !t.custom);
   const MAX_CUSTOM = 20, MAX_CUSTOM_NOTES = 6, MAX_VOICING_NOTES = 8;
@@ -785,7 +883,7 @@ input.keys-in { width: 6em; font-size: 20px; }
       // Per-tab notes setting: 0 use the quiz setting, 1 print the helper note, 2 students write every note.
       helpOv: { interval: 0, chord: 0, custom: 2, voicing: 2, vprog: 2 },
       figpAsk: 1, // figured bass progression: 1 analyse, 2 spell, 3 both
-      counts: { place: 4, identify: 3, interval: 3, chord: 2, scale: 1, keysig: 2, custom: 0, voicing: 0, vprog: 0, progression: 0, figured: 0, figprog: 0, keys: 0 },
+      counts: { place: 4, identify: 3, interval: 3, chord: 2, scale: 1, keysig: 2, custom: 0, voicing: 0, vprog: 0, progression: 0, figured: 0, figprog: 0, keys: 0, analysis: 0 },
       ledger: 1,
       accMode: 3,
       intervals: maskOf(INTERVALS, ['M2', 'm3', 'M3', 'P4', 'P5', 'P8']),
@@ -822,6 +920,8 @@ input.keys-in { width: 6em; font-size: 20px; }
       // Keys & Notes: which ways a note is shown and answered (bit 0 grand staff, 1 name with
       // octave, 2 piano key), and the range of notes asked, as MIDI numbers.
       keys: { prompts: 0b111, answers: 0b111, low: 48, high: 72 },
+      // Clefwork Analysis: boxes on a picture of the score, each with its answers (see analysis.js).
+      analysis: { override: 0, notes: '', img: null, regions: [] },
       custom: [],
       customGrade: 0,
       voicings: [],
@@ -830,7 +930,7 @@ input.keys-in { width: 6em; font-size: 20px; }
       flags: { shuffle: true, partial: true, feedback: false, labels: false, enharmonic: false, strictOctave: false, noHelpers: false },
     };
   }
-  const zeroCounts = () => ({ place: 0, identify: 0, interval: 0, chord: 0, scale: 0, keysig: 0, custom: 0, voicing: 0, vprog: 0, progression: 0, figured: 0, figprog: 0, keys: 0 });
+  const zeroCounts = () => ({ place: 0, identify: 0, interval: 0, chord: 0, scale: 0, keysig: 0, custom: 0, voicing: 0, vprog: 0, progression: 0, figured: 0, figprog: 0, keys: 0, analysis: 0 });
   const withCfg = (c, patch) => Object.assign(JSON.parse(JSON.stringify(c)), patch);
 
   const PRESETS = [
@@ -1282,7 +1382,7 @@ input.keys-in { width: 6em; font-size: 20px; }
     // Variety: no interval, chord type, root, key or scale more than twice in a short quiz
     // (three times past 20 questions). When the settings are narrow, the roots vary the most.
     const total = BUILT_IN.reduce((n, t) => n + (cfg.counts[t.id] || 0), 0)
-      + ['custom', 'voicing', 'vprog', 'progression', 'keys'].reduce((n, k) => n + (cfg.counts[k] || 0), 0);
+      + ['custom', 'voicing', 'vprog', 'progression', 'keys', 'analysis'].reduce((n, k) => n + (cfg.counts[k] || 0), 0);
     const cap = total > 20 ? 3 : 2;
     const used = {};
     function pickVaried(make) {
@@ -1336,6 +1436,7 @@ input.keys-in { width: 6em; font-size: 20px; }
     else if (MQ.voicingQuestions) MQ.voicingQuestions(cfg, rng, draw, pickVaried).forEach((q) => qs.push(q));
     if (MQ.progressionQuestions) MQ.progressionQuestions(cfg, rng, draw).forEach((q) => qs.push(q));
     if (MQ.keysQuestions && cfg.counts.keys) MQ.keysQuestions(cfg, rng, pickVaried).forEach((q) => qs.push(q));
+    if (MQ.analysisQuestions && cfg.counts.analysis) MQ.analysisQuestions(cfg).forEach((q) => qs.push(q));
     if (cfg.flags.shuffle) shuffle(qs, rng);
     return qs;
   }
@@ -1366,6 +1467,7 @@ input.keys-in { width: 6em; font-size: 20px; }
   // Fraction of the question answered correctly, 0..1.
   function gradeQuestion(q, response, cfg) {
     if (q.type === 'keys') return MQ.gradeKeys(q, response, cfg);
+    if (q.type === 'analysis') return MQ.gradeAnalysis(q, response, cfg);
     if (q.type === 'figured' || q.type === 'figprog') return MQ.gradeFigured(q, response, cfg);
     if (q.type === 'progression') return MQ.gradeProgression(q, response, cfg);
     if (q.symbolAnswers) {
@@ -1390,6 +1492,7 @@ input.keys-in { width: 6em; font-size: 20px; }
 
   const hasAnswer = (q, response) =>
     q.type === 'keys' ? MQ.hasKeysAnswer(q, response)
+      : q.type === 'analysis' ? MQ.hasAnalysisAnswer(q, response)
       : q.type === 'figured' || q.type === 'figprog' ? MQ.hasFiguredAnswer(q, response)
       : q.colSpecs ? !!response && response.some((col) => col && col.some(Boolean))
         : q.type === 'progression' ? !!response && ['r', 's'].some((k) => (response[k] || []).some((x) => x && x.trim()))
@@ -1400,6 +1503,7 @@ input.keys-in { width: 6em; font-size: 20px; }
 
   function describeAnswer(q, cfg) {
     if (q.type === 'keys') return MQ.describeKeys(q);
+    if (q.type === 'analysis') return MQ.describeAnalysis(q);
     if (q.symbolAnswers) return q.symbolAnswers.map((a) => a.shown).join('  ');
     if (q.symbolAnswer) return q.symbolAnswer.shown;
     if (q.dropdowns) return q.dropdowns.map((d) => d.options[d.answer]).join(' · ');
@@ -3344,6 +3448,403 @@ input.keys-in { width: 6em; font-size: 20px; }
     parseNoteName, noteName, otherName, keyboardRange, keysResponsePitch, MIDDLE_C: MIDDLE,
   });
 })(typeof window !== 'undefined' ? window : globalThis);
+/* Clefwork Analysis — questions on a picture of real music. The teacher boxes part of the score
+   and gives its Roman numeral, its chord symbol, or both; students type their answers beside the
+   music. Everything here is shared by the builder, the quiz, the grade checker and results pages.
+   - Roman numerals are typed with their figures (V65, V6/5, vii°7, viiø43, V7/V, N6, Ger+6) and
+     marked by what they mean, not how they were typed.
+   - Chord symbols use the same reader and spelling as the rest of Clefwork (mi, ma, °, ♭/♯).
+   - The score travels inside the quiz link as a compressed black-and-white picture. */
+(function (root) {
+  'use strict';
+  const MQ = root.MQ;
+  const NUMERALS = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII'];
+  const ASKS = ['', 'roman', 'symbol', 'both'];   // the number each answer type is stored as
+  const MAX_REGIONS = 60;
+
+  function analysisSettings(block) {
+    const b = block || {};
+    if (!Array.isArray(b.regions)) b.regions = [];
+    if (b.override == null) b.override = 0;        // 0 each question's own, else an index into ASKS
+    if (b.notes == null) b.notes = '';             // instructions shown to students (the key, say)
+    if (b.img === undefined) b.img = null;         // {hash, w, h} of the score picture
+    return b;
+  }
+  // A teacher's answer can list others that are also right: "I64, Cad64" or "IV or ii6".
+  const alternatives = (s) => String(s || '').split(/\s*(?:,|;|\bor\b)\s*/).map((x) => x.trim()).filter(Boolean);
+
+  // ---------- Roman numerals ----------
+  // Figures: [inversion, seventh chord]. 5/3, 6/3 and 6/4/2 spellings are accepted too.
+  const FIGS = {
+    '': [0, false], 5: [0, false], 53: [0, false], 6: [1, false], 63: [1, false], 64: [2, false],
+    7: [0, true], 75: [0, true], 73: [0, true], 753: [0, true], 65: [1, true], 653: [1, true],
+    43: [2, true], 643: [2, true], 42: [3, true], 642: [3, true], 2: [3, true],
+  };
+  const FIG_TEXT = [['', '6', '64'], ['7', '65', '43', '42']];
+  const NUM_RE = '(VII|VI|IV|V|III|II|I|vii|vi|iv|v|iii|ii|i)';
+  const clean = (s) => String(s || '').trim()
+    .replace(/♭/g, 'b').replace(/♯/g, '#').replace(/♮/g, '')
+    .replace(/[º˚]/g, '°').replace(/Ø/g, 'ø').replace(/Δ/g, 'M').replace(/\s+/g, '');
+
+  // "V65", "V6/5", "viio7", "vii/o43", "bVI", "V7/V", "N6", "It+6", "Cad64" → what the numeral means.
+  function parseRoman(str) {
+    const s = clean(str);
+    if (!s) return null;
+    const a6 = s.match(/^(It|Ital|Italian|Fr|Fre|French|Ger|Gr|German|Sw|Swiss)\+?(6|63|43|643|65|653|42)?$/i);
+    if (a6) {
+      const w = a6[1].toLowerCase();
+      return { kind: 'aug6', which: w.startsWith('it') ? 'It' : w.startsWith('f') ? 'Fr' : w.startsWith('s') ? 'Sw' : 'Ger' };
+    }
+    if (/^cad(64|6\/4)?$/i.test(s)) return { kind: 'cad' };
+    const nea = s.match(/^N(6|63|64|5|53)?$/);
+    if (nea) {
+      const f = FIGS[nea[1] || ''];
+      return { kind: 'rn', acc: -1, deg: 1, low: false, mark: '', seventh: false, ninth: false, inv: f[0], applied: null };
+    }
+    // An applied (secondary) chord names the chord it leads to: V7/V, vii°7/ii.
+    let body = s, applied = null;
+    const ap = s.match(new RegExp('^(.+)/([b#]?)' + NUM_RE + '$'));
+    if (ap) {
+      body = ap[1];
+      applied = { acc: ap[2] === '#' ? 1 : ap[2] === 'b' ? -1 : 0, deg: NUMERALS.indexOf(ap[3].toUpperCase()) };
+    }
+    const m = body.match(new RegExp('^([b#]?)' + NUM_RE + '(.*)$'));
+    if (!m) return null;
+    let t = m[3], mark = '';
+    const q = t.match(/^(ø|\/o|°|o|dim|\+|aug)/);
+    if (q) {
+      mark = q[1] === 'ø' || q[1] === '/o' ? 'ø' : q[1] === '+' || q[1] === 'aug' ? '+' : '°';
+      t = t.slice(q[1].length);
+    }
+    const mj = t.match(/^(maj|Maj|ma|M)(?=\d)/);    // IM7, IVmaj7: a major seventh, as in the key
+    if (mj) t = t.slice(mj[1].length);
+    const digits = t.replace(/\//g, '');
+    let inv, seventh, ninth = false;
+    if (digits === '9') { inv = 0; seventh = true; ninth = true; }
+    else if (digits in FIGS) [inv, seventh] = FIGS[digits];
+    else return null;
+    if (mark === 'ø' && !digits) seventh = true;      // viiø means the half-diminished seventh chord
+    return {
+      kind: 'rn', acc: m[1] === '#' ? 1 : m[1] === 'b' ? -1 : 0, deg: NUMERALS.indexOf(m[2].toUpperCase()),
+      low: m[2] === m[2].toLowerCase(), mark, seventh, ninth, inv, applied,
+    };
+  }
+  // Same chord, position and function. The case of an applied chord's target doesn't matter (V/ii = V/II).
+  function sameRoman(a, b) {
+    if (!a || !b || a.kind !== b.kind) return false;
+    if (a.kind === 'aug6') return a.which === b.which;
+    if (a.kind === 'cad') return true;
+    const sameTarget = (x, y) => (!x && !y) || (!!x && !!y && x.acc === y.acc && x.deg === y.deg);
+    return a.acc === b.acc && a.deg === b.deg && a.low === b.low && a.mark === b.mark
+      && a.seventh === b.seventh && a.ninth === b.ninth && a.inv === b.inv && sameTarget(a.applied, b.applied);
+  }
+  const accSign = (n) => (n < 0 ? '♭' : n > 0 ? '♯' : '');
+  // The parts a display needs: {numeral: '♭VII°', figure: '65', target: '/V'}, or {text} for named chords.
+  function romanParts(p) {
+    if (!p) return null;
+    if (p.kind === 'aug6') return { text: p.which + '+6' };
+    if (p.kind === 'cad') return { text: 'Cad64' };
+    const n = NUMERALS[p.deg];
+    const figure = p.ninth ? '9' : FIG_TEXT[p.seventh ? 1 : 0][p.inv] || '';
+    return {
+      numeral: accSign(p.acc) + (p.low ? n.toLowerCase() : n) + p.mark,
+      figure,
+      target: p.applied ? '/' + accSign(p.applied.acc) + NUMERALS[p.applied.deg] : '',
+    };
+  }
+  const romanText = (p) => { const r = romanParts(p); return !r ? '' : r.text || r.numeral + r.figure + r.target; };
+
+  // ---------- chord symbols (Clefwork's reader and spelling) ----------
+  const symbolOk = (s) => !!MQ.parseVoiceSymbol(String(s || '').trim());
+  // Written the Clefwork way, bass note included: F♯mi7/C♯.
+  function symbolText(s) {
+    const t = String(s || '').trim();
+    const m = t.match(/^(.*)\/([A-Ga-g])([#b♯♭]?)$/);
+    if (!m) return MQ.prettySymbol(t);
+    return MQ.prettySymbol(m[1]) + '/' + m[2].toUpperCase() + (/[#♯]/.test(m[3]) ? '♯' : m[3] ? '♭' : '');
+  }
+
+  // ---------- questions ----------
+  // What a box asks for once the quiz-wide setting is applied. A box without the answer the quiz
+  // asks for keeps asking for the one it has.
+  function askFor(r, override) {
+    const want = override ? ASKS[override] : r.ask || 'roman';
+    const hasR = alternatives(r.roman).length > 0, hasS = alternatives(r.symbol).length > 0;
+    let r1 = want !== 'symbol' && hasR, s1 = want !== 'roman' && hasS;
+    if (!r1 && !s1) { r1 = hasR; s1 = !hasR && hasS; }
+    return r1 && s1 ? 'both' : s1 ? 'symbol' : 'roman';
+  }
+  // Boxes the quiz-wide setting can't fully apply to, because they lack an answer it asks for.
+  function missingAnswers(a) {
+    const s = analysisSettings(a);
+    if (!s.override) return { roman: [], symbol: [] };
+    const want = ASKS[s.override];
+    const out = { roman: [], symbol: [] };
+    s.regions.forEach((r, i) => {
+      if (want !== 'symbol' && !alternatives(r.roman).length) out.roman.push(i + 1);
+      if (want !== 'roman' && !alternatives(r.symbol).length) out.symbol.push(i + 1);
+    });
+    return out;
+  }
+  const ASK_TEXT = { roman: 'Roman numeral with figures', symbol: 'Chord symbol', both: 'Roman numeral and chord symbol' };
+  const partsOf = (q) => (q.an.ask === 'both' ? ['r', 's'] : q.an.ask === 'symbol' ? ['s'] : ['r']);
+  function analysisQuestions(cfg) {
+    const a = analysisSettings(cfg.analysis);
+    const n = Math.min(a.regions.length, cfg.counts.analysis == null ? a.regions.length : cfg.counts.analysis);
+    return a.regions.slice(0, n).map((r, i) => {
+      const ask = askFor(r, a.override);
+      return {
+        type: 'analysis', clef: 'treble',
+        text: `Box ${i + 1}: ${ASK_TEXT[ask]}`,
+        hint: ask === 'symbol' ? 'For example Dmi7, G7, Cma7, B°, Bmi7♭5 or C/E.' : 'Type the numeral and its figures together, such as V65, ii6 or vii°7.',
+        an: { n: i, region: { x: r.x, y: r.y, w: r.w, h: r.h }, ask, roman: alternatives(r.roman), symbol: alternatives(r.symbol), img: a.img ? a.img.hash : null },
+        sig: 'an' + i, tags: [],
+      };
+    });
+  }
+  // One answer box: r (Roman numeral) or s (chord symbol).
+  function markAnalysisPart(q, k, resp, cfg) {
+    const got = resp && resp[k];
+    if (!got || !String(got).trim()) return false;
+    if (k === 'r') { const p = parseRoman(got); return !!p && q.an.roman.some((w) => sameRoman(parseRoman(w), p)); }
+    return q.an.symbol.some((w) => MQ.gradeVoiceSymbol(w, String(got).trim(), cfg) === 1);
+  }
+  function gradeAnalysis(q, resp, cfg) {
+    const parts = partsOf(q);
+    return parts.filter((k) => markAnalysisPart(q, k, resp, cfg)).length / parts.length;
+  }
+  const hasAnalysisAnswer = (q, resp) => !!resp && partsOf(q).some((k) => String(resp[k] || '').trim());
+  const romanAnswerText = (q) => q.an.roman.map((w) => romanText(parseRoman(w)) || w).join(' or ');
+  const symbolAnswerText = (q) => q.an.symbol.map(symbolText).join(' or ');
+  function describeAnalysis(q) {
+    return partsOf(q).map((k) => (k === 'r' ? romanAnswerText(q) : symbolAnswerText(q))).join(' · ');
+  }
+
+  // ---------- where the boxes go ----------
+  // Systems are found from the picture: runs of rows with ink, split by white gaps.
+  function findBands(profile, w, h) {
+    const thr = Math.max(1, Math.round(w * 0.002));
+    const minGap = Math.max(4, Math.round(h * 0.006));
+    const bands = [];
+    let start = -1, lastInk = -1;
+    for (let y = 0; y < h; y++) {
+      if (profile[y] > thr) {
+        if (start < 0) start = y;
+        else if (y - lastInk - 1 >= minGap) { bands.push({ y0: start, y1: lastInk + 1 }); start = y; }
+        lastInk = y;
+      }
+    }
+    if (start >= 0) bands.push({ y0: start, y1: lastInk + 1 });
+    if (!bands.length) bands.push({ y0: 0, y1: h });
+    return bands.map((b) => ({ y0: b.y0 / h, y1: b.y1 / h }));
+  }
+  function bandOf(r, bands) {
+    const cy = r.y + r.h / 2;
+    let best = 0, dist = Infinity;
+    bands.forEach((b, i) => {
+      const d = cy < b.y0 ? b.y0 - cy : cy > b.y1 ? cy - b.y1 : 0;
+      if (d < dist) { dist = d; best = i; }
+    });
+    return best;
+  }
+  // Reading order: system by system, left to right. Without systems, boxes that share a line do.
+  function readingOrder(regions, bands) {
+    if (bands && bands.length) {
+      return regions.map((r) => ({ r, b: bandOf(r, bands) })).sort((a, b) => a.b - b.b || a.r.x - b.r.x).map((e) => e.r);
+    }
+    const rows = [];
+    regions.slice().sort((a, b) => (a.y + a.h / 2) - (b.y + b.h / 2)).forEach((r) => {
+      const cy = r.y + r.h / 2, row = rows[rows.length - 1];
+      if (row && cy >= row.top && cy <= row.bottom) { row.items.push(r); row.top = Math.min(row.top, r.y); row.bottom = Math.max(row.bottom, r.y + r.h); }
+      else rows.push({ top: r.y, bottom: r.y + r.h, items: [r] });
+    });
+    return [].concat(...rows.map((row) => row.items.sort((a, b) => a.x - b.x)));
+  }
+  // The student's sheet: the picture cut between systems, with a lane of chord-symbol boxes above
+  // each system that has them and a lane of Roman numeral boxes below.
+  function sheetPlan(qs, bands) {
+    const cuts = [];
+    const lanes = new Map();
+    const laneAt = (y, kind, order) => {
+      const key = y.toFixed(5) + kind;
+      if (!lanes.has(key)) { lanes.set(key, { y, kind, order, items: [] }); cuts.push(lanes.get(key)); }
+      return lanes.get(key);
+    };
+    qs.forEach((q, i) => {
+      const bi = bandOf(q.an.region, bands), b = bands[bi];
+      const above = bi === 0 ? 0 : (bands[bi - 1].y1 + b.y0) / 2;
+      const below = bi === bands.length - 1 ? 1 : (b.y1 + bands[bi + 1].y0) / 2;
+      const cx = q.an.region.x + q.an.region.w / 2;
+      if (q.an.ask !== 'roman') laneAt(above, 'symbol', 1).items.push({ i, cx });
+      if (q.an.ask !== 'symbol') laneAt(below, 'roman', 0).items.push({ i, cx });
+    });
+    // At a shared gap, the Roman numerals of the system above come before the symbols of the one below.
+    cuts.sort((a, b) => a.y - b.y || a.order - b.order);
+    const out = [];
+    let y = 0;
+    cuts.forEach((lane) => {
+      if (lane.y > y + 1e-6) out.push({ kind: 'strip', y0: y, y1: lane.y });
+      out.push({ kind: 'lane', lane: lane.kind, items: lane.items.sort((a, b) => a.cx - b.cx) });
+      y = Math.max(y, lane.y);
+    });
+    if (y < 1 - 1e-6) out.push({ kind: 'strip', y0: y, y1: 1 });
+    return out;
+  }
+
+  // ---------- the score picture ----------
+  // Stored as [format 1][width:16][height:16] + raw-deflated rows of 1-bit pixels (1 = ink),
+  // written in base64url so it can sit in a link.
+  const B64 = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_';
+  function toB64url(bytes) {
+    let s = '';
+    for (let i = 0; i < bytes.length; i += 3) {
+      const n = (bytes[i] << 16) | ((bytes[i + 1] || 0) << 8) | (bytes[i + 2] || 0);
+      s += B64[(n >> 18) & 63] + B64[(n >> 12) & 63];
+      if (i + 1 < bytes.length) s += B64[(n >> 6) & 63];
+      if (i + 2 < bytes.length) s += B64[n & 63];
+    }
+    return s;
+  }
+  function fromB64url(str) {
+    const s = String(str || '').replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+    const out = new Uint8Array(Math.floor((s.length * 3) / 4));
+    let o = 0;
+    for (let i = 0; i < s.length; i += 4) {
+      let n = 0;
+      for (let j = 0; j < 4; j++) {
+        const c = i + j < s.length ? B64.indexOf(s[i + j]) : 0;
+        if (c < 0) throw new Error('bad picture data');
+        n = (n << 6) | c;
+      }
+      out[o++] = (n >> 16) & 255;
+      if (i + 2 < s.length) out[o++] = (n >> 8) & 255;
+      if (i + 3 < s.length) out[o++] = n & 255;
+    }
+    return out.slice(0, o);
+  }
+  function fnv32(bytes) {
+    let h = 0x811c9dc5;
+    for (let i = 0; i < bytes.length; i++) h = Math.imul(h ^ bytes[i], 0x01000193) >>> 0;
+    return h >>> 0;
+  }
+  const hashOfData = (data) => fnv32(fromB64url(data));
+  async function streamBytes(bytes, stream) {
+    return new Uint8Array(await new Response(new Blob([bytes]).stream().pipeThrough(stream)).arrayBuffer());
+  }
+
+  // Picture detail: how wide the stored copy is. Ink: how dark a grey counts as ink.
+  const DETAIL = [{ id: 0, label: 'Standard', w: 1400 }, { id: 1, label: 'High', w: 2000 }, { id: 2, label: 'Highest', w: 2800 }];
+  const INK = [0.8, 0.87, 0.93];
+  // Turns a picture into crisp black and white — a threshold that follows the page's own lighting,
+  // so shadows and yellowed paper drop out — trims the empty margins and packs it. opts.crop reuses
+  // an earlier trim (fractions of the upload), so boxes already drawn stay on the same music.
+  async function encodeScore(source, opts) {
+    const o = Object.assign({ detail: 0, ink: 1, crop: null }, opts);
+    const sw = source.naturalWidth || source.width, sh = source.naturalHeight || source.height;
+    if (!sw || !sh) throw new Error('That picture is empty.');
+    let W = Math.min(sw, DETAIL[o.detail].w);
+    let H = Math.round((sh * W) / sw);
+    const maxPx = 12e6;
+    if (W * H > maxPx) { const k = Math.sqrt(maxPx / (W * H)); W = Math.round(W * k); H = Math.round(H * k); }
+    const cv = document.createElement('canvas');
+    cv.width = W; cv.height = H;
+    const cx = cv.getContext('2d', { willReadFrequently: true });
+    cx.fillStyle = '#fff';
+    cx.fillRect(0, 0, W, H);
+    cx.imageSmoothingQuality = 'high';
+    cx.drawImage(source, 0, 0, W, H);
+    const px = cx.getImageData(0, 0, W, H).data;
+    const g = new Uint8Array(W * H);
+    for (let i = 0; i < W * H; i++) g[i] = (px[4 * i] * 299 + px[4 * i + 1] * 587 + px[4 * i + 2] * 114) / 1000;
+    const I = new Uint32Array((W + 1) * (H + 1));
+    for (let y = 0; y < H; y++) {
+      let s = 0;
+      for (let x = 0; x < W; x++) { s += g[y * W + x]; I[(y + 1) * (W + 1) + x + 1] = I[y * (W + 1) + x + 1] + s; }
+    }
+    const rad = Math.max(8, Math.round(W / 40)), k = INK[o.ink];
+    const ink = new Uint8Array(W * H);
+    let minX = W, minY = H, maxX = -1, maxY = -1;
+    for (let y = 0; y < H; y++) {
+      const y0 = Math.max(0, y - rad), y1 = Math.min(H, y + rad + 1);
+      for (let x = 0; x < W; x++) {
+        const v = g[y * W + x];
+        let on = v < 70;
+        if (!on && v < 235) {
+          const x0 = Math.max(0, x - rad), x1 = Math.min(W, x + rad + 1);
+          const sum = I[y1 * (W + 1) + x1] - I[y0 * (W + 1) + x1] - I[y1 * (W + 1) + x0] + I[y0 * (W + 1) + x0];
+          on = v < (sum / ((x1 - x0) * (y1 - y0))) * k;
+        }
+        if (on) {
+          ink[y * W + x] = 1;
+          if (x < minX) minX = x; if (x > maxX) maxX = x;
+          if (y < minY) minY = y; if (y > maxY) maxY = y;
+        }
+      }
+    }
+    if (maxX < 0) throw new Error('No music showed up in that picture. Try one with darker printing, or choose Darker ink.');
+    const pad = 12;
+    minX = Math.max(0, minX - pad); minY = Math.max(0, minY - pad);
+    maxX = Math.min(W - 1, maxX + pad); maxY = Math.min(H - 1, maxY + pad);
+    if (o.crop) {
+      minX = Math.round(o.crop.x0 * W); minY = Math.round(o.crop.y0 * H);
+      maxX = Math.min(W - 1, Math.round(o.crop.x1 * W) - 1); maxY = Math.min(H - 1, Math.round(o.crop.y1 * H) - 1);
+    }
+    const crop = { x0: minX / W, y0: minY / H, x1: (maxX + 1) / W, y1: (maxY + 1) / H };
+    const w = maxX - minX + 1, h = maxY - minY + 1, rowBytes = Math.ceil(w / 8);
+    const bits = new Uint8Array(rowBytes * h);
+    for (let y = 0; y < h; y++) {
+      for (let x = 0; x < w; x++) if (ink[(y + minY) * W + x + minX]) bits[y * rowBytes + (x >> 3)] |= 128 >> (x & 7);
+    }
+    const z = await streamBytes(bits, new CompressionStream('deflate-raw'));
+    const bytes = new Uint8Array(5 + z.length);
+    bytes.set([1, w >> 8, w & 255, h >> 8, h & 255]);
+    bytes.set(z, 5);
+    return Object.assign(scoreFrom(bits, w, h), { data: toB64url(bytes), hash: fnv32(bytes), crop });
+  }
+  function scoreFrom(bits, w, h) {
+    const rowBytes = Math.ceil(w / 8);
+    const profile = new Uint32Array(h);
+    for (let y = 0; y < h; y++) {
+      let n = 0;
+      for (let b = 0; b < rowBytes; b++) { let v = bits[y * rowBytes + b]; while (v) { n += v & 1; v >>= 1; } }
+      profile[y] = n;
+    }
+    return { w, h, bits, profile, bands: findBands(profile, w, h) };
+  }
+  async function decodeScore(data) {
+    const bytes = fromB64url(data);
+    if (bytes.length < 6 || bytes[0] !== 1) throw new Error('This picture was made by a newer version of Clefwork.');
+    const w = (bytes[1] << 8) | bytes[2], h = (bytes[3] << 8) | bytes[4];
+    const bits = await streamBytes(bytes.slice(5), new DecompressionStream('deflate-raw'));
+    if (bits.length < Math.ceil(w / 8) * h) throw new Error('The picture in this link is incomplete.');
+    return Object.assign(scoreFrom(bits, w, h), { data, hash: fnv32(bytes) });
+  }
+  // A PNG of the black-and-white score, dark ink on white paper, as an object URL.
+  function scoreURL(score) {
+    const { w, h, bits } = score, rowBytes = Math.ceil(w / 8);
+    const cv = document.createElement('canvas');
+    cv.width = w; cv.height = h;
+    const cx = cv.getContext('2d');
+    const img = cx.createImageData(w, h), d = img.data;
+    for (let y = 0; y < h; y++) {
+      for (let x = 0; x < w; x++) {
+        const i = 4 * (y * w + x);
+        const on = bits[y * rowBytes + (x >> 3)] & (128 >> (x & 7));
+        d[i] = on ? 20 : 255; d[i + 1] = on ? 24 : 255; d[i + 2] = on ? 38 : 255; d[i + 3] = 255;
+      }
+    }
+    cx.putImageData(img, 0, 0);
+    return new Promise((resolve) => cv.toBlob((b) => resolve(URL.createObjectURL(b)), 'image/png'));
+  }
+
+  Object.assign(MQ, {
+    ANALYSIS_ASKS: ASKS, ANALYSIS_MAX: MAX_REGIONS, SCORE_DETAIL: DETAIL,
+    analysisSettings, alternatives, parseAnalysisRoman: parseRoman, sameRoman, romanParts, romanText, symbolOk, symbolText,
+    askFor, missingAnswers, analysisQuestions, markAnalysisPart, gradeAnalysis, hasAnalysisAnswer, describeAnalysis,
+    romanAnswerText, symbolAnswerText, analysisParts: partsOf,
+    findBands, bandOf, readingOrder, sheetPlan, encodeScore, decodeScore, scoreURL, hashOfData,
+  });
+})(typeof window !== 'undefined' ? window : globalThis);
 /* Clefwork — QR codes, so a printed quiz can be scanned back open. Byte mode, versions 1–20,
    error correction L or M. Returns a square matrix of 0 (light) and 1 (dark) modules. */
 (function (root) {
@@ -4597,6 +5098,15 @@ svg.staff .nlabel { display: none; }
       bytes.forEach((x) => this.u(x, 8));
       return this;
     }
+    // Longer strings (instructions): a length field of `bits` bits.
+    strN(s, maxBytes, bits) {
+      let chars = Array.from(String(s || ''));
+      while (utf8(chars.join('')).length > Math.min(maxBytes, Math.pow(2, bits) - 1)) chars.pop();
+      const bytes = utf8(chars.join(''));
+      this.u(bytes.length, bits);
+      bytes.forEach((x) => this.u(x, 8));
+      return this;
+    }
     // Short strings (chord symbols): 4-bit length.
     str4(s, maxBytes) {
       let chars = Array.from(String(s || ''));
@@ -4619,6 +5129,11 @@ svg.staff .nlabel { display: none; }
     }
     str() {
       const len = this.u(6), bytes = [];
+      for (let i = 0; i < len; i++) bytes.push(this.u(8));
+      return new TextDecoder().decode(new Uint8Array(bytes));
+    }
+    strN(bits) {
+      const len = this.u(bits), bytes = [];
       for (let i = 0; i < len; i++) bytes.push(this.u(8));
       return new TextDecoder().decode(new Uint8Array(bytes));
     }
@@ -4758,6 +5273,22 @@ svg.staff .nlabel { display: none; }
     // Version 15: Keys & Notes — how many, which ways of showing and answering, and the range.
     const k = MQ.keysSettings(cfg.keys);
     w.u(Math.min(63, (cfg.counts && cfg.counts.keys) || 0), 6).u(k.prompts, 3).u(k.answers, 3).u(k.low, 7).u(k.high, 7);
+    // The 4-bit version number stops at 15, so later additions follow an 8-bit extension number.
+    // Codes from before have only padding here. Extension 1: Clefwork Analysis — the boxes on the
+    // score and their answers, and a fingerprint of the picture (which travels in the link).
+    // Quizzes without it keep exactly the codes they had.
+    const an = MQ.analysisSettings(cfg.analysis);
+    const regions = an.regions.slice(0, MQ.ANALYSIS_MAX);
+    if (regions.length || an.img) {
+      const q10 = (v) => Math.max(0, Math.min(1023, Math.round(v * 1023)));
+      w.u(1, 8).u(an.override, 2).u(an.img ? 1 : 0, 1);
+      if (an.img) w.u(an.img.hash >>> 0, 32);
+      w.strN(an.notes, 200, 8).u(regions.length, 6);
+      regions.forEach((r) => {
+        w.u(q10(r.x), 10).u(q10(r.y), 10).u(q10(r.w), 10).u(q10(r.h), 10)
+          .u(Math.max(1, MQ.ANALYSIS_ASKS.indexOf(r.ask)), 2).str(r.roman, 63).str(r.symbol, 63);
+      });
+    }
     return pack(KIND_QUIZ, w.b);
   }
 
@@ -4877,6 +5408,8 @@ svg.staff .nlabel { display: none; }
       cfg.canvasPts = 0;
       cfg.keys = MQ.defaultConfig().keys;
       cfg.counts.keys = 0;
+      cfg.analysis = MQ.defaultConfig().analysis;
+      cfg.counts.analysis = 0;
       if (cfg.helpOv.vprog == null) cfg.helpOv.vprog = 2;
       if (v >= 12) {
         cfg.helpOv.vprog = r.u(2);
@@ -4891,6 +5424,19 @@ svg.staff .nlabel { display: none; }
         if (v >= 15) {
           cfg.counts.keys = r.u(6);
           cfg.keys = { prompts: r.u(3), answers: r.u(3), low: r.u(7), high: r.u(7) };
+          const ext = r.b.length - r.p >= 8 ? r.u(8) : 0;
+          if (ext >= 1) {
+            const an = { override: r.u(2), img: null, notes: '', regions: [] };
+            if (r.u(1)) an.img = { hash: r.u(32) };
+            an.notes = r.strN(8);
+            const n = r.u(6);
+            for (let i = 0; i < n; i++) {
+              const box = { x: r.u(10) / 1023, y: r.u(10) / 1023, w: r.u(10) / 1023, h: r.u(10) / 1023 };
+              an.regions.push(Object.assign(box, { ask: MQ.ANALYSIS_ASKS[r.u(2)] || 'roman', roman: r.str(), symbol: r.str() }));
+            }
+            cfg.analysis = an;
+            cfg.counts.analysis = n;
+          }
         }
         const sum = (b) => MQ.TECHNIQUES.reduce((n, t) => n + ((b.tech && b.tech[t.id]) || 0), 0);
         cfg.counts.voicing = sum(cfg.vc);
@@ -4930,6 +5476,7 @@ svg.staff .nlabel { display: none; }
   }
   const KEY_ANSWERS = ['staff', 'name', 'piano'];
   function writeAnswer(w, q, resp) {
+    if (q.type === 'analysis') { writeText(w, resp && resp.r); writeText(w, resp && resp.s); return; }
     if (q.type === 'keys') {
       const kind = KEY_ANSWERS.indexOf(q.keys.answer);
       w.u(kind, 2);
@@ -4982,6 +5529,7 @@ svg.staff .nlabel { display: none; }
     }
   }
   function readAnswer(r, type, ver) {
+    if (type === 'analysis') return { kind: 'text', value: { r: readText(r), s: readText(r) } };
     if (type === 'keys' && ver >= 7) {
       const kind = KEY_ANSWERS[r.u(2)];
       if (kind === 'name') return { kind: 'text', value: readText(r) };
@@ -5045,7 +5593,7 @@ svg.staff .nlabel { display: none; }
   function encodeReport(report, cfg, quizCode) {
     const qid = quizId(quizCode);
     const w = new Writer();
-    w.u(7, 4).u(qid, 16).str(report.name, 40)
+    w.u(8, 4).u(qid, 16).str(report.name, 40)
       .u(Math.max(0, Math.round((report.submittedAt - EPOCH) / 60000)), 24)
       .u(Math.min(65535, Math.round(report.totalSec)), 16)
       .u(report.partial ? 1 : 0, 1).u(report.items.length, 7);
@@ -5070,7 +5618,7 @@ svg.staff .nlabel { display: none; }
     const restBits = body.slice(20);
     try {
       const ver = r.u(4);
-      if (ver < 1 || ver > 7) throw new CodeError('This report was made with a newer version of Clefwork.');
+      if (ver < 1 || ver > 8) throw new CodeError('This report was made with a newer version of Clefwork.');
       const rep = { code: group(clean), quizId: r.u(16), name: r.str() };
       rep.submittedAt = EPOCH + r.u(24) * 60000;
       rep.totalSec = r.u(16);
@@ -5794,28 +6342,34 @@ svg.staff .nlabel { display: none; }
     if (key === 'progression') return Math.min(cfg.counts.progression || 0, MQ.progPool(cfg).length, 30);
     if (key === 'voicing') return cfg.v != null && cfg.v < 12 ? Math.min(cfg.counts.voicing || 0, (cfg.voicings || []).length) : techCount(cfg, 'vc');
     if (key === 'vprog') return techCount(cfg, 'vp');
+    if (key === 'keys') return MQ.keysCombos(cfg.keys).length ? cfg.counts.keys || 0 : 0;
+    if (key === 'analysis') return Math.min(cfg.counts.analysis || 0, MQ.analysisSettings(cfg.analysis).regions.length);
     const list = key === 'custom' ? cfg.custom || [] : cfg.voicings || [];
     const n = cfg.counts[key] == null ? list.length : cfg.counts[key];
     return Math.min(n, list.length);
   };
   const sumCounts = (cfg) => MQ.BUILT_IN.reduce((s, t) => s + (cfg.counts[t.id] || 0), 0) + listCount(cfg, 'custom') + listCount(cfg, 'voicing') + listCount(cfg, 'vprog') + listCount(cfg, 'progression')
-    + (MQ.keysCombos(cfg.keys).length ? cfg.counts.keys || 0 : 0);
+    + listCount(cfg, 'keys') + listCount(cfg, 'analysis');
   const usesGrand = (cfg) => (listCount(cfg, 'voicing') > 0 || listCount(cfg, 'vprog') > 0)
     || (listCount(cfg, 'progression') > 0 && cfg.progs.some((e) => e.staff === 'grand'))
     || ((cfg.counts.chord || 0) > 0 && !!(cfg.chordStaff & 4) && !(cfg.v && cfg.v < 7));
   const onlyKeys = (cfg) => !!(cfg.counts.keys && sumCounts(cfg) === cfg.counts.keys);
-  const clefsText = (cfg) => onlyKeys(cfg) ? 'grand staff, note names & piano' : [cfg.clefs & 1 ? 'treble' : null, cfg.clefs & 2 ? 'bass' : null].filter(Boolean).join(' & ') + ' clef' + (usesGrand(cfg) ? ' + grand staff' : '');
+  const onlyAnalysis = (cfg) => !!(listCount(cfg, 'analysis') && sumCounts(cfg) === listCount(cfg, 'analysis'));
+  const clefsText = (cfg) => onlyAnalysis(cfg) ? 'answered beside a picture of the score' : onlyKeys(cfg) ? 'grand staff, note names & piano' : [cfg.clefs & 1 ? 'treble' : null, cfg.clefs & 2 ? 'bass' : null].filter(Boolean).join(' & ') + ' clef' + (usesGrand(cfg) ? ' + grand staff' : '');
   const clonePlaced = (pl) => (pl ? pl.map((c) => (c || []).map((p) => ({ ...p }))) : null);
   // The student version (practice + take a quiz, no quiz codes shown) is the same app with this flag set.
   const STUDENT = !!window.CLEFWORK_STUDENT;
   // Where this app is published, so links work even from inside the artifact viewer.
   const SITE = (window.CLEFWORK_BASE || '').replace(/[^/]*$/, '');
-  const quizLink = (code) => (SITE ? SITE + 'student.html#take=' + MQ.normalize(code) : '');
+  const quizLink = (code) => (SITE ? SITE + 'student.html#take=' + withScore(code) : '');
   // The Canvas edition: a page that only takes the quiz, and a results page that stands alone.
   const MODE = window.CLEFWORK_MODE || '';
   const KEYS = MODE === 'keys';                      // Clefwork Keys: the piano and note-name app
-  const DRAFT = KEYS ? 'draft-keys' : 'draft';
-  const canvasLink = (code) => (SITE ? SITE + 'take.html#take=' + MQ.normalize(code) : '');
+  const ANALYSIS = MODE === 'analysis';              // Clefwork Analysis: questions on a picture of the score
+  const DRAFT = KEYS ? 'draft-keys' : ANALYSIS ? 'draft-analysis' : 'draft';
+  // An Analysis quiz's picture travels in its links, after the code: #take=CODE&img=…
+  const withScore = (code) => MQ.normalize(code) + (ANALYSIS && S.aimg && S.code && MQ.normalize(code) === MQ.normalize(S.code) ? '&img=' + S.aimg.data : '');
+  const canvasLink = (code) => (SITE ? SITE + 'take.html#take=' + withScore(code) : '');
   const resultsLink = (report, quiz) => (SITE
     ? SITE + 'results.html#r=' + MQ.normalize(report) + (quiz ? '&q=' + MQ.normalize(quiz) : '') : '');
   const gradeLink = (report) => (SITE ? SITE + 'index.html#grade=' + MQ.normalize(report) : '');
@@ -5829,9 +6383,17 @@ svg.staff .nlabel { display: none; }
     c.title = 'Keys & Notes Check';
     return c;
   }
+  function analysisDefault() {
+    const c = MQ.defaultConfig();
+    Object.keys(c.counts).forEach((k) => (c.counts[k] = 0));
+    c.title = 'Harmonic Analysis';
+    c.flags.shuffle = false;
+    c.flags.partial = true;
+    return c;
+  }
   function loadDraft() {
     const d = store.get(DRAFT, null);
-    const base = KEYS ? keysDefault() : MQ.defaultConfig();
+    const base = KEYS ? keysDefault() : ANALYSIS ? analysisDefault() : MQ.defaultConfig();
     if (d && d.counts && d.flags) {
       const custom = Array.isArray(d.custom) ? d.custom : [];
       const voicings = Array.isArray(d.voicings) ? d.voicings : [];
@@ -5855,6 +6417,10 @@ svg.staff .nlabel { display: none; }
     practiceFeedback: store.get('practiceFeedback', true),
     grade: { input: '', quiz: '', sel: 0 },
     print: Object.assign({ course: '', date: '', paper: 'letter', staffH: 1.25, qr: 0.75 }, store.get('print', null)),
+    // Clefwork Analysis: the builder's picture, the upload it came from (kept only in memory, for
+    // changing its detail), the box being drawn or edited, and how far the student sheet is zoomed.
+    aimg: null, aorig: null, aed: null, azoom: 1,
+    aopt: Object.assign({ detail: 0, ink: 1 }, store.get('analysis-opts', null)),
   };
   const savePrint = () => store.set('print', S.print);
   // S.take is whichever quiz the current tab works with: a teacher's quiz, or (student version) a practice run.
@@ -6087,7 +6653,9 @@ svg.staff .nlabel { display: none; }
     const ans = MQ.describeAnswer(q, cfg);
     if (frac === 1) return h('p', { class: 'result is-good', role: 'status' }, h('strong', null, 'Correct.'), ' ', ans);
     let lead = 'Not quite.';
-    if (frac > 0 && q.type === 'figprog') {
+    if (frac > 0 && q.type === 'analysis') {
+      lead = 'Partly right — 1 of 2 answers.';
+    } else if (frac > 0 && q.type === 'figprog') {
       const need = q.figuredList.length;
       lead = `Partly right — ${Math.round(frac * need)} of ${need} chords.`;
     } else if (frac > 0 && q.type === 'progression') {
@@ -6443,6 +7011,7 @@ svg.staff .nlabel { display: none; }
 
   function questionCard(q, cfg, o) {
     if (q.type === 'keys') return keysCard(q, cfg, o);
+    if (q.type === 'analysis') return analysisCard(q, cfg, o);
     if (q.type === 'figured' || q.type === 'figprog') return figuredCard(q, cfg, o);
     if (q.type === 'progression' && !q.colSpecs) return progressionCard(q, cfg, o);
     const t = typeOf(q.type);
@@ -6488,7 +7057,7 @@ svg.staff .nlabel { display: none; }
       STUDENT ? null : h('div', { class: 'row2' },
         fld('Title', textIn('q-title', cfg.title, 60, 'e.g. Unit 3 note reading', (v) => { cfg.title = v; changed(); })),
         fld('Teacher', textIn('q-teacher', cfg.teacher, 40, 'e.g. Ms. Rivera', (v) => { cfg.teacher = v; changed(); }))),
-      KEYS ? keysPresets(cfg) : h('div', { class: 'presets' }, h('span', { class: 'mini-label' }, STUDENT ? 'Presets' : 'Or start from a preset'),
+      KEYS ? keysPresets(cfg) : ANALYSIS ? null : h('div', { class: 'presets' }, h('span', { class: 'mini-label' }, STUDENT ? 'Presets' : 'Or start from a preset'),
         h('div', { class: 'preset-row' }, MQ.PRESETS.map((p) => h('button', { type: 'button', class: 'btn btn-quiet sm', onclick: () => {
           const keep = { custom: cfg.counts.custom, voicing: cfg.counts.voicing, progression: cfg.counts.progression };
           S.cfg = p.apply(S.cfg); Object.assign(S.cfg.counts, keep);
@@ -6497,7 +7066,8 @@ svg.staff .nlabel { display: none; }
         } }, p.label))))));
 
     if (KEYS) form.append(keysSection(cfg, changed, R));
-    if (!KEYS) form.append(sec('staff', 'Staff & notes', 'Applies to every question type.',
+    if (ANALYSIS) form.append(...analysisSections(cfg, changed, R));
+    if (!KEYS && !ANALYSIS) form.append(sec('staff', 'Staff & notes', 'Applies to every question type.',
       h('div', { class: 'row2' },
         grp('Clefs', chips('q-clefs', [{ label: 'Treble' }, { label: 'Bass' }, { label: 'Grand staff' }], cfg.clefs, (m) => { cfg.clefs = m; changed(); }, (x) => x.label), 'Each tab can override this.'),
         grp('Ledger lines', seg('q-ledger', [0, 1, 2, 3].map((v) => ({ v, label: v === 0 ? 'None' : v === 1 ? '1' : String(v) })), cfg.ledger, (v) => { cfg.ledger = v; changed(); }), 'Maximum above or below the staff.')),
@@ -6708,7 +7278,7 @@ svg.staff .nlabel { display: none; }
       go('build');
       toast('Cleared — the quiz is empty');
     } }, 'Clear all questions');
-    if (!KEYS) form.append(sec('types', 'Question types', 'Choose a type to change its settings. The counter on each tab sets how many of those questions the quiz asks.',
+    if (!KEYS && !ANALYSIS) form.append(sec('types', 'Question types', 'Choose a type to change its settings. The counter on each tab sets how many of those questions the quiz asks.',
       h('div', { class: 'types-top' }, clearBtn),
       strip, panels, h('div', { class: 'mix-foot' }, R.total)));
 
@@ -6719,27 +7289,31 @@ svg.staff .nlabel { display: none; }
     form.append(sec('rules', 'Quiz rules', null,
       h('div', { class: 'row2' }, fld('Time limit in minutes', timeIn, '0 means no limit. The quiz submits itself when time runs out.')),
       h('div', { class: 'toggles' },
-        flag('shuffle', 'Shuffle question order', 'Mixes the question types together instead of grouping them.'),
-        KEYS ? null : flag('partial', 'Partial credit', 'Chords and scales earn credit for each correct note.'),
+        ANALYSIS ? null : flag('shuffle', 'Shuffle question order', 'Mixes the question types together instead of grouping them.'),
+        KEYS ? null : ANALYSIS ? flag('partial', 'Partial credit', 'A box that asks for both earns half credit for each right answer.')
+          : flag('partial', 'Partial credit', 'Chords and scales earn credit for each correct note.'),
         STUDENT ? null : flag('feedback', 'Let students check answers', 'Students can check each question and see the right answer. Best for practice.'),
-        flag('labels', 'Show note names while dragging', STUDENT ? 'The note’s name appears as you move it.' : 'Practice mode: the note’s name appears as students move it.'),
-        flag('enharmonic', 'Accept enharmonic spellings', 'Counts G♭ as correct when the answer is F♯.'),
-        KEYS ? null : flag('noHelpers', 'Hide starting and helper notes', 'Students write every note themselves: both notes of an interval, every note of a scale, and a chord’s bass note.'))));
+        ANALYSIS ? null : flag('labels', 'Show note names while dragging', STUDENT ? 'The note’s name appears as you move it.' : 'Practice mode: the note’s name appears as students move it.'),
+        ANALYSIS ? flag('enharmonic', 'Accept enharmonic spellings', 'Counts a G♭7 chord symbol as correct when the answer is F♯7.')
+          : flag('enharmonic', 'Accept enharmonic spellings', 'Counts G♭ as correct when the answer is F♯.'),
+        KEYS || ANALYSIS ? null : flag('noHelpers', 'Hide starting and helper notes', 'Students write every note themselves: both notes of an interval, every note of a scale, and a chord’s bass note.'))));
 
     // Side: share + preview + answer key
     R.summary = h('p', { class: 'share-summary' });
     R.code = h('output', { class: 'code', id: 'quiz-code', 'aria-label': 'Quiz code' });
     R.copy = h('button', { type: 'button', class: 'btn btn-primary', onclick: () => { rememberQuiz(S.code, cfg); copyText(S.code, 'Quiz code'); } }, 'Copy quiz code');
-    R.link = SITE || !inFrame ? h('button', { type: 'button', class: 'btn', onclick: () => {
+    R.link = SITE || !inFrame ? h('button', { type: 'button', class: ANALYSIS ? 'btn btn-primary' : 'btn', onclick: () => {
+      if (ANALYSIS && !analysisReady()) return;
       rememberQuiz(S.code, cfg);
-      copyText(quizLink(S.code) || location.href.split('#')[0] + '#take=' + MQ.normalize(S.code), 'Quiz link');
+      copyText(quizLink(S.code) || location.href.split('#')[0] + '#take=' + withScore(S.code), 'Quiz link');
     } }, 'Copy quiz link') : null;
     R.tryBtn = h('button', { type: 'button', class: 'btn', onclick: () => {
+      if (ANALYSIS && !analysisReady()) return;
       rememberQuiz(S.code, cfg);
       if (openQuiz(S.code, { preview: true })) { S.take.name = 'Teacher preview'; go('take'); }
     } }, 'Try it as a student');
     R.exportBtn = h('button', { type: 'button', class: 'btn btn-quiet', onclick: () => openExport(cfg) }, 'Export to spreadsheet');
-    R.canvasBtn = h('button', { type: 'button', class: 'btn', onclick: () => openCanvasKit(cfg, changed) }, 'Set up in Canvas');
+    R.canvasBtn = h('button', { type: 'button', class: 'btn', onclick: () => { if (!ANALYSIS || analysisReady()) openCanvasKit(cfg, changed); } }, 'Set up in Canvas');
     if (STUDENT) {
       const p = S.slots.practice;
       R.startBtn = h('button', { type: 'button', class: 'btn btn-primary', onclick: () => startPractice(cfg) }, 'Start practising');
@@ -6750,6 +7324,19 @@ svg.staff .nlabel { display: none; }
         h('div', { class: 'btn-row' }, R.startBtn,
           p && p.started && !p.done ? h('button', { type: 'button', class: 'btn', onclick: () => go('practice') }, `Continue (question ${p.idx + 1} of ${p.qs.length})`) : null),
         h('p', { class: 'fine' }, 'Practice quizzes are just for you — nothing is sent to your teacher. For a quiz from your teacher, use the ', h('b', null, 'Take a quiz'), ' tab.')));
+    } else if (ANALYSIS) {
+      // The music travels in the link, so the link is what students need; the code is for grading elsewhere.
+      R.copy.className = 'btn sm';
+      R.linkSize = h('p', { class: 'fine' });
+      side.append(h('section', { class: 'card share' },
+        h('div', { class: 'eyebrow' }, 'Share with students'),
+        R.summary,
+        h('div', { class: 'btn-row' }, R.link, R.tryBtn, R.canvasBtn, R.exportBtn),
+        R.linkSize,
+        h('p', { class: 'fine' }, 'The music travels inside the quiz link, so nothing is stored online. Students need the whole link — the quiz code on its own doesn’t carry the music.'),
+        h('details', { class: 'fine-details' }, h('summary', null, 'Quiz code, for grading on another computer'),
+          R.code, h('div', { class: 'btn-row' }, R.copy),
+          h('p', { class: 'fine' }, 'Grading on this computer finds the quiz by itself. Elsewhere, paste this in the grade checker’s Quiz code box to see each answer.'))));
     } else side.append(h('section', { class: 'card share' },
       h('div', { class: 'eyebrow' }, 'Share with students'),
       R.summary, R.code,
@@ -6762,16 +7349,17 @@ svg.staff .nlabel { display: none; }
     R.keyList = h('ol', { class: 'key-list' });
     if (!STUDENT) side.append(h('details', { class: 'card key' }, h('summary', null, 'Answer key'), R.keyList));
 
-    R.pvCount = h('span', { class: 'pv-count' });
+    if (!ANALYSIS) R.pvCount = h('span', { class: 'pv-count' });
     R.pvHost = h('div', { class: 'pv-host' });
     R.prev = h('button', { type: 'button', class: 'btn btn-quiet sm', 'aria-label': 'Previous question', onclick: () => { S.pvIdx--; S.pvResp = null; renderPreview(); } }, '‹ Prev');
     R.next = h('button', { type: 'button', class: 'btn btn-quiet sm', 'aria-label': 'Next question', onclick: () => { S.pvIdx++; S.pvResp = null; renderPreview(); } }, 'Next ›');
     R.show = toggle('pv-show', 'Show answer', null, S.pvShow, (v) => { S.pvShow = v; renderPreview(); });
-    side.append(h('section', { class: 'card preview' },
+    if (!ANALYSIS) side.append(h('section', { class: 'card preview' },
       h('div', { class: 'card-head' }, h('div', null, h('div', { class: 'eyebrow' }, 'Preview'), R.pvCount), h('div', { class: 'pager' }, R.prev, R.next)),
       R.pvHost, STUDENT ? null : h('div', { class: 'pv-foot' }, R.show)));
 
     function renderPreview() {
+      if (!R.pvCount) return;                // Analysis: the builder's picture is the preview
       const n = S.qs.length;
       if (!n) { R.pvCount.textContent = 'No questions yet'; R.pvHost.replaceChildren(h('p', { class: 'empty' }, 'Add questions in the Question mix to see them here.')); R.prev.disabled = R.next.disabled = true; return; }
       S.pvIdx = Math.max(0, Math.min(n - 1, S.pvIdx));
@@ -6797,10 +7385,16 @@ svg.staff .nlabel { display: none; }
         S.qs = MQ.generateQuiz(cfg);
         if (R.code) R.code.textContent = S.code;
         [R.copy, R.link, R.tryBtn, R.exportBtn, R.canvasBtn, R.startBtn].forEach((b) => b && (b.disabled = false));
-        const est = Math.max(1, Math.round((MQ.BUILT_IN.reduce((s, t) => s + t.est * (cfg.counts[t.id] || 0), 0) + 40 * listCount(cfg, 'custom') + 55 * listCount(cfg, 'voicing') + 90 * listCount(cfg, 'vprog') + 70 * listCount(cfg, 'progression')) / 60));
+        const est = Math.max(1, Math.round((MQ.BUILT_IN.reduce((s, t) => s + t.est * (cfg.counts[t.id] || 0), 0) + 40 * listCount(cfg, 'custom') + 55 * listCount(cfg, 'voicing') + 90 * listCount(cfg, 'vprog') + 70 * listCount(cfg, 'progression') + 15 * listCount(cfg, 'keys') + 30 * listCount(cfg, 'analysis')) / 60));
         R.summary.replaceChildren(h('b', null, STUDENT ? 'Your practice' : cfg.title || 'Untitled quiz'), ` — ${total} questions · ${clefsText(cfg)} · about ${est} min${cfg.timeLimit ? ` · ${cfg.timeLimit}-minute limit` : ''}`);
       }
-      R.keyList.replaceChildren(...S.qs.map((q) => h('li', null, h('span', { class: 'key-q' }, q.text, h('span', { class: 'key-clef' }, ' · ' + MQ.clefLabel(q.clef))), h('span', { class: 'key-a' }, MQ.describeAnswer(q, cfg)))));
+      R.keyList.replaceChildren(...S.qs.map((q) => h('li', null, h('span', { class: 'key-q' }, q.text, q.type === 'analysis' ? null : h('span', { class: 'key-clef' }, ' · ' + MQ.clefLabel(q.clef))), h('span', { class: 'key-a' }, q.type === 'analysis' ? accText(MQ.describeAnswer(q, cfg)) : MQ.describeAnswer(q, cfg)))));
+      if (R.linkSize) {
+        const kb = S.aimg ? Math.max(1, Math.round((S.aimg.data.length + S.code.length) / 1024)) : 0;
+        R.linkSize.replaceChildren(!S.code ? '' : kb > 150
+          ? h('span', { class: 'warn-note' }, `The quiz link is about ${kb} KB. It works in browsers and Canvas, but some email programs cut long links — try Standard detail, or crop the picture to the passage.`)
+          : `The quiz link is about ${kb} KB — fine for Canvas, email and chat.`);
+      }
       renderPreview();
     }
     refresh();
@@ -7301,6 +7895,19 @@ svg.staff .nlabel { display: none; }
     try {
       const cfg = MQ.decodeQuiz(code);
       if (!sumCounts(cfg)) throw new MQ.CodeError('This quiz has no questions.');
+      if (listCount(cfg, 'analysis')) {
+        // The music comes in the link. Check it belongs to this quiz before keeping it.
+        const want = cfg.analysis.img && cfg.analysis.img.hash;
+        const img = opts && opts.img;
+        if (img) {
+          let got = null;
+          try { got = MQ.hashOfData(img); } catch (e) { /* unreadable */ }
+          if (got !== want) throw new MQ.CodeError('The music in this link is damaged or cut short — some email programs break long links. Ask your teacher for the link again, or open it from Canvas.');
+          keepScore(img, want);
+        } else if (!want || !scoreData(want)) {
+          throw new MQ.CodeError('This quiz is on a picture of the music, which comes in the quiz link — the code on its own doesn’t carry it. Open the link your teacher sent.');
+        }
+      }
       const qs = MQ.generateQuiz(cfg);
       S.take = {
         code: code.replace(/[^0-9A-Za-z]/g, '').toUpperCase(), cfg, qs, name: '', idx: 0,
@@ -7387,6 +7994,11 @@ svg.staff .nlabel { display: none; }
     if (listCount(cfg, 'vprog')) types.push(`Voiced progressions (${listCount(cfg, 'vprog')})`);
     if (cfg.counts.keys && MQ.keysCombos(cfg.keys).length) types.push(`Keys & notes (${cfg.counts.keys})`);
     if (listCount(cfg, 'progression')) types.push(`Chord progressions (${listCount(cfg, 'progression')})`);
+    if (listCount(cfg, 'analysis')) {
+      const asks = MQ.analysisQuestions(cfg).map((q) => q.an.ask);
+      const r = asks.some((a) => a !== 'symbol'), sy = asks.some((a) => a !== 'roman');
+      types.push(`Analysis (${listCount(cfg, 'analysis')} boxes) — ${r && sy ? 'Roman numerals and chord symbols' : r ? 'Roman numerals' : 'chord symbols'}`);
+    }
     main.append(h('div', { class: 'narrow' }, h('section', { class: 'card stage' },
       h('div', { class: 'eyebrow' }, t.preview ? 'Preview — this is what students see' : 'Quiz'),
       h('h1', { class: 'display' }, cfg.title || 'Music quiz'),
@@ -7395,10 +8007,13 @@ svg.staff .nlabel { display: none; }
         h('div', null, h('dt', null, 'Questions'), h('dd', null, String(t.qs.length))),
         h('div', null, h('dt', null, 'Time limit'), h('dd', null, cfg.timeLimit ? cfg.timeLimit + ' min' : 'None')),
         // A quiz of only Keys questions is on the grand staff and the piano, whatever the clef setting.
-        onlyKeys(cfg)
+        onlyAnalysis(cfg)
+          ? h('div', null, h('dt', null, 'Uses'), h('dd', null, 'A picture of the score'))
+          : onlyKeys(cfg)
           ? h('div', null, h('dt', null, 'Uses'), h('dd', null, 'Grand staff, piano'))
           : h('div', null, h('dt', null, 'Clefs'), h('dd', null, [cfg.clefs & 1 ? 'Treble' : null, cfg.clefs & 2 ? 'Bass' : null, usesGrand(cfg) ? 'Grand staff' : null].filter(Boolean).join(', ')))),
       h('p', { class: 'types-line' }, types.join(' · ')),
+      onlyAnalysis(cfg) && cfg.analysis.notes ? h('p', { class: 'an-notes' }, accText(cfg.analysis.notes)) : null,
       fld('Your name', name),
       h('div', { class: 'btn-row' }, h('button', { type: 'button', class: 'btn btn-primary', onclick: start }, 'Start quiz'),
         h('button', { type: 'button', class: 'btn btn-quiet', onclick: () => { S.take = null; saveAttempt(); go(tv()); } }, 'Use a different code')),
@@ -7438,6 +8053,7 @@ svg.staff .nlabel { display: none; }
     }, 1000);
   }
   function takeQuestion(main) {
+    if (S.take.qs[0] && S.take.qs[0].type === 'analysis') return takeAnalysis(main);
     const t = S.take, i = t.idx, q = t.qs[i];
     const locked = t.checked[i];
     const card = questionCard(q, t.cfg, {
@@ -7612,7 +8228,7 @@ svg.staff .nlabel { display: none; }
       tbody.append(h('tr', null,
         h('td', { class: 'num' }, String(i + 1)),
         h('td', null, q ? q.text : typeOf(it.type).label),
-        h('td', null, MQ.CLEFS[it.clef].label),
+        h('td', null, it.type === 'analysis' ? 'Score' : MQ.CLEFS[it.clef].label),
         key ? h('td', { class: 'ans' }, q ? MQ.describeAnswer(q, quiz.cfg) : '') : null,
         h('td', null, resultCell(it)),
         h('td', { class: 'num' }, it.sec >= 63 ? '63+ s' : it.sec + ' s')));
@@ -7931,6 +8547,572 @@ svg.staff .nlabel { display: none; }
       h('div', { class: 'mix-foot' }, R.total));
   }
 
+  // ---------- Clefwork Analysis: pictures of the score ----------
+  // Pictures are kept on this device under their fingerprint, so the builder, a quiz in progress and
+  // the grade checker all find them. The most recent dozen are kept; when storage is full the oldest
+  // go first, and this visit keeps its own copies in memory either way.
+  const SCORE_KEEP = 12;
+  const SCORE_MEM = new Map();
+  const SCORES = new Map();       // fingerprint → promise of the decoded picture, with a URL to show it
+  const scoreKey = (hash) => 'score.' + (hash >>> 0).toString(16);
+  const scoreData = (hash) => SCORE_MEM.get(hash >>> 0) || store.get(scoreKey(hash), null);
+  function keepScore(data, hash) {
+    SCORE_MEM.set(hash >>> 0, data);
+    const list = store.get('scores', []).filter((x) => x !== hash >>> 0);
+    list.unshift(hash >>> 0);
+    for (;;) {
+      try { localStorage.setItem('clefwork.' + scoreKey(hash), JSON.stringify(data)); break; } catch (e) {
+        if (list.length < 2) return;
+        store.del(scoreKey(list.pop()));
+      }
+    }
+    list.slice(SCORE_KEEP).forEach((x) => store.del(scoreKey(x)));
+    store.set('scores', list.slice(0, SCORE_KEEP));
+  }
+  function loadScore(hash) {
+    if (hash == null) return Promise.resolve(null);
+    const k = hash >>> 0;
+    if (!SCORES.has(k)) {
+      const data = scoreData(k);
+      if (!data) return Promise.resolve(null);
+      SCORES.set(k, MQ.decodeScore(data)
+        .then(async (sc) => Object.assign(sc, { url: await MQ.scoreURL(sc) }))
+        .catch(() => { SCORES.delete(k); return null; }));
+    }
+    return SCORES.get(k);
+  }
+  // Each box has a colour, shared by its highlight on the music and its answer boxes.
+  const AN_COLORS = ['#e39b12', '#2b86d6', '#d8457b', '#23a065', '#8a5ad6', '#15a0a3'];
+  const anColor = (i) => AN_COLORS[i % AN_COLORS.length];
+  const ASK_LABEL = { roman: 'Roman numeral', symbol: 'Chord symbol', both: 'Roman numeral & chord symbol' };
+  const pct = (v) => (v * 100).toFixed(3) + '%';
+  const boxStyle = (r, color) => `--c:${color};left:${pct(r.x)};top:${pct(r.y)};width:${pct(r.w)};height:${pct(r.h)}`;
+  const upperFirst = (inp) => {
+    if (!/^[a-g]/.test(inp.value)) return;
+    const at = inp.selectionStart;
+    inp.value = inp.value[0].toUpperCase() + inp.value.slice(1);
+    try { inp.setSelectionRange(at, at); } catch (e) { /* not focused */ }
+  };
+
+  // A Roman numeral as Clefwork prints it: the figures stacked beside the numeral.
+  function romanDisplay(p) {
+    const r = MQ.romanParts(p);
+    if (!r) return '';
+    if (r.text) return h('span', { class: 'fig-rn' }, r.text);
+    const el = figuredDisplay(r.numeral, r.figure);
+    if (r.target) el.append(accText(r.target));
+    return el;
+  }
+  const orList = (items) => items.map((x, j) => [j ? h('span', { class: 'an-or' }, ' or ') : null, x]);
+  const romanAnswers = (list) => orList(list.map((w) => romanDisplay(MQ.parseAnalysisRoman(w)) || w));
+  const symbolAnswers = (list) => orList(list.map((w) => h('span', { class: 'fig-rn' }, MQ.symbolText(w))));
+
+  // One answer box — k is 'r' (Roman numeral) or 's' (chord symbol) — with a preview of how it reads.
+  let anUid = 0;
+  function anInput(q, k, cfg, o, value, onInput) {
+    const roman = k === 'r';
+    // On the student's sheet the key explains what to type, so the boxes stay bare.
+    const inp = h('input', { type: 'text', id: 'an-in-' + ++anUid, class: 'an-in', maxlength: 15, placeholder: o.sheet ? null : roman ? 'V65' : 'G7',
+      autocomplete: 'off', autocapitalize: 'off', autocorrect: 'off', spellcheck: 'false',
+      'aria-label': `Box ${q.an.n + 1}: ${roman ? 'Roman numeral' : 'chord symbol'}` });
+    inp.value = o.keyMode ? (roman ? q.an.roman[0] : q.an.symbol[0]) || '' : value || '';
+    const pv = h('span', { class: 'an-pv' });
+    const draw = () => {
+      const t = inp.value.trim();
+      const p = t ? (roman ? MQ.parseAnalysisRoman(t) : MQ.symbolOk(t)) : null;
+      inp.classList.toggle('is-invalid', !!t && !p);
+      pv.replaceChildren(!t ? '' : !p ? h('span', { class: 'fig-unread is-bad' }, roman ? 'not a numeral' : 'not a symbol')
+        : roman ? romanDisplay(p) : h('span', { class: 'fig-rn' }, MQ.symbolText(t)));
+    };
+    inp.addEventListener('input', () => {
+      if (!roman) upperFirst(inp);
+      draw();
+      if (onInput) onInput(inp.value);
+    });
+    if (o.locked || o.keyMode) inp.disabled = true;
+    draw();
+    const cell = h('div', { class: 'an-field' }, inp, pv);
+    if (o.reveal && !o.keyMode) {
+      const ok = MQ.markAnalysisPart(q, k, { [k]: value }, cfg);
+      cell.classList.add(ok ? 'is-right' : 'is-wrong');
+      pv.replaceChildren(ok ? h('span', { class: 'fig-mark is-right' }, '✓')
+        : h('span', { class: 'fig-mark is-wrong' }, '✗ ', roman ? romanAnswers(q.an.roman) : symbolAnswers(q.an.symbol)));
+    }
+    return { el: cell, input: inp };
+  }
+
+  // Part of the score around one box — the whole system when there's room — with the box highlighted.
+  function scoreCrop(sc, r, color) {
+    let x0 = Math.max(0, r.x - Math.max(r.w * 1.5, 0.12)), x1 = Math.min(1, r.x + r.w + Math.max(r.w * 1.5, 0.12));
+    let y0 = Math.max(0, r.y - Math.max(r.h * 0.6, 0.05)), y1 = Math.min(1, r.y + r.h + Math.max(r.h * 0.6, 0.05));
+    const b = sc.bands[MQ.bandOf(r, sc.bands)];
+    if (b.y1 - b.y0 < 0.45) { y0 = Math.min(y0, Math.max(0, b.y0 - 0.01)); y1 = Math.max(y1, Math.min(1, b.y1 + 0.01)); }
+    const cw = x1 - x0, ch = y1 - y0;
+    // No taller than 320px on screen, however narrow the part of the music is.
+    const maxW = Math.round((320 * cw * sc.w) / (ch * sc.h));
+    return h('div', { class: 'an-crop', style: `aspect-ratio:${(cw * sc.w).toFixed(1)} / ${(ch * sc.h).toFixed(1)};max-width:${maxW}px` },
+      h('img', { src: sc.url, alt: 'The part of the score this question is about', draggable: 'false', style: `width:${pct(1 / cw)};left:${pct(-x0 / cw)};top:${pct(-y0 / ch)}` }),
+      h('span', { class: 'an-hl is-active', style: boxStyle({ x: (r.x - x0) / cw, y: (r.y - y0) / ch, w: r.w / cw, h: r.h / ch }, color) }));
+  }
+  // One Analysis question on its own: in the grade checker, on results pages and in answer keys.
+  function analysisCard(q, cfg, o) {
+    const wrap = h('div', { class: 'qcard an-card' + (o.compact ? ' is-compact' : '') });
+    wrap.append(h('div', { class: 'q-eyebrow' }, typeOf(q.type).label, h('span', { class: 'q-clef' }, ASK_LABEL[q.an.ask])));
+    wrap.append(h(o.compact ? 'h3' : 'h2', { class: 'q-text' }, q.text));
+    const pic = h('div', { class: 'an-crop-host' });
+    wrap.append(pic);
+    loadScore(q.an.img).then((sc) => pic.replaceChildren(sc ? scoreCrop(sc, q.an.region, anColor(q.an.n))
+      : h('p', { class: 'fine' }, 'The music isn’t saved on this device, so only the answers are shown.')));
+    const resp = Object.assign({}, o.response);
+    const row = h('div', { class: 'an-answers' });
+    MQ.analysisParts(q).forEach((k) => {
+      const f = anInput(q, k, cfg, o, resp[k], (v) => { resp[k] = v; if (o.onResponse) o.onResponse(Object.assign({}, resp)); });
+      row.append(h('div', { class: 'an-answer' }, h('label', { class: 'mini-label', for: f.input.id }, k === 'r' ? 'Roman numeral' : 'Chord symbol'), f.el));
+    });
+    wrap.append(row);
+    if (o.keyMode) wrap.append(h('p', { class: 'result is-key' }, h('strong', null, 'Answer: '), MQ.describeAnswer(q, cfg)));
+    else if (o.reveal) wrap.append(resultLine(q, cfg, o.response));
+    return wrap;
+  }
+
+  // A reminder of what the figures mean, and how to type them — printed above the music.
+  function figuresKey(roman, symbol) {
+    const fig = (f) => h('span', { class: 'fig-rn an-key-fig' }, !f ? h('span', { class: 'an-key-none' }, 'no figure')
+      : h('span', { class: 'fig-stack' }, ...Array.from(f).map((d) => h('span', null, d))));
+    const item = (f, text) => h('span', { class: 'an-key-item' }, fig(f), h('span', null, text));
+    return h('aside', { class: 'an-key', 'aria-label': 'Key to figures and chord symbols' },
+      roman ? [
+        h('div', { class: 'an-key-row' }, h('b', null, 'Triads'), item('', 'root position'), item('6', '1st inversion'), item('64', '2nd inversion')),
+        h('div', { class: 'an-key-row' }, h('b', null, 'Sevenths'), item('7', 'root position'), item('65', '1st inversion'), item('43', '2nd inversion'), item('42', '3rd inversion')),
+        h('p', { class: 'an-key-how' }, 'Type the figures right after the numeral: V65, ii6, V42. Type o for ° (viio7) and /o for ø (vii/o7). Applied chords: V7/V.'),
+      ] : null,
+      symbol ? h('p', { class: 'an-key-how' }, 'Chord symbols: Dmi7, G7, Cma7, B°, Bmi7♭5, Csus4 — a slash names the bass note, as in C/E. Type b for ♭ and # for ♯.') : null);
+  }
+
+  // ---------- Clefwork Analysis: taking the quiz ----------
+  // Every box is on one page: the music, cut between systems, with chord-symbol boxes above each
+  // system and Roman numeral boxes below it, each under the middle of its highlight.
+  function takeAnalysis(main) {
+    const t = S.take, cfg = t.cfg;
+    const checking = cfg.flags.feedback || (t.practice && t.practiceFeedback);
+    const host = h('div', { class: 'an-scroll' }, h('p', { class: 'empty' }, 'Loading the music…'));
+    const checkBtn = checking ? h('button', { type: 'button', class: 'btn', onclick: () => { t.checked[t.idx] = true; saveAttempt(); go(tv()); } }, 'Check') : null;
+    const syncCheck = () => {
+      if (!checkBtn) return;
+      checkBtn.textContent = `Check box ${t.idx + 1}`;
+      checkBtn.disabled = t.checked[t.idx] || !MQ.hasAnswer(t.qs[t.idx], t.resp[t.idx]);
+    };
+    const zoomVal = h('span', { class: 'an-zoom-val' });
+    const setZoom = (z) => {
+      S.azoom = Math.max(1, Math.min(2.5, z));
+      zoomVal.textContent = Math.round(S.azoom * 100) + '%';
+      const sheet = host.querySelector('.an-sheet');
+      if (sheet) sheet.style.width = S.azoom * 100 + '%';
+    };
+    const asks = t.qs.map((q) => q.an.ask);
+    main.append(h('div', { class: 'take is-analysis' }, progressHead(t),
+      h('section', { class: 'card stage an-take' },
+        h('div', { class: 'an-take-top' },
+          h('p', { class: 'an-lede' }, 'Type your answer in the box beside each highlighted part of the music. The colours and numbers show which box goes with which part.'),
+          h('div', { class: 'an-zoom', role: 'group', 'aria-label': 'Zoom the music' },
+            h('button', { type: 'button', class: 'btn btn-quiet sm', 'aria-label': 'Zoom out', onclick: () => setZoom(S.azoom - 0.25) }, '−'), zoomVal,
+            h('button', { type: 'button', class: 'btn btn-quiet sm', 'aria-label': 'Zoom in', onclick: () => setZoom(S.azoom + 0.25) }, '+'))),
+        cfg.analysis.notes ? h('p', { class: 'an-notes' }, cfg.analysis.notes) : null,
+        figuresKey(asks.some((a) => a !== 'symbol'), asks.some((a) => a !== 'roman')),
+        host),
+      h('div', { class: 'take-actions' }, h('div', { class: 'spacer' }), checkBtn,
+        h('button', { type: 'button', class: 'btn btn-primary', onclick: () => { t.reviewing = true; saveAttempt(); go(tv()); } }, t.practice ? 'Finish' : 'Review & submit'))));
+    setZoom(S.azoom);
+    syncCheck();
+    loadScore(cfg.analysis.img && cfg.analysis.img.hash).then((sc) => {
+      if (!host.isConnected || S.take !== t) return;
+      if (!sc) {
+        host.replaceChildren(h('p', { class: 'warn-note' }, 'The music for this quiz isn’t on this device any more. Open the quiz link from your teacher again — your answers so far are kept.'));
+        return;
+      }
+      host.replaceChildren(analysisSheet(sc, t, syncCheck));
+      setZoom(S.azoom);
+      const box = host.querySelector(`.an-box[data-i="${t.idx}"] input`);
+      if (box && t.idx > 0) box.focus({ preventScroll: true }), box.scrollIntoView({ block: 'center' });
+    });
+    startTicker();
+  }
+  function analysisSheet(sc, t, onActive) {
+    const cfg = t.cfg, qs = t.qs;
+    const sheet = h('div', { class: 'an-sheet', role: 'group', 'aria-label': `The music, with ${qs.length} box${qs.length > 1 ? 'es' : ''} to answer` });
+    const hls = qs.map(() => []), boxes = qs.map(() => []);
+    // The box being answered is the "current question": it collects the time and the Check button.
+    const setActive = (i) => {
+      t.idx = i;
+      [hls, boxes].forEach((all) => all.forEach((list, j) => list.forEach((el) => el.classList.toggle('is-active', j === i))));
+      document.querySelectorAll('.qdot').forEach((d, j) => { if (j === i) d.setAttribute('aria-current', 'step'); else d.removeAttribute('aria-current'); });
+      onActive();
+    };
+    const focusBox = (i) => { const inp = boxes[i][0] && boxes[i][0].querySelector('input'); if (inp && !inp.disabled) inp.focus(); else setActive(i); };
+    MQ.sheetPlan(qs, sc.bands).forEach((piece) => {
+      if (piece.kind === 'strip') {
+        const span = piece.y1 - piece.y0;
+        const strip = h('div', { class: 'an-strip', style: `aspect-ratio:${sc.w} / ${(span * sc.h).toFixed(2)}` },
+          h('img', { src: sc.url, alt: '', draggable: 'false', style: `top:${pct(-piece.y0 / span)}` }));
+        qs.forEach((q, i) => {
+          const r = q.an.region;
+          if (r.y >= piece.y1 || r.y + r.h <= piece.y0) return;
+          const hl = h('span', { class: 'an-hl', title: `Box ${i + 1}`, onclick: () => focusBox(i),
+            style: boxStyle({ x: r.x, y: (r.y - piece.y0) / span, w: r.w, h: r.h / span }, anColor(i)) });
+          hls[i].push(hl);
+          strip.append(hl);
+        });
+        sheet.append(strip);
+        return;
+      }
+      const lane = h('div', { class: 'an-lane is-' + piece.lane });
+      piece.items.forEach(({ i, cx }) => {
+        const q = qs[i], k = piece.lane === 'roman' ? 'r' : 's';
+        const locked = !!t.checked[i];
+        const f = anInput(q, k, cfg, { locked, reveal: locked, sheet: true }, (t.resp[i] || {})[k], (v) => {
+          t.resp[i] = Object.assign({}, t.resp[i], { [k]: v });
+          saveAttempt();
+          const dot = document.querySelectorAll('.qdot')[i];
+          if (dot) dot.classList.toggle('is-done', MQ.hasAnswer(q, t.resp[i]));
+          setActive(i);
+        });
+        const box = h('div', { class: 'an-box' + (locked ? ' is-checked' : ''), style: `--c:${anColor(i)}`, 'data-i': i, 'data-cx': cx },
+          h('span', { class: 'an-num', 'aria-hidden': 'true' }, String(i + 1)), f.el);
+        f.input.addEventListener('focus', () => setActive(i));
+        box.addEventListener('mouseenter', () => hls[i].forEach((el) => el.classList.add('is-hover')));
+        box.addEventListener('mouseleave', () => hls[i].forEach((el) => el.classList.remove('is-hover')));
+        box.addEventListener('click', (e) => { if (e.target === box) focusBox(i); });
+        boxes[i].push(box);
+        lane.append(box);
+      });
+      sheet.append(lane);
+    });
+    // Each box sits centred on its part of the music. A box that would overlap the one before it
+    // moves over a little if it can, and otherwise takes another row.
+    const layout = () => sheet.querySelectorAll('.an-lane').forEach((lane) => {
+      const W = lane.clientWidth;
+      if (!W) return;
+      const list = Array.from(lane.children);
+      const rowH = Math.max(0, ...list.map((b) => b.offsetHeight)) + 6;
+      const rows = [];
+      list.forEach((b) => {
+        const bw = b.offsetWidth;
+        let left = Math.max(0, Math.min(W - bw, +b.dataset.cx * W - bw / 2));
+        let row = rows.findIndex((edge) => edge + 6 <= left || (edge + 6 - left <= bw * 0.4 && edge + 6 + bw <= W));
+        if (row < 0) { row = rows.length; rows.push(0); }
+        left = Math.max(left, rows[row] ? rows[row] + 6 : 0);
+        rows[row] = left + bw;
+        b.style.left = left + 'px';
+        b.style.top = 8 + row * rowH + 'px';
+      });
+      lane.style.height = 10 + rows.length * rowH + 'px';
+    });
+    if (window.ResizeObserver) new ResizeObserver(layout).observe(sheet);
+    requestAnimationFrame(layout);
+    setActive(Math.max(0, Math.min(t.idx, qs.length - 1)));
+    return sheet;
+  }
+
+  // ---------- Clefwork Analysis: the builder ----------
+  function analysisReady() {
+    if (S.aed) { toast(`Save or discard ${S.aed.index >= 0 ? 'box ' + (S.aed.index + 1) : 'the new box'} first.`, 'bad'); return false; }
+    if (!S.aimg) { toast('Upload the picture of the music first.', 'bad'); return false; }
+    return true;
+  }
+  // A new upload (a file, a drop or a paste), then turned into the black-and-white copy students see.
+  async function takePicture(file) {
+    if (!file) return;
+    if (!/^image\//.test(file.type)) { toast('Choose a picture (PNG or JPG). For a PDF, take a screenshot of the passage first.', 'bad'); return; }
+    let bmp;
+    try { bmp = await createImageBitmap(file); } catch (e) { toast('That picture couldn’t be opened. Try saving it as a PNG or JPG.', 'bad'); return; }
+    S.aorig = { bmp, crop: null };
+    await useScore(true);
+  }
+  let scoreBusy = false;
+  async function useScore(fresh) {
+    if (!S.aorig || scoreBusy) return;
+    scoreBusy = true;
+    const status = document.getElementById('an-status');
+    if (status) status.textContent = 'Preparing the picture…';
+    try {
+      const sc = await MQ.encodeScore(S.aorig.bmp, Object.assign({}, S.aopt, { crop: S.aorig.crop }));
+      S.aorig.crop = sc.crop;       // later detail and ink changes keep this trim, so boxes stay put
+      sc.url = await MQ.scoreURL(sc);
+      keepScore(sc.data, sc.hash);
+      SCORES.set(sc.hash >>> 0, Promise.resolve(sc));
+      const a = S.cfg.analysis = MQ.analysisSettings(S.cfg.analysis);
+      const moved = fresh && a.img && a.img.hash !== sc.hash && a.regions.length;
+      a.img = { hash: sc.hash, w: sc.w, h: sc.h };
+      S.aimg = sc;
+      saveDraft();
+      go('build');
+      if (moved) toast(`New picture — check that your ${a.regions.length} box${a.regions.length > 1 ? 'es' : ''} still sit on the right music.`);
+    } catch (e) {
+      toast(e.message || 'That picture couldn’t be used.', 'bad');
+      if (status) status.textContent = '';
+    } finally { scoreBusy = false; }
+  }
+  function analysisSections(cfg, changed, R) {
+    const a = cfg.analysis = MQ.analysisSettings(cfg.analysis);
+    R.total = h('span', { class: 'mix-total' });
+    const status = h('span', { class: 'an-status', id: 'an-status', role: 'status' });
+    const file = h('input', { type: 'file', accept: 'image/*', hidden: true, 'aria-label': 'Picture of the music' });
+    file.addEventListener('change', () => { takePicture(file.files[0]); file.value = ''; });
+    const choose = (label, cls) => h('button', { type: 'button', class: cls, onclick: () => file.click() }, label);
+    const dropOn = (el) => {
+      el.addEventListener('dragover', (e) => { e.preventDefault(); el.classList.add('is-over'); });
+      el.addEventListener('dragleave', () => el.classList.remove('is-over'));
+      el.addEventListener('drop', (e) => { e.preventDefault(); el.classList.remove('is-over'); takePicture(e.dataTransfer.files[0]); });
+    };
+    let stage = null, layer = null, editor = null, list = null;
+    let body;
+    if (S.aimg === null && a.img) body = h('p', { class: 'empty' }, 'Loading the picture…');
+    else if (!S.aimg) {
+      body = h('div', { class: 'an-drop' },
+        h('p', { class: 'an-drop-title' }, a.img ? 'This draft’s picture isn’t on this device any more' : 'Upload a picture of the music'),
+        h('p', { class: 'help' }, a.img ? 'Upload the same picture again — your boxes and answers are kept.'
+          : 'A scan, an export from notation software, or a screenshot (PNG or JPG). Drag it here, paste it, or choose it. For a PDF, take a screenshot of the passage.'),
+        h('div', { class: 'btn-row center' }, choose('Choose a picture', 'btn btn-primary')), status, file);
+      dropOn(body);
+    } else {
+      const off = !S.aorig;
+      const opt = (k) => (v) => { S.aopt[k] = v; store.set('analysis-opts', S.aopt); useScore(false); };
+      const detail = seg('an-detail', MQ.SCORE_DETAIL.map((d) => ({ v: d.id, label: d.label })), S.aopt.detail, opt('detail'));
+      const ink = seg('an-ink', [{ v: 0, label: 'Lighter' }, { v: 1, label: 'Normal' }, { v: 2, label: 'Darker' }], S.aopt.ink, opt('ink'));
+      if (off) [detail, ink].forEach((g) => g.querySelectorAll('button').forEach((b) => (b.disabled = true)));
+      stage = h('div', { class: 'an-stage' });
+      layer = h('div', { class: 'an-layer' });
+      stage.append(h('img', { src: S.aimg.url, alt: 'The music', draggable: 'false' }), layer);
+      editor = h('div', { class: 'an-editor-host' });
+      list = h('div', { class: 'an-list-host' });
+      body = h('div', { class: 'an-build' },
+        h('div', { class: 'an-tools' },
+          grp('Detail', detail, 'More detail makes the quiz link longer.'),
+          grp('Ink', ink, 'Darker keeps faint printing; lighter drops smudges.'),
+          h('div', { class: 'an-tools-end' }, choose('Replace picture', 'btn btn-quiet sm'), status, file)),
+        off ? h('p', { class: 'help' }, 'To change the detail or ink, upload the picture again.') : null,
+        h('p', { class: 'an-how' }, h('b', null, 'Drag a box'), ' around each chord or passage to ask about. You’ll choose what students write, then type the answer and save it.'),
+        stage, editor, list);
+      setupDrawing();
+    }
+
+    // ---------- drawing boxes ----------
+    let justDragged = false;
+    const clamp01 = (v) => Math.max(0, Math.min(1, v));
+    const edName = () => (S.aed.index >= 0 ? 'box ' + (S.aed.index + 1) : 'the new box');
+    function setupDrawing() {
+      stage.addEventListener('pointerdown', (e) => {
+        if (e.button !== 0 || e.target.closest('.an-pop')) return;
+        const img = stage.querySelector('img').getBoundingClientRect();
+        const at = (ev) => ({ x: clamp01((ev.clientX - img.left) / img.width), y: clamp01((ev.clientY - img.top) / img.height) });
+        const p0 = at(e);
+        const rectTo = (p) => ({ x: Math.min(p0.x, p.x), y: Math.min(p0.y, p.y), w: Math.abs(p.x - p0.x), h: Math.abs(p.y - p0.y) });
+        let ghost = null;
+        const move = (ev) => {
+          const p = at(ev);
+          if (!ghost) {
+            if (Math.hypot((p.x - p0.x) * img.width, (p.y - p0.y) * img.height) < 6) return;
+            if (!S.aed && a.regions.length >= MQ.ANALYSIS_MAX) { toast(`A quiz can have up to ${MQ.ANALYSIS_MAX} boxes.`, 'bad'); stop(); return; }
+            ghost = h('div', { class: 'an-reg is-draft is-drawing' });
+            layer.querySelectorAll('.is-draft, .an-pop').forEach((x) => x.remove());
+            layer.append(ghost);
+            try { stage.setPointerCapture(ev.pointerId); } catch (err) { /* already released */ }
+          }
+          ghost.setAttribute('style', boxStyle(rectTo(p), 'var(--accent)'));
+        };
+        const up = (ev) => {
+          stop();
+          if (!ghost) return;
+          justDragged = true;
+          setTimeout(() => (justDragged = false), 0);
+          const r = rectTo(at(ev));
+          if (r.w * img.width < 8 || r.h * img.height < 8) { redraw(); return; }
+          if (!S.aed) S.aed = { index: -1, ask: null, roman: '', symbol: '' };
+          Object.assign(S.aed, r);
+          if (!S.aed.ask) S.aed.asking = true;
+          redraw();
+          const first = layer.querySelector('.an-pop button') || editor.querySelector('input');
+          if (first) first.focus({ preventScroll: true });
+        };
+        const stop = () => {
+          stage.removeEventListener('pointermove', move);
+          stage.removeEventListener('pointerup', up);
+          stage.removeEventListener('pointercancel', stop);
+        };
+        stage.addEventListener('pointermove', move);
+        stage.addEventListener('pointerup', up);
+        stage.addEventListener('pointercancel', stop);
+        e.preventDefault();
+      });
+    }
+    function editBox(i) {
+      if (justDragged) return;
+      if (S.aed) { if (S.aed.index !== i) toast(`Save or discard ${edName()} first.`, 'bad'); return; }
+      const r = a.regions[i];
+      S.aed = { index: i, x: r.x, y: r.y, w: r.w, h: r.h, ask: r.ask || 'roman', roman: r.roman || '', symbol: r.symbol || '' };
+      redraw();
+      const first = editor.querySelector('input');
+      if (first) { first.focus({ preventScroll: true }); editor.scrollIntoView({ block: 'nearest' }); }
+    }
+    function discard() { S.aed = null; redraw(); }
+    function save() {
+      const ed = S.aed;
+      if (!ed) return;
+      const tidy = (s) => MQ.alternatives(s).map((x) => x.replace(/♭/g, 'b').replace(/♯/g, '#'));
+      const rs = tidy(ed.roman), ss = tidy(ed.symbol);
+      const needR = ed.ask !== 'symbol', needS = ed.ask !== 'roman';
+      const bad = rs.find((x) => !MQ.parseAnalysisRoman(x)) || ss.find((x) => !MQ.symbolOk(x));
+      const msg = needR && !rs.length ? 'Type the Roman numeral students should write.'
+        : needS && !ss.length ? 'Type the chord symbol students should write.'
+          : bad ? `“${bad}” can’t be read — fix it before saving.` : '';
+      if (msg) {
+        toast(msg, 'bad');
+        const inp = editor.querySelector(needR && !rs.length ? '#an-ed-r' : needS && !ss.length ? '#an-ed-s' : 'input.is-invalid');
+        if (inp) inp.focus();
+        return;
+      }
+      const r4 = (v) => Math.round(v * 10000) / 10000;
+      const box = { x: r4(ed.x), y: r4(ed.y), w: r4(ed.w), h: r4(ed.h), ask: ed.ask, roman: rs.join(', '), symbol: ss.join(', ') };
+      const all = a.regions.slice();
+      if (ed.index >= 0) all[ed.index] = box; else all.push(box);
+      // Boxes are numbered in reading order: system by system, left to right.
+      a.regions = MQ.readingOrder(all, S.aimg && S.aimg.bands);
+      cfg.counts.analysis = a.regions.length;
+      S.aed = null;
+      changed();
+      redraw();
+      toast(`Box ${a.regions.indexOf(box) + 1} saved`);
+    }
+    function removeBox(i, btn) {
+      if (btn.dataset.sure !== '1') {
+        btn.dataset.sure = '1';
+        btn.textContent = 'Click again to delete';
+        setTimeout(() => { if (btn.isConnected) { btn.dataset.sure = ''; btn.textContent = 'Delete'; } }, 3000);
+        return;
+      }
+      a.regions = a.regions.filter((_, j) => j !== i);
+      cfg.counts.analysis = a.regions.length;
+      if (S.aed && S.aed.index === i) S.aed = null;
+      else if (S.aed && S.aed.index > i) S.aed.index--;
+      changed();
+      redraw();
+      toast(`Box ${i + 1} deleted`);
+    }
+    function askPopover() {
+      const ed = S.aed;
+      // Below the box, unless it sits low on a tall picture and there's room above.
+      const H = stage.clientHeight;
+      const below = (1 - ed.y - ed.h) * H >= 150 || ed.y * H < 150;
+      const pick = (k) => { ed.ask = k; ed.asking = false; redraw(); const f = editor.querySelector('input'); if (f) { f.focus({ preventScroll: true }); editor.scrollIntoView({ block: 'nearest' }); } };
+      const pop = h('div', { class: 'an-pop', role: 'dialog', 'aria-label': 'What should students write for this box?',
+        style: `left:max(0px, min(${pct(ed.x)}, calc(100% - 300px)));` + (below ? `top:calc(${pct(ed.y + ed.h)} + 8px)` : `bottom:calc(${pct(1 - ed.y)} + 8px)`) },
+        h('p', { class: 'an-pop-q' }, 'What should students write here?'),
+        h('div', { class: 'an-pop-row' },
+          h('button', { type: 'button', class: 'btn btn-primary sm', onclick: () => pick('roman') }, 'Roman numeral'),
+          h('button', { type: 'button', class: 'btn sm', onclick: () => pick('symbol') }, 'Chord symbol'),
+          h('button', { type: 'button', class: 'btn sm', onclick: () => pick('both') }, 'Both')),
+        h('button', { type: 'button', class: 'btn-link', onclick: discard }, 'Cancel'));
+      pop.addEventListener('keydown', (e) => { if (e.key === 'Escape') discard(); });
+      pop.addEventListener('pointerdown', (e) => e.stopPropagation());
+      return pop;
+    }
+    function drawStage() {
+      if (!layer) return;
+      layer.replaceChildren();
+      a.regions.forEach((r, i) => {
+        if (S.aed && S.aed.index === i) return;
+        layer.append(h('button', { type: 'button', class: 'an-reg', style: boxStyle(r, anColor(i)), 'aria-label': `Edit box ${i + 1}`, onclick: () => editBox(i) },
+          h('span', { class: 'an-reg-num' }, String(i + 1))));
+      });
+      if (S.aed) layer.append(h('div', { class: 'an-reg is-draft', style: boxStyle(S.aed, 'var(--accent)') }, h('span', { class: 'an-reg-num' }, S.aed.index >= 0 ? String(S.aed.index + 1) : 'New')));
+      if (S.aed && S.aed.asking) layer.append(askPopover());
+    }
+    function drawEditor() {
+      if (!editor) return;
+      const ed = S.aed;
+      if (!ed || ed.asking) { editor.replaceChildren(); return; }
+      const want = MQ.ANALYSIS_ASKS[a.override] || '';
+      const field = (k) => {
+        const roman = k === 'r', key = roman ? 'roman' : 'symbol';
+        const inp = h('input', { type: 'text', id: 'an-ed-' + k, class: 'an-ed-in', maxlength: 60, placeholder: roman ? 'e.g. V65' : 'e.g. G7/B',
+          autocomplete: 'off', autocapitalize: 'off', autocorrect: 'off', spellcheck: 'false' });
+        inp.value = ed[key];
+        const pv = h('span', { class: 'fig-preview' });
+        const draw = () => {
+          const alts = MQ.alternatives(inp.value);
+          const bad = alts.find((x) => (roman ? !MQ.parseAnalysisRoman(x) : !MQ.symbolOk(x)));
+          inp.classList.toggle('is-invalid', !!bad);
+          pv.replaceChildren(bad ? h('span', { class: 'fig-unread is-bad' }, `“${bad}” isn’t a ${roman ? 'Roman numeral Clefwork can read' : 'chord symbol Clefwork can read'}`)
+            : roman ? h('span', null, romanAnswers(alts)) : h('span', null, symbolAnswers(alts)));
+        };
+        inp.addEventListener('input', () => { if (!roman) upperFirst(inp); ed[key] = inp.value; draw(); });
+        inp.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); save(); } else if (e.key === 'Escape') discard(); });
+        draw();
+        const needed = roman ? ed.ask !== 'symbol' : ed.ask !== 'roman';
+        const quizWants = want && (roman ? want !== 'symbol' : want !== 'roman');
+        return h('div', { class: 'an-ed-field' },
+          h('label', { class: 'mini-label', for: inp.id }, roman ? 'Roman numeral' : 'Chord symbol',
+            needed ? null : h('span', { class: 'an-opt' }, quizWants ? ' — the quiz-wide setting asks for this too' : ' — optional')),
+          inp, pv);
+      };
+      const showR = ed.ask !== 'symbol' || (want && want !== 'symbol') || !!ed.roman;
+      const showS = ed.ask !== 'roman' || (want && want !== 'roman') || !!ed.symbol;
+      editor.replaceChildren(h('div', { class: 'an-editor', role: 'group', 'aria-label': ed.index >= 0 ? `Box ${ed.index + 1}` : 'New box' },
+        h('div', { class: 'an-ed-head' }, h('strong', null, ed.index >= 0 ? `Box ${ed.index + 1}` : 'New box'),
+          h('span', { class: 'help' }, 'Drag on the music to redraw this box.')),
+        grp('Students write', seg('an-ed-ask', ['roman', 'symbol', 'both'].map((v) => ({ v, label: v === 'both' ? 'Both' : ASK_LABEL[v] })), ed.ask, (v) => { ed.ask = v; drawEditor(); })),
+        h('div', { class: 'an-ed-fields' }, showR ? field('r') : null, showS ? field('s') : null),
+        h('p', { class: 'help' }, 'If more than one answer is right, separate them with commas: I64, Cad64.'),
+        h('div', { class: 'btn-row' },
+          h('button', { type: 'button', class: 'btn btn-primary', onclick: save }, ed.index >= 0 ? 'Save changes' : 'Save box'),
+          h('button', { type: 'button', class: 'btn btn-quiet', onclick: discard }, ed.index >= 0 ? 'Cancel changes' : 'Discard box'),
+          ed.index >= 0 ? h('button', { type: 'button', class: 'btn btn-quiet an-del', onclick: (e) => removeBox(ed.index, e.currentTarget) }, 'Delete') : null)));
+    }
+    function drawList() {
+      if (!list) return;
+      if (!a.regions.length) { list.replaceChildren(h('p', { class: 'empty' }, 'No boxes yet.')); return; }
+      list.replaceChildren(h('ol', { class: 'an-list' }, a.regions.map((r, i) => {
+        const ask = MQ.askFor(r, a.override);
+        const rs = MQ.alternatives(r.roman), ss = MQ.alternatives(r.symbol);
+        return h('li', { class: 'an-item' + (S.aed && S.aed.index === i ? ' is-editing' : ''), style: `--c:${anColor(i)}` },
+          h('span', { class: 'an-item-num' }, String(i + 1)),
+          h('span', { class: 'an-item-main' },
+            h('span', { class: 'an-item-ask' }, ASK_LABEL[ask]),
+            h('span', { class: 'an-item-ans' },
+              ask !== 'symbol' && rs.length ? romanAnswers(rs) : null,
+              ask === 'both' ? h('span', { class: 'an-sep' }, ' · ') : null,
+              ask !== 'roman' && ss.length ? symbolAnswers(ss) : null)),
+          h('span', { class: 'an-item-act' },
+            h('button', { type: 'button', class: 'btn btn-quiet sm', onclick: () => editBox(i) }, 'Edit'),
+            h('button', { type: 'button', class: 'btn btn-quiet sm an-del', onclick: (e) => removeBox(i, e.currentTarget) }, 'Delete')));
+      })));
+    }
+    // ---------- the quiz-wide answer type ----------
+    const warn = h('div', { class: 'an-miss' });
+    const boxesText = (ns) => (ns.length === 1 ? `Box ${ns[0]}` : `Boxes ${ns.slice(0, -1).join(', ')} and ${ns[ns.length - 1]}`);
+    function syncWarn() {
+      const m = MQ.missingAnswers(a);
+      const note = (ns, lacks, has) => h('p', { class: 'warn-note' },
+        `${boxesText(ns)} ${ns.length > 1 ? 'have' : 'has'} no ${lacks}, so ${ns.length > 1 ? 'they ask' : 'it asks'} for the ${has} only. Edit ${ns.length > 1 ? 'them' : 'it'} to add one.`);
+      warn.replaceChildren(...[m.roman.length ? note(m.roman, 'Roman numeral', 'chord symbol') : null, m.symbol.length ? note(m.symbol, 'chord symbol', 'Roman numeral') : null].filter(Boolean));
+    }
+    function redraw() { drawStage(); drawEditor(); drawList(); syncWarn(); }
+    const notes = h('textarea', { id: 'an-notes', rows: 2, maxlength: 200, placeholder: 'e.g. Key: G major. Give the Roman numeral and figures for each boxed chord.' });
+    notes.value = a.notes;
+    notes.addEventListener('input', () => { a.notes = notes.value; changed(); });
+    redraw();
+    return [
+      sec('score', 'The music', 'Students see this black-and-white copy, with each box you draw lightly highlighted and their answer boxes beside the music.', body),
+      sec('an-answers', 'Answers', 'Each box asks for what you chose when you drew it — or set the whole quiz here.',
+        grp('Every box asks for', seg('an-over', [{ v: 0, label: 'Each box’s own choice' }, { v: 1, label: 'Roman numerals' }, { v: 2, label: 'Chord symbols' }, { v: 3, label: 'Both' }],
+          a.override, (v) => { a.override = v; changed(); redraw(); })),
+        warn,
+        fld('Instructions for students', notes, 'Shown above the music — a good place for the key, if students aren’t finding it themselves.'),
+        h('div', { class: 'mix-foot' }, R.total)),
+    ];
+  }
+
+
   // ---------- print: a paper copy of the quiz, as PDF or a Word document ----------
   // A standalone SVG for one question's staff: no colours from the app, drawn clefs when the
   // picture has to be rasterised, and cropped to the part of the staff that is used.
@@ -8243,6 +9425,7 @@ svg.staff .nlabel { display: none; }
   function go(view) {
     if (MODE === 'canvas') view = 'take';             // the Canvas page only takes quizzes
     if (STUDENT && (view === 'grade' || view === 'print')) view = 'build';
+    if (ANALYSIS && view === 'print') view = 'build';
     S.slot = view === 'practice' ? 'practice' : 'take';
     stopTicker();
     MQ.Audio.stop();
@@ -8261,6 +9444,30 @@ svg.staff .nlabel { display: none; }
       const name = document.querySelector('.brand-name');
       if (name) name.textContent = 'Clefwork Keys';
       document.title = 'Clefwork Keys';
+    }
+    if (ANALYSIS) {
+      // Clefwork Analysis: its own name, and no Print tab — the quiz lives on the picture.
+      const name = document.querySelector('.brand-name');
+      if (name) name.textContent = 'Clefwork Analysis';
+      document.title = 'Clefwork Analysis';
+      const pr = document.querySelector('.nav [data-view="print"]');
+      if (pr) pr.remove();
+      document.querySelector('.flow').replaceChildren(
+        h('li', null, h('b', null, '1'), ' Upload a picture of the music and box the chords to analyse'),
+        h('li', null, h('b', null, '2'), ' Students type Roman numerals or chord symbols beside the music'),
+        h('li', null, h('b', null, '3'), ' Students send back a report code — no accounts, no server'));
+      if (S.cfg.analysis && S.cfg.analysis.img) {
+        loadScore(S.cfg.analysis.img.hash).then((sc) => {
+          S.aimg = sc || false;           // false: this device no longer has the draft's picture
+          if (S.view === 'build') go('build');
+        });
+      }
+      // A picture pasted anywhere on the Build tab is the score.
+      document.addEventListener('paste', (e) => {
+        if (S.view !== 'build') return;
+        const f = Array.from((e.clipboardData && e.clipboardData.files) || []).find((x) => /^image\//.test(x.type));
+        if (f) { e.preventDefault(); takePicture(f); }
+      });
     }
     if (MODE === 'results' || MODE === 'canvas') {
       // Single-purpose pages: no tabs, and the logo doesn't lead anywhere.
@@ -8300,8 +9507,17 @@ svg.staff .nlabel { display: none; }
     const hash = decodeURIComponent(location.hash.slice(1));
     const m = hash.match(/^(take|grade)=(.+)$/);
     if (m && m[1] === 'take') {
-      const clean = m[2].replace(/[^0-9A-Za-z]/g, '').toUpperCase();
-      if (!(S.take && S.take.code === clean)) openQuiz(m[2]);
+      // Anything after the code is named: &img=… carries an Analysis quiz's picture.
+      const [codePart, ...more] = m[2].split('&');
+      const extra = {};
+      more.forEach((kv) => { const i = kv.indexOf('='); if (i > 0) extra[kv.slice(0, i)] = kv.slice(i + 1); });
+      const clean = codePart.replace(/[^0-9A-Za-z]/g, '').toUpperCase();
+      if (!(S.take && S.take.code === clean)) openQuiz(codePart, { img: extra.img });
+      else if (extra.img && S.take.cfg.analysis && S.take.cfg.analysis.img) {
+        // The same quiz, already under way: keep the link's picture in case this device lost it.
+        const want = S.take.cfg.analysis.img.hash;
+        try { if (MQ.hashOfData(extra.img) === want) keepScore(extra.img, want); } catch (e) { /* a damaged link changes nothing */ }
+      }
       view = 'take';
     } else if (m && m[1] === 'grade' && !STUDENT) { S.grade.input = m[2]; view = 'grade'; }
     else if (VIEWS[hash]) view = hash;

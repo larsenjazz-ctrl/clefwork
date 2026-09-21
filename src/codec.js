@@ -51,6 +51,15 @@
       bytes.forEach((x) => this.u(x, 8));
       return this;
     }
+    // Longer strings (instructions): a length field of `bits` bits.
+    strN(s, maxBytes, bits) {
+      let chars = Array.from(String(s || ''));
+      while (utf8(chars.join('')).length > Math.min(maxBytes, Math.pow(2, bits) - 1)) chars.pop();
+      const bytes = utf8(chars.join(''));
+      this.u(bytes.length, bits);
+      bytes.forEach((x) => this.u(x, 8));
+      return this;
+    }
     // Short strings (chord symbols): 4-bit length.
     str4(s, maxBytes) {
       let chars = Array.from(String(s || ''));
@@ -73,6 +82,11 @@
     }
     str() {
       const len = this.u(6), bytes = [];
+      for (let i = 0; i < len; i++) bytes.push(this.u(8));
+      return new TextDecoder().decode(new Uint8Array(bytes));
+    }
+    strN(bits) {
+      const len = this.u(bits), bytes = [];
       for (let i = 0; i < len; i++) bytes.push(this.u(8));
       return new TextDecoder().decode(new Uint8Array(bytes));
     }
@@ -212,6 +226,22 @@
     // Version 15: Keys & Notes — how many, which ways of showing and answering, and the range.
     const k = MQ.keysSettings(cfg.keys);
     w.u(Math.min(63, (cfg.counts && cfg.counts.keys) || 0), 6).u(k.prompts, 3).u(k.answers, 3).u(k.low, 7).u(k.high, 7);
+    // The 4-bit version number stops at 15, so later additions follow an 8-bit extension number.
+    // Codes from before have only padding here. Extension 1: Clefwork Analysis — the boxes on the
+    // score and their answers, and a fingerprint of the picture (which travels in the link).
+    // Quizzes without it keep exactly the codes they had.
+    const an = MQ.analysisSettings(cfg.analysis);
+    const regions = an.regions.slice(0, MQ.ANALYSIS_MAX);
+    if (regions.length || an.img) {
+      const q10 = (v) => Math.max(0, Math.min(1023, Math.round(v * 1023)));
+      w.u(1, 8).u(an.override, 2).u(an.img ? 1 : 0, 1);
+      if (an.img) w.u(an.img.hash >>> 0, 32);
+      w.strN(an.notes, 200, 8).u(regions.length, 6);
+      regions.forEach((r) => {
+        w.u(q10(r.x), 10).u(q10(r.y), 10).u(q10(r.w), 10).u(q10(r.h), 10)
+          .u(Math.max(1, MQ.ANALYSIS_ASKS.indexOf(r.ask)), 2).str(r.roman, 63).str(r.symbol, 63);
+      });
+    }
     return pack(KIND_QUIZ, w.b);
   }
 
@@ -331,6 +361,8 @@
       cfg.canvasPts = 0;
       cfg.keys = MQ.defaultConfig().keys;
       cfg.counts.keys = 0;
+      cfg.analysis = MQ.defaultConfig().analysis;
+      cfg.counts.analysis = 0;
       if (cfg.helpOv.vprog == null) cfg.helpOv.vprog = 2;
       if (v >= 12) {
         cfg.helpOv.vprog = r.u(2);
@@ -345,6 +377,19 @@
         if (v >= 15) {
           cfg.counts.keys = r.u(6);
           cfg.keys = { prompts: r.u(3), answers: r.u(3), low: r.u(7), high: r.u(7) };
+          const ext = r.b.length - r.p >= 8 ? r.u(8) : 0;
+          if (ext >= 1) {
+            const an = { override: r.u(2), img: null, notes: '', regions: [] };
+            if (r.u(1)) an.img = { hash: r.u(32) };
+            an.notes = r.strN(8);
+            const n = r.u(6);
+            for (let i = 0; i < n; i++) {
+              const box = { x: r.u(10) / 1023, y: r.u(10) / 1023, w: r.u(10) / 1023, h: r.u(10) / 1023 };
+              an.regions.push(Object.assign(box, { ask: MQ.ANALYSIS_ASKS[r.u(2)] || 'roman', roman: r.str(), symbol: r.str() }));
+            }
+            cfg.analysis = an;
+            cfg.counts.analysis = n;
+          }
         }
         const sum = (b) => MQ.TECHNIQUES.reduce((n, t) => n + ((b.tech && b.tech[t.id]) || 0), 0);
         cfg.counts.voicing = sum(cfg.vc);
@@ -384,6 +429,7 @@
   }
   const KEY_ANSWERS = ['staff', 'name', 'piano'];
   function writeAnswer(w, q, resp) {
+    if (q.type === 'analysis') { writeText(w, resp && resp.r); writeText(w, resp && resp.s); return; }
     if (q.type === 'keys') {
       const kind = KEY_ANSWERS.indexOf(q.keys.answer);
       w.u(kind, 2);
@@ -436,6 +482,7 @@
     }
   }
   function readAnswer(r, type, ver) {
+    if (type === 'analysis') return { kind: 'text', value: { r: readText(r), s: readText(r) } };
     if (type === 'keys' && ver >= 7) {
       const kind = KEY_ANSWERS[r.u(2)];
       if (kind === 'name') return { kind: 'text', value: readText(r) };
@@ -499,7 +546,7 @@
   function encodeReport(report, cfg, quizCode) {
     const qid = quizId(quizCode);
     const w = new Writer();
-    w.u(7, 4).u(qid, 16).str(report.name, 40)
+    w.u(8, 4).u(qid, 16).str(report.name, 40)
       .u(Math.max(0, Math.round((report.submittedAt - EPOCH) / 60000)), 24)
       .u(Math.min(65535, Math.round(report.totalSec)), 16)
       .u(report.partial ? 1 : 0, 1).u(report.items.length, 7);
@@ -524,7 +571,7 @@
     const restBits = body.slice(20);
     try {
       const ver = r.u(4);
-      if (ver < 1 || ver > 7) throw new CodeError('This report was made with a newer version of Clefwork.');
+      if (ver < 1 || ver > 8) throw new CodeError('This report was made with a newer version of Clefwork.');
       const rep = { code: group(clean), quizId: r.u(16), name: r.str() };
       rep.submittedAt = EPOCH + r.u(24) * 60000;
       rep.totalSec = r.u(16);

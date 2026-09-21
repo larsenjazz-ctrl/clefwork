@@ -77,28 +77,34 @@
     if (key === 'progression') return Math.min(cfg.counts.progression || 0, MQ.progPool(cfg).length, 30);
     if (key === 'voicing') return cfg.v != null && cfg.v < 12 ? Math.min(cfg.counts.voicing || 0, (cfg.voicings || []).length) : techCount(cfg, 'vc');
     if (key === 'vprog') return techCount(cfg, 'vp');
+    if (key === 'keys') return MQ.keysCombos(cfg.keys).length ? cfg.counts.keys || 0 : 0;
+    if (key === 'analysis') return Math.min(cfg.counts.analysis || 0, MQ.analysisSettings(cfg.analysis).regions.length);
     const list = key === 'custom' ? cfg.custom || [] : cfg.voicings || [];
     const n = cfg.counts[key] == null ? list.length : cfg.counts[key];
     return Math.min(n, list.length);
   };
   const sumCounts = (cfg) => MQ.BUILT_IN.reduce((s, t) => s + (cfg.counts[t.id] || 0), 0) + listCount(cfg, 'custom') + listCount(cfg, 'voicing') + listCount(cfg, 'vprog') + listCount(cfg, 'progression')
-    + (MQ.keysCombos(cfg.keys).length ? cfg.counts.keys || 0 : 0);
+    + listCount(cfg, 'keys') + listCount(cfg, 'analysis');
   const usesGrand = (cfg) => (listCount(cfg, 'voicing') > 0 || listCount(cfg, 'vprog') > 0)
     || (listCount(cfg, 'progression') > 0 && cfg.progs.some((e) => e.staff === 'grand'))
     || ((cfg.counts.chord || 0) > 0 && !!(cfg.chordStaff & 4) && !(cfg.v && cfg.v < 7));
   const onlyKeys = (cfg) => !!(cfg.counts.keys && sumCounts(cfg) === cfg.counts.keys);
-  const clefsText = (cfg) => onlyKeys(cfg) ? 'grand staff, note names & piano' : [cfg.clefs & 1 ? 'treble' : null, cfg.clefs & 2 ? 'bass' : null].filter(Boolean).join(' & ') + ' clef' + (usesGrand(cfg) ? ' + grand staff' : '');
+  const onlyAnalysis = (cfg) => !!(listCount(cfg, 'analysis') && sumCounts(cfg) === listCount(cfg, 'analysis'));
+  const clefsText = (cfg) => onlyAnalysis(cfg) ? 'answered beside a picture of the score' : onlyKeys(cfg) ? 'grand staff, note names & piano' : [cfg.clefs & 1 ? 'treble' : null, cfg.clefs & 2 ? 'bass' : null].filter(Boolean).join(' & ') + ' clef' + (usesGrand(cfg) ? ' + grand staff' : '');
   const clonePlaced = (pl) => (pl ? pl.map((c) => (c || []).map((p) => ({ ...p }))) : null);
   // The student version (practice + take a quiz, no quiz codes shown) is the same app with this flag set.
   const STUDENT = !!window.CLEFWORK_STUDENT;
   // Where this app is published, so links work even from inside the artifact viewer.
   const SITE = (window.CLEFWORK_BASE || '').replace(/[^/]*$/, '');
-  const quizLink = (code) => (SITE ? SITE + 'student.html#take=' + MQ.normalize(code) : '');
+  const quizLink = (code) => (SITE ? SITE + 'student.html#take=' + withScore(code) : '');
   // The Canvas edition: a page that only takes the quiz, and a results page that stands alone.
   const MODE = window.CLEFWORK_MODE || '';
   const KEYS = MODE === 'keys';                      // Clefwork Keys: the piano and note-name app
-  const DRAFT = KEYS ? 'draft-keys' : 'draft';
-  const canvasLink = (code) => (SITE ? SITE + 'take.html#take=' + MQ.normalize(code) : '');
+  const ANALYSIS = MODE === 'analysis';              // Clefwork Analysis: questions on a picture of the score
+  const DRAFT = KEYS ? 'draft-keys' : ANALYSIS ? 'draft-analysis' : 'draft';
+  // An Analysis quiz's picture travels in its links, after the code: #take=CODE&img=…
+  const withScore = (code) => MQ.normalize(code) + (ANALYSIS && S.aimg && S.code && MQ.normalize(code) === MQ.normalize(S.code) ? '&img=' + S.aimg.data : '');
+  const canvasLink = (code) => (SITE ? SITE + 'take.html#take=' + withScore(code) : '');
   const resultsLink = (report, quiz) => (SITE
     ? SITE + 'results.html#r=' + MQ.normalize(report) + (quiz ? '&q=' + MQ.normalize(quiz) : '') : '');
   const gradeLink = (report) => (SITE ? SITE + 'index.html#grade=' + MQ.normalize(report) : '');
@@ -112,9 +118,17 @@
     c.title = 'Keys & Notes Check';
     return c;
   }
+  function analysisDefault() {
+    const c = MQ.defaultConfig();
+    Object.keys(c.counts).forEach((k) => (c.counts[k] = 0));
+    c.title = 'Harmonic Analysis';
+    c.flags.shuffle = false;
+    c.flags.partial = true;
+    return c;
+  }
   function loadDraft() {
     const d = store.get(DRAFT, null);
-    const base = KEYS ? keysDefault() : MQ.defaultConfig();
+    const base = KEYS ? keysDefault() : ANALYSIS ? analysisDefault() : MQ.defaultConfig();
     if (d && d.counts && d.flags) {
       const custom = Array.isArray(d.custom) ? d.custom : [];
       const voicings = Array.isArray(d.voicings) ? d.voicings : [];
@@ -138,6 +152,10 @@
     practiceFeedback: store.get('practiceFeedback', true),
     grade: { input: '', quiz: '', sel: 0 },
     print: Object.assign({ course: '', date: '', paper: 'letter', staffH: 1.25, qr: 0.75 }, store.get('print', null)),
+    // Clefwork Analysis: the builder's picture, the upload it came from (kept only in memory, for
+    // changing its detail), the box being drawn or edited, and how far the student sheet is zoomed.
+    aimg: null, aorig: null, aed: null, azoom: 1,
+    aopt: Object.assign({ detail: 0, ink: 1 }, store.get('analysis-opts', null)),
   };
   const savePrint = () => store.set('print', S.print);
   // S.take is whichever quiz the current tab works with: a teacher's quiz, or (student version) a practice run.
@@ -370,7 +388,9 @@
     const ans = MQ.describeAnswer(q, cfg);
     if (frac === 1) return h('p', { class: 'result is-good', role: 'status' }, h('strong', null, 'Correct.'), ' ', ans);
     let lead = 'Not quite.';
-    if (frac > 0 && q.type === 'figprog') {
+    if (frac > 0 && q.type === 'analysis') {
+      lead = 'Partly right — 1 of 2 answers.';
+    } else if (frac > 0 && q.type === 'figprog') {
       const need = q.figuredList.length;
       lead = `Partly right — ${Math.round(frac * need)} of ${need} chords.`;
     } else if (frac > 0 && q.type === 'progression') {
@@ -726,6 +746,7 @@
 
   function questionCard(q, cfg, o) {
     if (q.type === 'keys') return keysCard(q, cfg, o);
+    if (q.type === 'analysis') return analysisCard(q, cfg, o);
     if (q.type === 'figured' || q.type === 'figprog') return figuredCard(q, cfg, o);
     if (q.type === 'progression' && !q.colSpecs) return progressionCard(q, cfg, o);
     const t = typeOf(q.type);
@@ -771,7 +792,7 @@
       STUDENT ? null : h('div', { class: 'row2' },
         fld('Title', textIn('q-title', cfg.title, 60, 'e.g. Unit 3 note reading', (v) => { cfg.title = v; changed(); })),
         fld('Teacher', textIn('q-teacher', cfg.teacher, 40, 'e.g. Ms. Rivera', (v) => { cfg.teacher = v; changed(); }))),
-      KEYS ? keysPresets(cfg) : h('div', { class: 'presets' }, h('span', { class: 'mini-label' }, STUDENT ? 'Presets' : 'Or start from a preset'),
+      KEYS ? keysPresets(cfg) : ANALYSIS ? null : h('div', { class: 'presets' }, h('span', { class: 'mini-label' }, STUDENT ? 'Presets' : 'Or start from a preset'),
         h('div', { class: 'preset-row' }, MQ.PRESETS.map((p) => h('button', { type: 'button', class: 'btn btn-quiet sm', onclick: () => {
           const keep = { custom: cfg.counts.custom, voicing: cfg.counts.voicing, progression: cfg.counts.progression };
           S.cfg = p.apply(S.cfg); Object.assign(S.cfg.counts, keep);
@@ -780,7 +801,8 @@
         } }, p.label))))));
 
     if (KEYS) form.append(keysSection(cfg, changed, R));
-    if (!KEYS) form.append(sec('staff', 'Staff & notes', 'Applies to every question type.',
+    if (ANALYSIS) form.append(...analysisSections(cfg, changed, R));
+    if (!KEYS && !ANALYSIS) form.append(sec('staff', 'Staff & notes', 'Applies to every question type.',
       h('div', { class: 'row2' },
         grp('Clefs', chips('q-clefs', [{ label: 'Treble' }, { label: 'Bass' }, { label: 'Grand staff' }], cfg.clefs, (m) => { cfg.clefs = m; changed(); }, (x) => x.label), 'Each tab can override this.'),
         grp('Ledger lines', seg('q-ledger', [0, 1, 2, 3].map((v) => ({ v, label: v === 0 ? 'None' : v === 1 ? '1' : String(v) })), cfg.ledger, (v) => { cfg.ledger = v; changed(); }), 'Maximum above or below the staff.')),
@@ -991,7 +1013,7 @@
       go('build');
       toast('Cleared — the quiz is empty');
     } }, 'Clear all questions');
-    if (!KEYS) form.append(sec('types', 'Question types', 'Choose a type to change its settings. The counter on each tab sets how many of those questions the quiz asks.',
+    if (!KEYS && !ANALYSIS) form.append(sec('types', 'Question types', 'Choose a type to change its settings. The counter on each tab sets how many of those questions the quiz asks.',
       h('div', { class: 'types-top' }, clearBtn),
       strip, panels, h('div', { class: 'mix-foot' }, R.total)));
 
@@ -1002,27 +1024,31 @@
     form.append(sec('rules', 'Quiz rules', null,
       h('div', { class: 'row2' }, fld('Time limit in minutes', timeIn, '0 means no limit. The quiz submits itself when time runs out.')),
       h('div', { class: 'toggles' },
-        flag('shuffle', 'Shuffle question order', 'Mixes the question types together instead of grouping them.'),
-        KEYS ? null : flag('partial', 'Partial credit', 'Chords and scales earn credit for each correct note.'),
+        ANALYSIS ? null : flag('shuffle', 'Shuffle question order', 'Mixes the question types together instead of grouping them.'),
+        KEYS ? null : ANALYSIS ? flag('partial', 'Partial credit', 'A box that asks for both earns half credit for each right answer.')
+          : flag('partial', 'Partial credit', 'Chords and scales earn credit for each correct note.'),
         STUDENT ? null : flag('feedback', 'Let students check answers', 'Students can check each question and see the right answer. Best for practice.'),
-        flag('labels', 'Show note names while dragging', STUDENT ? 'The note’s name appears as you move it.' : 'Practice mode: the note’s name appears as students move it.'),
-        flag('enharmonic', 'Accept enharmonic spellings', 'Counts G♭ as correct when the answer is F♯.'),
-        KEYS ? null : flag('noHelpers', 'Hide starting and helper notes', 'Students write every note themselves: both notes of an interval, every note of a scale, and a chord’s bass note.'))));
+        ANALYSIS ? null : flag('labels', 'Show note names while dragging', STUDENT ? 'The note’s name appears as you move it.' : 'Practice mode: the note’s name appears as students move it.'),
+        ANALYSIS ? flag('enharmonic', 'Accept enharmonic spellings', 'Counts a G♭7 chord symbol as correct when the answer is F♯7.')
+          : flag('enharmonic', 'Accept enharmonic spellings', 'Counts G♭ as correct when the answer is F♯.'),
+        KEYS || ANALYSIS ? null : flag('noHelpers', 'Hide starting and helper notes', 'Students write every note themselves: both notes of an interval, every note of a scale, and a chord’s bass note.'))));
 
     // Side: share + preview + answer key
     R.summary = h('p', { class: 'share-summary' });
     R.code = h('output', { class: 'code', id: 'quiz-code', 'aria-label': 'Quiz code' });
     R.copy = h('button', { type: 'button', class: 'btn btn-primary', onclick: () => { rememberQuiz(S.code, cfg); copyText(S.code, 'Quiz code'); } }, 'Copy quiz code');
-    R.link = SITE || !inFrame ? h('button', { type: 'button', class: 'btn', onclick: () => {
+    R.link = SITE || !inFrame ? h('button', { type: 'button', class: ANALYSIS ? 'btn btn-primary' : 'btn', onclick: () => {
+      if (ANALYSIS && !analysisReady()) return;
       rememberQuiz(S.code, cfg);
-      copyText(quizLink(S.code) || location.href.split('#')[0] + '#take=' + MQ.normalize(S.code), 'Quiz link');
+      copyText(quizLink(S.code) || location.href.split('#')[0] + '#take=' + withScore(S.code), 'Quiz link');
     } }, 'Copy quiz link') : null;
     R.tryBtn = h('button', { type: 'button', class: 'btn', onclick: () => {
+      if (ANALYSIS && !analysisReady()) return;
       rememberQuiz(S.code, cfg);
       if (openQuiz(S.code, { preview: true })) { S.take.name = 'Teacher preview'; go('take'); }
     } }, 'Try it as a student');
     R.exportBtn = h('button', { type: 'button', class: 'btn btn-quiet', onclick: () => openExport(cfg) }, 'Export to spreadsheet');
-    R.canvasBtn = h('button', { type: 'button', class: 'btn', onclick: () => openCanvasKit(cfg, changed) }, 'Set up in Canvas');
+    R.canvasBtn = h('button', { type: 'button', class: 'btn', onclick: () => { if (!ANALYSIS || analysisReady()) openCanvasKit(cfg, changed); } }, 'Set up in Canvas');
     if (STUDENT) {
       const p = S.slots.practice;
       R.startBtn = h('button', { type: 'button', class: 'btn btn-primary', onclick: () => startPractice(cfg) }, 'Start practising');
@@ -1033,6 +1059,19 @@
         h('div', { class: 'btn-row' }, R.startBtn,
           p && p.started && !p.done ? h('button', { type: 'button', class: 'btn', onclick: () => go('practice') }, `Continue (question ${p.idx + 1} of ${p.qs.length})`) : null),
         h('p', { class: 'fine' }, 'Practice quizzes are just for you — nothing is sent to your teacher. For a quiz from your teacher, use the ', h('b', null, 'Take a quiz'), ' tab.')));
+    } else if (ANALYSIS) {
+      // The music travels in the link, so the link is what students need; the code is for grading elsewhere.
+      R.copy.className = 'btn sm';
+      R.linkSize = h('p', { class: 'fine' });
+      side.append(h('section', { class: 'card share' },
+        h('div', { class: 'eyebrow' }, 'Share with students'),
+        R.summary,
+        h('div', { class: 'btn-row' }, R.link, R.tryBtn, R.canvasBtn, R.exportBtn),
+        R.linkSize,
+        h('p', { class: 'fine' }, 'The music travels inside the quiz link, so nothing is stored online. Students need the whole link — the quiz code on its own doesn’t carry the music.'),
+        h('details', { class: 'fine-details' }, h('summary', null, 'Quiz code, for grading on another computer'),
+          R.code, h('div', { class: 'btn-row' }, R.copy),
+          h('p', { class: 'fine' }, 'Grading on this computer finds the quiz by itself. Elsewhere, paste this in the grade checker’s Quiz code box to see each answer.'))));
     } else side.append(h('section', { class: 'card share' },
       h('div', { class: 'eyebrow' }, 'Share with students'),
       R.summary, R.code,
@@ -1045,16 +1084,17 @@
     R.keyList = h('ol', { class: 'key-list' });
     if (!STUDENT) side.append(h('details', { class: 'card key' }, h('summary', null, 'Answer key'), R.keyList));
 
-    R.pvCount = h('span', { class: 'pv-count' });
+    if (!ANALYSIS) R.pvCount = h('span', { class: 'pv-count' });
     R.pvHost = h('div', { class: 'pv-host' });
     R.prev = h('button', { type: 'button', class: 'btn btn-quiet sm', 'aria-label': 'Previous question', onclick: () => { S.pvIdx--; S.pvResp = null; renderPreview(); } }, '‹ Prev');
     R.next = h('button', { type: 'button', class: 'btn btn-quiet sm', 'aria-label': 'Next question', onclick: () => { S.pvIdx++; S.pvResp = null; renderPreview(); } }, 'Next ›');
     R.show = toggle('pv-show', 'Show answer', null, S.pvShow, (v) => { S.pvShow = v; renderPreview(); });
-    side.append(h('section', { class: 'card preview' },
+    if (!ANALYSIS) side.append(h('section', { class: 'card preview' },
       h('div', { class: 'card-head' }, h('div', null, h('div', { class: 'eyebrow' }, 'Preview'), R.pvCount), h('div', { class: 'pager' }, R.prev, R.next)),
       R.pvHost, STUDENT ? null : h('div', { class: 'pv-foot' }, R.show)));
 
     function renderPreview() {
+      if (!R.pvCount) return;                // Analysis: the builder's picture is the preview
       const n = S.qs.length;
       if (!n) { R.pvCount.textContent = 'No questions yet'; R.pvHost.replaceChildren(h('p', { class: 'empty' }, 'Add questions in the Question mix to see them here.')); R.prev.disabled = R.next.disabled = true; return; }
       S.pvIdx = Math.max(0, Math.min(n - 1, S.pvIdx));
@@ -1080,10 +1120,16 @@
         S.qs = MQ.generateQuiz(cfg);
         if (R.code) R.code.textContent = S.code;
         [R.copy, R.link, R.tryBtn, R.exportBtn, R.canvasBtn, R.startBtn].forEach((b) => b && (b.disabled = false));
-        const est = Math.max(1, Math.round((MQ.BUILT_IN.reduce((s, t) => s + t.est * (cfg.counts[t.id] || 0), 0) + 40 * listCount(cfg, 'custom') + 55 * listCount(cfg, 'voicing') + 90 * listCount(cfg, 'vprog') + 70 * listCount(cfg, 'progression')) / 60));
+        const est = Math.max(1, Math.round((MQ.BUILT_IN.reduce((s, t) => s + t.est * (cfg.counts[t.id] || 0), 0) + 40 * listCount(cfg, 'custom') + 55 * listCount(cfg, 'voicing') + 90 * listCount(cfg, 'vprog') + 70 * listCount(cfg, 'progression') + 15 * listCount(cfg, 'keys') + 30 * listCount(cfg, 'analysis')) / 60));
         R.summary.replaceChildren(h('b', null, STUDENT ? 'Your practice' : cfg.title || 'Untitled quiz'), ` — ${total} questions · ${clefsText(cfg)} · about ${est} min${cfg.timeLimit ? ` · ${cfg.timeLimit}-minute limit` : ''}`);
       }
-      R.keyList.replaceChildren(...S.qs.map((q) => h('li', null, h('span', { class: 'key-q' }, q.text, h('span', { class: 'key-clef' }, ' · ' + MQ.clefLabel(q.clef))), h('span', { class: 'key-a' }, MQ.describeAnswer(q, cfg)))));
+      R.keyList.replaceChildren(...S.qs.map((q) => h('li', null, h('span', { class: 'key-q' }, q.text, q.type === 'analysis' ? null : h('span', { class: 'key-clef' }, ' · ' + MQ.clefLabel(q.clef))), h('span', { class: 'key-a' }, q.type === 'analysis' ? accText(MQ.describeAnswer(q, cfg)) : MQ.describeAnswer(q, cfg)))));
+      if (R.linkSize) {
+        const kb = S.aimg ? Math.max(1, Math.round((S.aimg.data.length + S.code.length) / 1024)) : 0;
+        R.linkSize.replaceChildren(!S.code ? '' : kb > 150
+          ? h('span', { class: 'warn-note' }, `The quiz link is about ${kb} KB. It works in browsers and Canvas, but some email programs cut long links — try Standard detail, or crop the picture to the passage.`)
+          : `The quiz link is about ${kb} KB — fine for Canvas, email and chat.`);
+      }
       renderPreview();
     }
     refresh();
@@ -1584,6 +1630,19 @@
     try {
       const cfg = MQ.decodeQuiz(code);
       if (!sumCounts(cfg)) throw new MQ.CodeError('This quiz has no questions.');
+      if (listCount(cfg, 'analysis')) {
+        // The music comes in the link. Check it belongs to this quiz before keeping it.
+        const want = cfg.analysis.img && cfg.analysis.img.hash;
+        const img = opts && opts.img;
+        if (img) {
+          let got = null;
+          try { got = MQ.hashOfData(img); } catch (e) { /* unreadable */ }
+          if (got !== want) throw new MQ.CodeError('The music in this link is damaged or cut short — some email programs break long links. Ask your teacher for the link again, or open it from Canvas.');
+          keepScore(img, want);
+        } else if (!want || !scoreData(want)) {
+          throw new MQ.CodeError('This quiz is on a picture of the music, which comes in the quiz link — the code on its own doesn’t carry it. Open the link your teacher sent.');
+        }
+      }
       const qs = MQ.generateQuiz(cfg);
       S.take = {
         code: code.replace(/[^0-9A-Za-z]/g, '').toUpperCase(), cfg, qs, name: '', idx: 0,
@@ -1670,6 +1729,11 @@
     if (listCount(cfg, 'vprog')) types.push(`Voiced progressions (${listCount(cfg, 'vprog')})`);
     if (cfg.counts.keys && MQ.keysCombos(cfg.keys).length) types.push(`Keys & notes (${cfg.counts.keys})`);
     if (listCount(cfg, 'progression')) types.push(`Chord progressions (${listCount(cfg, 'progression')})`);
+    if (listCount(cfg, 'analysis')) {
+      const asks = MQ.analysisQuestions(cfg).map((q) => q.an.ask);
+      const r = asks.some((a) => a !== 'symbol'), sy = asks.some((a) => a !== 'roman');
+      types.push(`Analysis (${listCount(cfg, 'analysis')} boxes) — ${r && sy ? 'Roman numerals and chord symbols' : r ? 'Roman numerals' : 'chord symbols'}`);
+    }
     main.append(h('div', { class: 'narrow' }, h('section', { class: 'card stage' },
       h('div', { class: 'eyebrow' }, t.preview ? 'Preview — this is what students see' : 'Quiz'),
       h('h1', { class: 'display' }, cfg.title || 'Music quiz'),
@@ -1678,10 +1742,13 @@
         h('div', null, h('dt', null, 'Questions'), h('dd', null, String(t.qs.length))),
         h('div', null, h('dt', null, 'Time limit'), h('dd', null, cfg.timeLimit ? cfg.timeLimit + ' min' : 'None')),
         // A quiz of only Keys questions is on the grand staff and the piano, whatever the clef setting.
-        onlyKeys(cfg)
+        onlyAnalysis(cfg)
+          ? h('div', null, h('dt', null, 'Uses'), h('dd', null, 'A picture of the score'))
+          : onlyKeys(cfg)
           ? h('div', null, h('dt', null, 'Uses'), h('dd', null, 'Grand staff, piano'))
           : h('div', null, h('dt', null, 'Clefs'), h('dd', null, [cfg.clefs & 1 ? 'Treble' : null, cfg.clefs & 2 ? 'Bass' : null, usesGrand(cfg) ? 'Grand staff' : null].filter(Boolean).join(', ')))),
       h('p', { class: 'types-line' }, types.join(' · ')),
+      onlyAnalysis(cfg) && cfg.analysis.notes ? h('p', { class: 'an-notes' }, accText(cfg.analysis.notes)) : null,
       fld('Your name', name),
       h('div', { class: 'btn-row' }, h('button', { type: 'button', class: 'btn btn-primary', onclick: start }, 'Start quiz'),
         h('button', { type: 'button', class: 'btn btn-quiet', onclick: () => { S.take = null; saveAttempt(); go(tv()); } }, 'Use a different code')),
@@ -1721,6 +1788,7 @@
     }, 1000);
   }
   function takeQuestion(main) {
+    if (S.take.qs[0] && S.take.qs[0].type === 'analysis') return takeAnalysis(main);
     const t = S.take, i = t.idx, q = t.qs[i];
     const locked = t.checked[i];
     const card = questionCard(q, t.cfg, {
@@ -1895,7 +1963,7 @@
       tbody.append(h('tr', null,
         h('td', { class: 'num' }, String(i + 1)),
         h('td', null, q ? q.text : typeOf(it.type).label),
-        h('td', null, MQ.CLEFS[it.clef].label),
+        h('td', null, it.type === 'analysis' ? 'Score' : MQ.CLEFS[it.clef].label),
         key ? h('td', { class: 'ans' }, q ? MQ.describeAnswer(q, quiz.cfg) : '') : null,
         h('td', null, resultCell(it)),
         h('td', { class: 'num' }, it.sec >= 63 ? '63+ s' : it.sec + ' s')));
@@ -2214,6 +2282,572 @@
       h('div', { class: 'mix-foot' }, R.total));
   }
 
+  // ---------- Clefwork Analysis: pictures of the score ----------
+  // Pictures are kept on this device under their fingerprint, so the builder, a quiz in progress and
+  // the grade checker all find them. The most recent dozen are kept; when storage is full the oldest
+  // go first, and this visit keeps its own copies in memory either way.
+  const SCORE_KEEP = 12;
+  const SCORE_MEM = new Map();
+  const SCORES = new Map();       // fingerprint → promise of the decoded picture, with a URL to show it
+  const scoreKey = (hash) => 'score.' + (hash >>> 0).toString(16);
+  const scoreData = (hash) => SCORE_MEM.get(hash >>> 0) || store.get(scoreKey(hash), null);
+  function keepScore(data, hash) {
+    SCORE_MEM.set(hash >>> 0, data);
+    const list = store.get('scores', []).filter((x) => x !== hash >>> 0);
+    list.unshift(hash >>> 0);
+    for (;;) {
+      try { localStorage.setItem('clefwork.' + scoreKey(hash), JSON.stringify(data)); break; } catch (e) {
+        if (list.length < 2) return;
+        store.del(scoreKey(list.pop()));
+      }
+    }
+    list.slice(SCORE_KEEP).forEach((x) => store.del(scoreKey(x)));
+    store.set('scores', list.slice(0, SCORE_KEEP));
+  }
+  function loadScore(hash) {
+    if (hash == null) return Promise.resolve(null);
+    const k = hash >>> 0;
+    if (!SCORES.has(k)) {
+      const data = scoreData(k);
+      if (!data) return Promise.resolve(null);
+      SCORES.set(k, MQ.decodeScore(data)
+        .then(async (sc) => Object.assign(sc, { url: await MQ.scoreURL(sc) }))
+        .catch(() => { SCORES.delete(k); return null; }));
+    }
+    return SCORES.get(k);
+  }
+  // Each box has a colour, shared by its highlight on the music and its answer boxes.
+  const AN_COLORS = ['#e39b12', '#2b86d6', '#d8457b', '#23a065', '#8a5ad6', '#15a0a3'];
+  const anColor = (i) => AN_COLORS[i % AN_COLORS.length];
+  const ASK_LABEL = { roman: 'Roman numeral', symbol: 'Chord symbol', both: 'Roman numeral & chord symbol' };
+  const pct = (v) => (v * 100).toFixed(3) + '%';
+  const boxStyle = (r, color) => `--c:${color};left:${pct(r.x)};top:${pct(r.y)};width:${pct(r.w)};height:${pct(r.h)}`;
+  const upperFirst = (inp) => {
+    if (!/^[a-g]/.test(inp.value)) return;
+    const at = inp.selectionStart;
+    inp.value = inp.value[0].toUpperCase() + inp.value.slice(1);
+    try { inp.setSelectionRange(at, at); } catch (e) { /* not focused */ }
+  };
+
+  // A Roman numeral as Clefwork prints it: the figures stacked beside the numeral.
+  function romanDisplay(p) {
+    const r = MQ.romanParts(p);
+    if (!r) return '';
+    if (r.text) return h('span', { class: 'fig-rn' }, r.text);
+    const el = figuredDisplay(r.numeral, r.figure);
+    if (r.target) el.append(accText(r.target));
+    return el;
+  }
+  const orList = (items) => items.map((x, j) => [j ? h('span', { class: 'an-or' }, ' or ') : null, x]);
+  const romanAnswers = (list) => orList(list.map((w) => romanDisplay(MQ.parseAnalysisRoman(w)) || w));
+  const symbolAnswers = (list) => orList(list.map((w) => h('span', { class: 'fig-rn' }, MQ.symbolText(w))));
+
+  // One answer box — k is 'r' (Roman numeral) or 's' (chord symbol) — with a preview of how it reads.
+  let anUid = 0;
+  function anInput(q, k, cfg, o, value, onInput) {
+    const roman = k === 'r';
+    // On the student's sheet the key explains what to type, so the boxes stay bare.
+    const inp = h('input', { type: 'text', id: 'an-in-' + ++anUid, class: 'an-in', maxlength: 15, placeholder: o.sheet ? null : roman ? 'V65' : 'G7',
+      autocomplete: 'off', autocapitalize: 'off', autocorrect: 'off', spellcheck: 'false',
+      'aria-label': `Box ${q.an.n + 1}: ${roman ? 'Roman numeral' : 'chord symbol'}` });
+    inp.value = o.keyMode ? (roman ? q.an.roman[0] : q.an.symbol[0]) || '' : value || '';
+    const pv = h('span', { class: 'an-pv' });
+    const draw = () => {
+      const t = inp.value.trim();
+      const p = t ? (roman ? MQ.parseAnalysisRoman(t) : MQ.symbolOk(t)) : null;
+      inp.classList.toggle('is-invalid', !!t && !p);
+      pv.replaceChildren(!t ? '' : !p ? h('span', { class: 'fig-unread is-bad' }, roman ? 'not a numeral' : 'not a symbol')
+        : roman ? romanDisplay(p) : h('span', { class: 'fig-rn' }, MQ.symbolText(t)));
+    };
+    inp.addEventListener('input', () => {
+      if (!roman) upperFirst(inp);
+      draw();
+      if (onInput) onInput(inp.value);
+    });
+    if (o.locked || o.keyMode) inp.disabled = true;
+    draw();
+    const cell = h('div', { class: 'an-field' }, inp, pv);
+    if (o.reveal && !o.keyMode) {
+      const ok = MQ.markAnalysisPart(q, k, { [k]: value }, cfg);
+      cell.classList.add(ok ? 'is-right' : 'is-wrong');
+      pv.replaceChildren(ok ? h('span', { class: 'fig-mark is-right' }, '✓')
+        : h('span', { class: 'fig-mark is-wrong' }, '✗ ', roman ? romanAnswers(q.an.roman) : symbolAnswers(q.an.symbol)));
+    }
+    return { el: cell, input: inp };
+  }
+
+  // Part of the score around one box — the whole system when there's room — with the box highlighted.
+  function scoreCrop(sc, r, color) {
+    let x0 = Math.max(0, r.x - Math.max(r.w * 1.5, 0.12)), x1 = Math.min(1, r.x + r.w + Math.max(r.w * 1.5, 0.12));
+    let y0 = Math.max(0, r.y - Math.max(r.h * 0.6, 0.05)), y1 = Math.min(1, r.y + r.h + Math.max(r.h * 0.6, 0.05));
+    const b = sc.bands[MQ.bandOf(r, sc.bands)];
+    if (b.y1 - b.y0 < 0.45) { y0 = Math.min(y0, Math.max(0, b.y0 - 0.01)); y1 = Math.max(y1, Math.min(1, b.y1 + 0.01)); }
+    const cw = x1 - x0, ch = y1 - y0;
+    // No taller than 320px on screen, however narrow the part of the music is.
+    const maxW = Math.round((320 * cw * sc.w) / (ch * sc.h));
+    return h('div', { class: 'an-crop', style: `aspect-ratio:${(cw * sc.w).toFixed(1)} / ${(ch * sc.h).toFixed(1)};max-width:${maxW}px` },
+      h('img', { src: sc.url, alt: 'The part of the score this question is about', draggable: 'false', style: `width:${pct(1 / cw)};left:${pct(-x0 / cw)};top:${pct(-y0 / ch)}` }),
+      h('span', { class: 'an-hl is-active', style: boxStyle({ x: (r.x - x0) / cw, y: (r.y - y0) / ch, w: r.w / cw, h: r.h / ch }, color) }));
+  }
+  // One Analysis question on its own: in the grade checker, on results pages and in answer keys.
+  function analysisCard(q, cfg, o) {
+    const wrap = h('div', { class: 'qcard an-card' + (o.compact ? ' is-compact' : '') });
+    wrap.append(h('div', { class: 'q-eyebrow' }, typeOf(q.type).label, h('span', { class: 'q-clef' }, ASK_LABEL[q.an.ask])));
+    wrap.append(h(o.compact ? 'h3' : 'h2', { class: 'q-text' }, q.text));
+    const pic = h('div', { class: 'an-crop-host' });
+    wrap.append(pic);
+    loadScore(q.an.img).then((sc) => pic.replaceChildren(sc ? scoreCrop(sc, q.an.region, anColor(q.an.n))
+      : h('p', { class: 'fine' }, 'The music isn’t saved on this device, so only the answers are shown.')));
+    const resp = Object.assign({}, o.response);
+    const row = h('div', { class: 'an-answers' });
+    MQ.analysisParts(q).forEach((k) => {
+      const f = anInput(q, k, cfg, o, resp[k], (v) => { resp[k] = v; if (o.onResponse) o.onResponse(Object.assign({}, resp)); });
+      row.append(h('div', { class: 'an-answer' }, h('label', { class: 'mini-label', for: f.input.id }, k === 'r' ? 'Roman numeral' : 'Chord symbol'), f.el));
+    });
+    wrap.append(row);
+    if (o.keyMode) wrap.append(h('p', { class: 'result is-key' }, h('strong', null, 'Answer: '), MQ.describeAnswer(q, cfg)));
+    else if (o.reveal) wrap.append(resultLine(q, cfg, o.response));
+    return wrap;
+  }
+
+  // A reminder of what the figures mean, and how to type them — printed above the music.
+  function figuresKey(roman, symbol) {
+    const fig = (f) => h('span', { class: 'fig-rn an-key-fig' }, !f ? h('span', { class: 'an-key-none' }, 'no figure')
+      : h('span', { class: 'fig-stack' }, ...Array.from(f).map((d) => h('span', null, d))));
+    const item = (f, text) => h('span', { class: 'an-key-item' }, fig(f), h('span', null, text));
+    return h('aside', { class: 'an-key', 'aria-label': 'Key to figures and chord symbols' },
+      roman ? [
+        h('div', { class: 'an-key-row' }, h('b', null, 'Triads'), item('', 'root position'), item('6', '1st inversion'), item('64', '2nd inversion')),
+        h('div', { class: 'an-key-row' }, h('b', null, 'Sevenths'), item('7', 'root position'), item('65', '1st inversion'), item('43', '2nd inversion'), item('42', '3rd inversion')),
+        h('p', { class: 'an-key-how' }, 'Type the figures right after the numeral: V65, ii6, V42. Type o for ° (viio7) and /o for ø (vii/o7). Applied chords: V7/V.'),
+      ] : null,
+      symbol ? h('p', { class: 'an-key-how' }, 'Chord symbols: Dmi7, G7, Cma7, B°, Bmi7♭5, Csus4 — a slash names the bass note, as in C/E. Type b for ♭ and # for ♯.') : null);
+  }
+
+  // ---------- Clefwork Analysis: taking the quiz ----------
+  // Every box is on one page: the music, cut between systems, with chord-symbol boxes above each
+  // system and Roman numeral boxes below it, each under the middle of its highlight.
+  function takeAnalysis(main) {
+    const t = S.take, cfg = t.cfg;
+    const checking = cfg.flags.feedback || (t.practice && t.practiceFeedback);
+    const host = h('div', { class: 'an-scroll' }, h('p', { class: 'empty' }, 'Loading the music…'));
+    const checkBtn = checking ? h('button', { type: 'button', class: 'btn', onclick: () => { t.checked[t.idx] = true; saveAttempt(); go(tv()); } }, 'Check') : null;
+    const syncCheck = () => {
+      if (!checkBtn) return;
+      checkBtn.textContent = `Check box ${t.idx + 1}`;
+      checkBtn.disabled = t.checked[t.idx] || !MQ.hasAnswer(t.qs[t.idx], t.resp[t.idx]);
+    };
+    const zoomVal = h('span', { class: 'an-zoom-val' });
+    const setZoom = (z) => {
+      S.azoom = Math.max(1, Math.min(2.5, z));
+      zoomVal.textContent = Math.round(S.azoom * 100) + '%';
+      const sheet = host.querySelector('.an-sheet');
+      if (sheet) sheet.style.width = S.azoom * 100 + '%';
+    };
+    const asks = t.qs.map((q) => q.an.ask);
+    main.append(h('div', { class: 'take is-analysis' }, progressHead(t),
+      h('section', { class: 'card stage an-take' },
+        h('div', { class: 'an-take-top' },
+          h('p', { class: 'an-lede' }, 'Type your answer in the box beside each highlighted part of the music. The colours and numbers show which box goes with which part.'),
+          h('div', { class: 'an-zoom', role: 'group', 'aria-label': 'Zoom the music' },
+            h('button', { type: 'button', class: 'btn btn-quiet sm', 'aria-label': 'Zoom out', onclick: () => setZoom(S.azoom - 0.25) }, '−'), zoomVal,
+            h('button', { type: 'button', class: 'btn btn-quiet sm', 'aria-label': 'Zoom in', onclick: () => setZoom(S.azoom + 0.25) }, '+'))),
+        cfg.analysis.notes ? h('p', { class: 'an-notes' }, cfg.analysis.notes) : null,
+        figuresKey(asks.some((a) => a !== 'symbol'), asks.some((a) => a !== 'roman')),
+        host),
+      h('div', { class: 'take-actions' }, h('div', { class: 'spacer' }), checkBtn,
+        h('button', { type: 'button', class: 'btn btn-primary', onclick: () => { t.reviewing = true; saveAttempt(); go(tv()); } }, t.practice ? 'Finish' : 'Review & submit'))));
+    setZoom(S.azoom);
+    syncCheck();
+    loadScore(cfg.analysis.img && cfg.analysis.img.hash).then((sc) => {
+      if (!host.isConnected || S.take !== t) return;
+      if (!sc) {
+        host.replaceChildren(h('p', { class: 'warn-note' }, 'The music for this quiz isn’t on this device any more. Open the quiz link from your teacher again — your answers so far are kept.'));
+        return;
+      }
+      host.replaceChildren(analysisSheet(sc, t, syncCheck));
+      setZoom(S.azoom);
+      const box = host.querySelector(`.an-box[data-i="${t.idx}"] input`);
+      if (box && t.idx > 0) box.focus({ preventScroll: true }), box.scrollIntoView({ block: 'center' });
+    });
+    startTicker();
+  }
+  function analysisSheet(sc, t, onActive) {
+    const cfg = t.cfg, qs = t.qs;
+    const sheet = h('div', { class: 'an-sheet', role: 'group', 'aria-label': `The music, with ${qs.length} box${qs.length > 1 ? 'es' : ''} to answer` });
+    const hls = qs.map(() => []), boxes = qs.map(() => []);
+    // The box being answered is the "current question": it collects the time and the Check button.
+    const setActive = (i) => {
+      t.idx = i;
+      [hls, boxes].forEach((all) => all.forEach((list, j) => list.forEach((el) => el.classList.toggle('is-active', j === i))));
+      document.querySelectorAll('.qdot').forEach((d, j) => { if (j === i) d.setAttribute('aria-current', 'step'); else d.removeAttribute('aria-current'); });
+      onActive();
+    };
+    const focusBox = (i) => { const inp = boxes[i][0] && boxes[i][0].querySelector('input'); if (inp && !inp.disabled) inp.focus(); else setActive(i); };
+    MQ.sheetPlan(qs, sc.bands).forEach((piece) => {
+      if (piece.kind === 'strip') {
+        const span = piece.y1 - piece.y0;
+        const strip = h('div', { class: 'an-strip', style: `aspect-ratio:${sc.w} / ${(span * sc.h).toFixed(2)}` },
+          h('img', { src: sc.url, alt: '', draggable: 'false', style: `top:${pct(-piece.y0 / span)}` }));
+        qs.forEach((q, i) => {
+          const r = q.an.region;
+          if (r.y >= piece.y1 || r.y + r.h <= piece.y0) return;
+          const hl = h('span', { class: 'an-hl', title: `Box ${i + 1}`, onclick: () => focusBox(i),
+            style: boxStyle({ x: r.x, y: (r.y - piece.y0) / span, w: r.w, h: r.h / span }, anColor(i)) });
+          hls[i].push(hl);
+          strip.append(hl);
+        });
+        sheet.append(strip);
+        return;
+      }
+      const lane = h('div', { class: 'an-lane is-' + piece.lane });
+      piece.items.forEach(({ i, cx }) => {
+        const q = qs[i], k = piece.lane === 'roman' ? 'r' : 's';
+        const locked = !!t.checked[i];
+        const f = anInput(q, k, cfg, { locked, reveal: locked, sheet: true }, (t.resp[i] || {})[k], (v) => {
+          t.resp[i] = Object.assign({}, t.resp[i], { [k]: v });
+          saveAttempt();
+          const dot = document.querySelectorAll('.qdot')[i];
+          if (dot) dot.classList.toggle('is-done', MQ.hasAnswer(q, t.resp[i]));
+          setActive(i);
+        });
+        const box = h('div', { class: 'an-box' + (locked ? ' is-checked' : ''), style: `--c:${anColor(i)}`, 'data-i': i, 'data-cx': cx },
+          h('span', { class: 'an-num', 'aria-hidden': 'true' }, String(i + 1)), f.el);
+        f.input.addEventListener('focus', () => setActive(i));
+        box.addEventListener('mouseenter', () => hls[i].forEach((el) => el.classList.add('is-hover')));
+        box.addEventListener('mouseleave', () => hls[i].forEach((el) => el.classList.remove('is-hover')));
+        box.addEventListener('click', (e) => { if (e.target === box) focusBox(i); });
+        boxes[i].push(box);
+        lane.append(box);
+      });
+      sheet.append(lane);
+    });
+    // Each box sits centred on its part of the music. A box that would overlap the one before it
+    // moves over a little if it can, and otherwise takes another row.
+    const layout = () => sheet.querySelectorAll('.an-lane').forEach((lane) => {
+      const W = lane.clientWidth;
+      if (!W) return;
+      const list = Array.from(lane.children);
+      const rowH = Math.max(0, ...list.map((b) => b.offsetHeight)) + 6;
+      const rows = [];
+      list.forEach((b) => {
+        const bw = b.offsetWidth;
+        let left = Math.max(0, Math.min(W - bw, +b.dataset.cx * W - bw / 2));
+        let row = rows.findIndex((edge) => edge + 6 <= left || (edge + 6 - left <= bw * 0.4 && edge + 6 + bw <= W));
+        if (row < 0) { row = rows.length; rows.push(0); }
+        left = Math.max(left, rows[row] ? rows[row] + 6 : 0);
+        rows[row] = left + bw;
+        b.style.left = left + 'px';
+        b.style.top = 8 + row * rowH + 'px';
+      });
+      lane.style.height = 10 + rows.length * rowH + 'px';
+    });
+    if (window.ResizeObserver) new ResizeObserver(layout).observe(sheet);
+    requestAnimationFrame(layout);
+    setActive(Math.max(0, Math.min(t.idx, qs.length - 1)));
+    return sheet;
+  }
+
+  // ---------- Clefwork Analysis: the builder ----------
+  function analysisReady() {
+    if (S.aed) { toast(`Save or discard ${S.aed.index >= 0 ? 'box ' + (S.aed.index + 1) : 'the new box'} first.`, 'bad'); return false; }
+    if (!S.aimg) { toast('Upload the picture of the music first.', 'bad'); return false; }
+    return true;
+  }
+  // A new upload (a file, a drop or a paste), then turned into the black-and-white copy students see.
+  async function takePicture(file) {
+    if (!file) return;
+    if (!/^image\//.test(file.type)) { toast('Choose a picture (PNG or JPG). For a PDF, take a screenshot of the passage first.', 'bad'); return; }
+    let bmp;
+    try { bmp = await createImageBitmap(file); } catch (e) { toast('That picture couldn’t be opened. Try saving it as a PNG or JPG.', 'bad'); return; }
+    S.aorig = { bmp, crop: null };
+    await useScore(true);
+  }
+  let scoreBusy = false;
+  async function useScore(fresh) {
+    if (!S.aorig || scoreBusy) return;
+    scoreBusy = true;
+    const status = document.getElementById('an-status');
+    if (status) status.textContent = 'Preparing the picture…';
+    try {
+      const sc = await MQ.encodeScore(S.aorig.bmp, Object.assign({}, S.aopt, { crop: S.aorig.crop }));
+      S.aorig.crop = sc.crop;       // later detail and ink changes keep this trim, so boxes stay put
+      sc.url = await MQ.scoreURL(sc);
+      keepScore(sc.data, sc.hash);
+      SCORES.set(sc.hash >>> 0, Promise.resolve(sc));
+      const a = S.cfg.analysis = MQ.analysisSettings(S.cfg.analysis);
+      const moved = fresh && a.img && a.img.hash !== sc.hash && a.regions.length;
+      a.img = { hash: sc.hash, w: sc.w, h: sc.h };
+      S.aimg = sc;
+      saveDraft();
+      go('build');
+      if (moved) toast(`New picture — check that your ${a.regions.length} box${a.regions.length > 1 ? 'es' : ''} still sit on the right music.`);
+    } catch (e) {
+      toast(e.message || 'That picture couldn’t be used.', 'bad');
+      if (status) status.textContent = '';
+    } finally { scoreBusy = false; }
+  }
+  function analysisSections(cfg, changed, R) {
+    const a = cfg.analysis = MQ.analysisSettings(cfg.analysis);
+    R.total = h('span', { class: 'mix-total' });
+    const status = h('span', { class: 'an-status', id: 'an-status', role: 'status' });
+    const file = h('input', { type: 'file', accept: 'image/*', hidden: true, 'aria-label': 'Picture of the music' });
+    file.addEventListener('change', () => { takePicture(file.files[0]); file.value = ''; });
+    const choose = (label, cls) => h('button', { type: 'button', class: cls, onclick: () => file.click() }, label);
+    const dropOn = (el) => {
+      el.addEventListener('dragover', (e) => { e.preventDefault(); el.classList.add('is-over'); });
+      el.addEventListener('dragleave', () => el.classList.remove('is-over'));
+      el.addEventListener('drop', (e) => { e.preventDefault(); el.classList.remove('is-over'); takePicture(e.dataTransfer.files[0]); });
+    };
+    let stage = null, layer = null, editor = null, list = null;
+    let body;
+    if (S.aimg === null && a.img) body = h('p', { class: 'empty' }, 'Loading the picture…');
+    else if (!S.aimg) {
+      body = h('div', { class: 'an-drop' },
+        h('p', { class: 'an-drop-title' }, a.img ? 'This draft’s picture isn’t on this device any more' : 'Upload a picture of the music'),
+        h('p', { class: 'help' }, a.img ? 'Upload the same picture again — your boxes and answers are kept.'
+          : 'A scan, an export from notation software, or a screenshot (PNG or JPG). Drag it here, paste it, or choose it. For a PDF, take a screenshot of the passage.'),
+        h('div', { class: 'btn-row center' }, choose('Choose a picture', 'btn btn-primary')), status, file);
+      dropOn(body);
+    } else {
+      const off = !S.aorig;
+      const opt = (k) => (v) => { S.aopt[k] = v; store.set('analysis-opts', S.aopt); useScore(false); };
+      const detail = seg('an-detail', MQ.SCORE_DETAIL.map((d) => ({ v: d.id, label: d.label })), S.aopt.detail, opt('detail'));
+      const ink = seg('an-ink', [{ v: 0, label: 'Lighter' }, { v: 1, label: 'Normal' }, { v: 2, label: 'Darker' }], S.aopt.ink, opt('ink'));
+      if (off) [detail, ink].forEach((g) => g.querySelectorAll('button').forEach((b) => (b.disabled = true)));
+      stage = h('div', { class: 'an-stage' });
+      layer = h('div', { class: 'an-layer' });
+      stage.append(h('img', { src: S.aimg.url, alt: 'The music', draggable: 'false' }), layer);
+      editor = h('div', { class: 'an-editor-host' });
+      list = h('div', { class: 'an-list-host' });
+      body = h('div', { class: 'an-build' },
+        h('div', { class: 'an-tools' },
+          grp('Detail', detail, 'More detail makes the quiz link longer.'),
+          grp('Ink', ink, 'Darker keeps faint printing; lighter drops smudges.'),
+          h('div', { class: 'an-tools-end' }, choose('Replace picture', 'btn btn-quiet sm'), status, file)),
+        off ? h('p', { class: 'help' }, 'To change the detail or ink, upload the picture again.') : null,
+        h('p', { class: 'an-how' }, h('b', null, 'Drag a box'), ' around each chord or passage to ask about. You’ll choose what students write, then type the answer and save it.'),
+        stage, editor, list);
+      setupDrawing();
+    }
+
+    // ---------- drawing boxes ----------
+    let justDragged = false;
+    const clamp01 = (v) => Math.max(0, Math.min(1, v));
+    const edName = () => (S.aed.index >= 0 ? 'box ' + (S.aed.index + 1) : 'the new box');
+    function setupDrawing() {
+      stage.addEventListener('pointerdown', (e) => {
+        if (e.button !== 0 || e.target.closest('.an-pop')) return;
+        const img = stage.querySelector('img').getBoundingClientRect();
+        const at = (ev) => ({ x: clamp01((ev.clientX - img.left) / img.width), y: clamp01((ev.clientY - img.top) / img.height) });
+        const p0 = at(e);
+        const rectTo = (p) => ({ x: Math.min(p0.x, p.x), y: Math.min(p0.y, p.y), w: Math.abs(p.x - p0.x), h: Math.abs(p.y - p0.y) });
+        let ghost = null;
+        const move = (ev) => {
+          const p = at(ev);
+          if (!ghost) {
+            if (Math.hypot((p.x - p0.x) * img.width, (p.y - p0.y) * img.height) < 6) return;
+            if (!S.aed && a.regions.length >= MQ.ANALYSIS_MAX) { toast(`A quiz can have up to ${MQ.ANALYSIS_MAX} boxes.`, 'bad'); stop(); return; }
+            ghost = h('div', { class: 'an-reg is-draft is-drawing' });
+            layer.querySelectorAll('.is-draft, .an-pop').forEach((x) => x.remove());
+            layer.append(ghost);
+            try { stage.setPointerCapture(ev.pointerId); } catch (err) { /* already released */ }
+          }
+          ghost.setAttribute('style', boxStyle(rectTo(p), 'var(--accent)'));
+        };
+        const up = (ev) => {
+          stop();
+          if (!ghost) return;
+          justDragged = true;
+          setTimeout(() => (justDragged = false), 0);
+          const r = rectTo(at(ev));
+          if (r.w * img.width < 8 || r.h * img.height < 8) { redraw(); return; }
+          if (!S.aed) S.aed = { index: -1, ask: null, roman: '', symbol: '' };
+          Object.assign(S.aed, r);
+          if (!S.aed.ask) S.aed.asking = true;
+          redraw();
+          const first = layer.querySelector('.an-pop button') || editor.querySelector('input');
+          if (first) first.focus({ preventScroll: true });
+        };
+        const stop = () => {
+          stage.removeEventListener('pointermove', move);
+          stage.removeEventListener('pointerup', up);
+          stage.removeEventListener('pointercancel', stop);
+        };
+        stage.addEventListener('pointermove', move);
+        stage.addEventListener('pointerup', up);
+        stage.addEventListener('pointercancel', stop);
+        e.preventDefault();
+      });
+    }
+    function editBox(i) {
+      if (justDragged) return;
+      if (S.aed) { if (S.aed.index !== i) toast(`Save or discard ${edName()} first.`, 'bad'); return; }
+      const r = a.regions[i];
+      S.aed = { index: i, x: r.x, y: r.y, w: r.w, h: r.h, ask: r.ask || 'roman', roman: r.roman || '', symbol: r.symbol || '' };
+      redraw();
+      const first = editor.querySelector('input');
+      if (first) { first.focus({ preventScroll: true }); editor.scrollIntoView({ block: 'nearest' }); }
+    }
+    function discard() { S.aed = null; redraw(); }
+    function save() {
+      const ed = S.aed;
+      if (!ed) return;
+      const tidy = (s) => MQ.alternatives(s).map((x) => x.replace(/♭/g, 'b').replace(/♯/g, '#'));
+      const rs = tidy(ed.roman), ss = tidy(ed.symbol);
+      const needR = ed.ask !== 'symbol', needS = ed.ask !== 'roman';
+      const bad = rs.find((x) => !MQ.parseAnalysisRoman(x)) || ss.find((x) => !MQ.symbolOk(x));
+      const msg = needR && !rs.length ? 'Type the Roman numeral students should write.'
+        : needS && !ss.length ? 'Type the chord symbol students should write.'
+          : bad ? `“${bad}” can’t be read — fix it before saving.` : '';
+      if (msg) {
+        toast(msg, 'bad');
+        const inp = editor.querySelector(needR && !rs.length ? '#an-ed-r' : needS && !ss.length ? '#an-ed-s' : 'input.is-invalid');
+        if (inp) inp.focus();
+        return;
+      }
+      const r4 = (v) => Math.round(v * 10000) / 10000;
+      const box = { x: r4(ed.x), y: r4(ed.y), w: r4(ed.w), h: r4(ed.h), ask: ed.ask, roman: rs.join(', '), symbol: ss.join(', ') };
+      const all = a.regions.slice();
+      if (ed.index >= 0) all[ed.index] = box; else all.push(box);
+      // Boxes are numbered in reading order: system by system, left to right.
+      a.regions = MQ.readingOrder(all, S.aimg && S.aimg.bands);
+      cfg.counts.analysis = a.regions.length;
+      S.aed = null;
+      changed();
+      redraw();
+      toast(`Box ${a.regions.indexOf(box) + 1} saved`);
+    }
+    function removeBox(i, btn) {
+      if (btn.dataset.sure !== '1') {
+        btn.dataset.sure = '1';
+        btn.textContent = 'Click again to delete';
+        setTimeout(() => { if (btn.isConnected) { btn.dataset.sure = ''; btn.textContent = 'Delete'; } }, 3000);
+        return;
+      }
+      a.regions = a.regions.filter((_, j) => j !== i);
+      cfg.counts.analysis = a.regions.length;
+      if (S.aed && S.aed.index === i) S.aed = null;
+      else if (S.aed && S.aed.index > i) S.aed.index--;
+      changed();
+      redraw();
+      toast(`Box ${i + 1} deleted`);
+    }
+    function askPopover() {
+      const ed = S.aed;
+      // Below the box, unless it sits low on a tall picture and there's room above.
+      const H = stage.clientHeight;
+      const below = (1 - ed.y - ed.h) * H >= 150 || ed.y * H < 150;
+      const pick = (k) => { ed.ask = k; ed.asking = false; redraw(); const f = editor.querySelector('input'); if (f) { f.focus({ preventScroll: true }); editor.scrollIntoView({ block: 'nearest' }); } };
+      const pop = h('div', { class: 'an-pop', role: 'dialog', 'aria-label': 'What should students write for this box?',
+        style: `left:max(0px, min(${pct(ed.x)}, calc(100% - 300px)));` + (below ? `top:calc(${pct(ed.y + ed.h)} + 8px)` : `bottom:calc(${pct(1 - ed.y)} + 8px)`) },
+        h('p', { class: 'an-pop-q' }, 'What should students write here?'),
+        h('div', { class: 'an-pop-row' },
+          h('button', { type: 'button', class: 'btn btn-primary sm', onclick: () => pick('roman') }, 'Roman numeral'),
+          h('button', { type: 'button', class: 'btn sm', onclick: () => pick('symbol') }, 'Chord symbol'),
+          h('button', { type: 'button', class: 'btn sm', onclick: () => pick('both') }, 'Both')),
+        h('button', { type: 'button', class: 'btn-link', onclick: discard }, 'Cancel'));
+      pop.addEventListener('keydown', (e) => { if (e.key === 'Escape') discard(); });
+      pop.addEventListener('pointerdown', (e) => e.stopPropagation());
+      return pop;
+    }
+    function drawStage() {
+      if (!layer) return;
+      layer.replaceChildren();
+      a.regions.forEach((r, i) => {
+        if (S.aed && S.aed.index === i) return;
+        layer.append(h('button', { type: 'button', class: 'an-reg', style: boxStyle(r, anColor(i)), 'aria-label': `Edit box ${i + 1}`, onclick: () => editBox(i) },
+          h('span', { class: 'an-reg-num' }, String(i + 1))));
+      });
+      if (S.aed) layer.append(h('div', { class: 'an-reg is-draft', style: boxStyle(S.aed, 'var(--accent)') }, h('span', { class: 'an-reg-num' }, S.aed.index >= 0 ? String(S.aed.index + 1) : 'New')));
+      if (S.aed && S.aed.asking) layer.append(askPopover());
+    }
+    function drawEditor() {
+      if (!editor) return;
+      const ed = S.aed;
+      if (!ed || ed.asking) { editor.replaceChildren(); return; }
+      const want = MQ.ANALYSIS_ASKS[a.override] || '';
+      const field = (k) => {
+        const roman = k === 'r', key = roman ? 'roman' : 'symbol';
+        const inp = h('input', { type: 'text', id: 'an-ed-' + k, class: 'an-ed-in', maxlength: 60, placeholder: roman ? 'e.g. V65' : 'e.g. G7/B',
+          autocomplete: 'off', autocapitalize: 'off', autocorrect: 'off', spellcheck: 'false' });
+        inp.value = ed[key];
+        const pv = h('span', { class: 'fig-preview' });
+        const draw = () => {
+          const alts = MQ.alternatives(inp.value);
+          const bad = alts.find((x) => (roman ? !MQ.parseAnalysisRoman(x) : !MQ.symbolOk(x)));
+          inp.classList.toggle('is-invalid', !!bad);
+          pv.replaceChildren(bad ? h('span', { class: 'fig-unread is-bad' }, `“${bad}” isn’t a ${roman ? 'Roman numeral Clefwork can read' : 'chord symbol Clefwork can read'}`)
+            : roman ? h('span', null, romanAnswers(alts)) : h('span', null, symbolAnswers(alts)));
+        };
+        inp.addEventListener('input', () => { if (!roman) upperFirst(inp); ed[key] = inp.value; draw(); });
+        inp.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); save(); } else if (e.key === 'Escape') discard(); });
+        draw();
+        const needed = roman ? ed.ask !== 'symbol' : ed.ask !== 'roman';
+        const quizWants = want && (roman ? want !== 'symbol' : want !== 'roman');
+        return h('div', { class: 'an-ed-field' },
+          h('label', { class: 'mini-label', for: inp.id }, roman ? 'Roman numeral' : 'Chord symbol',
+            needed ? null : h('span', { class: 'an-opt' }, quizWants ? ' — the quiz-wide setting asks for this too' : ' — optional')),
+          inp, pv);
+      };
+      const showR = ed.ask !== 'symbol' || (want && want !== 'symbol') || !!ed.roman;
+      const showS = ed.ask !== 'roman' || (want && want !== 'roman') || !!ed.symbol;
+      editor.replaceChildren(h('div', { class: 'an-editor', role: 'group', 'aria-label': ed.index >= 0 ? `Box ${ed.index + 1}` : 'New box' },
+        h('div', { class: 'an-ed-head' }, h('strong', null, ed.index >= 0 ? `Box ${ed.index + 1}` : 'New box'),
+          h('span', { class: 'help' }, 'Drag on the music to redraw this box.')),
+        grp('Students write', seg('an-ed-ask', ['roman', 'symbol', 'both'].map((v) => ({ v, label: v === 'both' ? 'Both' : ASK_LABEL[v] })), ed.ask, (v) => { ed.ask = v; drawEditor(); })),
+        h('div', { class: 'an-ed-fields' }, showR ? field('r') : null, showS ? field('s') : null),
+        h('p', { class: 'help' }, 'If more than one answer is right, separate them with commas: I64, Cad64.'),
+        h('div', { class: 'btn-row' },
+          h('button', { type: 'button', class: 'btn btn-primary', onclick: save }, ed.index >= 0 ? 'Save changes' : 'Save box'),
+          h('button', { type: 'button', class: 'btn btn-quiet', onclick: discard }, ed.index >= 0 ? 'Cancel changes' : 'Discard box'),
+          ed.index >= 0 ? h('button', { type: 'button', class: 'btn btn-quiet an-del', onclick: (e) => removeBox(ed.index, e.currentTarget) }, 'Delete') : null)));
+    }
+    function drawList() {
+      if (!list) return;
+      if (!a.regions.length) { list.replaceChildren(h('p', { class: 'empty' }, 'No boxes yet.')); return; }
+      list.replaceChildren(h('ol', { class: 'an-list' }, a.regions.map((r, i) => {
+        const ask = MQ.askFor(r, a.override);
+        const rs = MQ.alternatives(r.roman), ss = MQ.alternatives(r.symbol);
+        return h('li', { class: 'an-item' + (S.aed && S.aed.index === i ? ' is-editing' : ''), style: `--c:${anColor(i)}` },
+          h('span', { class: 'an-item-num' }, String(i + 1)),
+          h('span', { class: 'an-item-main' },
+            h('span', { class: 'an-item-ask' }, ASK_LABEL[ask]),
+            h('span', { class: 'an-item-ans' },
+              ask !== 'symbol' && rs.length ? romanAnswers(rs) : null,
+              ask === 'both' ? h('span', { class: 'an-sep' }, ' · ') : null,
+              ask !== 'roman' && ss.length ? symbolAnswers(ss) : null)),
+          h('span', { class: 'an-item-act' },
+            h('button', { type: 'button', class: 'btn btn-quiet sm', onclick: () => editBox(i) }, 'Edit'),
+            h('button', { type: 'button', class: 'btn btn-quiet sm an-del', onclick: (e) => removeBox(i, e.currentTarget) }, 'Delete')));
+      })));
+    }
+    // ---------- the quiz-wide answer type ----------
+    const warn = h('div', { class: 'an-miss' });
+    const boxesText = (ns) => (ns.length === 1 ? `Box ${ns[0]}` : `Boxes ${ns.slice(0, -1).join(', ')} and ${ns[ns.length - 1]}`);
+    function syncWarn() {
+      const m = MQ.missingAnswers(a);
+      const note = (ns, lacks, has) => h('p', { class: 'warn-note' },
+        `${boxesText(ns)} ${ns.length > 1 ? 'have' : 'has'} no ${lacks}, so ${ns.length > 1 ? 'they ask' : 'it asks'} for the ${has} only. Edit ${ns.length > 1 ? 'them' : 'it'} to add one.`);
+      warn.replaceChildren(...[m.roman.length ? note(m.roman, 'Roman numeral', 'chord symbol') : null, m.symbol.length ? note(m.symbol, 'chord symbol', 'Roman numeral') : null].filter(Boolean));
+    }
+    function redraw() { drawStage(); drawEditor(); drawList(); syncWarn(); }
+    const notes = h('textarea', { id: 'an-notes', rows: 2, maxlength: 200, placeholder: 'e.g. Key: G major. Give the Roman numeral and figures for each boxed chord.' });
+    notes.value = a.notes;
+    notes.addEventListener('input', () => { a.notes = notes.value; changed(); });
+    redraw();
+    return [
+      sec('score', 'The music', 'Students see this black-and-white copy, with each box you draw lightly highlighted and their answer boxes beside the music.', body),
+      sec('an-answers', 'Answers', 'Each box asks for what you chose when you drew it — or set the whole quiz here.',
+        grp('Every box asks for', seg('an-over', [{ v: 0, label: 'Each box’s own choice' }, { v: 1, label: 'Roman numerals' }, { v: 2, label: 'Chord symbols' }, { v: 3, label: 'Both' }],
+          a.override, (v) => { a.override = v; changed(); redraw(); })),
+        warn,
+        fld('Instructions for students', notes, 'Shown above the music — a good place for the key, if students aren’t finding it themselves.'),
+        h('div', { class: 'mix-foot' }, R.total)),
+    ];
+  }
+
+
   // ---------- print: a paper copy of the quiz, as PDF or a Word document ----------
   // A standalone SVG for one question's staff: no colours from the app, drawn clefs when the
   // picture has to be rasterised, and cropped to the part of the staff that is used.
@@ -2526,6 +3160,7 @@
   function go(view) {
     if (MODE === 'canvas') view = 'take';             // the Canvas page only takes quizzes
     if (STUDENT && (view === 'grade' || view === 'print')) view = 'build';
+    if (ANALYSIS && view === 'print') view = 'build';
     S.slot = view === 'practice' ? 'practice' : 'take';
     stopTicker();
     MQ.Audio.stop();
@@ -2544,6 +3179,30 @@
       const name = document.querySelector('.brand-name');
       if (name) name.textContent = 'Clefwork Keys';
       document.title = 'Clefwork Keys';
+    }
+    if (ANALYSIS) {
+      // Clefwork Analysis: its own name, and no Print tab — the quiz lives on the picture.
+      const name = document.querySelector('.brand-name');
+      if (name) name.textContent = 'Clefwork Analysis';
+      document.title = 'Clefwork Analysis';
+      const pr = document.querySelector('.nav [data-view="print"]');
+      if (pr) pr.remove();
+      document.querySelector('.flow').replaceChildren(
+        h('li', null, h('b', null, '1'), ' Upload a picture of the music and box the chords to analyse'),
+        h('li', null, h('b', null, '2'), ' Students type Roman numerals or chord symbols beside the music'),
+        h('li', null, h('b', null, '3'), ' Students send back a report code — no accounts, no server'));
+      if (S.cfg.analysis && S.cfg.analysis.img) {
+        loadScore(S.cfg.analysis.img.hash).then((sc) => {
+          S.aimg = sc || false;           // false: this device no longer has the draft's picture
+          if (S.view === 'build') go('build');
+        });
+      }
+      // A picture pasted anywhere on the Build tab is the score.
+      document.addEventListener('paste', (e) => {
+        if (S.view !== 'build') return;
+        const f = Array.from((e.clipboardData && e.clipboardData.files) || []).find((x) => /^image\//.test(x.type));
+        if (f) { e.preventDefault(); takePicture(f); }
+      });
     }
     if (MODE === 'results' || MODE === 'canvas') {
       // Single-purpose pages: no tabs, and the logo doesn't lead anywhere.
@@ -2583,8 +3242,17 @@
     const hash = decodeURIComponent(location.hash.slice(1));
     const m = hash.match(/^(take|grade)=(.+)$/);
     if (m && m[1] === 'take') {
-      const clean = m[2].replace(/[^0-9A-Za-z]/g, '').toUpperCase();
-      if (!(S.take && S.take.code === clean)) openQuiz(m[2]);
+      // Anything after the code is named: &img=… carries an Analysis quiz's picture.
+      const [codePart, ...more] = m[2].split('&');
+      const extra = {};
+      more.forEach((kv) => { const i = kv.indexOf('='); if (i > 0) extra[kv.slice(0, i)] = kv.slice(i + 1); });
+      const clean = codePart.replace(/[^0-9A-Za-z]/g, '').toUpperCase();
+      if (!(S.take && S.take.code === clean)) openQuiz(codePart, { img: extra.img });
+      else if (extra.img && S.take.cfg.analysis && S.take.cfg.analysis.img) {
+        // The same quiz, already under way: keep the link's picture in case this device lost it.
+        const want = S.take.cfg.analysis.img.hash;
+        try { if (MQ.hashOfData(extra.img) === want) keepScore(extra.img, want); } catch (e) { /* a damaged link changes nothing */ }
+      }
       view = 'take';
     } else if (m && m[1] === 'grade' && !STUDENT) { S.grade.input = m[2]; view = 'grade'; }
     else if (VIEWS[hash]) view = hash;

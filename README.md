@@ -5,6 +5,7 @@ Music theory quizzes that run entirely in the browser — no server, no accounts
 - **Teacher app:** [index.html](https://larsenjazz-ctrl.github.io/clefwork/) — build a quiz, share its code or link, and grade the report codes students send back.
 - **Student app:** [student.html](https://larsenjazz-ctrl.github.io/clefwork/student.html) — practise with instant feedback, or take a teacher's quiz and send back a report code.
 - **Clefwork Keys:** [keys.html](https://larsenjazz-ctrl.github.io/clefwork/keys.html) — a separate app for reading notes: the grand staff, note names with octaves, and the piano keyboard.
+- **Clefwork Analysis:** [analysis.html](https://larsenjazz-ctrl.github.io/clefwork/analysis.html) — harmonic analysis on real music: upload a picture of a score, box the chords, and students write Roman numerals or chord symbols beside the music.
 - **Canvas pages:** [take.html](https://larsenjazz-ctrl.github.io/clefwork/take.html) takes one quiz and ends with a results link to hand in; [results.html](https://larsenjazz-ctrl.github.io/clefwork/results.html) shows one student's results from that link.
 
 ## How it works
@@ -23,6 +24,14 @@ A separate app, built on the same engine, for one skill: knowing a note in three
 
 Octaves always count. A piano key has no spelling, so when a key is shown either name for it is right (C♯4 or D♭4); a note on the staff has one spelling unless the quiz accepts enharmonic spellings. Keys quizzes use the same quiz codes, report codes, grade checker, Canvas pages and printing as the main app.
 
+### Clefwork Analysis
+
+A separate app, built on the same engine, for analysing real music. The teacher uploads a picture of a score — a scan, an export from notation software, or a screenshot — and drags a box around each chord or passage to ask about. For each box Clefwork asks whether students should write a **Roman numeral**, a **chord symbol**, or **both**; the teacher types the answer and saves the box before drawing the next one. A quiz-wide setting can switch every box to Roman numerals, chord symbols, or both, and lists any box that lacks an answer for it. A box can accept more than one answer (`I64, Cad64`).
+
+Students see the whole score with each box lightly highlighted in its own colour. Their answer boxes sit outside the music — chord symbols above each system, Roman numerals below — centred under the part they refer to, numbered and tinted to match. A small key reminds them what the figures mean (6, 6/4; 7, 6/5, 4/3, 4/2) and how to type them: there is no figure dropdown, just `V65`, `ii6`, `vii°7` (or `viio7`), `viiø7` (or `vii/o7`), `V7/V`, `N6`, `Ger+6`. Roman numerals are marked by what they mean, so `V65` and `V6/5` are the same answer; chord symbols follow the same rules as the rest of Clefwork (mi, ma, °, ♭/♯, slash chords). With partial credit on, a box that asks for both earns half for each.
+
+The picture travels inside the quiz link as a compressed black-and-white copy — about 8–15 KB for a passage, more for a dense full page — so nothing is hosted anywhere. Detail (Standard, High, Highest) and ink (Lighter, Normal, Darker) trade link length against sharpness. The quiz code on its own doesn't carry the picture, so students open the link; the code still works for grading on another computer. Report codes, the grade checker, results pages and Canvas work as they do everywhere else, and the grade checker shows each box cropped from the score with the student's answers marked. Analysis quizzes don't print.
+
 ### Canvas
 
 "Set up in Canvas" on the teacher's share card gives everything needed to run a quiz through a Canvas assignment: the quiz link, a ready-made assignment description to paste into the HTML editor, an embed for a Canvas page, and an optional number of points the quiz is worth there. Students take the quiz on `take.html`, then submit their results link as a **Website URL**. SpeedGrader shows a snapshot of each student's results page — name, score, the score scaled to the Canvas points, and every answer — with a link to the live page.
@@ -35,13 +44,17 @@ The **Print** tab makes a paper copy of the current quiz: a header with the quiz
 
 ## Building
 
-Everything is plain HTML, CSS and JavaScript with no build dependencies — including the QR encoder, the PDF writer, the PNG writer and the Word (.docx) writer. `./build.sh` concatenates `src/` into the four files in `dist/`:
+Everything is plain HTML, CSS and JavaScript with no build dependencies — including the QR encoder, the PDF writer, the PNG writer and the Word (.docx) writer. `./build.sh` concatenates `src/` into the files in `dist/`:
 
 ```
 dist/clefwork.html                    teacher app, body only (for embedding)
 dist/clefwork-standalone.html         teacher app, complete page
 dist/clefwork-student.html            student app, body only
 dist/clefwork-student-standalone.html student app, complete page
+dist/clefwork-keys*.html              Clefwork Keys
+dist/clefwork-analysis*.html          Clefwork Analysis
+dist/clefwork-take-standalone.html    Canvas: take one quiz
+dist/clefwork-results-standalone.html Canvas: one student's results
 dist/site/                            copies published to GitHub Pages
 ```
 
