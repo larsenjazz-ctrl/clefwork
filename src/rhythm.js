@@ -24,7 +24,12 @@
     return u;
   }
   const total = (list) => (list || []).reduce((s, e) => s + dur(e), 0);
-  const cleanEvent = (e) => ({ v: Math.max(0, Math.min(4, e.v | 0)), d: e.d ? 1 : 0, t: e.t ? 1 : 0, r: e.r ? 1 : 0 });
+  // A note may carry a pitch (Clefwork Melody): p = {step, oct, alt}.
+  function cleanEvent(e) {
+    const out = { v: Math.max(0, Math.min(4, e.v | 0)), d: e.d ? 1 : 0, t: e.t ? 1 : 0, r: e.r ? 1 : 0 };
+    if (e.p && !e.r) out.p = { step: e.p.step | 0, oct: e.p.oct | 0, alt: e.p.alt | 0 };
+    return out;
+  }
 
   // ---------- time signatures ----------
   const METERS = [
@@ -343,7 +348,7 @@
         let at = start + (m - o.from) * info.len;
         (L[m] || []).forEach((e) => {
           const d = dur(e);
-          if (!e.r) events.push({ at: at * sec, dur: d * sec, voice: l ? 'oboe' : 'piano', midi: l ? OBOE_NOTE : PIANO_NOTE });
+          if (!e.r) events.push({ at: at * sec, dur: d * sec, voice: l ? 'oboe' : 'piano', midi: e.p ? MQ.midi(e.p) : l ? OBOE_NOTE : PIANO_NOTE });
           at += d;
         });
       }

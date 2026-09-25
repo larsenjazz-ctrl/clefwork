@@ -411,4 +411,7 @@
   MQ.Staff = Staff;
   MQ.ACC_SVG = ACC;
   MQ.HEAD_SVG = HEAD;
+  // For Clefwork Melody's staff, drawn at its own size.
+  MQ.clefSVG = clefSVG;
+  MQ.keySigDias = keySigDias;
 })(window);

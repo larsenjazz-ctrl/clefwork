@@ -8,6 +8,7 @@ Music theory quizzes that run entirely in the browser — no server, no accounts
 - **Clefwork Keys:** [keys.html](https://larsenjazz-ctrl.github.io/clefwork/keys.html) — a separate app for reading notes: the grand staff, note names with octaves, and the piano keyboard.
 - **Clefwork Analysis:** [analysis.html](https://larsenjazz-ctrl.github.io/clefwork/analysis.html) — harmonic analysis on real music: upload a picture of a score, box the chords, and students write Roman numerals or chord symbols beside the music.
 - **Clefwork Rhythm:** [rhythm.html](https://larsenjazz-ctrl.github.io/clefwork/rhythm.html) — rhythmic dictation: students hear a rhythm in one or two parts and write it on a one-line staff.
+- **Clefwork Melody:** [melody.html](https://larsenjazz-ctrl.github.io/clefwork/melody.html) — melodic dictation: students hear a melody of up to eight measures and write its pitches and rhythm on the staff.
 - **Canvas pages:** [take.html](https://larsenjazz-ctrl.github.io/clefwork/take.html) takes one quiz and ends with a results link to hand in; [results.html](https://larsenjazz-ctrl.github.io/clefwork/results.html) shows one student's results from that link.
 
 ## How it works
@@ -55,14 +56,34 @@ A separate app, built on the same engine, for rhythmic dictation. The teacher wr
 - **Two parts.** A second part, with stems down, can have its own rhythm. The part with stems up plays on the piano, the part with stems down on the oboe.
 - **Listening.** Students choose which measures to play (tap one, drag across several, or All), a count-off of none, one or two bars, and whether the metronome clicks under the music. Each instrument and the click has its own volume slider. They can also hear what they've written, on the same instruments. The teacher sets how many times students may play each example, and their own answer, before submitting (unlimited, or once to 10 times); every play counts, whatever it covers. Once an answer has been checked, plays are unlimited.
 - **Scoring.** Graded note by note, by what sounds. Each note of the answer is right when the student has a note that starts at the same moment, in the same part, and lasts as long; a missing note, a note of the wrong length, and every extra note the student writes are each a wrong note. Rests only fill time, so a quarter rest and two eighth rests are the same answer. The teacher chooses how the quiz is scored: a point for every note (a quiz with 48 notes is out of 48, less one for each wrong note), or a percent of a total they set (the share of notes right, scaled to, say, 20 points). A question never scores below nothing.
-- **Results.** Report codes (now version 11) carry every note the student wrote, how often they played the example and their answer, and each example's notes and wrong notes. The grade checker and results pages show the score, the wrong notes, the student's rhythm with each note marked right or wrong, and the right rhythm beneath it with the missed notes marked — both playable — and the play counts.
+- **Results.** Report codes (version 11 and later) carry every note the student wrote, how often they played the example and their answer, and each example's notes and wrong notes. The grade checker and results pages show the score, the wrong notes, the student's rhythm with each note marked right or wrong, and the right rhythm beneath it with the missed notes marked — both playable — and the play counts.
 - **Printing.** The Print tab prints each example's tempo and a blank one-line staff with its time signature, two measures to a line, for dictation on paper.
+
+### Clefwork Melody
+
+Melodic dictation, built on Clefwork Rhythm: the same levels, meters, listening controls, play limits and scoring, with pitches on a five-line staff.
+
+- **Made automatically.** The teacher chooses how many melodies (up to 20), one to eight measures in each, major keys, minor keys or both, key signatures up to 0–7 sharps or flats, treble clef, bass clef or both, the tempo, whether to allow chromatic notes, and a level. Each level uses the rhythms of the Clefwork Rhythm level with the same number, and adds the pitch rules below; *Custom rules* adds a range and a largest leap to the rhythm rules.
+  1. *Very easy* — do to sol: steps and repeated notes, the odd skip within do-mi-sol.
+  2. *Easy* — within a sixth: steps, and skips within the tonic chord.
+  3. *Medium easy* — within an octave: leaps in the tonic and dominant chords, and phrases that end on the dominant, then the tonic.
+  4. *Medium* — within a ninth: 4ths, 5ths and the odd 6th between chord tones, IV and V7 as well, and a sequence now and then.
+  5. *Advanced* — up to a tenth: leaps up to a 6th, and octaves upward.
+  6. *Very hard* — up to an eleventh: any leap up to an octave, 7ths in the dominant seventh.
+- **How the melodies are made.** The generator follows what studies of folk songs, hymns and sight-singing books find about real melodies (Huron 1996; Vos & Troost 1989; von Hippel & Huron 2000; Krumhansl & Kessler 1982; Temperley 2007; the AP Music Theory course description, Ottman & Rogers and Karpinski for the levels). A melody is built in phrases of two or four measures — the second phrase often repeats the first one's rhythm — and each phrase takes a contour in the proportions the corpora show: arch most often, then descending, ascending and U-shaped. Steps and repeated notes make up about 90% of the moves at level 1 and about 70% at level 6, a little over half of all moves fall; small intervals tend to fall and large ones rise; a leap is followed by a step back toward the middle; and there are never more than two leaps in a row. Pitches are weighted by the key's tonal profile, with chord tones on strong beats and long notes, fa and ti off the beat, openings on do, mi or sol, half cadences on re, ti or sol, and an ending on do, most often stepping down from re. Rests come mostly between phrases, as breaths — none inside a phrase at levels 1 and 2, a few at the higher levels — and phrase-final notes are longer. In minor, the raised seventh leads to the tonic and the raised sixth only rises to it; the natural forms fall — and there are never augmented seconds or other awkward intervals. The quiz's seed picks everything, so the quiz code carries only the settings; the generator is versioned, so a shared quiz keeps its melodies.
+- **Chromatic notes.** Off, every note belongs to the key (with the raised sixth and seventh in minor). On, the levels add chromatic notes as music uses them, a half step from the note they lead to and off the beat: lower neighbours (G F♯ G) from level 1, chromatic approach notes from level 3 (♯4 to 5 most often, then ♯1 to 2 and ♯5 to 6), and from level 5, in major keys, lowered notes that fall by step (♭7 to 6 most often, and ♭6 to 5, ♭3 to 2).
+- **Written by the teacher.** Up to 12 melodies, each with its own key (major or minor, up to seven sharps or flats), clef, time signature (as Clefwork Rhythm), one to eight measures and tempo.
+- **Writing a melody.** Click the staff where the next note goes — the height sets its pitch — then choose its value, or type the letter name (A–G) for the nearest note with that name. Notes take the key signature. A note can be dragged up or down, or moved with ↑ ↓ (Shift for an octave), and ♯ ♭ ♮ change the note just written or clicked; accidentals carry through the measure as in print. Keys: 1 2 4 8 6 for whole to sixteenth, period for Dot, T for Triplet, R for Rest, + − = for sharp, flat and natural. Every note sounds as it's written. The staff shows up to four measures a line, fewer on a narrow screen.
+- **Listening.** As Clefwork Rhythm, on the piano, plus **Hear the key** — the tonic arpeggio and chord, which doesn't use up a play. The teacher can tell students the first note: it's shown with the key and tempo, and the staff's cursor starts on it.
+- **Scoring.** Note by note, by what sounds: a note is right when the student has a note that starts at the same moment, lasts as long and has the same pitch — enharmonic spellings count as the same note. The teacher chooses whether a note needs both pitch and rhythm right for its point or earns half a point for each, and scores the quiz by notes or as a percent of a total, as in Clefwork Rhythm.
+- **Results.** Report codes (version 12) carry every note the student wrote and each melody's wrong pitches and rhythms. The grade checker and results pages show the student's melody with each note marked, the right melody beneath with the missed notes marked, both playable, and "1 wrong of 13 (1 pitch, 0 rhythm)".
+- **Printing.** The Print tab prints each melody's key, meter, tempo and first note (when given) and blank staves with the clef and key signature, two measures to a line.
 
 ### Retakes
 
 Every Clefwork page ends a quiz with a **Retake quiz** button: the same quiz code, so the same questions, and a fresh start. Retakes are unlimited unless the teacher sets a limit under **Quiz rules** (none, or 1–10 retakes). The limit travels in the quiz code; quizzes without one keep exactly the codes they had.
 
-A student's device counts their attempts and stops offering retakes once the limit is used. Because there's no server, a student could start again on another device — so every report code also records its attempt number, and the grade checker and results pages show it ("Attempt 2"), with a warning when an attempt goes past the quiz's limit. Report codes became version 9 with this (version 10 added rhythm answers, 11 their note scores).
+A student's device counts their attempts and stops offering retakes once the limit is used. Because there's no server, a student could start again on another device — so every report code also records its attempt number, and the grade checker and results pages show it ("Attempt 2"), with a warning when an attempt goes past the quiz's limit. Report codes became version 9 with this (version 10 added rhythm answers, 11 their note scores, 12 melodies).
 
 ### Canvas
 
@@ -86,6 +107,7 @@ dist/clefwork-student-standalone.html student app, complete page
 dist/clefwork-keys*.html              Clefwork Keys
 dist/clefwork-analysis*.html          Clefwork Analysis
 dist/clefwork-rhythm*.html            Clefwork Rhythm
+dist/clefwork-melody*.html            Clefwork Melody
 dist/clefwork-take-standalone.html    Canvas: take one quiz
 dist/clefwork-results-standalone.html Canvas: one student's results
 dist/site/                            copies published to GitHub Pages

@@ -99,6 +99,8 @@
     { id: 'keys', label: 'Keys & Notes', blurb: 'One note, shown on the grand staff, as a name with its octave, or as a piano key — answered another of those ways.', est: 15, custom: true },
     { id: 'analysis', label: 'Analysis', blurb: 'Boxes on a picture of real music, each answered with a Roman numeral, a chord symbol, or both.', est: 30, custom: true },
     { id: 'rhythm', label: 'Rhythm Dictation', blurb: 'Listen to a rhythm of one to four measures — one part or two — and write it on a one-line staff.', est: 120, custom: true },
+    // The last type a report code's 4-bit type number can hold.
+    { id: 'melody', label: 'Melodic Dictation', blurb: 'Listen to a melody of one to eight measures and write it on the staff, pitches and rhythm.', est: 180, custom: true },
   ];
   const BUILT_IN = TYPES.filter((t) => !t.custom);
   const MAX_CUSTOM = 20, MAX_CUSTOM_NOTES = 6, MAX_VOICING_NOTES = 8;
@@ -154,7 +156,7 @@
       // Per-tab notes setting: 0 use the quiz setting, 1 print the helper note, 2 students write every note.
       helpOv: { interval: 0, chord: 0, custom: 2, voicing: 2, vprog: 2 },
       figpAsk: 1, // figured bass progression: 1 analyse, 2 spell, 3 both
-      counts: { place: 4, identify: 3, interval: 3, chord: 2, scale: 1, keysig: 2, custom: 0, voicing: 0, vprog: 0, progression: 0, figured: 0, figprog: 0, keys: 0, analysis: 0, rhythm: 0 },
+      counts: { place: 4, identify: 3, interval: 3, chord: 2, scale: 1, keysig: 2, custom: 0, voicing: 0, vprog: 0, progression: 0, figured: 0, figprog: 0, keys: 0, analysis: 0, rhythm: 0, melody: 0 },
       ledger: 1,
       accMode: 3,
       intervals: maskOf(INTERVALS, ['M2', 'm3', 'M3', 'P4', 'P5', 'P8']),
@@ -196,6 +198,8 @@
       analysis: { override: 0, notes: '', img: null, regions: [] },
       // Clefwork Rhythm: the examples students hear and write, and how often they may play them (see rhythm.js).
       rhythm: { examples: [], playsEx: 0, playsAns: 0 },
+      // Clefwork Melody: its melodies, or the settings that make them, and how it's heard and scored (see melody.js).
+      melody: { examples: [], playsEx: 0, playsAns: 0 },
       custom: [],
       customGrade: 0,
       voicings: [],
@@ -204,7 +208,7 @@
       flags: { shuffle: true, partial: true, feedback: false, labels: false, enharmonic: false, strictOctave: false, noHelpers: false },
     };
   }
-  const zeroCounts = () => ({ place: 0, identify: 0, interval: 0, chord: 0, scale: 0, keysig: 0, custom: 0, voicing: 0, vprog: 0, progression: 0, figured: 0, figprog: 0, keys: 0, analysis: 0, rhythm: 0 });
+  const zeroCounts = () => ({ place: 0, identify: 0, interval: 0, chord: 0, scale: 0, keysig: 0, custom: 0, voicing: 0, vprog: 0, progression: 0, figured: 0, figprog: 0, keys: 0, analysis: 0, rhythm: 0, melody: 0 });
   const withCfg = (c, patch) => Object.assign(JSON.parse(JSON.stringify(c)), patch);
 
   const PRESETS = [
@@ -656,7 +660,7 @@
     // Variety: no interval, chord type, root, key or scale more than twice in a short quiz
     // (three times past 20 questions). When the settings are narrow, the roots vary the most.
     const total = BUILT_IN.reduce((n, t) => n + (cfg.counts[t.id] || 0), 0)
-      + ['custom', 'voicing', 'vprog', 'progression', 'keys', 'analysis', 'rhythm'].reduce((n, k) => n + (cfg.counts[k] || 0), 0);
+      + ['custom', 'voicing', 'vprog', 'progression', 'keys', 'analysis', 'rhythm', 'melody'].reduce((n, k) => n + (cfg.counts[k] || 0), 0);
     const cap = total > 20 ? 3 : 2;
     const used = {};
     function pickVaried(make) {
@@ -712,6 +716,7 @@
     if (MQ.keysQuestions && cfg.counts.keys) MQ.keysQuestions(cfg, rng, pickVaried).forEach((q) => qs.push(q));
     if (MQ.analysisQuestions && cfg.counts.analysis) MQ.analysisQuestions(cfg).forEach((q) => qs.push(q));
     if (MQ.rhythmQuestions && cfg.counts.rhythm) MQ.rhythmQuestions(cfg).forEach((q) => qs.push(q));
+    if (MQ.melodyQuestions && cfg.counts.melody) MQ.melodyQuestions(cfg).forEach((q) => qs.push(q));
     if (cfg.flags.shuffle) shuffle(qs, rng);
     return qs;
   }
@@ -744,6 +749,7 @@
     if (q.type === 'keys') return MQ.gradeKeys(q, response, cfg);
     if (q.type === 'analysis') return MQ.gradeAnalysis(q, response, cfg);
     if (q.type === 'rhythm') return MQ.gradeRhythm(q, response);
+    if (q.type === 'melody') return MQ.gradeMelody(q, response);
     if (q.type === 'figured' || q.type === 'figprog') return MQ.gradeFigured(q, response, cfg);
     if (q.type === 'progression') return MQ.gradeProgression(q, response, cfg);
     if (q.symbolAnswers) {
@@ -770,6 +776,7 @@
     q.type === 'keys' ? MQ.hasKeysAnswer(q, response)
       : q.type === 'analysis' ? MQ.hasAnalysisAnswer(q, response)
       : q.type === 'rhythm' ? MQ.hasRhythmAnswer(q, response)
+      : q.type === 'melody' ? MQ.hasMelodyAnswer(q, response)
       : q.type === 'figured' || q.type === 'figprog' ? MQ.hasFiguredAnswer(q, response)
       : q.colSpecs ? !!response && response.some((col) => col && col.some(Boolean))
         : q.type === 'progression' ? !!response && ['r', 's'].some((k) => (response[k] || []).some((x) => x && x.trim()))
@@ -782,6 +789,7 @@
     if (q.type === 'keys') return MQ.describeKeys(q);
     if (q.type === 'analysis') return MQ.describeAnalysis(q);
     if (q.type === 'rhythm') return MQ.describeRhythm(q);
+    if (q.type === 'melody') return MQ.describeMelody(q);
     if (q.symbolAnswers) return q.symbolAnswers.map((a) => a.shown).join('  ');
     if (q.symbolAnswer) return q.symbolAnswer.shown;
     if (q.dropdowns) return q.dropdowns.map((d) => d.options[d.answer]).join(' · ');

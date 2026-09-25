@@ -466,6 +466,7 @@ select.fig-sel { min-width: 0; }
 .qtable .num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
 .qtable td.num:first-child { text-align: left; color: var(--muted); font-family: var(--f-mono); }
 .qtable .ans { font-family: var(--f-mono); font-size: 13px; color: var(--accent); white-space: nowrap; }
+.qtable .ans.is-long { white-space: normal; min-width: 240px; }
 .qtable tr.is-sel td { background: var(--accent-soft); }
 .res { font-weight: 700; white-space: nowrap; }
 .res.is-good { color: var(--good); }
@@ -883,6 +884,13 @@ input.an-in { width: 100%; min-height: 34px; padding: 4px 2px; text-align: cente
   .rh-meter-label { min-width: 100%; }
   .rh-count { margin-left: 0; }
 }
+
+/* ---------- Clefwork Melody ---------- */
+.rstaff.mstaff .clef-glyph { font-family: 'Noto Music', 'Bravura Text', 'Apple Symbols', 'Segoe UI Symbol', serif; fill: currentColor; }
+.ml-key-pick { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.ml-key-pick select { flex: 1; min-width: 12em; }
+/* One-to-eight pickers in a half-width column: tighter buttons so they stay on one line */
+#ml-measures button, #ml-auto-measures button, #ml-keymax button { padding: 7px 7px; min-width: 25px; }
 :root{--logo-mark:url(data:image/png;base64,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)}@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--logo-mark:url(data:image/png;base64,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)}}:root[data-theme="dark"]{--logo-mark:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGEAAABwCAMAAAA5Uu6vAAADAFBMVEUAAABt5ern7PBp3eIku8jx9/ooxdP+/v4cuMYA//9+//9y8vdz19t11tlUqap9vr5V//8/v79x2Nxw2d1u2d1u2t0st8RS1Nuu//+F1dds3eF41Nbk6u5Y2+LR5Oh/f39x4eWP2NeQycvj6e1x3eF2y84wtsJGzNXj6e1ry8w1t8J13eGqqqzj6e2C19oewtEAf3961daQ3OGQ2d2s3eFLqrO2u7zT2Nl14OTk6u4Aqquw1NJ/v//m5+9Vqv83tsE3sbyn2d3/AAAAAP/b4ua04+ePu7vM3uJY4+vO1tlrp61Ht8Kzyc1Jsrvc4+eEy9B0zdLT5ek8sbvd5Og2q7Yysr3R19ri6Ox54eXT2+HLy8x23eIAqv//f3/c4+dyu8nd4+ex5OSM5OmZmZlU1dUusr4Fv78v0+FDs7wtrrp/f/8lsb7U2ON13eGTys8srrqC293/VVV0mJi5f3+J2+E5p7Q2rbnR//860dxX1dw///80wMu8vMuUzLa/v//ZurrGxsyXl6qE3eHx8fRTydFLuMNLs7NCqrd74+XQ2d0zzMza3eI8tsD/qqr//382qrDq8PNe1t3//9CM4OTY3uF75OqE6OrY8fQZsr+C3OHr8fWW09f/fwAAf///urpwub12vMSNo6N43eWVlWliy9E3mJ0/f7+617pJnKtGnKg0f5RFs7+qqv9Et8D//7Q5wMpVAAAAmcwAqtQA/wAA/6o4ODg/f38+nqUzmcwpr7wqqtQktto/v/9VampLh5ZIkZFVqtRAsbxbt8FHv8dIyMhYzMxdx8pNw8tKydFa0NVf199b8fxtbZFzi4tqlKpqqq9/v59lur97z89/1P9u5e5o5OSGu8mAz8+Z5eWW4eGN7OyZ//+qAACqVVW/n5+/v3+/v5+lvLyssrW1wMa+xMirys2lztKq1P+q4sa//7/MZjPUf3/GqqrUqtTMz9LV3eDa3+Pf5en/AP//Var/f///mZn/qlX//wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABKic5SAAABAHRSTlMA/fz6+f3+Av0BAv5wTwUFAwSOsPbQ0PwDLNEsy/v9AtAREK+yKq79bQqQjgSRUP4CFPv+/SoIDrEyAwkEFQNvbv4BAS7/DPv+MBFMEi5uKkoVSU9QjE9LiSoMcQMCkRSvCv4JCLME/0uQAskXWv+qbgMLBC4zcgX/0gTLEwwECCcPVqq0PA5EfHIGZ1QDAhUtlgXXUlVh//5w3KsCAgUjLhItBmwbBAkkFwxyA20DpQMFBgEDEgQlBcQGBwQMEQcGjhmBDjdXbM5Xo/8HCwwwCP+RBh4xE2EKM1EFAwMIBAg2Wi1PnP4GCQQFBgkGUI/CygEDAgUDAQAAAAAAAAAAMzMbmwAAEcdJREFUeNq1WnV8G1e2PldDmhkxg2WBZZSMMTuG2LFjTJM0zC9JmzRtyrDlLW+73W6XmZkf7D7YfczMzMyM/75zzp2R5NhJ2l11frEjSzP3u4e+A1cAr+cKwWhFEZVRy4A35grBTQUhFDuKr96QKwBpXB8v2/fGQFgSgP6JQdNqPoAZGM2wBIgh3hA9pcBnkwAoAf5LQ9OFsMz7eX1cHS87gohN96OI4NUlhNINTfbYPBRJ/876+N+nIdxchCD4HICy3x9FjGfReZvrSa/EpYb89FdEiM4vgtn0WKCrD7pTPz6AGks+0FwhdrKSFOGDQfxrAOIi92BzDRGCKMVyZjREHhQ2oyJ3F3y9qWZ4G8UzGiFIf4WhInK3N9UOBvwu6Sg+aDqOFRXJxJPNhAhAVrAVdroIdlK9t2kIRsjqBv8mMjoVF53qKjwSzDdh+ZQkUUKIG2bddXX1DBso+B0xoMHUU/Qf9bOzRmpK8tk5VQ2A7z3ku2bqO9HWfOnpcYWYFKMYzRB07B4XSa/6RUOxlfET9xPmt8WCIROyg6gO26a1SYasNEOKlNTpTfxXKY4f2qJ85fFvBwMZ4R6IREHBFfrSzHuKg0DRJ/T+BJil+ysZhXZwtASvM18YIfjwlULaJ9oH37PuMKtQiuyeYejD1169A26lW9MVLD9scaKEafb1JEzoKwj7D3x2oR33nMqH0JdEfJ7BA5/LkJL0OSSPABnmcwpBiBPgmOk1MEQQiuNE1SUfaqCPVCMR/oQ+7SajK6pX3XB0FnxIifhRDjGehdeWvPGmPuLpSgkiGR8VLnmKAEXKYBGW0L164j7poyZ8Vy53HzBG5b7XUoKk4J8rtKE0mCZauh2jIIj+WYqJ+HGAGXxDiJxX1Xsc8kaEmIg+CY/TU4WbbixFGNK0mw+gUv8IfSkE+6LoVyaMxcnSQZhCjhWoI3XESUAmTMWWRRSdKUsP+snLr68iv7MVC1+jDFbx97AKwNeIkDWtPx9HgE4E+KH5AajJkEn+0rNLF+BPKxyW1y2bLfJKUakyPVikpVA9A+H+7oliUYaEoaoH4bMuwv6Yv/1h+9NwAeBpehpuCOCTLhEKQYUQFuQnEfqgTKlURyvcnh9wPQ9+P+aHpYzy65C3WFPjRcO4TjKmXB+WN0ydqdRkCJL2yiiBgn6kevUDtTKAtOTHpWNZfMuCUsG27w4WLStlXAvAjx6Pz5nzvkyuXgATYStceSOAivFci18TUijDIxD303shKL437RKbtaXmojDYxwCkFVs0IBjWk3UAJG5zABplAKsUH2ROoVXTd0ciPv8WqpIVkd8FaMcaOFfjazMFd3O5RG7kRTPXKUgiQDrC76Fq/OOSj5Xy5vrcsNYzZMtuBy4rloUdLVrs3HmTmU9QVkAj3CY5T9az3VYREcx97eTUhnm+QqKei8UU9plAYyijO0ZqoKbhy2R8IHO9BfMRVhFJoOq3/N9MI8kDIIJUphn6s7IdG25t9ezZtUPhHiBUD2XcZPzD4e3isQqjZVupASRW60ZAbfoiEcWPbGIwXsTe0erxaJrH42mNIYSvwVXQ0V1SyVuBarWYSv2dIT2gxN0VGpncKPGFunYt2MfW2Qcz7ipDcn362YMQImu6IRsXsqAzgqGrXQw7XOp8EMDr7U98BsPFkCGF1lKWc7mcaJfaCkLkHC7ecvip0YmzCNGqUMPnGAHjKYoBYdHyxm9nP/4Xr/71X668+tiYYRGZSgDVi5z9mU3uFxEIsPxwUZY5phFv1bSWX+YPexFih0Kpl5a8XMIlihaVPqUr4/Edi60oJgqq9aZID9R9qgSgJgKAlDBtTO93SMYmLm+XejPhp2MowmFacdSAFg1NQXWilE7Iuj2NvnYOTSUv7d/H4KYagMpkMTCh8UfvRtOaC92RTPnEGaejM2FyCHe1MjZxnCqtvSSEYDWZJooQn3oE0uPCHqqtjwr9Ee7RhSOBjmnHNPd7WLq2hkbRcsvnlwjhbIum/SschwkPI2TcQgLD0of5fMjTADDNNnAB1FtU/Wu4WpvGH1ZlAFhWvVKqwoekG2meKQPOt2qeO/FhFiFux/8hWBYituiuTtcKq8gB6FfnQNV/3khBl1TT7q3drgUjezS5wDTAN/B1q0IITMy+59HnY7uc9T0tvV2H/wqKmQaAg7CQuJhEUkE10T1d2/TTBrwo4VurBqzji12MkIe4raxTUC066/dO8P3/HSWAnAQYQS7qWU62o2c7ampEcE2dgtMsPvnBCt51J9mBONWOUG6RNtDajuETTzxRlK6IEmCcqQ9AOAw/t4zmKjpq8hyH/HbN0uG2lmeOoLvCEbztHKYt6dTvwrUcgF5Z1FuOG7EEiR9A4uKqzAdTMMG0o+2tCWHAW9+VyWQKRICG845BIUfUFAFjPi47ZXZT7UWnaQgAv82RnPg88Y4FN2FhFLpQKp3+ILlCWwNCi0ZMyvmKKCVF8d3ChiYnzUpWGHIkeMioJzzKB+imI/D9vNAg+pxcc6ULn3/MgcjDHR5tOKeI2OO1zu7LQJFJhi5x/4QIsT2O+QzJMKW4cNwIAcLs+kA99d0+nz9dxL8Pt9zsIEiVx7jBCNTEIl4akswX4anRDrbCm6HaOCchHakvMADGbfGEM5pRlHLfKMAdDkKKV8P91npV3OeYp0ZL1TgjtFI0nnZViyyJi5GO9AfhB5nel04IOUaUQ6xCH7gbNqotTNXSbxwRuphaqRLFQoc2FuMwOuaUUlVyG64rsG4JcwrkMagzXJKvxksyfxkgyXAH9zCOL+UdO0ekC+JHwxwJrghMtigCW9miSqpPUmyyU9c7O5OysHESj+EEyA4uVVIS9GZ8a5gtU+UqTChs55uNJxxD0VSSkhqWFWFSEQFgOUnRR7B6pxxmcWIwZJDzliuy+uG3yApRuoGndwqlb8+YIwPVMoKCzat+AbO+E3ydvL7KF4LQW5mlAOp12iMRMLziYxJgN3OSImUqk8AxNHSdaYI8AUiyCCfBtP4+LiXy9uuYI/BiDKdaSTlmkGrKSql6pRXi1cu4XEY4jIHRZtTyr03lnbSC9Fyuh9VDs8+tzfYkVJ0SHj2YRhZxeMozrFD1YuEqRL/DtWERTyCHNvGxhYLJXg1j1KQGi22izt3rmOlAQkLQjN2ihCwpOyb9lU1PVogP8oKEoNzp4RRuuN6ckQizaGdOH8n3I/2NoNeG16fCWLbd00MQSRbCMYOHmZT8lYsAsoJT9TICpR7tSI3mcSBGeUHfQHcMULmpvt97+4/CSwuj8FbiioAJh8gYVNSZ0gz/hj+L3H1MsWHIuEuyyKGAI1fyaBM1hCczHA04fTGxEWSjq58nv0U35Lg3vwc60Hc7SS3HOGuN4b6xyEPbcwIZrosgZRjeLMNHGaE/8U5YoLqOFDbHAMZ5j/S4y2aQzE1q+c8W9kMKiiF0nylWEhJGrGiaNQSxjR2SXp1mhRwb6EirAyZp+EUNbxsziEdQT94cNqi0ttZrkEfRzrPE5a2CCMOZlrK37trkSwHypaR0JUbAih4mibNWKAnvJmEsc0Pa2s8IN3OQSTJFLt8hGkZ2NMMWi5viYSe3WHUERdXnFnBDj3V5uB7ae5x0eSqhkyH6WD/rwFwXoxqvS9uj0P9uriCOEzs4/bhNKhfKuGwCh8N5GFSWVSwnv/xqr6a51U7bhNENPTpFHSEgZz4kS2F87tZejXKF33S7OGY+Yg3KP/kGXkJLligrYqqgBn3SmOiSsaW1dU2MoZLnGCFNCKTgI0ynQvxMm0bRNmW6GVWyd+smQ5jYk5B5R1AIZHJbV1/mHiR/WuPbZNf0FdISWhpxqQCkrLaHZoLPvC9Wd1WaRJIz5YY3FVm0Kg2pDnAT3i6SPInJG8TKZC4jTwhfYoRBXLkFWbnq+qviWczVJnZ8xV1D1GOOR8Roap7wUFDrCR6UGMZ+zTNdNaQMqKWkXUYn4tRlLHTJrKO0YgEQb2x0I3ZNTW3whMt9cR4W0pTKMrMoxBp7twH/0QbH+ZZJjGr0Vp+xV5pBJgUMa+VvuSZoQGBDOEK4BYqkO1TTQoiE8Av99q+a1C8bp/e6ddi/JPpVVBIpR9bh58kR0AS/EbvqMG0qVre1dsytsk6REOivk7IVzl08RKUX1rtvhhFWpPkA8hKy9wqaIW/USqRdfOYYbxwjy6wvxLDsSp4Co3YEikJcYuVgoi4s9/yYrOhG7qLft8Jt/V4F99qrOaE6yumfUhvxX7BxGOBvrFtbPgHHDecEES2hBjg0Q/DR9z787MdQUWHoUJeIEDeQ3XGlsZpuDSIk9iYKw8bBqFmVpbFTe7cg7aQMw6QzBorr8wxBP9kgDW0v6Rgmnz1J7C3iJXZRp4CVRQcFnZLeVPk7FaSkcLJF1xg75kMYdqinjl+pla0gKVVfM78XbtORWLOkmFoYyfaTOCkevKqp6Ma6BAnQ6YE82gf3rnD52p6xEeLRDTBnTDmh4SjA5Io43jfhsOEYtYV7awjHNI/T4Ya2nHgKv6/eKBLDtZx9ZjeUyngYo6tfwZtOzjDPhK0D2POudhBAO4ySf6L/vc1tS8gQi8rmaOC9dVMQ+p080diM/lNELKNFH11bqiuVcpuu5gofg3UG8EzVMxdXf0PukddVQvggu7lhR5QjPKbN6f16oufgxq/e87//GNz4kkpVWdL3x2Dtpc5ZO9vYbRHk8NbDa8sclHX40+Pi3KKnAaN3P8z7CrmLyNO480QiobIE+jtwHlKC3U4/l6ohrMjS7MKWTjhEWYIHZOmjBWXxfVrtalu34Lv973hYl9dFLin1nwVpyrFpvI67yg7iPHp6ev9+Y3q7E5NTPF/6LTTm//yO7zc/9Ddn21pazp7uOnaHYZCvvvOTv/BTX+vAq2f2Uo+uz4W2HGbw3AjWV69/ove4iYPY7T7d5HsHdf2QU0YYeU4VMloGfeVMLJYp+0e3PfRNkZ6ieCqCpXYwSBkgSF1r1U16Vjh8ctI0J09+M7BBjdHk1Wcu2YrbH4mCf9szoUfkrLLbEckfucaRiwkBKhE2vZWCJV4/mUx2JpPKVVPQmh6t7kwtcWB6sNuvAbFgYOG92nAkiiPZvgJmsaTTIelJSg/bQfDpiJwZE0Kh3XVqK0hnQ67/TcItOpcINVo7dZSGyTTi4gv/l93VNqbwy1N6Yh8/TrMciMDmSVgY6yT95dr5OnWpNu2/X1c7Hlxbm01wxbz9F0Z2OhAWJTU8YyqUDFY8xkih8JaS88wMOdOsg2B9hPaSo30nZqWnfqKDKmbf9udBEgLNdAF8dMZEPoFjYDpsw599rkgjtWOmIJeMJIA6+xRtZibwdljFejZ39BonTt0MEaFKMIpyfABSNGeW2YPGv5f5WwhvV7miBTwHLJZtHiUfQlX+sLlKR1JkJ++bKtc60+IaQ4wPgq8M3Xlq+vlsHee2wq11TfhJdldMgo6G9MRB+nLCDPzEpfwMDCwQtZ9wJxzbQLTjMUuheKIM97L1qd1Okp5zxI0WIRQdGdrHqWHt13vuhUly3nl1Fr71EnyVyPf+a5/LhWHpqH+KZbDw2KukyH4Lk4TTf5vQzTIs4fAULaAnXnDdbV5VPw7wCjaResIwr3touXQ0WihLuwzKGRBd+vI+Mq1jh+4MK0idzUsBMAtCx0W1p4caYf25630fxbqcRcfBUiuKDkqHBknVufTnzAs78wHzEhGTf1lHD+oYaYyXB1RJ7jgxut5Bcv4VGjjZvnXEiZAMSa8L8Xwt4ubwF66/AQ3nNSjdCwnCSBy4LoAJozEUIV48g0f0In0q4yJ4kbOD/rf4B86gJUeCqtqD+6+fptD1EfjUgdnZtfNXMe9WCH+hUKFvSlwZx+iLYFlGGtL1jmqwIjLtJEIHPH8wQJy+5Vlo5JkbHIPTr09mqYFhSyewSCpWrgDMIdoGVTYnre2+LxcOB2783Qq8hc8tQ3y47rPJW38Nn+ZjqDmUZw7VMNOcb7RY+e8LnIra6JWPvky8trqGtKbfBTPN/FqRYVbLdo6KmVvuYk9B1jPN5n6BDOmnkJOzMXLFNRho+rcdLfjUH/7io+RRiY61+Ru44tbr/wFlfRtzVxH7bAAAAABJRU5ErkJggg==)}
 </style>
 <div class="shell">
@@ -1008,6 +1016,8 @@ input.an-in { width: 100%; min-height: 34px; padding: 4px 2px; text-align: cente
     { id: 'keys', label: 'Keys & Notes', blurb: 'One note, shown on the grand staff, as a name with its octave, or as a piano key — answered another of those ways.', est: 15, custom: true },
     { id: 'analysis', label: 'Analysis', blurb: 'Boxes on a picture of real music, each answered with a Roman numeral, a chord symbol, or both.', est: 30, custom: true },
     { id: 'rhythm', label: 'Rhythm Dictation', blurb: 'Listen to a rhythm of one to four measures — one part or two — and write it on a one-line staff.', est: 120, custom: true },
+    // The last type a report code's 4-bit type number can hold.
+    { id: 'melody', label: 'Melodic Dictation', blurb: 'Listen to a melody of one to eight measures and write it on the staff, pitches and rhythm.', est: 180, custom: true },
   ];
   const BUILT_IN = TYPES.filter((t) => !t.custom);
   const MAX_CUSTOM = 20, MAX_CUSTOM_NOTES = 6, MAX_VOICING_NOTES = 8;
@@ -1063,7 +1073,7 @@ input.an-in { width: 100%; min-height: 34px; padding: 4px 2px; text-align: cente
       // Per-tab notes setting: 0 use the quiz setting, 1 print the helper note, 2 students write every note.
       helpOv: { interval: 0, chord: 0, custom: 2, voicing: 2, vprog: 2 },
       figpAsk: 1, // figured bass progression: 1 analyse, 2 spell, 3 both
-      counts: { place: 4, identify: 3, interval: 3, chord: 2, scale: 1, keysig: 2, custom: 0, voicing: 0, vprog: 0, progression: 0, figured: 0, figprog: 0, keys: 0, analysis: 0, rhythm: 0 },
+      counts: { place: 4, identify: 3, interval: 3, chord: 2, scale: 1, keysig: 2, custom: 0, voicing: 0, vprog: 0, progression: 0, figured: 0, figprog: 0, keys: 0, analysis: 0, rhythm: 0, melody: 0 },
       ledger: 1,
       accMode: 3,
       intervals: maskOf(INTERVALS, ['M2', 'm3', 'M3', 'P4', 'P5', 'P8']),
@@ -1105,6 +1115,8 @@ input.an-in { width: 100%; min-height: 34px; padding: 4px 2px; text-align: cente
       analysis: { override: 0, notes: '', img: null, regions: [] },
       // Clefwork Rhythm: the examples students hear and write, and how often they may play them (see rhythm.js).
       rhythm: { examples: [], playsEx: 0, playsAns: 0 },
+      // Clefwork Melody: its melodies, or the settings that make them, and how it's heard and scored (see melody.js).
+      melody: { examples: [], playsEx: 0, playsAns: 0 },
       custom: [],
       customGrade: 0,
       voicings: [],
@@ -1113,7 +1125,7 @@ input.an-in { width: 100%; min-height: 34px; padding: 4px 2px; text-align: cente
       flags: { shuffle: true, partial: true, feedback: false, labels: false, enharmonic: false, strictOctave: false, noHelpers: false },
     };
   }
-  const zeroCounts = () => ({ place: 0, identify: 0, interval: 0, chord: 0, scale: 0, keysig: 0, custom: 0, voicing: 0, vprog: 0, progression: 0, figured: 0, figprog: 0, keys: 0, analysis: 0, rhythm: 0 });
+  const zeroCounts = () => ({ place: 0, identify: 0, interval: 0, chord: 0, scale: 0, keysig: 0, custom: 0, voicing: 0, vprog: 0, progression: 0, figured: 0, figprog: 0, keys: 0, analysis: 0, rhythm: 0, melody: 0 });
   const withCfg = (c, patch) => Object.assign(JSON.parse(JSON.stringify(c)), patch);
 
   const PRESETS = [
@@ -1565,7 +1577,7 @@ input.an-in { width: 100%; min-height: 34px; padding: 4px 2px; text-align: cente
     // Variety: no interval, chord type, root, key or scale more than twice in a short quiz
     // (three times past 20 questions). When the settings are narrow, the roots vary the most.
     const total = BUILT_IN.reduce((n, t) => n + (cfg.counts[t.id] || 0), 0)
-      + ['custom', 'voicing', 'vprog', 'progression', 'keys', 'analysis', 'rhythm'].reduce((n, k) => n + (cfg.counts[k] || 0), 0);
+      + ['custom', 'voicing', 'vprog', 'progression', 'keys', 'analysis', 'rhythm', 'melody'].reduce((n, k) => n + (cfg.counts[k] || 0), 0);
     const cap = total > 20 ? 3 : 2;
     const used = {};
     function pickVaried(make) {
@@ -1621,6 +1633,7 @@ input.an-in { width: 100%; min-height: 34px; padding: 4px 2px; text-align: cente
     if (MQ.keysQuestions && cfg.counts.keys) MQ.keysQuestions(cfg, rng, pickVaried).forEach((q) => qs.push(q));
     if (MQ.analysisQuestions && cfg.counts.analysis) MQ.analysisQuestions(cfg).forEach((q) => qs.push(q));
     if (MQ.rhythmQuestions && cfg.counts.rhythm) MQ.rhythmQuestions(cfg).forEach((q) => qs.push(q));
+    if (MQ.melodyQuestions && cfg.counts.melody) MQ.melodyQuestions(cfg).forEach((q) => qs.push(q));
     if (cfg.flags.shuffle) shuffle(qs, rng);
     return qs;
   }
@@ -1653,6 +1666,7 @@ input.an-in { width: 100%; min-height: 34px; padding: 4px 2px; text-align: cente
     if (q.type === 'keys') return MQ.gradeKeys(q, response, cfg);
     if (q.type === 'analysis') return MQ.gradeAnalysis(q, response, cfg);
     if (q.type === 'rhythm') return MQ.gradeRhythm(q, response);
+    if (q.type === 'melody') return MQ.gradeMelody(q, response);
     if (q.type === 'figured' || q.type === 'figprog') return MQ.gradeFigured(q, response, cfg);
     if (q.type === 'progression') return MQ.gradeProgression(q, response, cfg);
     if (q.symbolAnswers) {
@@ -1679,6 +1693,7 @@ input.an-in { width: 100%; min-height: 34px; padding: 4px 2px; text-align: cente
     q.type === 'keys' ? MQ.hasKeysAnswer(q, response)
       : q.type === 'analysis' ? MQ.hasAnalysisAnswer(q, response)
       : q.type === 'rhythm' ? MQ.hasRhythmAnswer(q, response)
+      : q.type === 'melody' ? MQ.hasMelodyAnswer(q, response)
       : q.type === 'figured' || q.type === 'figprog' ? MQ.hasFiguredAnswer(q, response)
       : q.colSpecs ? !!response && response.some((col) => col && col.some(Boolean))
         : q.type === 'progression' ? !!response && ['r', 's'].some((k) => (response[k] || []).some((x) => x && x.trim()))
@@ -1691,6 +1706,7 @@ input.an-in { width: 100%; min-height: 34px; padding: 4px 2px; text-align: cente
     if (q.type === 'keys') return MQ.describeKeys(q);
     if (q.type === 'analysis') return MQ.describeAnalysis(q);
     if (q.type === 'rhythm') return MQ.describeRhythm(q);
+    if (q.type === 'melody') return MQ.describeMelody(q);
     if (q.symbolAnswers) return q.symbolAnswers.map((a) => a.shown).join('  ');
     if (q.symbolAnswer) return q.symbolAnswer.shown;
     if (q.dropdowns) return q.dropdowns.map((d) => d.options[d.answer]).join(' · ');
@@ -4058,7 +4074,12 @@ input.an-in { width: 100%; min-height: 34px; padding: 4px 2px; text-align: cente
     return u;
   }
   const total = (list) => (list || []).reduce((s, e) => s + dur(e), 0);
-  const cleanEvent = (e) => ({ v: Math.max(0, Math.min(4, e.v | 0)), d: e.d ? 1 : 0, t: e.t ? 1 : 0, r: e.r ? 1 : 0 });
+  // A note may carry a pitch (Clefwork Melody): p = {step, oct, alt}.
+  function cleanEvent(e) {
+    const out = { v: Math.max(0, Math.min(4, e.v | 0)), d: e.d ? 1 : 0, t: e.t ? 1 : 0, r: e.r ? 1 : 0 };
+    if (e.p && !e.r) out.p = { step: e.p.step | 0, oct: e.p.oct | 0, alt: e.p.alt | 0 };
+    return out;
+  }
 
   // ---------- time signatures ----------
   const METERS = [
@@ -4377,7 +4398,7 @@ input.an-in { width: 100%; min-height: 34px; padding: 4px 2px; text-align: cente
         let at = start + (m - o.from) * info.len;
         (L[m] || []).forEach((e) => {
           const d = dur(e);
-          if (!e.r) events.push({ at: at * sec, dur: d * sec, voice: l ? 'oboe' : 'piano', midi: l ? OBOE_NOTE : PIANO_NOTE });
+          if (!e.r) events.push({ at: at * sec, dur: d * sec, voice: l ? 'oboe' : 'piano', midi: e.p ? MQ.midi(e.p) : l ? OBOE_NOTE : PIANO_NOTE });
           at += d;
         });
       }
@@ -4636,7 +4657,651 @@ input.an-in { width: 100%; min-height: 34px; padding: 4px 2px; text-align: cente
     return out;
   }
 
-  Object.assign(MQ, { RHYTHM_LEVELS: LEVELS, RHYTHM_GEN: GEN, rhythmRules: rulesOf, generateRhythms });
+  // For Clefwork Melody: a phrase's rhythm, a meter for the rules, and the meters' own beats.
+  Object.assign(MQ, { RHYTHM_LEVELS: LEVELS, RHYTHM_GEN: GEN, rhythmRules: rulesOf, generateRhythms, rhythmPhrase: buildExample, rhythmPickMeter: pickMeter, rhythmPlan: planOf });
+})(typeof window !== 'undefined' ? window : globalThis);
+/* Clefwork Melody — melodic dictation. The teacher writes melodies of one to eight measures, or lets
+   Clefwork make them; the computer plays each one on the piano and students write it on a staff.
+   A note is {v, d, t, r} as in Clefwork Rhythm, plus p = {step, oct, alt} when it isn't a rest.
+   Grading is note by note: a note's rhythm is right when the student has a note starting at the
+   same moment and lasting as long; its pitch is right when the student's note sounding at that
+   moment has the same pitch (so a rhythm slip doesn't also cost the pitch). */
+(function (root) {
+  'use strict';
+  const MQ = (root.MQ = root.MQ || {});
+  const LETTERS = 'CDEFGAB';
+  const SHARP_STEPS = [3, 0, 4, 1, 5, 2, 6];            // F C G D A E B
+  const MAX_MEASURES = 8, MAX_EXAMPLES = 12;
+  const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
+
+  // ---------- keys ----------
+  function keyAlts(fifths) {
+    const a = [0, 0, 0, 0, 0, 0, 0];
+    if (fifths > 0) SHARP_STEPS.slice(0, fifths).forEach((s) => (a[s] = 1));
+    else SHARP_STEPS.slice().reverse().slice(0, -fifths).forEach((s) => (a[s] = -1));
+    return a;
+  }
+  // {fifths, mode} → the key's tonic, name and the alteration its signature gives each letter.
+  function melodyKey(key) {
+    const k = key || {};
+    const fifths = clamp(k.fifths | 0, -7, 7), mode = k.mode === 'minor' ? 'minor' : 'major';
+    const name = (mode === 'minor' ? MQ.MINOR_KEYS : MQ.MAJOR_KEYS)[fifths + 7];
+    return { fifths, mode, name, alts: keyAlts(fifths), tonic: { step: LETTERS.indexOf(name[0]), alt: name.includes('♯') ? 1 : name.includes('♭') ? -1 : 0 } };
+  }
+  const melodyKeyName = (key) => { const K = melodyKey(key); return `${K.name} ${K.mode}`; };
+  // The note on a line or space (a diatonic index, as MQ.dia gives), as the key signature spells it.
+  const pitchAt = (K, dia) => { const step = ((dia % 7) + 7) % 7; return { step, oct: Math.floor(dia / 7), alt: K.alts[step] }; };
+
+  // ---------- examples ----------
+  function melodyExample(ex) {
+    const e = ex || {};
+    if (!e.meter || !MQ.RHYTHM_METERS.some((m) => m.n === e.meter.n && m.d === e.meter.d)) e.meter = { n: 4, d: 4, g: 0 };
+    const groups = MQ.rhythmGroupings(e.meter);
+    if (!groups || !groups[e.meter.g]) e.meter.g = 0;
+    e.measures = clamp(e.measures | 0 || 4, 1, MAX_MEASURES);
+    e.tempo = clamp(Math.round(e.tempo || 72), 40, 240);
+    e.key = { fifths: clamp((e.key && e.key.fifths) | 0, -7, 7), mode: e.key && e.key.mode === 'minor' ? 'minor' : 'major' };
+    e.clef = e.clef === 'bass' ? 'bass' : 'treble';
+    e.parts = 1;
+    if (!Array.isArray(e.layers) || !Array.isArray(e.layers[0])) e.layers = [[]];
+    e.layers.length = 1;
+    while (e.layers[0].length < MAX_MEASURES) e.layers[0].push([]);
+    return e;
+  }
+  const newMelody = (from) => melodyExample(from
+    ? { meter: Object.assign({}, from.meter), measures: from.measures, tempo: from.tempo, key: Object.assign({}, from.key), clef: from.clef } : {});
+  // Automatic melodies: how many, how long, the level (7: the teacher's own rules), the quarter-note
+  // tempo, which keys (1 major, 2 minor, 3 both; up to keyMax sharps or flats), whether chromatic
+  // notes may appear, which clefs (1 treble, 2 bass, 3 both), and the custom rules — the rhythm's,
+  // plus the range (a fifth, sixth, octave, tenth or twelfth) and the largest leap (a third … an octave).
+  function melodyAuto(a) {
+    const o = a || {};
+    o.on = !!o.on;
+    o.gen = clamp(o.gen | 0 || MQ.MELODY_GEN || 1, 1, 7);
+    o.count = clamp(o.count | 0 || 4, 1, 20);
+    o.measures = clamp(o.measures | 0 || 4, 1, MAX_MEASURES);
+    o.level = clamp(o.level | 0 || 2, 1, 7);
+    o.tempo = clamp(Math.round(o.tempo || 72), 40, 240);
+    o.keyMode = clamp(o.keyMode | 0 || 1, 1, 3);
+    o.keyMax = clamp(o.keyMax == null ? 2 : o.keyMax | 0, 0, 7);
+    o.chromatic = o.chromatic ? 1 : 0;
+    o.clefs = clamp(o.clefs | 0 || 1, 1, 3);
+    // Filled in place: the builder keeps hold of this object while the teacher edits it.
+    const c = (o.custom = o.custom || {});
+    const D = { lo: 2, hi: 4, compound: 0, cut: 0, uneven: 0, shortest: 3, dotted: 1, triplets: 0, offbeats: 1, rests: 1, range: 2, leap: 2 };
+    Object.keys(D).forEach((k) => { if (c[k] == null) c[k] = D[k]; });
+    c.lo = clamp(c.lo | 0, 2, 6); c.hi = clamp(c.hi | 0, c.lo, 6);
+    c.shortest = clamp(c.shortest | 0, 2, 4); c.offbeats = clamp(c.offbeats | 0, 0, 2); c.rests = clamp(c.rests | 0, 0, 3);
+    c.range = clamp(c.range | 0, 0, 4); c.leap = clamp(c.leap | 0, 0, 4);
+    return o;
+  }
+  // score and outOf as in Clefwork Rhythm; first: tell students the first note; split: pitch and
+  // rhythm are half a point each, instead of a note being right only when both are.
+  function melodySettings(block) {
+    const b = block || {};
+    if (!Array.isArray(b.examples)) b.examples = [];
+    b.examples.forEach(melodyExample);
+    if (b.playsEx == null) b.playsEx = 0;
+    if (b.playsAns == null) b.playsAns = 0;
+    if (b.score !== 'percent') b.score = 'notes';
+    b.outOf = clamp(Math.round(b.outOf || 100), 1, 1000);
+    b.first = b.first == null ? 1 : b.first ? 1 : 0;
+    b.split = b.split ? 1 : 0;
+    b.auto = melodyAuto(b.auto);
+    return b;
+  }
+  function melodyProblems(block) {
+    const b = melodySettings(block), out = [];
+    if (b.auto.on) return out;
+    b.examples.forEach((ex, n) => {
+      const info = MQ.rhythmMeter(ex.meter);
+      for (let m = 0; m < ex.measures; m++) {
+        const events = ex.layers[0][m], s = MQ.measureState(events, info);
+        if (s.ok) continue;
+        const note = MQ.measureNote(events, info);
+        out.push({ ex: n, text: `Melody ${n + 1}: measure ${m + 1} ${!s.total ? 'is empty.' : `— ${note}${/[.)]$/.test(note) ? '' : '.'}`}` });
+      }
+      if (!out.some((x) => x.ex === n) && !ex.layers[0].slice(0, ex.measures).some((m) => m.some((e) => !e.r))) out.push({ ex: n, text: `Melody ${n + 1} has only rests — add at least one note.` });
+    });
+    return out;
+  }
+
+  // ---------- questions ----------
+  function firstNote(layers) {
+    for (const m of layers[0]) for (const e of m) if (!e.r && e.p) return Object.assign({}, e.p);
+    return null;
+  }
+  function melodyHint(ex, info, first) {
+    return `${ex.measures} measure${ex.measures > 1 ? 's' : ''} of ${info.label}${info.grouping ? ` (${info.grouping})` : ''} in ${melodyKeyName(ex.key)}, ${ex.clef} clef. `
+      + `Tempo: ${MQ.rhythmTempoText(info, ex.tempo)}.` + (first ? ` The first note is ${MQ.fullName(first)}.` : '');
+  }
+  function melodyQuestions(cfg) {
+    const b = melodySettings(cfg.melody);
+    const list = b.auto.on && MQ.generateMelodies ? MQ.generateMelodies(cfg.seed, b.auto) : b.examples;
+    const n = b.auto.on ? list.length : Math.min(list.length, cfg.counts && cfg.counts.melody != null ? cfg.counts.melody : list.length);
+    return list.slice(0, n).map((raw, i) => {
+      const ex = melodyExample(raw), info = MQ.rhythmMeter(ex.meter);
+      const layers = [ex.layers[0].slice(0, ex.measures).map((m) => m.map(MQ.rhythmEvent))];
+      const first = b.first ? firstNote(layers) : null;
+      return {
+        type: 'melody', clef: ex.clef,
+        text: `Melody ${i + 1}: write the melody you hear.`,
+        hint: melodyHint(ex, info, first),
+        mel: { n: i, meter: Object.assign({}, ex.meter), measures: ex.measures, tempo: ex.tempo, key: Object.assign({}, ex.key), clef: ex.clef, parts: 1, layers, first, split: b.split },
+        sig: 'ml' + i, tags: [],
+      };
+    });
+  }
+  const blankMelody = (q) => [q.mel.layers[0].map(() => [])];
+
+  // ---------- grading ----------
+  function notesOf(events) {
+    const out = [];
+    let at = 0;
+    (events || []).forEach((e, i) => { const d = MQ.rhythmDur(e); if (!e.r) out.push({ t: at, d, i, p: e.p }); at += d; });
+    return out;
+  }
+  const samePitch = (a, b) => !!a && !!b && MQ.midi(a) === MQ.midi(b);
+  // {notes, wrong, pw, rw, parts}: how many notes the answer has; how many are wrong (pitch or
+  // rhythm, plus each extra note); pitch mistakes; rhythm mistakes (extra notes count here); and
+  // for each measure the answer's and the student's notes marked right or wrong, as compareRhythm.
+  function compareMelody(q, resp) {
+    const M = q.mel;
+    let notes = 0, wrong = 0, pw = 0, rw = 0;
+    const measures = M.layers[0].map((answer, m) => {
+      const mine = (resp && resp[0] && resp[0][m]) || [];
+      const want = answer.map(() => null), got = mine.map(() => null);
+      const theirs = notesOf(mine);
+      let bad = 0;
+      notesOf(answer).forEach((a) => {
+        notes++;
+        const s = theirs.find((x) => x.t === a.t);
+        const sounding = theirs.find((x) => x.t <= a.t && a.t < x.t + x.d);
+        const rOk = !!s && s.d === a.d, pOk = !!sounding && samePitch(sounding.p, a.p);
+        if (!rOk) rw++;
+        if (!pOk) pw++;
+        const ok = rOk && pOk;
+        want[a.i] = ok;
+        if (s) got[s.i] = ok;
+        if (!ok) bad++;
+      });
+      theirs.forEach((s) => { if (got[s.i] == null) { got[s.i] = false; bad++; rw++; } });
+      wrong += bad;
+      return { want, got, ok: !bad };
+    });
+    return { notes, wrong, pw, rw, parts: [{ measures }] };
+  }
+  // Points lost: a whole point for each wrong note, or half a point for each pitch or rhythm mistake.
+  const melodyLost = (c, split) => (split ? (c.pw + c.rw) / 2 : c.wrong);
+  function gradeMelody(q, resp) {
+    const c = compareMelody(q, resp);
+    if (!c.notes) return c.wrong ? 0 : 1;
+    return Math.max(0, c.notes - melodyLost(c, q.mel.split)) / c.notes;
+  }
+  const hasMelodyAnswer = (q, resp) => !!resp && resp.some((L) => L && L.some((m) => m && m.some((e) => e)));
+  const DUR_SIGNS = ['𝅝', '𝅗𝅥', '♩', '♪', '𝅘𝅥𝅯'];
+  const REST_SIGNS = ['𝄻', '𝄼', '𝄽', '𝄾', '𝄿'];
+  function describeMelody(q) {
+    const M = q.mel;
+    const bar = (m) => m.map((e) => (e.r ? REST_SIGNS[e.v] : MQ.fullName(e.p) + DUR_SIGNS[e.v]) + (e.d ? '.' : '') + (e.t ? '³' : '')).join(' ') || '—';
+    return `${melodyKeyName(M.key)}  | ${M.layers[0].map(bar).join(' | ')} |`;
+  }
+
+  // ---------- hearing the key ----------
+  // The tonic chord in the melody's register — broken, then together — before the melody.
+  function keyEvents(M, tempo) {
+    const K = melodyKey(M.key);
+    const mid = MQ.CLEFS[M.clef === 'bass' ? 'bass' : 'treble'].bottom + 4;
+    let t = K.tonic.step;
+    while (t + 7 <= mid) t += 7;
+    const midi = (d) => MQ.midi(pitchAt(K, t + d));
+    const step = Math.max(0.3, Math.min(0.6, 60 / (tempo || 72)));
+    const events = [0, 2, 4, 7].map((d, j) => ({ at: j * step, dur: step, voice: 'piano', midi: midi(d) }));
+    [0, 2, 4, 7].forEach((d) => events.push({ at: 4 * step, dur: 1.4, voice: 'piano', midi: midi(d) }));
+    return { events, total: 4 * step + 1.5, marks: [] };
+  }
+
+  Object.assign(MQ, {
+    MELODY_MAX: MAX_EXAMPLES, MELODY_MEASURES: MAX_MEASURES,
+    melodyKey, melodyKeyName, melodyPitchAt: pitchAt, melodyKeyAlts: keyAlts,
+    melodyExample, newMelody, melodyAuto, melodySettings, melodyProblems, melodyQuestions, melodyBlank: blankMelody, melodyFirstNote: firstNote,
+    compareMelody, melodyLost, gradeMelody, hasMelodyAnswer, describeMelody, melodyKeyEvents: keyEvents,
+  });
+})(typeof window !== 'undefined' ? window : globalThis);
+/* Clefwork Melody — melodies made automatically, the way simple tonal melodies are usually shaped.
+   The numbers come from studies of folk-song collections and dictation curricula: Huron's melodic
+   arch (1996) and its 2023 replication (phrases: arch ~30–40%, descending ~27%, ascending ~22%,
+   U-shaped ~22%); Vos & Troost (1989: small intervals mostly fall, large ones rise); von Hippel &
+   Huron (2000: after a leap the melody heads back toward its middle); Krumhansl & Kessler's key
+   profiles; Temperley and Janssen et al. on openings, endings, beats and repetition; Karpinski,
+   Ottman/Rogers, Kodály and the AP curriculum on the order leaps and chromatic notes are learned.
+   - Phrases: a melody of five to eight measures is two phrases, often a parallel period — the same
+     rhythm again with a new ending, the first phrase stopping on the dominant (a half cadence), the
+     second on the tonic, with a breath (a rest) between them when the rhythm allows.
+   - Rhythm: from Clefwork Rhythm's generator at the same level, with fewer rests inside phrases and
+     a long note at each phrase end.
+   - Pitch: mostly steps and repeated notes; leaps land on chord tones (only the tonic chord at the
+     easiest levels) and are followed by a step back the other way; big leaps tend to go up and steps
+     down; phrases rise and fall in an arch, or descend, to a cadence reached by step; strong beats
+     and long notes take the chord's tones; the leading tone rises to the tonic, fa falls to mi.
+   - Minor keys use the raised seventh as a leading tone, and the raised sixth on the way up to it.
+   - Chromatic notes (when allowed) are approach tones and neighbours a half step from the note they
+     lead to, on weak beats — more of them at the higher levels.
+   The quiz's seed picks everything, and the generator is versioned like Clefwork Rhythm's. */
+(function (root) {
+  'use strict';
+  const MQ = (root.MQ = root.MQ || {});
+  const GEN = 1;
+  const tone = (d) => ((d % 7) + 7) % 7;
+  function pickWeighted(rng, items, weightOf) {
+    const total = items.reduce((t, x) => t + weightOf(x), 0);
+    if (!(total > 0)) return items[Math.floor(rng() * items.length)];
+    let r = rng() * total;
+    for (const x of items) { r -= weightOf(x); if (r <= 0) return x; }
+    return items[items.length - 1];
+  }
+
+  // ---------- levels ----------
+  // range and leap in scale steps (a fifth 4, sixth 5, octave 7, ninth 8, tenth 9, eleventh 10,
+  // twelfth 11). leaps: which notes a leap may join — 'tonic' (do mi sol), 'chord' (the chord of the
+  // moment), 'any'. steps: the share of steps and repeated notes aimed for. chroma: notes out of the
+  // key per note, when chromatic notes are allowed.
+  // tonic: leaps only within do-mi-sol; chord: within the chord of the moment (sol-ti-re, fa-la-do);
+  // any: to any note, chord tones preferred. chromatic: which chromatic notes the level uses when
+  // they're allowed — lower neighbours first, then half-step approaches (♯4→5, ♯1→2 …), then all.
+  const LEVELS = [
+    { name: 'Very easy', blurb: 'Do to sol: steps and repeated notes, with the odd skip within do-mi-sol. Rhythms of Rhythm level 1 — 4/4, quarter notes and longer.', rhythm: 1, range: 4, leap: 2, leaps: 'tonic', steps: 0.94, chroma: 0.03, chromatic: 'neighbour' },
+    { name: 'Easy', blurb: 'Within a sixth: steps, and skips within the tonic chord (do-mi-sol). Rhythms of level 2 — 2/4 to 4/4, eighth notes and longer.', rhythm: 2, range: 5, leap: 4, leaps: 'tonic', steps: 0.85, chroma: 0.04, chromatic: 'neighbour' },
+    { name: 'Medium easy', blurb: 'Within an octave: leaps in the tonic and dominant chords (sol-ti-re), and phrases that end on the dominant, then the tonic. Rhythms of level 3.', rhythm: 3, range: 7, leap: 4, leaps: 'chord', steps: 0.78, chroma: 0.06, chromatic: 'approach' },
+    { name: 'Medium', blurb: 'Within a ninth: 4ths, 5ths and the odd 6th between chord tones, IV and V7 as well, and a sequence now and then. Rhythms of level 4, in simple and compound meters.', rhythm: 4, range: 8, leap: 5, leaps: 'chord', steps: 0.73, chroma: 0.08, chromatic: 'approach' },
+    { name: 'Advanced', blurb: 'Up to a tenth: leaps up to a 6th, and octaves upward. Rhythms of level 5 — any meter, sixteenth notes.', rhythm: 5, range: 9, leap: 7, leaps: 'any', steps: 0.68, chroma: 0.07, chromatic: 'all' },
+    { name: 'Very hard', blurb: 'Up to an eleventh: any leap up to an octave, 7ths in the dominant seventh. Rhythms of level 6 — any meter and rhythm, triplets included.', rhythm: 6, range: 10, leap: 7, leaps: 'any', steps: 0.62, chroma: 0.1, chromatic: 'all' },
+  ];
+  const RANGES = [4, 5, 7, 9, 11], LEAPS = [2, 3, 4, 5, 7];
+  // Krumhansl & Kessler's key profiles for the scale degrees (minor: natural minor), as a gentle
+  // preference for the notes that belong most.
+  const PROFILE = { major: [6.35, 3.48, 4.38, 4.09, 5.19, 3.66, 2.88], minor: [6.33, 3.52, 5.38, 3.53, 4.75, 3.98, 3.34] };
+  function levelOf(a) {
+    const L = a.level <= 6 ? Object.assign({ level: a.level }, LEVELS[a.level - 1]) : {
+      level: 7, rhythm: 7, range: RANGES[a.custom.range], leap: LEAPS[a.custom.leap], leaps: a.custom.leap >= 3 ? 'any' : 'chord', steps: 0.75, chroma: 0.08, chromatic: 'all',
+    };
+    // The rhythm level's rules. In melodies rests fall between phrases (breaths), so there are none
+    // inside phrases at the easy levels and only a few at the harder ones.
+    const base = MQ.rhythmRules({ level: L.rhythm, custom: a.custom });
+    const inside = L.level <= 2 ? 0 : L.level <= 4 ? 0.3 : 0.5;
+    L.rules = Object.assign({}, base, { rests: [base.rests[0] * inside, base.rests[1] * inside] });
+    return L;
+  }
+
+  // ---------- rhythm ----------
+  // Four bars are one phrase at the easy levels and 2 + 2 (a question and an answer) from level 3.
+  const PHRASES = { 1: [1], 2: [2], 3: [3], 4: [4], 5: [2, 3], 6: [3, 3], 7: [3, 4], 8: [4, 4] };
+  const phrasesOf = (n, level) => (n === 4 && level >= 3 ? [2, 2] : PHRASES[n]);
+  const copyBar = (bar) => bar.map((e) => Object.assign({}, e));
+  // A breath at the end of a phrase: its long last note shortened by a beat, and a rest in its place.
+  const BREATHS = { 48: [{ v: 1, d: 1 }, { v: 2 }], 36: [{ v: 1 }, { v: 2 }], 24: [{ v: 2 }, { v: 2 }] };
+  const BREATHS_COMPOUND = { 36: [{ v: 2, d: 1 }, { v: 2, d: 1 }] };
+  function melodyRhythm(rng, L, n, meter) {
+    const info = MQ.rhythmMeter(meter);
+    const parts = phrasesOf(n, L.level), bars = [], ends = [];
+    let first = null;
+    parts.forEach((len, p) => {
+      let phrase;
+      // About 40% of folk phrases repeat an earlier phrase's rhythm.
+      if (p > 0 && len === parts[0] && rng() < 0.55) {
+        // A parallel phrase: the first phrase's rhythm with a new ending.
+        phrase = first.slice(0, len - 1).map(copyBar).concat(MQ.rhythmPhrase(rng, L.rules, 1, meter, MQ.RHYTHM_GEN));
+      } else phrase = MQ.rhythmPhrase(rng, L.rules, len, meter, MQ.RHYTHM_GEN);
+      if (!p) first = phrase.map(copyBar);
+      bars.push(...phrase);
+      ends.push(bars.length - 1);
+    });
+    // Breathe between phrases, where the long note allows it.
+    ends.slice(0, -1).forEach((m) => {
+      const bar = bars[m], last = bar[bar.length - 1];
+      if (!last || last.r || last.t || rng() > (L.level >= 2 ? 0.6 : 0.35)) return;
+      const table = info.tempo === 'q.' ? BREATHS_COMPOUND : BREATHS;
+      const swap = table[MQ.rhythmDur(last)];
+      if (!swap) return;
+      bar.splice(bar.length - 1, 1, { v: swap[0].v, d: swap[0].d || 0, t: 0, r: 0 }, { v: swap[1].v, d: swap[1].d || 0, t: 0, r: 1 });
+    });
+    return { bars, ends, info };
+  }
+
+  // ---------- harmony ----------
+  // One chord a measure, as scale degrees (0 = the tonic). A melody's last phrase ends I (its last
+  // measure: V, then I on the last note); an earlier phrase ends on V.
+  const CHORDS = { I: [0, 2, 4], ii: [1, 3, 5], IV: [3, 5, 0], V: [4, 6, 1, 3], vi: [5, 0, 2] };
+  function harmony(rng, len, final, level) {
+    const pick = (list) => list[Math.floor(rng() * list.length)];
+    const middle = level >= 4 ? ['IV', 'ii', 'vi', 'IV', 'I'] : ['IV', 'I', 'IV'];
+    if (len === 1) return [final ? 'I' : 'V'];
+    const out = ['I'];
+    for (let i = 1; i < len - 1; i++) out.push(i === len - 2 ? (final ? pick(level >= 4 ? ['V', 'IV', 'ii'] : ['V', 'IV']) : pick(['IV', 'I', level >= 4 ? 'ii' : 'IV'])) : pick(middle));
+    out.push(final ? 'I' : 'V');
+    return out;
+  }
+
+  // ---------- pitch ----------
+  const STEP_W = [0.35, 1, 0.42, 0.2, 0.13, 0.06, 0.025, 0.05];     // unison, step, third … octave
+  // Every note of the melody, with what shapes its pitch.
+  function noteSlots(bars, ends, info, rng, level) {
+    const slots = [];
+    let phrase = 0, from = 0;
+    const chordsOf = [];
+    ends.forEach((end, p) => {
+      const len = end - from + 1;
+      harmony(rng, len, p === ends.length - 1, level).forEach((c) => chordsOf.push(c));
+      from = end + 1;
+    });
+    bars.forEach((bar, m) => {
+      let t = 0;
+      bar.forEach((e, i) => {
+        const d = MQ.rhythmDur(e);
+        if (!e.r) {
+          const onBeat = info.beats.some((b) => b.at === t);
+          slots.push({ m, i, t, d, e, phrase, chord: chordsOf[m], strength: t === 0 ? 3 : onBeat ? 2 : t % 6 === 0 ? 1 : 0, long: d >= Math.min(24, info.beats[0].len * 2) });
+        }
+        t += d;
+      });
+      if (ends.includes(m)) phrase++;
+    });
+    // Phrase ends, and the final cadence: V before the last note, I on it.
+    for (let k = 0; k < slots.length; k++) {
+      const s = slots[k], next = slots[k + 1];
+      s.phraseEnd = !next || next.phrase !== s.phrase;
+      s.final = !next;
+      s.penult = !!next && !slots[k + 2];
+    }
+    const lastBar = slots.length ? slots[slots.length - 1].m : 0;
+    slots.forEach((s) => { if (s.m === lastBar && !s.final && s.chord === 'I' && s.t > 0) s.chord = 'V'; });
+    return slots;
+  }
+  const inChord = (d, ch) => CHORDS[ch].includes(tone(d));
+  // Intervals as they're spelled: a step of three half steps, a third of five, a fourth of six … are
+  // augmented or diminished — awkward to sing and to hear, so kept out (the tritone of V7 aside, at
+  // the top level).
+  const PLAIN = { 0: [0], 1: [1, 2], 2: [3, 4], 3: [5], 4: [7], 5: [8, 9], 6: [10, 11], 7: [12] };
+  function oddInterval(steps, semis, level) {
+    const a = Math.abs(steps), n = Math.abs(semis);
+    if (a > 7 || PLAIN[a].includes(n)) return false;
+    return !(level >= 6 && (a === 3 || a === 4) && n === 6);
+  }
+  const TONIC = [0, 2, 4];
+  // One try at the pitches: a scale degree for every note.
+  function tryPitches(rng, slots, L, bars) {
+    const range = L.range;
+    // The window the melody lives in: it holds the tonic, reaching below it at the wider levels.
+    const lo = L.level <= 1 ? 0 : -Math.floor(rng() * Math.min(5, range - 3 + 1));
+    const hi = lo + range;
+    const center = (lo + hi) / 2;
+    // Each phrase's contour, in about the proportions folk songs have: arch, descending, ascending,
+    // U-shaped. First phrases lean toward rising, the last toward falling to the tonic.
+    const phrases = [...new Set(slots.map((s) => s.phrase))];
+    const shape = phrases.map((p) => {
+      const last = p === phrases.length - 1, firstOfMany = !p && phrases.length > 1;
+      const w = firstOfMany ? { arch: 0.4, down: 0.15, up: 0.3, u: 0.15 } : last ? { arch: 0.35, down: 0.4, up: 0.1, u: 0.15 } : { arch: 0.35, down: 0.27, up: 0.22, u: 0.16 };
+      return pickWeighted(rng, Object.keys(w), (k) => w[k]);
+    });
+    const span = phrases.map((p) => { const idx = slots.map((s, k) => (s.phrase === p ? k : -1)).filter((k) => k >= 0); return [idx[0], idx[idx.length - 1]]; });
+    const target = (k, s) => {
+      const [a, b] = span[s.phrase], x = b > a ? (k - a) / (b - a) : 1;
+      const top = Math.min(hi, lo + Math.round(range * 0.8)), end = s.phrase === phrases.length - 1 ? 0 : 4;
+      if (shape[s.phrase] === 'arch') return x < 0.6 ? 0 + (top - 0) * Math.sin((x / 0.6) * Math.PI / 2) : top + (end - top) * ((x - 0.6) / 0.4);
+      if (shape[s.phrase] === 'down') return top - (top - end) * x;
+      if (shape[s.phrase] === 'u') return x < 0.5 ? 4 - (4 - lo) * (x / 0.5) : lo + (end - lo) * ((x - 0.5) / 0.5);
+      return 0 + (Math.min(hi, 5) - 0) * x;
+    };
+    const seq = [];
+    // A measure whose rhythm repeats an earlier one may repeat its melody, or move it up or down (a sequence).
+    const key = (m) => JSON.stringify(bars[m].map((e) => [e.v, e.d, e.t, e.r]));
+    const copyFrom = {};
+    slots.forEach((s) => {
+      if (copyFrom[s.m] != null || s.i !== bars[s.m].findIndex((e) => !e.r)) return;
+      const earlier = slots.find((x) => x.m < s.m && key(x.m) === key(s.m));
+      copyFrom[s.m] = earlier && rng() < 0.5 ? earlier.m : -1;
+    });
+    for (let k = 0; k < slots.length; k++) {
+      const s = slots[k], p = k ? seq[k - 1] : null;
+      let options = [];
+      for (let d = lo; d <= hi; d++) options.push(d);
+      // Fixed points: the tonic at the end; the dominant's notes at a half cadence.
+      if (s.final) options = options.filter((d) => tone(d) === 0);
+      else if (s.phraseEnd) options = options.filter((d) => inChord(d, 'V') && tone(d) !== 3);
+      // Openings: on do most of all, or mi or sol (1-2-3 and 3-4-5 are the commonest starts).
+      if (!k) options = options.filter((d) => (L.level <= 1 ? d === 0 : TONIC.includes(tone(d)) && d >= 0 && d <= 4));
+      if (p != null) options = options.filter((d) => Math.abs(d - p) <= L.leap);
+      if (!options.length) options = [p == null ? 0 : p];
+      // Copying an earlier measure's shape.
+      const src = copyFrom[s.m];
+      if (src != null && src >= 0 && k && !s.final && !s.phraseEnd) {
+        const mine = slots.filter((x) => x.m === s.m), theirs = slots.filter((x) => x.m === src);
+        const j = mine.indexOf(s);
+        if (j > 0 && theirs[j] && theirs[j - 1]) {
+          const iv = seq[slots.indexOf(theirs[j])] - seq[slots.indexOf(theirs[j - 1])];
+          const d = p + iv;
+          if (options.includes(d)) { seq.push(d); continue; }
+        }
+      }
+      const prevIv = k >= 2 ? seq[k - 1] - seq[k - 2] : 0;
+      const prevIv2 = k >= 3 ? seq[k - 2] - seq[k - 3] : 0;
+      // How long the melody has been going one way.
+      let run = 0;
+      for (let j = k - 1; j >= 1 && Math.sign(seq[j] - seq[j - 1]) === Math.sign(prevIv) && prevIv; j--) run++;
+      const profile = PROFILE[L.minor ? 'minor' : 'major'];
+      const w = (d) => {
+        if (p == null) return d === 0 ? 3 : 1.5;
+        const iv = d - p, a = Math.abs(iv);
+        let x = STEP_W[Math.min(7, a)];
+        // Leaps: which notes they may join.
+        if (a >= 2) {
+          if (L.leaps === 'tonic' && !(TONIC.includes(tone(p)) && TONIC.includes(tone(d)))) return 0;
+          if (L.leaps === 'chord' && !(inChord(p, s.chord) || inChord(p, slots[k - 1].chord)) || (L.leaps !== 'any' && !inChord(d, s.chord) && !TONIC.includes(tone(d)))) x *= 0.08;
+          if (L.leaps === 'any' && !inChord(d, s.chord)) x *= 0.35;
+          x *= iv > 0 ? 1.25 : 0.8;                                  // leaps more often rise
+          // The augmented fourth (fa–ti) only at the top level.
+          if (L.level < 6 && ((tone(p) === 3 && tone(d) === 6) || (tone(p) === 6 && tone(d) === 3)) && a === 3) return 0;
+          if (L.level < 6 && (a === 6)) x *= 0.1;                      // sevenths are rare
+          // Never three leaps running; two the same way only when they outline a chord.
+          if (Math.abs(prevIv) >= 2 && Math.abs(prevIv2) >= 2) x *= 0.05;
+          if (Math.abs(prevIv) >= 2 && Math.sign(iv) === Math.sign(prevIv) && !(a === 2 && Math.abs(prevIv) === 2 && inChord(d, s.chord) && inChord(p, s.chord))) x *= 0.2;
+        } else if (iv < 0) x *= 1.1;                                  // steps more often fall (54% of intervals fall)
+        // Steps keep going the way they were going (71% of the time) — for a while.
+        if (a === 1 && Math.abs(prevIv) === 1) x *= Math.sign(iv) === Math.sign(prevIv) ? (run >= 4 ? 0.6 : 1.6) : (run >= 4 ? 1.8 : 0.7);
+        // After a leap, head back toward the middle of the melody — usually by step the other way.
+        if (Math.abs(prevIv) >= 3) {
+          const toward = Math.abs(d - center) < Math.abs(p - center);
+          x *= (toward ? 2 : 0.4) * (Math.sign(iv) === -Math.sign(prevIv) && a <= 1 ? 1.8 : 1);
+        }
+        // The notes of the key, weighted a little by how strongly they belong to it.
+        x *= Math.pow(profile[tone(d)] / 4.5, 0.7);
+        // Beats: do sits on the downbeat, fa and ti fall between beats.
+        if (s.strength === 3) x *= tone(d) === 0 ? 1.4 : tone(d) === 3 || tone(d) === 6 ? 0.6 : 1;
+        else if (s.strength <= 1 && (tone(d) === 3 || tone(d) === 6)) x *= 1.3;
+        // No more than a few of the same note running.
+        if (!iv && k >= 2 && seq[k - 2] === p) x *= L.level <= 1 ? 0.5 : 0.25;
+        // Strong beats and long notes take the chord's notes.
+        if (s.strength >= 2 || s.long) x *= inChord(d, s.chord) ? 2.4 : a === 1 ? 0.35 : 0.1;
+        // Tendency tones: ti rises to do, fa falls to mi, la falls to sol.
+        if (tone(p) === 6 && a === 1) x *= iv > 0 ? 4 : 0.4;
+        if (tone(p) === 3 && a === 1 && iv < 0) x *= 1.8;
+        if (tone(p) === 5 && a === 1 && iv < 0) x *= L.minor ? 1.6 : 1.3;
+        // Toward the phrase's contour, and back toward the middle of the range.
+        const tg = target(k, s);
+        x *= Math.exp(-((d - tg) * (d - tg)) / (2 * 2.4 * 2.4));
+        x *= 1 / (1 + 0.04 * Math.abs(d - center));
+        // Into the cadence by step, mostly from above: 3-2-1 is the commonest ending, then ti-do.
+        if (s.penult) x *= a <= 1 && tone(d) === 1 ? 5 : a <= 1 && tone(d) === 6 ? 2 : tone(d) === 4 ? 1 : 0.35;
+        return x;
+      };
+      seq.push(pickWeighted(rng, options, w));
+    }
+    return { seq, lo, hi };
+  }
+  // How natural a try is, by the numbers above.
+  function scorePitches(t, slots, L, midi) {
+    const seq = t.seq;
+    let sc = 0, steps = 0, n = 0;
+    // As the key spells it (a minor key's raised sixth and seventh included): no odd intervals.
+    if (midi) {
+      const c = minorSpelling(seq, slots, L.minor ? 'minor' : 'major', (k) => midi(seq[k]));
+      for (let k = 1; k < seq.length; k++) if (oddInterval(seq[k] - seq[k - 1], midi(seq[k]) + c[k] - midi(seq[k - 1]) - c[k - 1], L.level)) sc -= 8;
+    }
+    for (let k = 1; k < seq.length; k++) {
+      const iv = seq[k] - seq[k - 1], a = Math.abs(iv);
+      n++;
+      if (a <= 1) steps++;
+      const prev = k >= 2 ? seq[k - 1] - seq[k - 2] : 0;
+      if (Math.abs(prev) >= 3 && Math.sign(iv) === Math.sign(prev)) sc -= 1.5;          // no gap fill
+      if (Math.abs(prev) >= 2 && a >= 2 && Math.sign(iv) === Math.sign(prev) && !(inChord(seq[k - 2], slots[k].chord) && inChord(seq[k], slots[k].chord))) sc -= 1.5;
+      if (k >= 3 && !iv && seq[k - 2] === seq[k] && seq[k - 3] === seq[k]) sc -= L.level <= 1 ? 0.5 : 1.5;
+      if (k >= 2 && a >= 2 && Math.abs(prev) >= 2 && k >= 3 && Math.abs(seq[k - 2] - seq[k - 3]) >= 2) sc -= 3;   // three leaps in a row
+    }
+    if (n) sc -= Math.abs(steps / n - L.steps) * 12;
+    const lo = Math.min(...seq), hi = Math.max(...seq);
+    if (L.level >= 3 && hi - lo < L.range * 0.5) sc -= 2;
+    if (hi === lo) sc -= 6;
+    // Each phrase's high point somewhere inside it, not at an edge.
+    [...new Set(slots.map((s) => s.phrase))].forEach((p) => {
+      const idx = slots.map((s, k) => (s.phrase === p ? k : -1)).filter((k) => k >= 0);
+      const vals = idx.map((k) => seq[k]), top = Math.max(...vals);
+      if (idx.length >= 4 && (vals[0] === top || vals[vals.length - 1] === top) && vals.filter((v) => v === top).length === 1) sc -= 1;
+    });
+    // Chord tones on the strong beats.
+    const strong = slots.filter((s) => s.strength >= 2);
+    if (strong.length) sc += 3 * (strong.filter((s) => inChord(seq[slots.indexOf(s)], s.chord)).length / strong.length);
+    // Into the final tonic by step.
+    if (seq.length >= 2 && Math.abs(seq[seq.length - 1] - seq[seq.length - 2]) === 1) sc += 2;
+    return sc;
+  }
+
+  // ---------- spelling: minor keys and chromatic notes ----------
+  // Half steps up from the key signature's note, for each note.
+  // midi(k): the note's pitch in the key, without any change. The minor key's own sixth and
+  // seventh come first; chromatic notes are added to them.
+  function chromas(seq, slots, mode, chroma, rng, level, midi) {
+    const c = minorSpelling(seq, slots, mode, midi);
+    return chroma ? addChromatic(c, seq, slots, chroma, rng, level, midi) : c;
+  }
+  function minorSpelling(seq, slots, mode, midi) {
+    const c = seq.map(() => 0);
+    const aug2 = (a, b) => Math.abs(seq[a] - seq[b]) === 1 && Math.abs(midi(a) + c[a] - midi(b) - c[b]) === 3;
+    if (mode === 'minor') {
+      // The leading tone: raised when it rises to the tonic or ends a half cadence; the sixth is
+      // raised on its way up to a raised seventh.
+      for (let k = 0; k < seq.length; k++) {
+        const d = seq[k], next = seq[k + 1];
+        if (tone(d) === 6 && ((next != null && next === d + 1) || slots[k].phraseEnd || (slots[k].chord === 'V' && next != null && tone(next) !== 5))) c[k] = 1;
+      }
+      for (let k = seq.length - 2; k >= 0; k--) if (tone(seq[k]) === 5 && seq[k + 1] === seq[k] + 1 && c[k + 1] === 1) c[k] = 1;
+      // No augmented second: next to a sixth a step away, the raised seventh goes up with the sixth
+      // raised too, or comes down natural.
+      for (let k = 1; k < seq.length; k++) {
+        if (!aug2(k - 1, k)) continue;
+        const [a, b] = [k - 1, k];
+        const up = seq[b] > seq[a];
+        if (up && tone(seq[a]) === 5) c[a] = 1;
+        else if (!up && tone(seq[a]) === 6) c[a] = 0;
+        else if (up && tone(seq[b]) === 6) c[b] = 0;
+      }
+    }
+    return c;
+  }
+  function addChromatic(c, seq, slots, chroma, rng, level, midi) {
+    const odd = (a, b) => oddInterval(seq[b] - seq[a], midi(b) + c[b] - midi(a) - c[a], level);
+    // Chromatic notes: weak-beat notes a whole step from the next note, made a half step from it —
+    // sharps resolving up, flats down. Lower neighbours (G F♯ G) come first; then approaches, the
+    // commonest ♯4→5, then ♯1→2 and ♯5→6; at the top levels flats too, above all ♭7→6.
+    const wholeStep = (k, dir) => { const s = slots[k]; return s.whole && s.whole[dir]; };
+    const kinds = slots[0] && slots[0].chromatic;
+    const places = [];
+    for (let k = 1; k < seq.length - 1; k++) {
+      const s = slots[k];
+      if (s.strength >= 2 || s.long || s.phraseEnd || c[k] || s.e.t) continue;
+      const next = seq[k + 1] - seq[k], neighbour = seq[k + 1] === seq[k - 1];
+      const to = tone(seq[k + 1]);
+      if (next === 1 && wholeStep(k, 'up') && (neighbour || kinds !== 'neighbour')) places.push({ k, alt: 1, w: (neighbour ? 2 : 1) * (to === 4 ? 3 : to === 1 ? 1.5 : to === 5 ? 1.2 : 0.7) });
+      // Flats borrow from the minor key (♭7, ♭6, ♭3), so only a major key has them to borrow.
+      else if (next === -1 && wholeStep(k, 'down') && kinds === 'all' && !slots[0].minor && [6, 5, 2].includes(tone(seq[k]))) places.push({ k, alt: -1, w: tone(seq[k]) === 6 ? 1.2 : 0.6 });
+    }
+    const want = Math.max(1, Math.round(seq.length * chroma * (0.6 + rng() * 0.8)));
+    for (let n = 0; n < want && places.length; n++) {
+      const p = pickWeighted(rng, places, (x) => x.w);
+      places.splice(places.indexOf(p), 1);
+      c[p.k] = p.alt;
+      // Not if it makes an augmented or diminished interval with the note before or after.
+      if ((p.k > 0 && odd(p.k - 1, p.k)) || (p.k + 1 < seq.length && odd(p.k, p.k + 1))) { c[p.k] = 0; n--; continue; }
+      for (let j = places.length - 1; j >= 0; j--) if (Math.abs(places[j].k - p.k) <= 1) places.splice(j, 1);
+    }
+    return c;
+  }
+
+  // ---------- one melody ----------
+  function keyFor(rng, a) {
+    const mode = a.keyMode === 2 ? 'minor' : a.keyMode === 3 ? (rng() < 0.5 ? 'major' : 'minor') : 'major';
+    const all = [];
+    for (let f = -a.keyMax; f <= a.keyMax; f++) all.push(f);
+    const fifths = pickWeighted(rng, all, (f) => 1 / (1 + 0.45 * Math.abs(f)));
+    return { fifths, mode };
+  }
+  function buildMelody(rng, a, L, meter, key, clef) {
+    const { bars, ends, info } = melodyRhythm(rng, L, a.measures, meter);
+    const K = MQ.melodyKey(key);
+    L.minor = key.mode === 'minor';
+    const slots = noteSlots(bars, ends, info, rng, L.level);
+    if (slots[0]) Object.assign(slots[0], { chromatic: L.chromatic, minor: L.minor });
+    let best = null;
+    const at = (d) => MQ.midi(MQ.melodyPitchAt(K, K.tonic.step + 28 + d));
+    for (let tries = 0; tries < 70; tries++) {
+      const t = tryPitches(rng, slots, L, bars);
+      const sc = scorePitches(t, slots, L, at);
+      if (!best || sc > best.sc) best = Object.assign(t, { sc });
+    }
+    const seq = best.seq;
+    // Where the tonic goes: the octave that keeps the melody on the staff, nearest its middle.
+    const bottom = MQ.CLEFS[clef].bottom;
+    const lo = Math.min(...seq), hi = Math.max(...seq);
+    let tonicDia = K.tonic.step, bestFit = null;
+    for (let oct = 0; oct <= 8; oct++) {
+      const t = K.tonic.step + oct * 7;
+      const a1 = t + lo - bottom, b1 = t + hi - bottom;
+      const over = Math.max(0, -3 - a1) + Math.max(0, b1 - 11);
+      const fit = over * 10 + Math.abs((a1 + b1) / 2 - 4);
+      if (bestFit == null || fit < bestFit) { bestFit = fit; tonicDia = t; }
+    }
+    // Which steps are whole steps (for chromatic approaches and neighbours).
+    slots.forEach((s, k) => {
+      const here = MQ.midi(MQ.melodyPitchAt(K, tonicDia + seq[k]));
+      const up = MQ.midi(MQ.melodyPitchAt(K, tonicDia + seq[k] + 1)), down = MQ.midi(MQ.melodyPitchAt(K, tonicDia + seq[k] - 1));
+      s.whole = { up: up - here === 2, down: here - down === 2 };
+    });
+    const c = chromas(seq, slots, key.mode, a.chromatic ? L.chroma : 0, rng, L.level, (k) => MQ.midi(MQ.melodyPitchAt(K, tonicDia + seq[k])));
+    slots.forEach((s, k) => {
+      const p = MQ.melodyPitchAt(K, tonicDia + seq[k]);
+      p.alt += c[k];
+      bars[s.m][s.i].p = p;
+    });
+    return bars;
+  }
+
+  // The melodies of an automatic quiz, as the teacher would have written them.
+  function generateMelodies(seed, auto) {
+    const a = MQ.melodyAuto(auto), L = levelOf(a), out = [];
+    for (let k = 0; k < a.count; k++) {
+      const rng = MQ.mulberry32((Math.imul((seed >>> 0) + 1, 2246822519) ^ Math.imul(k + 1, 3266489917) ^ 0x27d4eb2f) >>> 0);
+      const meter = MQ.rhythmPickMeter(rng, L.rules);
+      const info = MQ.rhythmMeter(meter);
+      const key = keyFor(rng, a);
+      const clef = a.clefs === 2 ? 'bass' : a.clefs === 3 && rng() < 0.5 ? 'bass' : 'treble';
+      const bars = buildMelody(rng, a, L, meter, key, clef);
+      while (bars.length < MQ.MELODY_MEASURES) bars.push([]);
+      const tempo = Math.max(40, Math.min(240, Math.round((a.tempo * 12) / MQ.RHYTHM_TEMPO_UNITS[info.tempo])));
+      out.push(MQ.melodyExample({ meter, measures: a.measures, tempo, key, clef, layers: [bars] }));
+    }
+    return out;
+  }
+
+  Object.assign(MQ, { MELODY_LEVELS: LEVELS, MELODY_GEN: GEN, generateMelodies, melodyLevel: levelOf });
 })(typeof window !== 'undefined' ? window : globalThis);
 /* Clefwork — QR codes, so a printed quiz can be scanned back open. Byte mode, versions 1–20,
    error correction L or M. Returns a square matrix of 0 (light) and 1 (dark) modules. */
@@ -6009,6 +6674,70 @@ svg.staff .nlabel { display: none; }
     return MQ.exampleSettings(ex);
   }
 
+  // ---------- melodies ----------
+  // Rhythm as above, and for each note its line or space (7 bits) and accidental (−2 … +2).
+  function writeMelEvents(w, list) {
+    const evs = (list || []).slice(0, 63);
+    w.u(evs.length, 6);
+    evs.forEach((e) => {
+      w.u(e.v, 3).u(e.d ? 1 : 0, 1).u(e.t ? 1 : 0, 1).u(e.r ? 1 : 0, 1);
+      if (!e.r) { const p = e.p || { step: 0, oct: 4, alt: 0 }; w.u(Math.max(0, Math.min(127, MQ.dia(p))), 7).u(Math.max(-2, Math.min(2, p.alt)) + 2, 3); }
+    });
+  }
+  function readMelEvents(r) {
+    const n = r.u(6), out = [];
+    for (let i = 0; i < n; i++) {
+      const e = { v: Math.min(4, r.u(3)), d: r.u(1), t: r.u(1), r: r.u(1) };
+      if (!e.r) { const d = r.u(7); e.p = MQ.fromDia(d, r.u(3) - 2); }
+      out.push(e);
+    }
+    return out;
+  }
+  function writeMelody(w, raw) {
+    const ex = MQ.melodyExample(raw);
+    w.u(ex.measures - 1, 3).u(METER_DENOMS.indexOf(ex.meter.d), 2).u(ex.meter.n, 4).u(ex.meter.g || 0, 2)
+      .u(ex.tempo - 30, 8).u(ex.clef === 'bass' ? 1 : 0, 1).u(ex.key.fifths + 7, 4).u(ex.key.mode === 'minor' ? 1 : 0, 1);
+    for (let m = 0; m < ex.measures; m++) writeMelEvents(w, ex.layers[0][m]);
+  }
+  function readMelody(r) {
+    const ex = { measures: r.u(3) + 1 };
+    ex.meter = { d: METER_DENOMS[r.u(2)] || 4, n: r.u(4), g: r.u(2) };
+    ex.tempo = r.u(8) + 30;
+    ex.clef = r.u(1) ? 'bass' : 'treble';
+    ex.key = { fifths: r.u(4) - 7, mode: r.u(1) ? 'minor' : 'major' };
+    ex.layers = [[]];
+    for (let m = 0; m < ex.measures; m++) ex.layers[0].push(readMelEvents(r));
+    return MQ.melodyExample(ex);
+  }
+  // The melody block: listening and scoring, then automatic settings or the melodies themselves.
+  function writeMelodyBlock(w, mb) {
+    w.u(Math.min(15, mb.playsEx || 0), 4).u(Math.min(15, mb.playsAns || 0), 4).u(mb.score === 'percent' ? 1 : 0, 1).u(mb.outOf, 10)
+      .u(mb.first ? 1 : 0, 1).u(mb.split ? 1 : 0, 1).u(mb.auto.on ? 1 : 0, 1);
+    if (mb.auto.on) {
+      const a = mb.auto, c = a.custom;
+      w.u(a.gen, 3).u(a.count - 1, 5).u(a.measures - 1, 3).u(a.level - 1, 3).u(a.tempo - 30, 8)
+        .u(a.keyMode, 2).u(a.keyMax, 3).u(a.chromatic ? 1 : 0, 1).u(a.clefs, 2)
+        .u(c.lo - 2, 3).u(c.hi - 2, 3).u(c.compound ? 1 : 0, 1).u(c.cut ? 1 : 0, 1).u(c.uneven ? 1 : 0, 1)
+        .u(c.shortest - 2, 2).u(c.dotted ? 1 : 0, 1).u(c.triplets ? 1 : 0, 1).u(c.offbeats, 2).u(c.rests, 2).u(c.range, 3).u(c.leap, 3);
+    } else {
+      const list = mb.examples.slice(0, MQ.MELODY_MAX);
+      w.u(list.length, 4);
+      list.forEach((ex) => writeMelody(w, ex));
+    }
+  }
+  function readMelodyBlock(r) {
+    const mb = { playsEx: r.u(4), playsAns: r.u(4), score: r.u(1) ? 'percent' : 'notes', outOf: r.u(10), first: r.u(1), split: r.u(1), examples: [] };
+    if (r.u(1)) {
+      const a = { on: true, gen: r.u(3), count: r.u(5) + 1, measures: r.u(3) + 1, level: r.u(3) + 1, tempo: r.u(8) + 30, keyMode: r.u(2), keyMax: r.u(3), chromatic: r.u(1), clefs: r.u(2) };
+      a.custom = { lo: r.u(3) + 2, hi: r.u(3) + 2, compound: r.u(1), cut: r.u(1), uneven: r.u(1), shortest: r.u(2) + 2, dotted: r.u(1), triplets: r.u(1), offbeats: r.u(2), rests: r.u(2), range: r.u(3), leap: r.u(3) };
+      mb.auto = a;
+    } else {
+      const n = r.u(4);
+      for (let i = 0; i < n; i++) mb.examples.push(readMelody(r));
+    }
+    return MQ.melodySettings(mb);
+  }
+
   // ---------- quiz codes ----------
   // Retakes a quiz allows after the first attempt: a number from 0 to 31, or null for no limit.
   const retakeLimit = (cfg) => (cfg && Number.isInteger(cfg.retakes) && cfg.retakes >= 0 ? Math.min(31, cfg.retakes) : null);
@@ -6110,15 +6839,18 @@ svg.staff .nlabel { display: none; }
     // play the example and their answer, then each example's meter, tempo and rhythm.
     // Extension 4: the same, plus how the quiz is scored (every note a point, or a percent of a
     // total) and whether the examples are written out or made automatically from the seed.
+    // Extension 5: Clefwork Melody — after the (empty) rhythm block, the melody block.
     const an = MQ.analysisSettings(cfg.analysis);
     const regions = an.regions.slice(0, MQ.ANALYSIS_MAX);
     const limit = retakeLimit(cfg);
     const rh = MQ.rhythmSettings(cfg.rhythm);
     const examples = rh.examples.slice(0, MQ.RHYTHM_MAX);
     const rhythm = rh.auto.on || examples.length > 0;
-    if (regions.length || an.img || limit != null || rhythm) {
+    const mb = MQ.melodySettings(cfg.melody);
+    const melody = mb.auto.on || mb.examples.length > 0;
+    if (regions.length || an.img || limit != null || rhythm || melody) {
       const q10 = (v) => Math.max(0, Math.min(1023, Math.round(v * 1023)));
-      const ext = rhythm ? 4 : limit != null ? 2 : 1;
+      const ext = melody ? 5 : rhythm ? 4 : limit != null ? 2 : 1;
       w.u(ext, 8).u(an.override, 2).u(an.img ? 1 : 0, 1);
       if (an.img) w.u(an.img.hash >>> 0, 32);
       w.strN(an.notes, 200, 8).u(regions.length, 6);
@@ -6127,7 +6859,7 @@ svg.staff .nlabel { display: none; }
           .u(Math.max(1, MQ.ANALYSIS_ASKS.indexOf(r.ask)), 2).str(r.roman, 63).str(r.symbol, 63);
       });
       if (ext === 2) w.u(limit, 5);
-      if (ext === 4) {
+      if (ext >= 4) {
         w.u(limit != null ? 1 : 0, 1);
         if (limit != null) w.u(limit, 5);
         w.u(Math.min(15, rh.playsEx || 0), 4).u(Math.min(15, rh.playsAns || 0), 4)
@@ -6144,6 +6876,7 @@ svg.staff .nlabel { display: none; }
           examples.forEach((ex) => writeExample(w, ex));
         }
       }
+      if (ext === 5) writeMelodyBlock(w, mb);
     }
     return pack(KIND_QUIZ, w.b);
   }
@@ -6269,6 +7002,8 @@ svg.staff .nlabel { display: none; }
       cfg.counts.analysis = 0;
       cfg.rhythm = MQ.defaultConfig().rhythm;
       cfg.counts.rhythm = 0;
+      cfg.melody = MQ.defaultConfig().melody;
+      cfg.counts.melody = 0;
       if (cfg.helpOv.vprog == null) cfg.helpOv.vprog = 2;
       if (v >= 12) {
         cfg.helpOv.vprog = r.u(2);
@@ -6319,6 +7054,10 @@ svg.staff .nlabel { display: none; }
             cfg.rhythm = MQ.rhythmSettings(rh);
             cfg.counts.rhythm = rh.auto ? rh.auto.count : rh.examples.length;
           }
+          if (ext >= 5) {
+            cfg.melody = readMelodyBlock(r);
+            cfg.counts.melody = cfg.melody.auto.on ? cfg.melody.auto.count : cfg.melody.examples.length;
+          }
         }
         const sum = (b) => MQ.TECHNIQUES.reduce((n, t) => n + ((b.tech && b.tech[t.id]) || 0), 0);
         cfg.counts.voicing = sum(cfg.vc);
@@ -6359,6 +7098,12 @@ svg.staff .nlabel { display: none; }
   const KEY_ANSWERS = ['staff', 'name', 'piano'];
   // `plays` (rhythm questions): how often the student played the example and their own answer.
   function writeAnswer(w, q, resp, plays) {
+    if (q.type === 'melody') {
+      w.u(q.mel.measures - 1, 3);
+      for (let m = 0; m < q.mel.measures; m++) writeMelEvents(w, resp && resp[0] && resp[0][m]);
+      w.u(Math.min(31, (plays && plays.ex) || 0), 5).u(Math.min(31, (plays && plays.ans) || 0), 5);
+      return;
+    }
     if (q.type === 'rhythm') {
       const R = q.rh;
       w.u(R.parts - 1, 1).u(R.measures - 1, 2);
@@ -6419,6 +7164,11 @@ svg.staff .nlabel { display: none; }
     }
   }
   function readAnswer(r, type, ver) {
+    if (type === 'melody') {
+      const n = r.u(3) + 1, L = [];
+      for (let m = 0; m < n; m++) L.push(readMelEvents(r));
+      return { kind: 'melody', value: [L], plays: { ex: r.u(5), ans: r.u(5) } };
+    }
     if (type === 'rhythm') {
       const parts = r.u(1) + 1, n = r.u(2) + 1, layers = [];
       for (let l = 0; l < parts; l++) { const L = []; for (let m = 0; m < n; m++) L.push(readEvents(r)); layers.push(L); }
@@ -6490,7 +7240,7 @@ svg.staff .nlabel { display: none; }
     const qid = quizId(quizCode);
     const w = new Writer();
     // Version 10 added rhythm answers, with how often each example and answer was played.
-    w.u(11, 4).u(qid, 16).str(report.name, 40)
+    w.u(12, 4).u(qid, 16).str(report.name, 40)
       .u(Math.max(0, Math.round((report.submittedAt - EPOCH) / 60000)), 24)
       .u(Math.min(65535, Math.round(report.totalSec)), 16)
       .u(report.partial ? 1 : 0, 1).u(report.items.length, 7);
@@ -6505,11 +7255,16 @@ svg.staff .nlabel { display: none; }
     w.u(Math.max(1, Math.min(31, Math.round(report.attempt || 1))), 5);   // version 9: which attempt this was
     // Version 11: rhythm quizzes are scored note by note — how many notes each example has and how
     // many were wrong, and whether the score is those notes or a percent of a set total.
+    // Version 12: melodies too — their pitch and rhythm mistakes, and whether those are half a point each.
     const sc = report.scoring;
     w.u(sc ? 1 : 0, 1);
     if (sc) {
-      w.u(sc.mode === 'percent' ? 1 : 0, 1).u(Math.max(1, Math.min(1000, Math.round(sc.outOf || 100))), 10);
-      report.items.forEach((it) => { if (it.type === 'rhythm') w.u(Math.min(511, it.notes || 0), 9).u(Math.min(511, it.wrong || 0), 9); });
+      w.u(sc.mode === 'percent' ? 1 : 0, 1).u(Math.max(1, Math.min(1000, Math.round(sc.outOf || 100))), 10).u(sc.split ? 1 : 0, 1);
+      const n9 = (v) => Math.max(0, Math.min(511, v || 0));
+      report.items.forEach((it) => {
+        if (it.type === 'rhythm' || it.type === 'melody') w.u(n9(it.notes), 9).u(n9(it.wrong), 9);
+        if (it.type === 'melody') w.u(n9(it.pw), 9).u(n9(it.rw), 9);
+      });
     }
     return pack(KIND_REPORT, w.b, sealKey(cfg, qid));
   }
@@ -6524,7 +7279,7 @@ svg.staff .nlabel { display: none; }
     const restBits = body.slice(20);
     try {
       const ver = r.u(4);
-      if (ver < 1 || ver > 11) throw new CodeError('This report was made with a newer version of Clefwork.');
+      if (ver < 1 || ver > 12) throw new CodeError('This report was made with a newer version of Clefwork.');
       const rep = { code: group(clean), quizId: r.u(16), name: r.str() };
       rep.submittedAt = EPOCH + r.u(24) * 60000;
       rep.totalSec = r.u(16);
@@ -6544,8 +7299,11 @@ svg.staff .nlabel { display: none; }
       rep.attempt = ver >= 9 ? r.u(5) || 1 : null;              // older reports didn't say
       rep.scoring = null;
       if (ver >= 11 && r.u(1)) {
-        rep.scoring = { mode: r.u(1) ? 'percent' : 'notes', outOf: r.u(10) };
-        rep.items.forEach((it) => { if (it.type === 'rhythm') { it.notes = r.u(9); it.wrong = r.u(9); } });
+        rep.scoring = { mode: r.u(1) ? 'percent' : 'notes', outOf: r.u(10), split: ver >= 12 ? r.u(1) : 0 };
+        rep.items.forEach((it) => {
+          if (it.type === 'rhythm' || (it.type === 'melody' && ver >= 12)) { it.notes = r.u(9); it.wrong = r.u(9); }
+          if (it.type === 'melody' && ver >= 12) { it.pw = r.u(9); it.rw = r.u(9); }
+        });
       }
       // True when the seal matches the quiz this report claims to belong to.
       rep.verifySeal = (cfg) => seal16(bitsToBytes(restBits), sealKey(cfg, rep.quizId)) === seal;
@@ -6561,7 +7319,9 @@ svg.staff .nlabel { display: none; }
   function itemScore(it, sc) {
     if (sc && it.notes != null) {
       if (!it.notes) return { pts: it.wrong ? 0 : 1, max: 1, full: !it.wrong };
-      return { pts: Math.max(0, it.notes - it.wrong), max: it.notes, full: !it.wrong };
+      // A melody scored split: half a point for each pitch or rhythm mistake.
+      const lost = sc.split && it.pw != null ? (it.pw + it.rw) / 2 : it.wrong;
+      return { pts: Math.max(0, it.notes - lost), max: it.notes, full: !it.wrong };
     }
     return { pts: it.credit / 7, max: 1, full: it.credit === 7 };
   }
@@ -7011,6 +7771,9 @@ svg.staff .nlabel { display: none; }
   MQ.Staff = Staff;
   MQ.ACC_SVG = ACC;
   MQ.HEAD_SVG = HEAD;
+  // For Clefwork Melody's staff, drawn at its own size.
+  MQ.clefSVG = clefSVG;
+  MQ.keySigDias = keySigDias;
 })(window);
 /* Clefwork Rhythm — the one-line staff. Draws a rhythm in one or two parts (stems up, and stems
    down) with beams, flags, dots, rests and triplet brackets, and lets students and teachers write
@@ -7305,7 +8068,8 @@ svg.staff .nlabel { display: none; }
     // opts: {meter, measures, parts, layers, readOnly, active, marks, onChange(layers), onMove()}
     constructor(host, opts) {
       this.o = Object.assign({ readOnly: false, active: 0, marks: null, onChange: null, onMove: null }, opts);
-      this.model = { meter: this.o.meter, measures: this.o.measures, parts: this.o.parts || 1, layers: copyLayers(this.o.layers, this.o.parts || 1) };
+      this.slots = this.o.slots || 4;
+      this.model = { meter: this.o.meter, measures: this.o.measures, parts: this.o.parts || 1, layers: copyLayers(this.o.layers, this.o.parts || 1, this.slots) };
       this.active = Math.min(this.o.active || 0, this.model.parts - 1);
       this.caret = { m: 0, i: 0 };
       this.sel = null;
@@ -7317,11 +8081,13 @@ svg.staff .nlabel { display: none; }
       svg.setAttribute('role', this.o.readOnly ? 'img' : 'application');
       if (!this.o.readOnly) svg.setAttribute('tabindex', '0');
       host.append(svg);
+      this.setup();
       if (!this.o.readOnly) this.bind();
       this.render();
     }
+    setup() { /* a subclass's own state, before the first drawing */ }
     info() { return MQ.rhythmMeter(this.model.meter); }
-    layers() { return copyLayers(this.model.layers, this.model.parts); }
+    layers() { return copyLayers(this.model.layers, this.model.parts, this.slots); }
     caretToEnd() {
       const info = this.info(), L = this.model.layers[this.active];
       let m = 0;
@@ -7379,6 +8145,7 @@ svg.staff .nlabel { display: none; }
           : `Measure ${m + 1} is full. Select a note to change it, or delete one.`;
       }
       L[m] = next;
+      this.enteredAt = { m, i };
       this.sel = null;
       this.caret = { m, i: i + 1 };
       // A full measure moves the caret on to the next one.
@@ -7483,18 +8250,457 @@ svg.staff .nlabel { display: none; }
       });
     }
   }
-  function copyLayers(layers, parts) {
+  function copyLayers(layers, parts, slots) {
     const out = [];
     for (let l = 0; l < Math.max(1, parts); l++) {
       const L = (layers && layers[l]) || [];
       const c = [];
-      for (let m = 0; m < 4; m++) c.push((L[m] || []).map(MQ.rhythmEvent));
+      for (let m = 0; m < (slots || 4); m++) c.push((L[m] || []).map(MQ.rhythmEvent));
       out.push(c);
     }
     return out;
   }
 
+  // The pieces Clefwork Melody's staff draws with.
+  MQ.rhythmDraw = { RX, RY, STEM, BEAM, BEAM_STEP, PAD_L, PAD_R, r1, headSVG, lineSVG, rectSVG, dotSVG, flagsSVG, restSVG, spacing, beamPlan, NAMES, copyLayers };
   Object.assign(MQ, { RhythmStaff, rhythmArt, rhythmIcon: icon, rhythmMarkup: build });
+})(window);
+/* Clefwork Melody — the staff students and teachers write melodies on: five lines, a treble or bass
+   clef, the key signature, and up to eight measures, four to a line. Notes have pitches: ledger
+   lines, accidentals (shown only where the key signature and earlier notes in the measure don't
+   already say so), stems that turn down from the middle line, and beams. Editing works as on the
+   rhythm staff — a caret, a selected note to replace — plus pitch: click where the next note goes,
+   drag a note up or down, or use the arrow keys and ♯ ♭ ♮. Drawn with plain shapes so it prints. */
+(function (root) {
+  'use strict';
+  const MQ = root.MQ;
+  const NS = 'http://www.w3.org/2000/svg';
+  const { RX, STEM, BEAM, BEAM_STEP, PAD_L, PAD_R, r1, headSVG, lineSVG, rectSVG, dotSVG, flagsSVG, restSVG, spacing, beamPlan, NAMES } = MQ.rhythmDraw;
+  const HALF = 5, TOP = 46, SYS_H = 138;               // a staff space is 10; one line of music is SYS_H tall
+  const MID = TOP + 20, BOT = TOP + 40;                 // the middle and bottom lines, within a system
+  const ACC_SCALE = 0.85, ACC_W = 11;
+  const bottomOf = (clef) => MQ.CLEFS[clef === 'bass' ? 'bass' : 'treble'].bottom;
+
+  // The accidental each note shows: only what the key signature, and earlier notes on the same line
+  // or space in this measure, don't already give it.
+  function shownAccidentals(events, alts) {
+    const cur = {};
+    return events.map((e) => {
+      if (e.r || !e.p) return null;
+      const d = MQ.dia(e.p);
+      const was = d in cur ? cur[d] : alts[e.p.step];
+      cur[d] = e.p.alt;
+      return e.p.alt === was ? null : e.p.alt;
+    });
+  }
+  const accSVG = (alt, x, y) => `<g transform="translate(${r1(x)} ${r1(y)}) scale(${ACC_SCALE})">${MQ.ACC_SVG[alt]}</g>`;
+
+  // ---------- the picture ----------
+  // model: {meter, measures, layers: [[measure…]], key {fifths, mode}, clef}. opts as for the rhythm
+  // staff (caret, sel, marks, playing, editing, print, measureW, first, showTime), plus perLine and
+  // cursor (a pitch to show at the caret: where the next note goes).
+  function build(model, opts) {
+    const o = Object.assign({ print: false, first: 0, showTime: true, measureW: null, caret: null, sel: null, marks: null, playing: -1, editing: false, perLine: 4, cursor: null }, opts);
+    const info = MQ.rhythmMeter(model.meter);
+    const K = MQ.melodyKey(model.key);
+    const clef = model.clef === 'bass' ? 'bass' : 'treble', bottom = bottomOf(clef);
+    const events = (model.layers[0] || []).slice(0, model.measures).map((m) => m || []);
+    const posOf = (p) => MQ.dia(p) - bottom;
+    const plans = events.map((ev) => beamPlan(ev, info));
+    const accs = events.map((ev) => shownAccidentals(ev, K.alts));
+    const nSys = Math.ceil(model.measures / o.perLine);
+    const ksW = Math.abs(K.fifths) * 9 + (K.fifths ? 8 : 0);
+    const headW = (k) => 38 + ksW + (k === 0 && o.showTime ? 28 : 0) + 6;
+    // ---------- widths: one position for every moment a note starts ----------
+    const natural = events.map((ev, m) => {
+      const P = plans[m];
+      const times = new Set([0, info.len]);
+      const extra = new Map();
+      P.list.forEach((n) => {
+        times.add(n.t);
+        let x = n.e.d ? 6 : 0;
+        if (!n.e.r && n.e.v >= 3 && !P.inBeam.has(n.i)) x += 6;          // a flag reaching right
+        if (accs[m][n.i] != null) x += ACC_W;                             // an accidental in front
+        extra.set(n.t, Math.max(extra.get(n.t) || 0, x));
+      });
+      const end = MQ.rhythmTotal(ev);
+      times.add(end);
+      const ts = [...times].sort((a, b) => a - b);
+      const seg = ts.slice(0, -1).map((t, k) => spacing(ts[k + 1] - t) + (extra.get(t) || 0));
+      const content = seg.reduce((a, b) => a + b, 0);
+      const nominal = o.measureW ? o.measureW - PAD_L - PAD_R : (info.len / 6) * 24;
+      return { ts, seg, width: Math.max(content, nominal) + PAD_L + PAD_R, content };
+    });
+    const sysMeasures = [];
+    for (let k = 0; k < nSys; k++) sysMeasures.push(Array.from({ length: Math.min(o.perLine, model.measures - k * o.perLine) }, (_, j) => k * o.perLine + j));
+    // Every line is as wide as the widest, its measures stretched to fill it.
+    const W = Math.max(...sysMeasures.map((ms, k) => headW(k) + ms.reduce((t, m) => t + natural[m].width, 0))) + 10;
+    const H = nSys * SYS_H;
+    const geo = { measures: [], ev: [[]], W, H, systems: [] };
+    sysMeasures.forEach((ms, k) => {
+      const sy = k * SYS_H;
+      const x0 = headW(k);
+      const total = ms.reduce((t, m) => t + natural[m].width, 0);
+      const stretch = (W - 10 - x0) / total;
+      let x = x0;
+      geo.systems.push({ y0: sy, y1: sy + SYS_H, x0 });
+      ms.forEach((m) => {
+        const nat = natural[m], w = nat.width * stretch;
+        const inner = w - PAD_L - PAD_R;
+        const k2 = inner / Math.max(1, nat.content);
+        const xs = new Map();
+        let at = x + PAD_L;
+        nat.ts.forEach((t, j) => { xs.set(t, at); if (j < nat.seg.length) at += nat.seg[j] * Math.max(1, k2); });
+        geo.measures[m] = { x0: x, x1: x + w, xs, ts: nat.ts, sys: k, sy };
+        x += w;
+      });
+    });
+    const xOf = (m, t) => {
+      const g = geo.measures[m];
+      if (g.xs.has(t)) return g.xs.get(t);
+      let lo = 0;
+      g.ts.forEach((u, j) => { if (u <= t) lo = j; });
+      const hi = Math.min(g.ts.length - 1, lo + 1), a = g.ts[lo], b = g.ts[hi];
+      return b === a ? g.xs.get(a) : g.xs.get(a) + ((t - a) / (b - a)) * (g.xs.get(b) - g.xs.get(a));
+    };
+    geo.xOf = xOf;
+    let s = '';
+    // ---------- measure backgrounds: clicking, the playing highlight, marks ----------
+    if (!o.print) {
+      geo.measures.forEach((g, m) => {
+        const pm = o.marks && o.marks.side === 'got' ? o.marks.parts[0].measures[m] : null;
+        const cls = ['r-meas', o.playing === m ? 'is-playing' : '', o.editing && o.caret && o.caret.m === m ? 'is-cur' : '', pm ? (pm.ok ? 'is-right' : 'is-wrong') : ''].filter(Boolean).join(' ');
+        s += `<rect class="${cls}" data-m="${m}" x="${r1(g.x0 + 1)}" y="${g.sy + 4}" width="${r1(g.x1 - g.x0 - 2)}" height="${SYS_H - 8}" rx="6"/>`;
+      });
+    }
+    // ---------- staff lines, clef, key signature, time signature, bar lines ----------
+    sysMeasures.forEach((ms, k) => {
+      const sy = k * SYS_H;
+      for (let i = 0; i < 5; i++) s += lineSVG(4, sy + TOP + i * 10, W - 3, sy + TOP + i * 10, 1);
+      s += `<g class="clef" transform="translate(8 ${sy + BOT}) scale(0.8333) translate(-8 ${-(sy + BOT)})">${MQ.clefSVG(clef, sy + BOT, 8)}</g>`;
+      MQ.keySigDias(K.fifths, clef).forEach((d, j) => { s += accSVG(K.fifths > 0 ? 1 : -1, 44 + j * 9, sy + BOT - (d - bottom) * HALF); });
+      if (k === 0 && o.showTime) {
+        const tx = 44 + ksW + 10;
+        s += `<text class="clabel r-tsig" x="${tx}" y="${sy + MID - 1}" font-size="22" text-anchor="middle" fill="currentColor">${info.n}</text>`;
+        s += `<text class="clabel r-tsig" x="${tx}" y="${sy + BOT - 1}" font-size="22" text-anchor="middle" fill="currentColor">${info.d}</text>`;
+      }
+      s += lineSVG(4, sy + TOP, 4, sy + BOT, 1);
+      ms.forEach((m, j) => {
+        const g = geo.measures[m];
+        s += `<text class="r-mnum" x="${r1(g.x0 + 4)}" y="${sy + 14}" font-size="9.5" fill="currentColor">${o.first + m + 1}</text>`;
+        const last = m === model.measures - 1;
+        if (!last) s += lineSVG(g.x1, sy + TOP, g.x1, sy + BOT, 1);
+        else s += lineSVG(g.x1 - 7, sy + TOP, g.x1 - 7, sy + BOT, 1) + rectSVG(g.x1 - 4, sy + TOP, 3.6, 40);
+        if (!last && j === ms.length - 1) { /* the line ends at its bar line */ }
+      });
+    });
+
+    // ---------- the notes ----------
+    events.forEach((evs, m) => {
+      const g = geo.measures[m], sy = g.sy;
+      const { list, beamed, inBeam } = plans[m];
+      const st = MQ.measureState(evs, info);
+      const badAt = new Set();
+      st.bad.forEach((tg) => { if (!tg.finishable || st.full) for (let i = tg.from; i <= tg.to; i++) badAt.add(i); });
+      const pm = o.marks && o.marks.parts[0] && o.marks.parts[0].measures[m];
+      const flags = pm ? pm[o.marks.side] : null;
+      const wrongCls = o.marks && o.marks.side === 'want' ? ' is-missed' : ' is-wrong';
+      const markOf = (i) => (!flags || flags[i] == null ? '' : flags[i] ? (o.marks.side === 'got' ? ' is-right' : '') : wrongCls);
+      list.forEach((n) => {
+        n.acc = accs[m][n.i];
+        n.hx = xOf(m, n.t) + (n.acc != null ? ACC_W : 0) + RX + 1;
+        if (!n.e.r) { n.pos = posOf(n.e.p); n.hy = sy + BOT - n.pos * HALF; }
+      });
+      geo.ev[0][m] = list.map((n) => ({ x: n.hx, t: n.t }));
+      // Stems turn down from the middle line; a beamed group follows its note farthest from it.
+      const dirOf = (grp) => {
+        const notes = grp.filter((n) => !n.e.r);
+        if (!notes.length) return true;
+        const above = Math.max(...notes.map((n) => n.pos - 4)), below = Math.max(...notes.map((n) => 4 - n.pos));
+        return below > above;
+      };
+      const stemEnd = (n, up) => (up ? Math.min(n.hy - STEM, sy + MID) : Math.max(n.hy + STEM, sy + MID)) + (up ? -1 : 1) * (!inBeam.has(n.i) && n.e.v === 4 ? 5 : 0);
+      list.forEach((n) => { n.up = inBeam.has(n.i) ? null : dirOf([n]); });
+      beamed.forEach((grp) => {
+        const up = dirOf(grp);
+        const y = up ? Math.min(...grp.map((n) => stemEnd(n, true))) : Math.max(...grp.map((n) => stemEnd(n, false)));
+        grp.forEach((n) => { n.up = up; n.beamY = y; });
+      });
+      const stemX = (n) => n.hx + (n.up ? 5.7 : -5.7);
+      const barRest = evs.length === 1 && evs[0].r && list[0].d === info.len;
+      const restPos = { rest: sy + MID, wholeTop: sy + TOP + 10, halfBottom: sy + MID };
+      list.forEach((n) => {
+        const e = n.e;
+        const sel = o.sel && o.sel.m === m && o.sel.i === n.i;
+        const cls = 'r-ev' + (sel && !o.print ? ' is-sel' : '') + (badAt.has(n.i) ? ' is-bad' : '') + markOf(n.i);
+        let body = '';
+        if (e.r) {
+          const rx = barRest ? (g.x0 + g.x1) / 2 : n.hx;
+          body += restSVG(barRest ? 0 : e.v, rx, restPos);
+          if (e.d && !barRest) body += dotSVG(rx + (e.v <= 1 ? 10 : 8), sy + MID - (e.v <= 1 ? 5 : 3));
+        } else {
+          // Ledger lines above and below the staff.
+          for (let L = -2; L >= n.pos; L -= 2) body += lineSVG(n.hx - 11, sy + BOT - L * HALF, n.hx + 11, sy + BOT - L * HALF, 1.3);
+          for (let L = 10; L <= n.pos; L += 2) body += lineSVG(n.hx - 11, sy + BOT - L * HALF, n.hx + 11, sy + BOT - L * HALF, 1.3);
+          if (n.acc != null) body += accSVG(n.acc, n.hx - RX - 9 - (n.acc === -2 ? 4 : 0), n.hy);
+          body += headSVG(e.v, n.hx, n.hy);
+          if (e.v >= 1) {
+            const end = inBeam.has(n.i) ? n.beamY : stemEnd(n, n.up);
+            body += lineSVG(stemX(n), n.hy + (n.up ? -1.5 : 1.5), stemX(n), end, 1.3);
+            if (e.v >= 3 && !inBeam.has(n.i)) body += flagsSVG(stemX(n) + (n.up ? -0.6 : 0.6), end, n.up, e.v - 2);
+          }
+          if (e.d) body += dotSVG(n.hx + (e.v === 0 ? 12 : 10.5), n.hy - (n.pos % 2 === 0 ? HALF : 0));
+        }
+        const next = list[n.i + 1];
+        const right = next ? next.hx - RX - 2 - (next.acc != null ? ACC_W : 0) : Math.max(n.hx + RX + 8, xOf(m, n.t + n.d) - 2);
+        const hit = o.print ? '' : `<rect class="r-hit" x="${r1(n.hx - RX - 3)}" y="${sy + TOP - 30}" width="${r1(Math.max(16, right - n.hx + RX + 3))}" height="100"/>`;
+        s += `<g class="${cls}" data-l="0" data-m="${m}" data-i="${n.i}">${hit}${body}</g>`;
+      });
+      // ---------- beams ----------
+      beamed.forEach((grp) => {
+        const up = grp[0].up, y0 = up ? grp[0].beamY : grp[0].beamY - BEAM;
+        const a = stemX(grp[0]) - 0.65, z = stemX(grp[grp.length - 1]) + 0.65;
+        let b = rectSVG(a, y0, z - a, BEAM);
+        const y1 = y0 + (up ? BEAM_STEP : -BEAM_STEP);
+        for (let j = 0; j < grp.length; j++) {
+          if (grp[j].e.v !== 4) continue;
+          let k = j;
+          while (k + 1 < grp.length && grp[k + 1].e.v === 4) k++;
+          if (k > j) b += rectSVG(stemX(grp[j]) - 0.65, y1, stemX(grp[k]) - stemX(grp[j]) + 1.3, BEAM);
+          else { const sx = stemX(grp[j]); b += rectSVG(j > 0 ? sx - 8 : sx - 0.65, y1, 8.65, BEAM); }
+          j = k;
+        }
+        const all = grp.map((n) => flags && flags[n.i]).filter((x) => x != null);
+        const gm = !all.length ? '' : all.every(Boolean) ? markOf(grp[0].i) : all.every((x) => !x) ? wrongCls : '';
+        s += `<g class="r-beam${grp.some((n) => badAt.has(n.i)) ? ' is-bad' : ''}${gm}">${b}</g>`;
+      });
+      // ---------- triplets: the number on the stem side ----------
+      MQ.tripletGroups(evs, info).forEach((tg) => {
+        const notes = list.slice(tg.from, tg.to + 1);
+        if (!notes.length) return;
+        const pitched = notes.filter((n) => !n.e.r);
+        const up = pitched.length ? pitched[0].up !== false : true;
+        const ends = pitched.map((n) => (inBeam.has(n.i) ? n.beamY : n.e.v >= 1 ? stemEnd(n, n.up) : n.hy));
+        const grp = beamed.find((b) => b[0].i === tg.from && b[b.length - 1].i === tg.to);
+        const xa = notes[0].hx - RX, xb = notes[notes.length - 1].hx + RX;
+        const mid = grp ? (stemX(grp[0]) + stemX(grp[grp.length - 1])) / 2 : (xa + xb) / 2;
+        const ny = up ? Math.min(sy + TOP - 6, ...ends.map((y) => y - 5)) : Math.max(sy + BOT + 14, ...ends.map((y) => y + 13));
+        let b = `<text class="clabel r-trip" x="${r1(mid)}" y="${r1(ny)}" font-size="11" text-anchor="middle" fill="currentColor">3</text>`;
+        if (!grp) {
+          const by = ny - 4, hook = up ? 4 : -4;
+          b += lineSVG(xa, by + hook, xa, by, 0.9) + lineSVG(xa, by, mid - 6, by, 0.9) + lineSVG(mid + 6, by, xb, by, 0.9) + lineSVG(xb, by, xb, by + hook, 0.9);
+        }
+        s += `<g class="r-tripg${badAt.has(tg.from) ? ' is-bad' : ''}">${b}</g>`;
+      });
+    });
+
+    // ---------- the caret, and where the next note will go ----------
+    if (o.editing && o.caret && !o.sel) {
+      const g = geo.measures[o.caret.m];
+      const list = geo.ev[0][o.caret.m] || [];
+      let cx;
+      if (o.caret.i < list.length) cx = list[o.caret.i].x - RX - 4 - (accs[o.caret.m][o.caret.i] != null ? ACC_W : 0);
+      else if (!list.length) cx = g.x0 + PAD_L - 5;
+      else cx = Math.min(g.x1 - 4, Math.max(list[list.length - 1].x + RX + 8, xOf(o.caret.m, Math.min(MQ.rhythmTotal(events[o.caret.m]), info.len)) - 2));
+      s += `<g class="r-caret">${lineSVG(cx, g.sy + TOP - 14, cx, g.sy + BOT + 14, 2)}<path d="M${r1(cx - 4.5)} ${g.sy + TOP - 15}h9l-4.5 5z" fill="currentColor"/>`;
+      if (o.cursor) {
+        const y = g.sy + BOT - posOf(o.cursor) * HALF;
+        s += `<ellipse cx="${r1(cx + 9)}" cy="${r1(y)}" rx="5.4" ry="3.9" fill="none" stroke="currentColor" stroke-width="1.4" stroke-dasharray="2 1.6"/>`;
+      }
+      s += '</g>';
+    }
+    return { inner: s, W, H, geo, info };
+  }
+
+  // A standalone picture, for printing: {svg, markup, wIn, hIn}. Drawn clefs, since a PDF can't
+  // use the music font.
+  function melodyArt(model, opts) {
+    const was = MQ.clefFont;
+    if (opts && opts.drawnClefs) MQ.clefFont = false;
+    const b = build(model, Object.assign({ print: true }, opts));
+    MQ.clefFont = was;
+    const markup = `<svg xmlns="${NS}" class="mstaff" viewBox="0 0 ${r1(b.W)} ${b.H}" width="${r1(b.W)}" height="${b.H}" style="color:#000">${b.inner}</svg>`;
+    const svg = new DOMParser().parseFromString(markup, 'image/svg+xml').documentElement;
+    const hIn = ((opts && opts.heightIn) || 1.25) * (b.H / SYS_H);
+    return { svg, markup, wIn: (b.W / b.H) * hIn, hIn };
+  }
+
+  // How many empty measures fit a line `avail` pixels wide, drawn no smaller than the staff's
+  // minimum scale; 0 while there's no width to measure.
+  function lineFit(model, avail) {
+    if (!avail) return 0;
+    const info = MQ.rhythmMeter(model.meter), K = MQ.melodyKey(model.key);
+    const head = 38 + Math.abs(K.fifths) * 9 + (K.fifths ? 8 : 0) + 34;
+    const bar = (info.len / 6) * 24 + PAD_L + PAD_R;
+    for (let n = 4; n > 1; n--) if ((head + n * bar + 10) * 0.72 <= avail) return n;
+    return 1;
+  }
+
+  // ---------- the interactive staff ----------
+  class MelodyStaff extends MQ.RhythmStaff {
+    // opts: as RhythmStaff, plus key {fifths, mode}, clef, first (the pitch new notes start from),
+    // perLine, sound (play each note as it's written or moved).
+    setup() {
+      this.K = MQ.melodyKey(this.o.key);
+      this.clef = this.o.clef === 'bass' ? 'bass' : 'treble';
+      this.cursor = null;          // a pitch picked by clicking the staff, for the next note
+      this.lastAt = null;          // the note just written: arrow keys and ♯ ♭ ♮ act on it
+      this.model.key = this.o.key;
+      this.model.clef = this.clef;
+      // As many measures a line as the space holds (up to four), from the empty-measure widths so
+      // the layout doesn't jump while notes go in — redrawn when the width changes.
+      this.fit = 0;
+      if (!this.o.perLine && typeof ResizeObserver !== 'undefined') {
+        new ResizeObserver(() => {
+          const n = lineFit(this.model, this.svg.parentNode ? this.svg.parentNode.clientWidth : 0);
+          if (n && n !== this.fit) { this.fit = n; this.render(); }
+        }).observe(this.svg.parentNode);
+      }
+    }
+    render() {
+      const b = build(this.model, {
+        caret: this.o.readOnly ? null : this.caret, sel: this.sel, marks: this.o.marks, playing: this.playing,
+        editing: !this.o.readOnly, perLine: this.o.perLine || this.fit || 4, cursor: this.o.readOnly ? null : this.cursorPitch(),
+      });
+      this.geo = b.geo;
+      this.svg.setAttribute('class', 'rstaff mstaff' + (this.o.readOnly ? ' is-readonly' : ''));
+      this.svg.setAttribute('viewBox', `0 0 ${r1(b.W)} ${b.H}`);
+      this.svg.style.minWidth = Math.round(b.W * 0.7) + 'px';
+      this.svg.style.maxWidth = Math.round(b.W * 1.4) + 'px';
+      this.svg.innerHTML = b.inner;
+      this.svg.setAttribute('aria-label', this.describeMelody(b.info));
+    }
+    describeMelody(info) {
+      const what = (e) => (e.r ? `${e.d ? 'dotted ' : ''}${NAMES[e.v]} rest` : `${MQ.fullName(e.p)} ${e.t ? 'triplet ' : ''}${e.d ? 'dotted ' : ''}${NAMES[e.v]}`);
+      const bars = this.model.layers[0].slice(0, this.model.measures).map((m, k) => `measure ${k + 1}: ${m.length ? m.map(what).join(', ') : 'empty'}`).join('; ');
+      const how = this.o.readOnly ? '' : ` Writing in measure ${this.caret.m + 1}. Choose a note value to add a note; letters A to G add that note, the up and down arrows move a note, and plus, minus and equals make it sharp, flat or natural.`;
+      return `${this.clef === 'bass' ? 'Bass' : 'Treble'} clef staff in ${MQ.melodyKeyName(this.o.key)}, ${info.label}, ${this.model.measures} measure${this.model.measures > 1 ? 's' : ''}. ${bars}.${how}`;
+    }
+    // ---------- pitch ----------
+    noteAt(at) { const e = at && this.model.layers[0][at.m] && this.model.layers[0][at.m][at.i]; return e && !e.r ? e : null; }
+    target() { return this.sel ? this.noteAt(this.sel) : this.noteAt(this.lastAt); }
+    // The pitch before the caret: the note a new one starts from.
+    before() {
+      const L = this.model.layers[0];
+      let { m, i } = this.caret;
+      for (;;) {
+        for (let j = Math.min(i, L[m].length) - 1; j >= 0; j--) if (!L[m][j].r) return L[m][j].p;
+        if (m === 0) return null;
+        m--; i = L[m].length;
+      }
+    }
+    defaultPitch() {
+      if (this.o.first) return Object.assign({}, this.o.first);
+      // The tonic nearest the middle of the staff.
+      const mid = bottomOf(this.clef) + 4;
+      let d = this.K.tonic.step;
+      while (d + 7 <= mid + 3) d += 7;
+      while (d > mid + 3) d -= 7;
+      return MQ.melodyPitchAt(this.K, d);
+    }
+    cursorPitch() { return this.cursor || this.before() || this.defaultPitch(); }
+    sound(p) { if (this.o.sound !== false && MQ.Audio && p) MQ.Audio.play([[MQ.midi(p)]], 0.6); }
+    // Writes a note (or rest) of the given value: in place of the selected note, keeping its pitch,
+    // or at the caret with the cursor's pitch.
+    enter(ev) {
+      const was = this.noteAt(this.sel);
+      if (!ev.r) ev.p = Object.assign({}, was ? was.p : this.cursorPitch());
+      const msg = super.enter(ev);
+      if (!msg) {
+        this.cursor = null;
+        this.lastAt = this.enteredAt;
+        if (!ev.r) this.sound(ev.p);
+        this.render();
+      }
+      return msg;
+    }
+    // A note by its letter, the nearest one to the note before.
+    enterLetter(step, ev) {
+      const from = this.cursorPitch();
+      const base = MQ.dia(from);
+      let d = base - ((((base % 7) - step) % 7) + 7) % 7;
+      if (base - d > 3) d += 7;
+      this.cursor = MQ.melodyPitchAt(this.K, d);
+      return this.enter(ev);
+    }
+    // Up or down by steps: the note picked, the note just written, or the cursor.
+    nudge(steps) {
+      const e = this.target();
+      if (e) {
+        e.p = MQ.melodyPitchAt(this.K, MQ.dia(e.p) + steps);
+        this.sound(e.p);
+        this.changed();
+        return true;
+      }
+      this.cursor = MQ.melodyPitchAt(this.K, MQ.dia(this.cursorPitch()) + steps);
+      this.moved();
+      return true;
+    }
+    setAlt(alt) {
+      const e = this.target();
+      if (!e) return false;
+      e.p.alt = alt;
+      this.sound(e.p);
+      this.changed();
+      return true;
+    }
+    select(l, m, i) { super.select(0, m, i); this.lastAt = { m, i }; }
+    move(dir) { this.lastAt = null; super.move(dir); }
+    pitchAtY(y, sys) {
+      const pos = Math.max(-6, Math.min(14, Math.round((sys * SYS_H + BOT - y) / HALF)));
+      return MQ.melodyPitchAt(this.K, bottomOf(this.clef) + pos);
+    }
+    bind() {
+      const svg = this.svg;
+      let drag = null;
+      svg.addEventListener('pointerdown', (e) => {
+        if (e.button > 0) return;
+        const p = this.pt(e.clientX, e.clientY);
+        const sys = Math.max(0, Math.min(this.geo.systems.length - 1, Math.floor(p.y / SYS_H)));
+        const hit = e.target.closest && e.target.closest('.r-ev');
+        e.preventDefault();
+        this.focus();
+        if (hit) {
+          const m = +hit.dataset.m, i = +hit.dataset.i;
+          this.select(0, m, i);
+          // Dragging a note moves it up or down the staff.
+          if (this.noteAt({ m, i })) {
+            drag = { m, i, sys, moved: false };
+            try { svg.setPointerCapture(e.pointerId); } catch (err) { /* older browsers */ }
+          }
+          return;
+        }
+        const m = this.geo.measures.findIndex((g) => g.sys === sys && p.x >= g.x0 && p.x < g.x1);
+        if (m < 0) return;
+        const list = this.geo.ev[0][m] || [];
+        let i = list.length;
+        for (let j = 0; j < list.length; j++) if (p.x < list[j].x) { i = j; break; }
+        this.sel = null;
+        this.lastAt = null;
+        this.caret = { m, i };
+        // Where on the staff was clicked is where the next note goes.
+        this.cursor = this.pitchAtY(p.y, sys);
+        this.moved();
+      });
+      svg.addEventListener('pointermove', (e) => {
+        if (!drag) return;
+        const p = this.pt(e.clientX, e.clientY);
+        const note = this.noteAt(drag);
+        const to = this.pitchAtY(p.y, drag.sys);
+        if (note && MQ.dia(to) !== MQ.dia(note.p)) {
+          note.p = to;
+          drag.moved = true;
+          this.sound(to);
+          this.render();
+        }
+      });
+      const end = () => { if (drag && drag.moved) this.changed(); drag = null; };
+      svg.addEventListener('pointerup', end);
+      svg.addEventListener('pointercancel', end);
+    }
+  }
+
+  Object.assign(MQ, { MelodyStaff, melodyArt, melodyMarkup: build, MELODY_SYS_H: SYS_H });
 })(window);
 /* Clefwork Keys — an on-screen piano. Keys are drawn in grey on white (so they print and export
    as they are), and the page's stylesheet colours them on screen. */
@@ -7844,19 +9050,24 @@ svg.staff .nlabel { display: none; }
       const b = MQ.rhythmSettings(cfg.rhythm);
       return b.auto.on ? b.auto.count : Math.min(cfg.counts.rhythm || 0, b.examples.length);
     }
+    if (key === 'melody') {
+      const b = MQ.melodySettings(cfg.melody);
+      return b.auto.on ? b.auto.count : Math.min(cfg.counts.melody || 0, b.examples.length);
+    }
     const list = key === 'custom' ? cfg.custom || [] : cfg.voicings || [];
     const n = cfg.counts[key] == null ? list.length : cfg.counts[key];
     return Math.min(n, list.length);
   };
   const sumCounts = (cfg) => MQ.BUILT_IN.reduce((s, t) => s + (cfg.counts[t.id] || 0), 0) + listCount(cfg, 'custom') + listCount(cfg, 'voicing') + listCount(cfg, 'vprog') + listCount(cfg, 'progression')
-    + listCount(cfg, 'keys') + listCount(cfg, 'analysis') + listCount(cfg, 'rhythm');
+    + listCount(cfg, 'keys') + listCount(cfg, 'analysis') + listCount(cfg, 'rhythm') + listCount(cfg, 'melody');
   const usesGrand = (cfg) => (listCount(cfg, 'voicing') > 0 || listCount(cfg, 'vprog') > 0)
     || (listCount(cfg, 'progression') > 0 && cfg.progs.some((e) => e.staff === 'grand'))
     || ((cfg.counts.chord || 0) > 0 && !!(cfg.chordStaff & 4) && !(cfg.v && cfg.v < 7));
   const onlyKeys = (cfg) => !!(cfg.counts.keys && sumCounts(cfg) === cfg.counts.keys);
   const onlyAnalysis = (cfg) => !!(listCount(cfg, 'analysis') && sumCounts(cfg) === listCount(cfg, 'analysis'));
   const onlyRhythm = (cfg) => !!(listCount(cfg, 'rhythm') && sumCounts(cfg) === listCount(cfg, 'rhythm'));
-  const clefsText = (cfg) => onlyRhythm(cfg) ? 'heard, then written on a one-line staff' : onlyAnalysis(cfg) ? 'answered beside a picture of the score' : onlyKeys(cfg) ? 'grand staff, note names & piano' : [cfg.clefs & 1 ? 'treble' : null, cfg.clefs & 2 ? 'bass' : null].filter(Boolean).join(' & ') + ' clef' + (usesGrand(cfg) ? ' + grand staff' : '');
+  const onlyMelody = (cfg) => !!(listCount(cfg, 'melody') && sumCounts(cfg) === listCount(cfg, 'melody'));
+  const clefsText = (cfg) => onlyMelody(cfg) ? 'heard, then written on the staff' : onlyRhythm(cfg) ? 'heard, then written on a one-line staff' : onlyAnalysis(cfg) ? 'answered beside a picture of the score' : onlyKeys(cfg) ? 'grand staff, note names & piano' : [cfg.clefs & 1 ? 'treble' : null, cfg.clefs & 2 ? 'bass' : null].filter(Boolean).join(' & ') + ' clef' + (usesGrand(cfg) ? ' + grand staff' : '');
   const clonePlaced = (pl) => (pl ? pl.map((c) => (c || []).map((p) => ({ ...p }))) : null);
   // The student version (practice + take a quiz, no quiz codes shown) is the same app with this flag set.
   const STUDENT = !!window.CLEFWORK_STUDENT;
@@ -7868,7 +9079,9 @@ svg.staff .nlabel { display: none; }
   const KEYS = MODE === 'keys';                      // Clefwork Keys: the piano and note-name app
   const ANALYSIS = MODE === 'analysis';              // Clefwork Analysis: questions on a picture of the score
   const RHYTHM = MODE === 'rhythm';                  // Clefwork Rhythm: rhythmic dictation
-  const DRAFT = KEYS ? 'draft-keys' : ANALYSIS ? 'draft-analysis' : RHYTHM ? 'draft-rhythm' : 'draft';
+  const MELODY = MODE === 'melody';                  // Clefwork Melody: melodic dictation
+  const DICTATION = RHYTHM || MELODY;
+  const DRAFT = KEYS ? 'draft-keys' : ANALYSIS ? 'draft-analysis' : RHYTHM ? 'draft-rhythm' : MELODY ? 'draft-melody' : 'draft';
   // An Analysis quiz's picture travels in its links, after the code: #take=CODE&img=…
   const withScore = (code) => MQ.normalize(code) + (ANALYSIS && S.aimg && S.code && MQ.normalize(code) === MQ.normalize(S.code) ? '&img=' + S.aimg.data : '');
   const canvasLink = (code) => (SITE ? SITE + 'take.html#take=' + withScore(code) : '');
@@ -7903,9 +9116,15 @@ svg.staff .nlabel { display: none; }
     c.flags.partial = true;
     return c;
   }
+  function melodyDefault() {
+    const c = rhythmDefault();
+    c.title = 'Melodic Dictation';
+    c.melody = { examples: [], auto: { on: true } };       // melodies made automatically, to start with
+    return c;
+  }
   function loadDraft() {
     const d = store.get(DRAFT, null);
-    const base = KEYS ? keysDefault() : ANALYSIS ? analysisDefault() : RHYTHM ? rhythmDefault() : MQ.defaultConfig();
+    const base = KEYS ? keysDefault() : ANALYSIS ? analysisDefault() : RHYTHM ? rhythmDefault() : MELODY ? melodyDefault() : MQ.defaultConfig();
     if (d && d.counts && d.flags) {
       const custom = Array.isArray(d.custom) ? d.custom : [];
       const voicings = Array.isArray(d.voicings) ? d.voicings : [];
@@ -7935,7 +9154,7 @@ svg.staff .nlabel { display: none; }
     aopt: Object.assign({ detail: 0, ink: 1 }, store.get('analysis-opts', null)),
     // Clefwork Rhythm: the example open in the builder, the note buttons' Dot / Triplet / Rest, and
     // each listener's own playback choices (count-off bars, metronome, volumes), kept on this device.
-    rhEx: 0,
+    rhEx: 0, mlEx: 0, mlValue: 2,
     rhEntry: { dot: false, trip: false, rest: false },
     listen: (() => {
       const l = Object.assign({ countIn: 1, metro: false }, store.get('rhythm-listen', null));
@@ -8531,6 +9750,7 @@ svg.staff .nlabel { display: none; }
   }
 
   function questionCard(q, cfg, o) {
+    if (q.type === 'melody') return melodyCard(q, cfg, o);
     if (q.type === 'rhythm') return rhythmCard(q, cfg, o);
     if (q.type === 'keys') return keysCard(q, cfg, o);
     if (q.type === 'analysis') return analysisCard(q, cfg, o);
@@ -8579,7 +9799,7 @@ svg.staff .nlabel { display: none; }
       STUDENT ? null : h('div', { class: 'row2' },
         fld('Title', textIn('q-title', cfg.title, 60, 'e.g. Unit 3 note reading', (v) => { cfg.title = v; changed(); })),
         fld('Teacher', textIn('q-teacher', cfg.teacher, 40, 'e.g. Ms. Rivera', (v) => { cfg.teacher = v; changed(); }))),
-      KEYS ? keysPresets(cfg) : ANALYSIS || RHYTHM ? null : h('div', { class: 'presets' }, h('span', { class: 'mini-label' }, STUDENT ? 'Presets' : 'Or start from a preset'),
+      KEYS ? keysPresets(cfg) : ANALYSIS || DICTATION ? null : h('div', { class: 'presets' }, h('span', { class: 'mini-label' }, STUDENT ? 'Presets' : 'Or start from a preset'),
         h('div', { class: 'preset-row' }, MQ.PRESETS.map((p) => h('button', { type: 'button', class: 'btn btn-quiet sm', onclick: () => {
           const keep = { custom: cfg.counts.custom, voicing: cfg.counts.voicing, progression: cfg.counts.progression };
           S.cfg = p.apply(S.cfg); Object.assign(S.cfg.counts, keep);
@@ -8590,7 +9810,8 @@ svg.staff .nlabel { display: none; }
     if (KEYS) form.append(keysSection(cfg, changed, R));
     if (ANALYSIS) form.append(...analysisSections(cfg, changed, R));
     if (RHYTHM) form.append(...rhythmSections(cfg, changed, R));
-    if (!KEYS && !ANALYSIS && !RHYTHM) form.append(sec('staff', 'Staff & notes', 'Applies to every question type.',
+    if (MELODY) form.append(...melodySections(cfg, changed, R));
+    if (!KEYS && !ANALYSIS && !DICTATION) form.append(sec('staff', 'Staff & notes', 'Applies to every question type.',
       h('div', { class: 'row2' },
         grp('Clefs', chips('q-clefs', [{ label: 'Treble' }, { label: 'Bass' }, { label: 'Grand staff' }], cfg.clefs, (m) => { cfg.clefs = m; changed(); }, (x) => x.label), 'Each tab can override this.'),
         grp('Ledger lines', seg('q-ledger', [0, 1, 2, 3].map((v) => ({ v, label: v === 0 ? 'None' : v === 1 ? '1' : String(v) })), cfg.ledger, (v) => { cfg.ledger = v; changed(); }), 'Maximum above or below the staff.')),
@@ -8801,7 +10022,7 @@ svg.staff .nlabel { display: none; }
       go('build');
       toast('Cleared — the quiz is empty');
     } }, 'Clear all questions');
-    if (!KEYS && !ANALYSIS && !RHYTHM) form.append(sec('types', 'Question types', 'Choose a type to change its settings. The counter on each tab sets how many of those questions the quiz asks.',
+    if (!KEYS && !ANALYSIS && !DICTATION) form.append(sec('types', 'Question types', 'Choose a type to change its settings. The counter on each tab sets how many of those questions the quiz asks.',
       h('div', { class: 'types-top' }, clearBtn),
       strip, panels, h('div', { class: 'mix-foot' }, R.total)));
 
@@ -8816,31 +10037,31 @@ svg.staff .nlabel { display: none; }
       h('div', { class: 'row2' }, fld('Time limit in minutes', timeIn, '0 means no limit. The quiz submits itself when time runs out.'),
         STUDENT ? null : fld('Retakes', retakeIn, 'Students can retake the quiz to improve their score — the same questions each time. Each report shows its attempt number.')),
       h('div', { class: 'toggles' },
-        ANALYSIS || RHYTHM ? null : flag('shuffle', 'Shuffle question order', 'Mixes the question types together instead of grouping them.'),
-        KEYS || RHYTHM ? null : ANALYSIS ? flag('partial', 'Partial credit', 'A box that asks for both earns half credit for each right answer.')
+        ANALYSIS || DICTATION ? null : flag('shuffle', 'Shuffle question order', 'Mixes the question types together instead of grouping them.'),
+        KEYS || DICTATION ? null : ANALYSIS ? flag('partial', 'Partial credit', 'A box that asks for both earns half credit for each right answer.')
           : flag('partial', 'Partial credit', 'Chords and scales earn credit for each correct note.'),
         STUDENT ? null : flag('feedback', 'Let students check answers', 'Students can check each question and see the right answer. Best for practice.'),
-        ANALYSIS || RHYTHM ? null : flag('labels', 'Show note names while dragging', STUDENT ? 'The note’s name appears as you move it.' : 'Practice mode: the note’s name appears as students move it.'),
-        RHYTHM ? null : ANALYSIS ? flag('enharmonic', 'Accept enharmonic spellings', 'Counts a G♭7 chord symbol as correct when the answer is F♯7.')
+        ANALYSIS || DICTATION ? null : flag('labels', 'Show note names while dragging', STUDENT ? 'The note’s name appears as you move it.' : 'Practice mode: the note’s name appears as students move it.'),
+        DICTATION ? null : ANALYSIS ? flag('enharmonic', 'Accept enharmonic spellings', 'Counts a G♭7 chord symbol as correct when the answer is F♯7.')
           : flag('enharmonic', 'Accept enharmonic spellings', 'Counts G♭ as correct when the answer is F♯.'),
-        KEYS || ANALYSIS || RHYTHM ? null : flag('noHelpers', 'Hide starting and helper notes', 'Students write every note themselves: both notes of an interval, every note of a scale, and a chord’s bass note.'))));
+        KEYS || ANALYSIS || DICTATION ? null : flag('noHelpers', 'Hide starting and helper notes', 'Students write every note themselves: both notes of an interval, every note of a scale, and a chord’s bass note.'))));
 
     // Side: share + preview + answer key
     R.summary = h('p', { class: 'share-summary' });
     R.code = h('output', { class: 'code', id: 'quiz-code', 'aria-label': 'Quiz code' });
-    R.copy = h('button', { type: 'button', class: 'btn btn-primary', onclick: () => { if (RHYTHM && !rhythmReady()) return; rememberQuiz(S.code, cfg); copyText(S.code, 'Quiz code'); } }, 'Copy quiz code');
+    R.copy = h('button', { type: 'button', class: 'btn btn-primary', onclick: () => { if ((RHYTHM && !rhythmReady()) || (MELODY && !melodyReady())) return; rememberQuiz(S.code, cfg); copyText(S.code, 'Quiz code'); } }, 'Copy quiz code');
     R.link = SITE || !inFrame ? h('button', { type: 'button', class: ANALYSIS ? 'btn btn-primary' : 'btn', onclick: () => {
-      if ((ANALYSIS && !analysisReady()) || (RHYTHM && !rhythmReady())) return;
+      if ((ANALYSIS && !analysisReady()) || (RHYTHM && !rhythmReady()) || (MELODY && !melodyReady())) return;
       rememberQuiz(S.code, cfg);
       copyText(quizLink(S.code) || location.href.split('#')[0] + '#take=' + withScore(S.code), 'Quiz link');
     } }, 'Copy quiz link') : null;
     R.tryBtn = h('button', { type: 'button', class: 'btn', onclick: () => {
-      if ((ANALYSIS && !analysisReady()) || (RHYTHM && !rhythmReady())) return;
+      if ((ANALYSIS && !analysisReady()) || (RHYTHM && !rhythmReady()) || (MELODY && !melodyReady())) return;
       rememberQuiz(S.code, cfg);
       if (openQuiz(S.code, { preview: true })) { S.take.name = 'Teacher preview'; go('take'); }
     } }, 'Try it as a student');
-    R.exportBtn = h('button', { type: 'button', class: 'btn btn-quiet', onclick: () => { if (!RHYTHM || rhythmReady()) openExport(cfg); } }, 'Export to spreadsheet');
-    R.canvasBtn = h('button', { type: 'button', class: 'btn', onclick: () => { if ((!ANALYSIS || analysisReady()) && (!RHYTHM || rhythmReady())) openCanvasKit(cfg, changed); } }, 'Set up in Canvas');
+    R.exportBtn = h('button', { type: 'button', class: 'btn btn-quiet', onclick: () => { if ((!RHYTHM || rhythmReady()) && (!MELODY || melodyReady())) openExport(cfg); } }, 'Export to spreadsheet');
+    R.canvasBtn = h('button', { type: 'button', class: 'btn', onclick: () => { if ((!ANALYSIS || analysisReady()) && (!RHYTHM || rhythmReady()) && (!MELODY || melodyReady())) openCanvasKit(cfg, changed); } }, 'Set up in Canvas');
     if (STUDENT) {
       const p = S.slots.practice;
       R.startBtn = h('button', { type: 'button', class: 'btn btn-primary', onclick: () => startPractice(cfg) }, 'Start practising');
@@ -8866,22 +10087,22 @@ svg.staff .nlabel { display: none; }
           h('p', { class: 'fine' }, 'Grading on this computer finds the quiz by itself. Elsewhere, paste this in the grade checker’s Quiz code box to see each answer.'))));
     } else side.append(h('section', { class: 'card share' },
       h('div', { class: 'eyebrow' }, 'Share with students'),
-      R.summary, RHYTHM ? (R.ready = h('div', { class: 'rh-ready' })) : null, R.code,
+      R.summary, DICTATION ? (R.ready = h('div', { class: 'rh-ready' })) : null, R.code,
       h('div', { class: 'btn-row' }, R.copy, R.link, R.tryBtn, R.canvasBtn, R.exportBtn),
       h('p', { class: 'fine' }, SITE
         ? ['The quiz link opens the quiz straight away. The code holds every setting, so nothing is stored online, and everyone with the same code gets the same questions.']
         : ['The code holds every setting, so nothing is stored online. Students paste it on the ', h('b', null, 'Take a quiz'), ' tab, and everyone with the same code gets the same questions.']),
-      RHYTHM ? null : h('button', { type: 'button', class: 'btn-link', onclick: () => { cfg.seed = MQ.randomSeed(); S.pvIdx = 0; S.pvResp = null; changed(); toast('New questions generated — share the new code'); } }, 'Make a new set of questions with these settings')));
+      DICTATION ? null : h('button', { type: 'button', class: 'btn-link', onclick: () => { cfg.seed = MQ.randomSeed(); S.pvIdx = 0; S.pvResp = null; changed(); toast('New questions generated — share the new code'); } }, 'Make a new set of questions with these settings')));
 
     R.keyList = h('ol', { class: 'key-list' });
     if (!STUDENT) side.append(h('details', { class: 'card key' }, h('summary', null, 'Answer key'), R.keyList));
 
-    if (!ANALYSIS && !RHYTHM) R.pvCount = h('span', { class: 'pv-count' });
+    if (!ANALYSIS && !DICTATION) R.pvCount = h('span', { class: 'pv-count' });
     R.pvHost = h('div', { class: 'pv-host' });
     R.prev = h('button', { type: 'button', class: 'btn btn-quiet sm', 'aria-label': 'Previous question', onclick: () => { S.pvIdx--; S.pvResp = null; renderPreview(); } }, '‹ Prev');
     R.next = h('button', { type: 'button', class: 'btn btn-quiet sm', 'aria-label': 'Next question', onclick: () => { S.pvIdx++; S.pvResp = null; renderPreview(); } }, 'Next ›');
     R.show = toggle('pv-show', 'Show answer', null, S.pvShow, (v) => { S.pvShow = v; renderPreview(); });
-    if (!ANALYSIS && !RHYTHM) side.append(h('section', { class: 'card preview' },
+    if (!ANALYSIS && !DICTATION) side.append(h('section', { class: 'card preview' },
       h('div', { class: 'card-head' }, h('div', null, h('div', { class: 'eyebrow' }, 'Preview'), R.pvCount), h('div', { class: 'pager' }, R.prev, R.next)),
       R.pvHost, STUDENT ? null : h('div', { class: 'pv-foot' }, R.show)));
 
@@ -8901,7 +10122,7 @@ svg.staff .nlabel { display: none; }
     function refresh() {
       R.syncTabs();
       const total = sumCounts(cfg);
-      R.total.textContent = RHYTHM ? `${total} example${total === 1 ? '' : 's'} in the quiz` : `${total} question${total === 1 ? '' : 's'} in the quiz`;
+      R.total.textContent = MELODY ? `${total} melod${total === 1 ? 'y' : 'ies'} in the quiz` : RHYTHM ? `${total} example${total === 1 ? '' : 's'} in the quiz` : `${total} question${total === 1 ? '' : 's'} in the quiz`;
       if (!total) {
         S.code = ''; S.qs = [];
         if (R.code) R.code.textContent = '—';
@@ -8912,18 +10133,20 @@ svg.staff .nlabel { display: none; }
         S.qs = MQ.generateQuiz(cfg);
         if (R.code) R.code.textContent = S.code;
         [R.copy, R.link, R.tryBtn, R.exportBtn, R.canvasBtn, R.startBtn].forEach((b) => b && (b.disabled = false));
-        const est = Math.max(1, Math.round((MQ.BUILT_IN.reduce((s, t) => s + t.est * (cfg.counts[t.id] || 0), 0) + 40 * listCount(cfg, 'custom') + 55 * listCount(cfg, 'voicing') + 90 * listCount(cfg, 'vprog') + 70 * listCount(cfg, 'progression') + 15 * listCount(cfg, 'keys') + 30 * listCount(cfg, 'analysis') + 120 * listCount(cfg, 'rhythm')) / 60));
-        const outOf = RHYTHM ? (cfg.rhythm.score === 'percent' ? ` · out of ${cfg.rhythm.outOf} points` : ` · out of ${rhythmNotes(S.qs)} notes`) : '';
-        R.summary.replaceChildren(h('b', null, STUDENT ? 'Your practice' : cfg.title || 'Untitled quiz'), ` — ${total} ${RHYTHM ? 'example' : 'question'}${total === 1 ? '' : 's'} · ${clefsText(cfg)}${outOf} · about ${est} min${cfg.timeLimit ? ` · ${cfg.timeLimit}-minute limit` : ''}`);
+        const est = Math.max(1, Math.round((MQ.BUILT_IN.reduce((s, t) => s + t.est * (cfg.counts[t.id] || 0), 0) + 40 * listCount(cfg, 'custom') + 55 * listCount(cfg, 'voicing') + 90 * listCount(cfg, 'vprog') + 70 * listCount(cfg, 'progression') + 15 * listCount(cfg, 'keys') + 30 * listCount(cfg, 'analysis') + 120 * listCount(cfg, 'rhythm') + 180 * listCount(cfg, 'melody')) / 60));
+        const sb = DICTATION ? dictation(cfg) : null;
+        const outOf = sb ? (sb.score === 'percent' ? ` · out of ${sb.outOf} points` : ` · out of ${rhythmNotes(S.qs)} notes`) : '';
+        const noun = MELODY ? (total === 1 ? 'melody' : 'melodies') : `${RHYTHM ? 'example' : 'question'}${total === 1 ? '' : 's'}`;
+        R.summary.replaceChildren(h('b', null, STUDENT ? 'Your practice' : cfg.title || 'Untitled quiz'), ` — ${total} ${noun} · ${clefsText(cfg)}${outOf} · about ${est} min${cfg.timeLimit ? ` · ${cfg.timeLimit}-minute limit` : ''}`);
       }
       if (R.scoreInfo) R.scoreInfo.textContent = total ? rhythmScoreText(cfg, S.qs) : '';
       if (R.ready) {
-        const probs = MQ.rhythmProblems(cfg.rhythm);
+        const probs = MELODY ? MQ.melodyProblems(cfg.melody) : MQ.rhythmProblems(cfg.rhythm);
         R.ready.replaceChildren(probs.length
           ? h('p', { class: 'warn-note' }, `Not ready to share yet. ${probs[0].text}${probs.length > 1 ? ` (${probs.length - 1} more to fix)` : ''}`)
           : h('p', { class: 'fine rh-ready-ok' }, '✓ Every measure is complete.'));
       }
-      R.keyList.replaceChildren(...S.qs.map((q) => q.type === 'rhythm' ? rhythmKeyItem(q) : h('li', null, h('span', { class: 'key-q' }, q.text, q.type === 'analysis' ? null : h('span', { class: 'key-clef' }, ' · ' + MQ.clefLabel(q.clef))), h('span', { class: 'key-a' }, q.type === 'analysis' ? accText(MQ.describeAnswer(q, cfg)) : MQ.describeAnswer(q, cfg)))));
+      R.keyList.replaceChildren(...S.qs.map((q) => q.type === 'melody' ? melodyKeyItem(q) : q.type === 'rhythm' ? rhythmKeyItem(q) : h('li', null, h('span', { class: 'key-q' }, q.text, q.type === 'analysis' ? null : h('span', { class: 'key-clef' }, ' · ' + MQ.clefLabel(q.clef))), h('span', { class: 'key-a' }, q.type === 'analysis' ? accText(MQ.describeAnswer(q, cfg)) : MQ.describeAnswer(q, cfg)))));
       if (R.linkSize) {
         const kb = S.aimg ? Math.max(1, Math.round((S.aimg.data.length + S.code.length) / 1024)) : 0;
         R.linkSize.replaceChildren(!S.code ? '' : kb > 150
@@ -9651,6 +10874,7 @@ svg.staff .nlabel { display: none; }
     if (cfg.counts.keys && MQ.keysCombos(cfg.keys).length) types.push(`Keys & notes (${cfg.counts.keys})`);
     if (listCount(cfg, 'progression')) types.push(`Chord progressions (${listCount(cfg, 'progression')})`);
     if (listCount(cfg, 'rhythm')) types.push(`Rhythmic dictation (${listCount(cfg, 'rhythm')} example${listCount(cfg, 'rhythm') > 1 ? 's' : ''})`);
+    if (listCount(cfg, 'melody')) types.push(`Melodic dictation (${listCount(cfg, 'melody')} melod${listCount(cfg, 'melody') > 1 ? 'ies' : 'y'})`);
     if (listCount(cfg, 'analysis')) {
       const asks = MQ.analysisQuestions(cfg).map((q) => q.an.ask);
       const r = asks.some((a) => a !== 'symbol'), sy = asks.some((a) => a !== 'roman');
@@ -9665,7 +10889,9 @@ svg.staff .nlabel { display: none; }
         h('div', null, h('dt', null, 'Time limit'), h('dd', null, cfg.timeLimit ? cfg.timeLimit + ' min' : 'None')),
         h('div', null, h('dt', null, 'Retakes'), h('dd', null, retakeText(MQ.retakeLimit(cfg)))),
         // A quiz of only Keys questions is on the grand staff and the piano, whatever the clef setting.
-        onlyRhythm(cfg)
+        onlyMelody(cfg)
+          ? h('div', null, h('dt', null, 'Uses'), h('dd', null, 'Listening, the staff'))
+          : onlyRhythm(cfg)
           ? h('div', null, h('dt', null, 'Uses'), h('dd', null, 'Listening, one-line staff'))
           : onlyAnalysis(cfg)
           ? h('div', null, h('dt', null, 'Uses'), h('dd', null, 'A picture of the score'))
@@ -9674,7 +10900,7 @@ svg.staff .nlabel { display: none; }
           : h('div', null, h('dt', null, 'Clefs'), h('dd', null, [cfg.clefs & 1 ? 'Treble' : null, cfg.clefs & 2 ? 'Bass' : null, usesGrand(cfg) ? 'Grand staff' : null].filter(Boolean).join(', ')))),
       h('p', { class: 'types-line' }, types.join(' · ')),
       onlyAnalysis(cfg) && cfg.analysis.notes ? h('p', { class: 'an-notes' }, accText(cfg.analysis.notes)) : null,
-      listCount(cfg, 'rhythm') ? h('p', { class: 'an-notes rh-intro' }, rhythmIntro(cfg, t.qs)) : null,
+      listCount(cfg, 'rhythm') || listCount(cfg, 'melody') ? h('p', { class: 'an-notes rh-intro' }, rhythmIntro(cfg, t.qs)) : null,
       fld('Your name', name),
       h('div', { class: 'btn-row' }, h('button', { type: 'button', class: 'btn btn-primary', onclick: start }, 'Start quiz'),
         h('button', { type: 'button', class: 'btn btn-quiet', onclick: () => { S.take = null; saveAttempt(); go(tv()); } }, 'Use a different code')),
@@ -9717,10 +10943,11 @@ svg.staff .nlabel { display: none; }
     if (S.take.qs[0] && S.take.qs[0].type === 'analysis') return takeAnalysis(main);
     const t = S.take, i = t.idx, q = t.qs[i];
     const locked = t.checked[i];
-    if (q.type === 'rhythm' && !t.plays) t.plays = t.qs.map(() => ({ ex: 0, ans: 0 }));
+    const heard = q.type === 'rhythm' || q.type === 'melody';
+    if (heard && !t.plays) t.plays = t.qs.map(() => ({ ex: 0, ans: 0 }));
     const card = questionCard(q, t.cfg, {
       response: t.resp[i], locked, reveal: locked,
-      plays: q.type === 'rhythm' ? t.plays[i] : null, onPlays: saveAttempt,
+      plays: heard ? t.plays[i] : null, onPlays: saveAttempt,
       onResponse: (r) => {
         t.resp[i] = r; saveAttempt();
         const dot = document.querySelectorAll('.qdot')[i];
@@ -9773,19 +11000,20 @@ svg.staff .nlabel { display: none; }
     if (!t || t.done) return;
     stopTicker();
     // Rhythm quizzes are scored note by note, so they always give partial credit.
-    const rhythm = t.qs.some((q) => q.type === 'rhythm');
+    const rhythm = t.qs.some((q) => q.type === 'rhythm' || q.type === 'melody');
     const partial = t.cfg.flags.partial || rhythm;
     const items = t.qs.map((q, i) => {
       const frac = MQ.gradeQuestion(q, t.resp[i], t.cfg);
       const credit = frac === 1 ? 7 : partial ? Math.min(6, Math.round(frac * 7)) : 0;
       const it = { type: q.type, clef: q.clef, credit, answered: MQ.hasAnswer(q, t.resp[i]), sec: t.secs[i] };
       if (q.type === 'rhythm') { const c = MQ.compareRhythm(q, t.resp[i]); it.notes = c.notes; it.wrong = c.wrong; }
+      if (q.type === 'melody') { const c = MQ.compareMelody(q, t.resp[i]); Object.assign(it, { notes: c.notes, wrong: c.wrong, pw: c.pw, rw: c.rw }); }
       return it;
     });
-    const rh = MQ.rhythmSettings(t.cfg.rhythm);
+    const rh = dictation(t.cfg);
     t.report = {
       name: t.name, submittedAt: Date.now(), totalSec: t.secs.reduce((a, b) => a + b, 0), partial, items, attempt: t.attempt || 1,
-      scoring: rhythm ? { mode: rh.score, outOf: rh.outOf } : null,
+      scoring: rhythm ? { mode: rh.score, outOf: rh.outOf, split: rh.split ? 1 : 0 } : null,
     };
     if (!t.practice && !t.preview) recordAttempt(t.code, MQ.reportStats(t.report).pct);
     // The report code also carries what the student entered, so the teacher can see it on the staff.
@@ -9897,7 +11125,8 @@ svg.staff .nlabel { display: none; }
     if (it.notes != null) {
       if (!it.wrong) return h('span', { class: 'res is-good' }, '✓ Correct');
       if (!it.answered) return h('span', { class: 'res is-blank' }, '— Blank');
-      return h('span', { class: 'res ' + (it.wrong < it.notes ? 'is-part' : 'is-bad') }, `${it.wrong < it.notes ? '◐' : '✗'} ${it.wrong} wrong of ${it.notes}`);
+      const detail = it.pw != null ? ` (${it.pw} pitch, ${it.rw} rhythm)` : '';
+      return h('span', { class: 'res ' + (it.wrong < it.notes ? 'is-part' : 'is-bad') }, `${it.wrong < it.notes ? '◐' : '✗'} ${it.wrong} wrong of ${it.notes}${detail}`);
     }
     if (it.credit === 7) return h('span', { class: 'res is-good' }, '✓ Correct');
     if (!it.answered) return h('span', { class: 'res is-blank' }, '— Blank');
@@ -9914,7 +11143,7 @@ svg.staff .nlabel { display: none; }
         h('td', { class: 'num' }, String(i + 1)),
         h('td', null, q ? q.text : typeOf(it.type).label),
         h('td', null, it.type === 'analysis' ? 'Score' : it.type === 'rhythm' ? 'Rhythm' : MQ.CLEFS[it.clef].label),
-        key ? h('td', { class: 'ans' }, q ? MQ.describeAnswer(q, quiz.cfg) : '') : null,
+        key ? h('td', { class: 'ans' + (q && (q.mel || q.rh) ? ' is-long' : '') }, q ? MQ.describeAnswer(q, quiz.cfg) : '') : null,
         h('td', null, resultCell(it)),
         h('td', { class: 'num' }, it.sec >= 63 ? '63+ s' : it.sec + ' s')));
     });
@@ -10136,6 +11365,13 @@ svg.staff .nlabel { display: none; }
         const credit = r < skill - hard ? 7 : cfg.flags.partial && !q.choices && r < skill + 0.2 ? 3 + Math.floor(rng() * 3) : 0;
         const it = { type: q.type, clef: q.clef, credit, answered: r < 0.97, sec: Math.round(8 + rng() * (q.type === 'scale' ? 55 : 25)) };
         // Rhythm examples are scored by wrong notes: a few for a weaker student, none when it's right.
+        if (q.type === 'melody') {
+          it.notes = MQ.compareMelody(q, null).notes;
+          it.pw = !it.answered ? it.notes : Math.min(it.notes, Math.round(it.notes * (1 - skill) * rng() * 1.4));
+          it.rw = !it.answered ? it.notes : Math.min(it.notes, Math.round(it.notes * (1 - skill) * rng()));
+          it.wrong = Math.min(it.notes, Math.max(it.pw, it.rw));
+          it.credit = it.wrong ? Math.min(6, Math.round(((it.notes - it.wrong) / Math.max(1, it.notes)) * 7)) : 7;
+        }
         if (q.type === 'rhythm') {
           it.notes = MQ.compareRhythm(q, null).notes;
           it.wrong = !it.answered ? it.notes : Math.min(it.notes, Math.round(it.notes * (1 - skill) * rng() * 1.6));
@@ -10143,8 +11379,8 @@ svg.staff .nlabel { display: none; }
         }
         return it;
       });
-      const rh = MQ.rhythmSettings(cfg.rhythm);
-      const scoring = qs.some((q) => q.type === 'rhythm') ? { mode: rh.score, outOf: rh.outOf } : null;
+      const rh = dictation(cfg);
+      const scoring = qs.some((q) => q.type === 'rhythm' || q.type === 'melody') ? { mode: rh.score, outOf: rh.outOf, split: rh.split ? 1 : 0 } : null;
       return MQ.encodeReport({ name, submittedAt: Date.now() - (k + 1) * 3600e3, totalSec: items.reduce((s, it) => s + it.sec, 0), partial: cfg.flags.partial || !!scoring, items, scoring }, cfg, code);
     });
   }
@@ -11014,9 +12250,9 @@ svg.staff .nlabel { display: none; }
     }
     function start(src) {
       if (src.left && src.left() <= 0) { toast('There are no plays left for this.'); return; }
-      const layers = src.layers();
+      const layers = src.custom ? null : src.layers();
       if (src.needsNotes && !layers.some((L) => L.some((m) => m && m.length))) { toast('Write some notes first — then you can hear them.'); return; }
-      const pe = MQ.rhythmPlayEvents(ex, layers, { from: sel.a, to: sel.b, countIn: S.listen.countIn, metronome: S.listen.metro });
+      const pe = src.custom ? src.custom() : MQ.rhythmPlayEvents(ex, layers, { from: sel.a, to: sel.b, countIn: S.listen.countIn, metronome: S.listen.metro });
       const marks = pe.marks.map((mk) => ({ at: mk.at, fn: () => highlight(mk.m, mk.beat) }));
       const ok = MQ.Audio.sequence(pe.events, { total: pe.total, marks, done: () => { playing = null; highlight(-2); paint(); } });
       if (!ok) { toast('This browser can’t play sound.', 'bad'); return; }
@@ -11107,7 +12343,7 @@ svg.staff .nlabel { display: none; }
 
   // What students should know before a rhythm quiz: sound on, and how often they can listen.
   function rhythmIntro(cfg, qs) {
-    const b = MQ.rhythmSettings(cfg.rhythm);
+    const b = dictation(cfg);
     const times = (n) => (n === 1 ? 'once' : n === 2 ? 'twice' : `${n} times`);
     const ex = b.playsEx ? `You can play each example ${times(b.playsEx)}` : 'You can play each example as often as you like';
     const ans = b.playsAns ? `, and hear your own answer ${times(b.playsAns)}` : ', and hear your own answer as often as you like';
@@ -11153,12 +12389,7 @@ svg.staff .nlabel { display: none; }
       changed();
       go('build');
     });
-    const PLAYS = [{ v: 0, label: 'Unlimited' }].concat([1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((v) => ({ v, label: v === 1 ? 'Once' : `${v} times` })));
-    const later = [scoringSection(cfg, changed, R),
-      sec('rh-listen', 'Listening', 'How often students may play each example, and their own answer, before they submit. Choosing measures, the count-off and the metronome are up to them.',
-        h('div', { class: 'row2' },
-          fld('Plays of the example', selectEl('rh-plays-ex', PLAYS, rh.playsEx, (v) => { rh.playsEx = +v; changed(); }), 'Per example. Each play counts, however many measures it covers.'),
-          fld('Plays of their answer', selectEl('rh-plays-ans', PLAYS, rh.playsAns, (v) => { rh.playsAns = +v; changed(); }), 'Per example. Students hear what they’ve written, on the same instruments.')))];
+    const later = [scoringSection(rh, changed, R), listeningSection(rh, changed)];
     if (rh.auto.on) {
       return [sec('rh-examples', 'Examples', 'Clefwork writes the rhythms from the level you choose. Everyone with the quiz code gets the same ones.',
         mode, autoPanel(cfg, changed), h('div', { class: 'mix-foot' }, R.total))].concat(later);
@@ -11252,9 +12483,18 @@ svg.staff .nlabel { display: none; }
         mode, tabs, body, h('div', { class: 'mix-foot' }, R.total)),
     ].concat(later);
   }
+  // How often students may listen — shared by Clefwork Rhythm and Melody (block: cfg.rhythm or cfg.melody).
+  function listeningSection(block, changed) {
+    const PLAYS = [{ v: 0, label: 'Unlimited' }].concat([1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((v) => ({ v, label: v === 1 ? 'Once' : `${v} times` })));
+    return sec('rh-listen', 'Listening', 'How often students may play each example, and their own answer, before they submit. Choosing measures, the count-off and the metronome are up to them.',
+      h('div', { class: 'row2' },
+        fld('Plays of the example', selectEl('rh-plays-ex', PLAYS, block.playsEx, (v) => { block.playsEx = +v; changed(); }), 'Per example. Each play counts, however many measures it covers.'),
+        fld('Plays of their answer', selectEl('rh-plays-ans', PLAYS, block.playsAns, (v) => { block.playsAns = +v; changed(); }), 'Per example. Students hear what they’ve written, on the same instruments.')));
+  }
   // How the quiz is scored: a point for every note, or a percent of a total the teacher sets.
-  function scoringSection(cfg, changed, R) {
-    const rh = cfg.rhythm;
+  // `extra`: more controls to add (Clefwork Melody's).
+  function scoringSection(block, changed, R, extra) {
+    const rh = block;
     const outIn = h('input', { type: 'number', id: 'rh-outof', min: 1, max: 1000, inputmode: 'numeric' });
     outIn.value = rh.outOf;
     outIn.addEventListener('change', () => { rh.outOf = Math.max(1, Math.min(1000, Math.round(+outIn.value || 100))); outIn.value = rh.outOf; changed(); });
@@ -11267,12 +12507,14 @@ svg.staff .nlabel { display: none; }
         outWrap.hidden = v !== 'percent';
         changed();
       })),
-      outWrap, R.scoreInfo);
+      outWrap, ...(extra || []), R.scoreInfo);
   }
   // Notes in the quiz's examples — what a note-scored quiz is out of.
-  const rhythmNotes = (qs) => qs.filter((q) => q.type === 'rhythm').reduce((n, q) => n + MQ.compareRhythm(q, null).notes, 0);
+  const rhythmNotes = (qs) => qs.reduce((n, q) => n + (q.type === 'rhythm' ? MQ.compareRhythm(q, null).notes : q.type === 'melody' ? MQ.compareMelody(q, null).notes : 0), 0);
+  // The listening and scoring settings of a rhythm or melody quiz.
+  const dictation = (cfg) => (listCount(cfg, 'melody') ? MQ.melodySettings(cfg.melody) : MQ.rhythmSettings(cfg.rhythm));
   function rhythmScoreText(cfg, qs) {
-    const b = MQ.rhythmSettings(cfg.rhythm), notes = rhythmNotes(qs);
+    const b = dictation(cfg), notes = rhythmNotes(qs);
     if (!notes) return '';
     if (b.score !== 'percent') return `These examples have ${notes} notes in all, so the quiz is out of ${notes}. Each wrong note costs a point.`;
     const eg = Math.min(3, notes);
@@ -11303,30 +12545,10 @@ svg.staff .nlabel { display: none; }
       }, h('strong', null, L.name), h('span', null, L.blurb))));
       custom.hidden = a.level !== 7;
     };
-    // ---------- custom rules ----------
-    const NUMS = [2, 3, 4, 5, 6].map((n) => ({ v: n, label: `${n}/4` }));
-    const lo = selectEl('rh-c-lo', NUMS, c.lo, (v) => { c.lo = +v; if (c.hi < c.lo) { c.hi = c.lo; hi.value = String(c.hi); } redo(); });
-    const hi = selectEl('rh-c-hi', NUMS, c.hi, (v) => { c.hi = +v; if (c.lo > c.hi) { c.lo = c.hi; lo.value = String(c.lo); } redo(); });
-    const flip = (k) => (v) => { c[k] = v ? 1 : 0; redo(); };
-    custom.append(
-      h('div', { class: 'row2' }, fld('Time signatures from', lo), fld('To', hi)),
-      h('div', { class: 'toggles' },
-        toggle('rh-c-compound', 'Compound meters', '3/8, 6/8, 9/8 and 12/8.', c.compound, flip('compound')),
-        toggle('rh-c-cut', 'Cut time', '2/2, and 3/2.', c.cut, flip('cut')),
-        toggle('rh-c-uneven', 'Uneven meters', '5/8, 7/8, 8/8, 10/8 and 11/8.', c.uneven, flip('uneven'))),
-      grp('Shortest note', seg('rh-c-short', [{ v: 2, label: 'Quarter' }, { v: 3, label: 'Eighth' }, { v: 4, label: 'Sixteenth' }], c.shortest, (v) => { c.shortest = v; redo(); })),
-      h('div', { class: 'toggles' },
-        toggle('rh-c-dotted', 'Dotted notes', 'Dotted halves, quarters and eighths.', c.dotted, flip('dotted')),
-        toggle('rh-c-trip', 'Triplets', 'Quarter-note triplets, and eighth- and sixteenth-note triplets when the shortest note allows.', c.triplets, flip('triplets'))),
-      grp('Notes off the beat', seg('rh-c-off', [{ v: 0, label: 'None' }, { v: 1, label: 'One or two' }, { v: 2, label: 'More' }], c.offbeats, (v) => { c.offbeats = v; redo(); }),
-        'One or two in each example, or up to about one a measure.'),
-      grp('Rests', seg('rh-c-rests', [{ v: 0, label: 'None' }, { v: 1, label: 'A few' }, { v: 2, label: 'Some' }, { v: 3, label: 'Many' }], c.rests, (v) => { c.rests = v; redo(); }),
-        'How many measures have a rest: none, up to a quarter of them, a fifth to a half, or up to four in five. With notes off the beat, rests can fall on the beat too.'));
+    custom.append(...customRhythmRules(c, redo));
     drawLevels();
     // ---------- tempo ----------
-    const tempoIn = h('input', { type: 'number', id: 'rh-auto-tempo', min: 40, max: 240, inputmode: 'numeric' });
-    tempoIn.value = a.tempo;
-    tempoIn.addEventListener('change', () => { a.tempo = Math.max(40, Math.min(240, Math.round(+tempoIn.value || 80))); tempoIn.value = a.tempo; redo(); });
+    const tempoIn = tempoInput('rh-auto-tempo', a, redo);
     // ---------- what it made ----------
     function drawPreview() {
       const qs = MQ.rhythmQuestions(cfg);
@@ -11352,10 +12574,38 @@ svg.staff .nlabel { display: none; }
         grp('Measures in each', seg('rh-auto-measures', [1, 2, 3, 4].map((v) => ({ v, label: String(v) })), a.measures, (v) => { a.measures = v; redo(); }))),
       grp('Level', levels),
       custom,
-      grp('Tempo', h('div', { class: 'rh-tempo' }, h('span', { class: 'rh-tempo-sign', 'aria-hidden': 'true' }, '♩ ='), tempoIn),
-        'In other meters the eighth notes keep this speed: ♩ = 80 is ♩. = 53 in 6/8.'),
+      grp('Tempo', tempoIn, 'In other meters the eighth notes keep this speed: ♩ = 80 is ♩. = 53 in 6/8.'),
       h('div', { class: 'rh-auto-top' }, h('span', { class: 'mini-label' }, 'The examples'), fresh),
       preview);
+  }
+  // The quarter-note tempo of automatic examples.
+  function tempoInput(id, a, redo) {
+    const inp = h('input', { type: 'number', id, min: 40, max: 240, inputmode: 'numeric' });
+    inp.value = a.tempo;
+    inp.addEventListener('change', () => { a.tempo = Math.max(40, Math.min(240, Math.round(+inp.value || 80))); inp.value = a.tempo; redo(); });
+    return h('div', { class: 'rh-tempo' }, h('span', { class: 'rh-tempo-sign', 'aria-hidden': 'true' }, '♩ ='), inp);
+  }
+  // The rhythm side of custom rules, for automatic rhythms and melodies.
+  function customRhythmRules(c, redo) {
+    const NUMS = [2, 3, 4, 5, 6].map((n) => ({ v: n, label: `${n}/4` }));
+    const lo = selectEl('rh-c-lo', NUMS, c.lo, (v) => { c.lo = +v; if (c.hi < c.lo) { c.hi = c.lo; hi.value = String(c.hi); } redo(); });
+    const hi = selectEl('rh-c-hi', NUMS, c.hi, (v) => { c.hi = +v; if (c.lo > c.hi) { c.lo = c.hi; lo.value = String(c.lo); } redo(); });
+    const flip = (k) => (v) => { c[k] = v ? 1 : 0; redo(); };
+    return [
+      h('div', { class: 'row2' }, fld('Time signatures from', lo), fld('To', hi)),
+      h('div', { class: 'toggles' },
+        toggle('rh-c-compound', 'Compound meters', '3/8, 6/8, 9/8 and 12/8.', c.compound, flip('compound')),
+        toggle('rh-c-cut', 'Cut time', '2/2, and 3/2.', c.cut, flip('cut')),
+        toggle('rh-c-uneven', 'Uneven meters', '5/8, 7/8, 8/8, 10/8 and 11/8.', c.uneven, flip('uneven'))),
+      grp('Shortest note', seg('rh-c-short', [{ v: 2, label: 'Quarter' }, { v: 3, label: 'Eighth' }, { v: 4, label: 'Sixteenth' }], c.shortest, (v) => { c.shortest = v; redo(); })),
+      h('div', { class: 'toggles' },
+        toggle('rh-c-dotted', 'Dotted notes', 'Dotted halves, quarters and eighths.', c.dotted, flip('dotted')),
+        toggle('rh-c-trip', 'Triplets', 'Quarter-note triplets, and eighth- and sixteenth-note triplets when the shortest note allows.', c.triplets, flip('triplets'))),
+      grp('Notes off the beat', seg('rh-c-off', [{ v: 0, label: 'None' }, { v: 1, label: 'One or two' }, { v: 2, label: 'More' }], c.offbeats, (v) => { c.offbeats = v; redo(); }),
+        'One or two in each example, or up to about one a measure.'),
+      grp('Rests', seg('rh-c-rests', [{ v: 0, label: 'None' }, { v: 1, label: 'A few' }, { v: 2, label: 'Some' }, { v: 3, label: 'Many' }], c.rests, (v) => { c.rests = v; redo(); }),
+        'How many measures have a rest: none, up to a quarter of them, a fifth to a half, or up to four in five. With notes off the beat, rests can fall on the beat too.'),
+    ];
   }
   // Plays one example as written, with the listener's count-off and metronome.
   function rhythmPlayButton(ex) {
@@ -11385,6 +12635,351 @@ svg.staff .nlabel { display: none; }
     for (let a = 0; a < R.measures; a += per) {
       const blank = { meter: R.meter, measures: Math.min(per, R.measures - a), parts: R.parts, layers: [[[], [], [], []], [[], [], [], []]] };
       rows.push(MQ.rhythmArt(blank, { first: a, showTime: a === 0, measureW: 300, heightIn: (opts && opts.height) || 1.25 }));
+    }
+    return rows;
+  }
+
+  // ---------- Clefwork Melody: hearing and writing melodies ----------
+  const ACC_ICON = (alt) => `<svg class="rh-icon" viewBox="-12 -19 24 34" aria-hidden="true"><g fill="currentColor" color="currentColor">${MQ.ACC_SVG[alt]}</g></svg>`;
+  // The staff a melody is written on, with the note buttons and what each measure still needs.
+  // model: {meter, measures, layers, key, clef}. opts: readOnly, marks, first, onChange(layers).
+  function melodyEditor(model, opts) {
+    const o = opts || {};
+    const uid = ++rhUid;
+    const box = h('div', { class: 'rstaff-box mstaff-box' });
+    const status = h('div', { class: 'rh-status', 'aria-live': 'polite' });
+    const entry = S.rhEntry;
+    const staff = new MQ.MelodyStaff(box, {
+      meter: model.meter, measures: model.measures, parts: 1, layers: model.layers, key: model.key, clef: model.clef, first: o.first || null,
+      slots: MQ.MELODY_MEASURES, readOnly: !!o.readOnly, marks: o.marks || null, sound: !o.readOnly,
+      onChange: (layers) => { drawStatus(); if (o.onChange) o.onChange(layers); },
+    });
+    function drawStatus() {
+      const info = MQ.rhythmMeter(model.meter), L = staff.layers()[0];
+      const chips = [];
+      for (let m = 0; m < model.measures; m++) {
+        const note = MQ.measureNote(L[m], info);
+        chips.push(h('span', { class: 'rh-chip ' + (!note ? 'is-ok' : note === 'empty' ? 'is-empty' : 'is-short') }, h('b', null, String(m + 1)), !note ? ' ✓' : ' ' + note));
+      }
+      status.replaceChildren(h('div', { class: 'rh-status-row' }, chips));
+    }
+    if (o.readOnly) return { el: h('div', { class: 'rh-editor' }, box), staff };
+    drawStatus();
+    // ---------- the note buttons ----------
+    const add = (k) => {
+      if (entry.dot && k === 4) { toast('Turn off Dot to write a sixteenth — a dotted sixteenth would need a thirty-second note to finish the beat.'); return; }
+      S.mlValue = k;
+      const msg = staff.enter({ v: k, d: entry.dot ? 1 : 0, t: entry.trip ? 1 : 0, r: entry.rest ? 1 : 0 });
+      if (msg) toast(msg, 'bad');
+      staff.focus();
+    };
+    const valueBtns = MQ.RHYTHM_VALUES.map((v, k) => h('button', {
+      type: 'button', class: 'rh-tool', title: `${v.name[0].toUpperCase() + v.name.slice(1)} (${['1', '2', '4', '8', '6'][k]})`, onclick: () => add(k),
+    }, svgEl(MQ.rhythmIcon(v.name)), h('span', null, v.name === 'sixteenth' ? '16th' : v.name[0].toUpperCase() + v.name.slice(1))));
+    const modeBtn = (key, label, iconKind, title) => h('button', { type: 'button', class: 'rh-tool rh-mode', 'aria-pressed': String(!!entry[key]), title, onclick: () => flip(key) }, svgEl(MQ.rhythmIcon(iconKind)), h('span', null, label));
+    const dotBtn = modeBtn('dot', 'Dot', 'dot', 'Dotted notes: turn on, then choose a value (.)');
+    const tripBtn = modeBtn('trip', 'Triplet', 'triplet', 'Triplets: turn on, then choose a value (T)');
+    const restBtn = modeBtn('rest', 'Rest', 'rest', 'Rests instead of notes (R)');
+    function paint() {
+      dotBtn.setAttribute('aria-pressed', String(!!entry.dot));
+      tripBtn.setAttribute('aria-pressed', String(!!entry.trip));
+      restBtn.setAttribute('aria-pressed', String(!!entry.rest));
+      valueBtns[4].disabled = !!entry.dot;
+    }
+    function flip(key) {
+      entry[key] = !entry[key];
+      if (key === 'dot' && entry.dot) entry.trip = false;
+      if (key === 'trip' && entry.trip) entry.dot = false;
+      paint();
+    }
+    const need = () => toast('Select a note first — click it on the staff.');
+    const pitchBtn = (label, title, iconHTML, fn) => h('button', { type: 'button', class: 'rh-tool', title, onclick: () => { fn(); staff.focus(); } }, svgEl(iconHTML), h('span', null, label));
+    const arrow = (d) => `<svg class="rh-icon" viewBox="0 0 24 26" aria-hidden="true"><path d="${d}" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+    const palette = h('div', { class: 'rh-palette', role: 'toolbar', 'aria-label': 'Notes' },
+      ...valueBtns, h('span', { class: 'rh-sep', 'aria-hidden': 'true' }), dotBtn, tripBtn, restBtn,
+      h('span', { class: 'rh-sep', 'aria-hidden': 'true' }),
+      pitchBtn('Sharp', 'Make the note sharp (+)', ACC_ICON(1), () => staff.setAlt(1) || need()),
+      pitchBtn('Flat', 'Make the note flat (−)', ACC_ICON(-1), () => staff.setAlt(-1) || need()),
+      pitchBtn('Natural', 'Make the note natural (=)', ACC_ICON(0), () => staff.setAlt(0) || need()),
+      pitchBtn('Up', 'Up a step (↑; Shift for an octave)', arrow('M6 15l6-6 6 6'), () => staff.nudge(1)),
+      pitchBtn('Down', 'Down a step (↓; Shift for an octave)', arrow('M6 10l6 6 6-6'), () => staff.nudge(-1)),
+      h('span', { class: 'rh-sep', 'aria-hidden': 'true' }),
+      h('button', { type: 'button', class: 'rh-tool', title: 'Delete the selected note, or the one before the cursor (Backspace)', onclick: () => { if (!staff.remove(true)) toast('There’s nothing before the cursor to delete.'); staff.focus(); } },
+        svgEl('<svg class="rh-icon" viewBox="0 0 24 26" aria-hidden="true"><path d="M9 6h11v14H9l-6-7z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M12 10l5 6M17 10l-5 6" stroke="currentColor" stroke-width="1.6"/></svg>'), h('span', null, 'Delete')),
+      h('button', { type: 'button', class: 'rh-tool', title: 'Empty the measure the cursor is in', onclick: () => { if (!staff.clearMeasure()) toast('That measure is already empty.'); staff.focus(); } },
+        svgEl('<svg class="rh-icon" viewBox="0 0 24 26" aria-hidden="true"><path d="M5 8h14M9 8V5h6v3M7 8l1 13h8l1-13" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>'), h('span', null, 'Clear bar')));
+    paint();
+    // ---------- keyboard ----------
+    const DIGITS = { 1: 0, 2: 1, 4: 2, 8: 3, 6: 4 };
+    staff.svg.addEventListener('keydown', (e) => {
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
+      const k = e.key.length === 1 ? e.key.toLowerCase() : e.key;
+      let done = true;
+      if (k in DIGITS) add(DIGITS[k]);
+      else if ('abcdefg'.includes(k) && k.length === 1) {
+        const v = S.mlValue == null ? 2 : S.mlValue;
+        const msg = staff.enterLetter('cdefgab'.indexOf(k), { v, d: entry.dot && v !== 4 ? 1 : 0, t: entry.trip ? 1 : 0, r: 0 });
+        if (msg) toast(msg, 'bad');
+      } else if (k === '.' || e.code === 'Period' || e.code === 'NumpadDecimal') flip('dot');
+      else if (k === 't' || k === '3') flip('trip');
+      else if (k === 'r' || k === '0') flip('rest');
+      else if (k === '+' || k === '#') { if (!staff.setAlt(1)) need(); }
+      else if (k === '-' || k === '_') { if (!staff.setAlt(-1)) need(); }
+      else if (k === '=' || k === 'n') { if (!staff.setAlt(0)) need(); }
+      else if (k === 'ArrowUp') staff.nudge(e.shiftKey ? 7 : 1);
+      else if (k === 'ArrowDown') staff.nudge(e.shiftKey ? -7 : -1);
+      else if (k === 'ArrowLeft') staff.move(-1);
+      else if (k === 'ArrowRight') staff.move(1);
+      else if (k === 'Backspace') { if (!staff.remove(true)) toast('There’s nothing before the cursor to delete.'); }
+      else if (k === 'Delete') staff.remove(false);
+      else if (k === 'Escape') { staff.sel = null; staff.moved(); }
+      else done = false;
+      if (done) e.preventDefault();
+    });
+    return {
+      el: h('div', { class: 'rh-editor', id: 'ml-ed-' + uid }, box, palette, status,
+        h('p', { class: 'rh-keys' }, 'Click the staff where the next note goes, then choose its value — or type the letter name (A–G). Drag a note, or use ↑ ↓, to move it; ♯ ♭ ♮ change the note just written or clicked. Keys: 1 2 4 8 6 for whole to sixteenth, period for Dot, T for Triplet, R for Rest, + − = for sharp, flat and natural.')),
+      staff,
+    };
+  }
+  function melodyFacts(M, info) {
+    return h('dl', { class: 'facts rh-facts' },
+      h('div', null, h('dt', null, 'Key'), h('dd', null, MQ.melodyKeyName(M.key))),
+      h('div', null, h('dt', null, 'Time'), h('dd', null, info.label + (info.grouping ? ` (${info.grouping})` : ''))),
+      h('div', null, h('dt', null, 'Tempo'), h('dd', null, tempoLabel(info, M.tempo))),
+      h('div', null, h('dt', null, 'Measures'), h('dd', null, String(M.measures))),
+      M.first ? h('div', null, h('dt', null, 'First note'), h('dd', null, MQ.fullName(M.first))) : null);
+  }
+  // "Hear the key": the tonic chord, which doesn't use up a play.
+  const keySource = (M) => ({ label: 'Hear the key', custom: () => MQ.melodyKeyEvents(M, M.tempo) });
+  // One melody question: listen, then write it — as the rhythm card, on a staff with pitches.
+  function melodyCard(q, cfg, o) {
+    const M = q.mel, info = MQ.rhythmMeter(M.meter);
+    const reveal = !!o.reveal && !o.keyMode;
+    const grader = !!o.locked && !o.plays;
+    const wrap = h('div', { class: 'qcard rh-card ml-card' + (o.compact ? ' is-compact' : '') });
+    wrap.append(h('div', { class: 'q-eyebrow' }, typeOf(q.type).label, h('span', { class: 'q-clef' }, `${MQ.melodyKeyName(M.key)} · ${info.label} · ${M.measures} measure${M.measures > 1 ? 's' : ''}`)));
+    wrap.append(h(o.compact ? 'h3' : 'h2', { class: 'q-text' }, q.text));
+    if (!o.locked && !o.keyMode) {
+      wrap.append(h('p', { class: 'q-hint' }, M.first
+        ? `Listen, then write the melody — pitches and rhythm. It starts on ${MQ.fullName(M.first)}; “Hear the key” plays the tonic chord.`
+        : 'Listen, then write the melody — pitches and rhythm. “Hear the key” plays the tonic chord.'));
+    }
+    wrap.append(melodyFacts(M, info));
+    const resp = [M.layers[0].map((_, m) => ((o.response && o.response[0] && o.response[0][m]) || []).map(MQ.rhythmEvent))];
+    const limit = MQ.melodySettings(cfg.melody);
+    const left = (k) => {
+      const lim = o.plays && !o.locked ? (k === 'ex' ? limit.playsEx : limit.playsAns) || 0 : 0;
+      return lim ? Math.max(0, lim - (o.plays[k] || 0)) : Infinity;
+    };
+    const use = (k) => () => { if (o.plays && !o.locked) { o.plays[k] = (o.plays[k] || 0) + 1; if (o.onPlays) o.onPlays(); } };
+    let ed = null, key = null;
+    const cmp = reveal ? MQ.compareMelody(q, resp) : null;
+    const sources = [{ label: 'Play the melody', primary: true, layers: () => M.layers, left: () => left('ex'), use: use('ex') }];
+    if (!o.keyMode) sources.push({ label: grader ? 'Play their answer' : 'Hear my answer', layers: () => (ed ? ed.staff.layers() : resp), needsNotes: true, left: () => left('ans'), use: use('ans') });
+    sources.push(keySource(M));
+    wrap.append(listenPanel({ ex: M, sources, staffs: () => [ed && ed.staff, key].filter(Boolean) }));
+    if (!o.keyMode) {
+      ed = melodyEditor({ meter: M.meter, measures: M.measures, layers: resp, key: M.key, clef: M.clef }, {
+        readOnly: !!o.locked, first: M.first, marks: cmp ? { side: 'got', parts: cmp.parts } : null,
+        onChange: (L) => { if (o.onResponse) o.onResponse([L[0].slice(0, M.measures)]); },
+      });
+      wrap.append(h('div', { class: 'rh-block' }, h('span', { class: 'mini-label' }, grader ? 'Student’s answer' : o.locked ? 'Your answer' : 'Your answer — write the melody here'), ed.el));
+    }
+    if (reveal || o.keyMode) {
+      const box = h('div', { class: 'rstaff-box mstaff-box' });
+      key = new MQ.MelodyStaff(box, { meter: M.meter, measures: M.measures, parts: 1, layers: M.layers, key: M.key, clef: M.clef, slots: MQ.MELODY_MEASURES, readOnly: true, marks: cmp ? { side: 'want', parts: cmp.parts } : null });
+      wrap.append(h('div', { class: 'rh-block' }, h('span', { class: 'mini-label' }, cmp && cmp.wrong ? 'The answer — notes that were missed or wrong are in red' : 'The answer'), box));
+    }
+    if (o.playsUsed) {
+      const t = (k) => `${o.playsUsed[k]} time${o.playsUsed[k] === 1 ? '' : 's'}`;
+      wrap.append(h('p', { class: 'fine rh-plays' }, `Played the melody ${t('ex')} and their answer ${t('ans')}.`));
+    }
+    if (cmp) {
+      const lost = MQ.melodyLost(cmp, M.split), right = Math.max(0, cmp.notes - lost);
+      const detail = ` (${cmp.pw} pitch, ${cmp.rw} rhythm)`;
+      wrap.append(!cmp.wrong ? h('p', { class: 'result is-good', role: 'status' }, h('strong', null, 'Correct.'), ` All ${cmp.notes} notes match, pitch and rhythm.`)
+        : h('p', { class: 'result is-bad', role: 'status' }, h('strong', null, `${cmp.wrong} wrong note${cmp.wrong === 1 ? '' : 's'}${detail}`), ` — ${fmtPts(right)} of ${cmp.notes} points. `,
+          'Red notes have the wrong pitch or rhythm, or are extra; in the answer, red notes were missed or wrong.'));
+    }
+    return wrap;
+  }
+
+  // ---------- Clefwork Melody: the builder ----------
+  function melodyReady() {
+    const probs = MQ.melodyProblems(S.cfg.melody);
+    if (!probs.length) return true;
+    toast(probs[0].text + (probs.length > 1 ? ` (${probs.length - 1} more to fix)` : ''), 'bad');
+    S.mlEx = probs[0].ex;
+    if (S.view === 'build') go('build');
+    return false;
+  }
+  // Key: major or minor, and its signature.
+  function keyPicker(key, onPick) {
+    const modeSeg = seg('ml-key-mode', [{ v: 'major', label: 'Major' }, { v: 'minor', label: 'Minor' }], key.mode, (v) => { onPick({ fifths: key.fifths, mode: v }); });
+    const names = key.mode === 'minor' ? MQ.MINOR_KEYS : MQ.MAJOR_KEYS;
+    const sel = selectEl('ml-key', FIFTHS.map((f) => ({ v: f, label: `${names[f + 7]} ${key.mode} — ${sigLabel(f).toLowerCase()}` })), key.fifths, (v) => onPick({ fifths: +v, mode: key.mode }));
+    return h('div', { class: 'ml-key-pick' }, modeSeg, sel);
+  }
+  function melodySections(cfg, changed, R) {
+    const mb = cfg.melody = MQ.melodySettings(cfg.melody);
+    if (!mb.examples.length) mb.examples.push(MQ.newMelody());
+    cfg.counts.melody = mb.auto.on ? mb.auto.count : mb.examples.length;
+    S.mlEx = Math.max(0, Math.min(mb.examples.length - 1, S.mlEx || 0));
+    R.total = h('span', { class: 'mix-total' });
+    const mode = seg('ml-mode', [{ v: 0, label: 'Write the melodies myself' }, { v: 1, label: 'Make them automatically' }], mb.auto.on ? 1 : 0, (v) => {
+      mb.auto.on = !!v;
+      cfg.counts.melody = mb.auto.on ? mb.auto.count : mb.examples.length;
+      changed();
+      go('build');
+    });
+    const extra = [
+      toggle('ml-first', 'Tell students the first note', 'Shown with the key and tempo, and new notes start from it.', mb.first, (v) => { mb.first = v ? 1 : 0; changed(); }),
+      grp('Pitch and rhythm', seg('ml-split', [{ v: 0, label: 'A note is right when both are' }, { v: 1, label: 'Half a point each' }], mb.split, (v) => { mb.split = v; changed(); }),
+        'Half a point each: a note with the right rhythm and the wrong pitch still earns half its point.'),
+    ];
+    const later = [scoringSection(mb, changed, R, extra), listeningSection(mb, changed)];
+    if (mb.auto.on) {
+      return [sec('ml-examples', 'Melodies', 'Clefwork writes the melodies from the level and keys you choose. Everyone with the quiz code gets the same ones.',
+        mode, melodyAutoPanel(cfg, changed), h('div', { class: 'mix-foot' }, R.total))].concat(later);
+    }
+    const tabs = h('div', { class: 'rh-tabs', role: 'tablist', 'aria-label': 'Melodies' });
+    const body = h('div', { class: 'rh-ex' });
+    const edited = () => { cfg.counts.melody = mb.examples.length; changed(); drawTabs(); };
+    function drawTabs() {
+      tabs.replaceChildren(...mb.examples.map((ex, i) => {
+        const ok = !MQ.melodyProblems({ examples: [ex] }).length;
+        return h('button', {
+          type: 'button', role: 'tab', class: 'rh-tab', 'aria-selected': String(i === S.mlEx), title: ok ? 'Ready' : 'Not finished yet',
+          onclick: () => { S.mlEx = i; drawTabs(); drawExample(); },
+        }, h('span', null, `Melody ${i + 1}`), h('span', { class: 'rh-tab-state ' + (ok ? 'is-ok' : 'is-open') }, ok ? '✓' : '•'));
+      }), mb.examples.length < MQ.MELODY_MAX ? h('button', {
+        type: 'button', class: 'rh-tab rh-add', onclick: () => {
+          mb.examples.push(MQ.newMelody(mb.examples[S.mlEx]));
+          S.mlEx = mb.examples.length - 1;
+          edited(); drawExample();
+          toast(`Melody ${S.mlEx + 1} added — same key, meter and tempo`);
+        },
+      }, '+ Add melody') : null);
+    }
+    function drawExample() {
+      const ex = MQ.melodyExample(mb.examples[S.mlEx]);
+      const info = MQ.rhythmMeter(ex.meter);
+      const redo = () => { edited(); drawExample(); };
+      const meter = meterPicker(ex.meter, (m) => {
+        const before = MQ.RHYTHM_TEMPO_UNITS[info.tempo];
+        ex.meter = m;
+        ex.tempo = Math.max(40, Math.min(240, Math.round((ex.tempo * before) / MQ.RHYTHM_TEMPO_UNITS[MQ.rhythmMeter(m).tempo])));
+        redo();
+      });
+      const groups = MQ.rhythmGroupings(ex.meter);
+      const grouping = groups && groups.length > 1 ? grp('Beats', seg('ml-grouping', groups.map((g, i) => ({ v: i, label: g.join(' + ') })), ex.meter.g || 0, (v) => { ex.meter.g = v; redo(); })) : null;
+      const tempoIn = h('input', { type: 'number', id: 'ml-tempo', min: 40, max: 240, inputmode: 'numeric' });
+      tempoIn.value = ex.tempo;
+      tempoIn.addEventListener('change', () => { ex.tempo = Math.max(40, Math.min(240, Math.round(+tempoIn.value || 72))); tempoIn.value = ex.tempo; edited(); });
+      const ed = melodyEditor(ex, { first: mb.first ? MQ.melodyFirstNote(ex.layers) : null, onChange: (L) => { ex.layers[0] = L[0]; edited(); } });
+      const delBtn = h('button', { type: 'button', class: 'btn btn-quiet sm an-del', disabled: mb.examples.length < 2 || null, onclick: () => {
+        if (delBtn.dataset.sure !== '1') {
+          delBtn.dataset.sure = '1';
+          delBtn.textContent = 'Click again to delete';
+          setTimeout(() => { if (delBtn.isConnected) { delBtn.dataset.sure = ''; delBtn.textContent = 'Delete melody'; } }, 3000);
+          return;
+        }
+        mb.examples.splice(S.mlEx, 1);
+        toast(`Melody ${S.mlEx + 1} deleted`);
+        S.mlEx = Math.min(S.mlEx, mb.examples.length - 1);
+        redo();
+      } }, 'Delete melody');
+      const dupBtn = h('button', { type: 'button', class: 'btn btn-quiet sm', disabled: mb.examples.length >= MQ.MELODY_MAX || null, onclick: () => {
+        mb.examples.splice(S.mlEx + 1, 0, JSON.parse(JSON.stringify(ex)));
+        S.mlEx += 1;
+        redo();
+        toast(`Copied to melody ${S.mlEx + 1}`);
+      } }, 'Duplicate');
+      body.replaceChildren(...[
+        h('div', { class: 'rh-ex-head' }, h('h3', null, `Melody ${S.mlEx + 1}`), h('div', { class: 'rh-ex-actions' }, dupBtn, delBtn)),
+        h('div', { class: 'row2' },
+          grp('Key', keyPicker(ex.key, (k) => { ex.key = k; redo(); }), 'Notes you write take the key signature’s sharps and flats.'),
+          grp('Clef', seg('ml-clef', [{ v: 'treble', label: 'Treble' }, { v: 'bass', label: 'Bass' }], ex.clef, (v) => { ex.clef = v; redo(); }))),
+        grp('Time signature', meter),
+        grouping,
+        h('div', { class: 'row2' },
+          grp('Measures', seg('ml-measures', [1, 2, 3, 4, 5, 6, 7, 8].map((v) => ({ v, label: String(v) })), ex.measures, (v) => { ex.measures = v; redo(); }), 'One to eight.'),
+          grp('Tempo', h('div', { class: 'rh-tempo' }, h('span', { class: 'rh-tempo-sign', 'aria-hidden': 'true' }, TEMPO_SIGNS[info.tempo] + ' ='), tempoIn), `Beats per minute, counting ${MQ.RHYTHM_TEMPO_NAMES[info.tempo]}s.`)),
+        h('div', { class: 'rh-block' }, h('span', { class: 'mini-label' }, 'The melody'), ed.el),
+        listenPanel({ ex, sources: [{ label: 'Play the melody', primary: true, layers: () => ex.layers }, keySource(ex)], staffs: () => [ed.staff] }),
+      ].filter(Boolean));
+    }
+    drawTabs();
+    drawExample();
+    return [sec('ml-examples', 'Melodies', 'Write each melody students will hear. Every measure has to be full before the quiz can be shared — rests count.',
+      mode, tabs, body, h('div', { class: 'mix-foot' }, R.total))].concat(later);
+  }
+  // ---------- Clefwork Melody: melodies made automatically ----------
+  function melodyAutoPanel(cfg, changed) {
+    const a = cfg.melody.auto, c = a.custom;
+    const preview = h('div', { class: 'rh-auto-list' });
+    const redo = () => { a.gen = MQ.MELODY_GEN; cfg.counts.melody = a.count; changed(); drawPreview(); };
+    const count = counter('ml-auto-count', 'melodies', (v) => { a.count = Math.max(1, v); if (v < 1) count.sync(1, 20); redo(); });
+    count.sync(a.count, 20);
+    const levels = h('div', { class: 'rh-levels', role: 'radiogroup', 'aria-label': 'Level' });
+    const custom = h('div', { class: 'rh-custom' });
+    const LIST = MQ.MELODY_LEVELS.map((L, i) => ({ id: i + 1, name: `Level ${i + 1} · ${L.name}`, blurb: L.blurb }))
+      .concat([{ id: 7, name: 'Custom rules', blurb: 'Choose the rhythm rules, the range and the largest leap yourself.' }]);
+    const drawLevels = () => {
+      levels.replaceChildren(...LIST.map((L) => h('button', {
+        type: 'button', role: 'radio', class: 'rh-level', 'aria-checked': String(a.level === L.id),
+        onclick: () => { a.level = L.id; drawLevels(); redo(); },
+      }, h('strong', null, L.name), h('span', null, L.blurb))));
+      custom.hidden = a.level !== 7;
+    };
+    custom.append(
+      grp('Range', seg('ml-c-range', ['A fifth', 'A sixth', 'An octave', 'A tenth', 'A twelfth'].map((label, v) => ({ v, label })), c.range, (v) => { c.range = v; redo(); }), 'From the lowest note to the highest.'),
+      grp('Largest leap', seg('ml-c-leap', ['A third', 'A fourth', 'A fifth', 'A sixth', 'An octave'].map((label, v) => ({ v, label })), c.leap, (v) => { c.leap = v; redo(); })),
+      ...customRhythmRules(c, redo));
+    drawLevels();
+    function drawPreview() {
+      const qs = MQ.melodyQuestions(cfg);
+      preview.replaceChildren(...qs.map((q) => {
+        const M = q.mel, info = MQ.rhythmMeter(M.meter);
+        const box = h('div', { class: 'rstaff-box mstaff-box' });
+        new MQ.MelodyStaff(box, { meter: M.meter, measures: M.measures, parts: 1, layers: M.layers, key: M.key, clef: M.clef, slots: MQ.MELODY_MEASURES, readOnly: true });
+        return h('div', { class: 'rh-auto-item' },
+          h('div', { class: 'rh-auto-head' }, h('strong', null, `Melody ${M.n + 1}`),
+            h('span', { class: 'help' }, `${MQ.melodyKeyName(M.key)} · ${info.label} · ${tempoLabel(info, M.tempo)}`), rhythmPlayButton(M)),
+          box);
+      }));
+    }
+    const fresh = h('button', { type: 'button', class: 'btn btn-quiet sm', onclick: () => { cfg.seed = MQ.randomSeed(); redo(); toast('New melodies made — share the new code'); } }, '↻ Make new melodies');
+    drawPreview();
+    return h('div', { class: 'rh-auto' },
+      h('div', { class: 'row2' },
+        grp('How many melodies', count, 'Up to 20.'),
+        grp('Measures in each', seg('ml-auto-measures', [1, 2, 3, 4, 5, 6, 7, 8].map((v) => ({ v, label: String(v) })), a.measures, (v) => { a.measures = v; redo(); }))),
+      h('div', { class: 'row2' },
+        grp('Keys', seg('ml-keymode', [{ v: 1, label: 'Major' }, { v: 2, label: 'Minor' }, { v: 3, label: 'Both' }], a.keyMode, (v) => { a.keyMode = v; redo(); })),
+        grp('Key signatures up to', seg('ml-keymax', [0, 1, 2, 3, 4, 5, 6, 7].map((v) => ({ v, label: v ? String(v) : 'None' })), a.keyMax, (v) => { a.keyMax = v; redo(); }), 'Sharps or flats.')),
+      grp('Clef', seg('ml-clefs', [{ v: 1, label: 'Treble' }, { v: 2, label: 'Bass' }, { v: 3, label: 'Both' }], a.clefs, (v) => { a.clefs = v; redo(); })),
+      toggle('ml-chromatic', 'Allow chromatic notes', 'Notes from outside the key: a half step below or above the note they lead to, on weak beats — neighbours from level 1, approaches such as F♯ to G from level 3, flats (in major keys) from level 5. Off: only notes of the key. Minor keys always use their raised sixth and seventh.', a.chromatic, (v) => { a.chromatic = v ? 1 : 0; redo(); }),
+      grp('Level', levels),
+      custom,
+      grp('Tempo', tempoInput('ml-auto-tempo', a, redo), 'In other meters the eighth notes keep this speed: ♩ = 72 is ♩. = 48 in 6/8.'),
+      h('div', { class: 'rh-auto-top' }, h('span', { class: 'mini-label' }, 'The melodies'), fresh),
+      preview);
+  }
+  function melodyKeyItem(q) {
+    const M = q.mel, info = MQ.rhythmMeter(M.meter);
+    const box = h('div', { class: 'rstaff-box rh-key-staff mstaff-box' });
+    new MQ.MelodyStaff(box, { meter: M.meter, measures: M.measures, parts: 1, layers: M.layers, key: M.key, clef: M.clef, slots: MQ.MELODY_MEASURES, readOnly: true });
+    return h('li', null, h('span', { class: 'key-q' }, `Melody ${M.n + 1}`, h('span', { class: 'key-clef' }, ` · ${MQ.melodyKeyName(M.key)} · ${info.label} · ${tempoLabel(info, M.tempo)}`)), box);
+  }
+  // On paper: an empty staff with the clef, key signature and time signature, two measures to a line.
+  function melodyPrintArt(q, opts) {
+    const M = q.mel, rows = [];
+    const per = M.measures > 2 ? 2 : M.measures;
+    for (let a = 0; a < M.measures; a += per) {
+      const blank = { meter: M.meter, measures: Math.min(per, M.measures - a), layers: [[[], [], [], [], [], [], [], []]], key: M.key, clef: M.clef };
+      rows.push(MQ.melodyArt(blank, { first: a, showTime: a === 0, measureW: 300, perLine: per, heightIn: (opts && opts.height) || 1.25, drawnClefs: opts && opts.drawnClefs }));
     }
     return rows;
   }
@@ -11441,6 +13036,7 @@ svg.staff .nlabel { display: none; }
     return { svg, markup, wIn: (vb[2] / vb[3]) * hIn, hIn };
   }
   function exportArt(q, opts) {
+    if (q.type === 'melody') return melodyPrintArt(q, opts);
     if (q.type === 'rhythm') return rhythmPrintArt(q, opts);
     if (q.type !== 'keys') return [exportStaffSVG(q, opts)];
     const k = q.keys;
@@ -11754,6 +13350,15 @@ svg.staff .nlabel { display: none; }
       document.querySelector('.flow').replaceChildren(
         h('li', null, h('b', null, '1'), ' Write rhythms of one to four measures, in one part or two'),
         h('li', null, h('b', null, '2'), ' Students listen and write what they hear on a one-line staff'),
+        h('li', null, h('b', null, '3'), ' Students send back a report code — no accounts, no server'));
+    }
+    if (MELODY) {
+      const name = document.querySelector('.brand-name');
+      if (name) name.textContent = 'Clefwork Melody';
+      document.title = 'Clefwork Melody';
+      document.querySelector('.flow').replaceChildren(
+        h('li', null, h('b', null, '1'), ' Write melodies of one to eight measures, or let Clefwork make them'),
+        h('li', null, h('b', null, '2'), ' Students listen and write the pitches and rhythm on the staff'),
         h('li', null, h('b', null, '3'), ' Students send back a report code — no accounts, no server'));
     }
     ['piano', 'oboe', 'click'].forEach((v) => MQ.Audio.setVolume(v, S.listen.vol[v]));

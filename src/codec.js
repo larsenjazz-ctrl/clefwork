@@ -169,6 +169,70 @@
     return MQ.exampleSettings(ex);
   }
 
+  // ---------- melodies ----------
+  // Rhythm as above, and for each note its line or space (7 bits) and accidental (−2 … +2).
+  function writeMelEvents(w, list) {
+    const evs = (list || []).slice(0, 63);
+    w.u(evs.length, 6);
+    evs.forEach((e) => {
+      w.u(e.v, 3).u(e.d ? 1 : 0, 1).u(e.t ? 1 : 0, 1).u(e.r ? 1 : 0, 1);
+      if (!e.r) { const p = e.p || { step: 0, oct: 4, alt: 0 }; w.u(Math.max(0, Math.min(127, MQ.dia(p))), 7).u(Math.max(-2, Math.min(2, p.alt)) + 2, 3); }
+    });
+  }
+  function readMelEvents(r) {
+    const n = r.u(6), out = [];
+    for (let i = 0; i < n; i++) {
+      const e = { v: Math.min(4, r.u(3)), d: r.u(1), t: r.u(1), r: r.u(1) };
+      if (!e.r) { const d = r.u(7); e.p = MQ.fromDia(d, r.u(3) - 2); }
+      out.push(e);
+    }
+    return out;
+  }
+  function writeMelody(w, raw) {
+    const ex = MQ.melodyExample(raw);
+    w.u(ex.measures - 1, 3).u(METER_DENOMS.indexOf(ex.meter.d), 2).u(ex.meter.n, 4).u(ex.meter.g || 0, 2)
+      .u(ex.tempo - 30, 8).u(ex.clef === 'bass' ? 1 : 0, 1).u(ex.key.fifths + 7, 4).u(ex.key.mode === 'minor' ? 1 : 0, 1);
+    for (let m = 0; m < ex.measures; m++) writeMelEvents(w, ex.layers[0][m]);
+  }
+  function readMelody(r) {
+    const ex = { measures: r.u(3) + 1 };
+    ex.meter = { d: METER_DENOMS[r.u(2)] || 4, n: r.u(4), g: r.u(2) };
+    ex.tempo = r.u(8) + 30;
+    ex.clef = r.u(1) ? 'bass' : 'treble';
+    ex.key = { fifths: r.u(4) - 7, mode: r.u(1) ? 'minor' : 'major' };
+    ex.layers = [[]];
+    for (let m = 0; m < ex.measures; m++) ex.layers[0].push(readMelEvents(r));
+    return MQ.melodyExample(ex);
+  }
+  // The melody block: listening and scoring, then automatic settings or the melodies themselves.
+  function writeMelodyBlock(w, mb) {
+    w.u(Math.min(15, mb.playsEx || 0), 4).u(Math.min(15, mb.playsAns || 0), 4).u(mb.score === 'percent' ? 1 : 0, 1).u(mb.outOf, 10)
+      .u(mb.first ? 1 : 0, 1).u(mb.split ? 1 : 0, 1).u(mb.auto.on ? 1 : 0, 1);
+    if (mb.auto.on) {
+      const a = mb.auto, c = a.custom;
+      w.u(a.gen, 3).u(a.count - 1, 5).u(a.measures - 1, 3).u(a.level - 1, 3).u(a.tempo - 30, 8)
+        .u(a.keyMode, 2).u(a.keyMax, 3).u(a.chromatic ? 1 : 0, 1).u(a.clefs, 2)
+        .u(c.lo - 2, 3).u(c.hi - 2, 3).u(c.compound ? 1 : 0, 1).u(c.cut ? 1 : 0, 1).u(c.uneven ? 1 : 0, 1)
+        .u(c.shortest - 2, 2).u(c.dotted ? 1 : 0, 1).u(c.triplets ? 1 : 0, 1).u(c.offbeats, 2).u(c.rests, 2).u(c.range, 3).u(c.leap, 3);
+    } else {
+      const list = mb.examples.slice(0, MQ.MELODY_MAX);
+      w.u(list.length, 4);
+      list.forEach((ex) => writeMelody(w, ex));
+    }
+  }
+  function readMelodyBlock(r) {
+    const mb = { playsEx: r.u(4), playsAns: r.u(4), score: r.u(1) ? 'percent' : 'notes', outOf: r.u(10), first: r.u(1), split: r.u(1), examples: [] };
+    if (r.u(1)) {
+      const a = { on: true, gen: r.u(3), count: r.u(5) + 1, measures: r.u(3) + 1, level: r.u(3) + 1, tempo: r.u(8) + 30, keyMode: r.u(2), keyMax: r.u(3), chromatic: r.u(1), clefs: r.u(2) };
+      a.custom = { lo: r.u(3) + 2, hi: r.u(3) + 2, compound: r.u(1), cut: r.u(1), uneven: r.u(1), shortest: r.u(2) + 2, dotted: r.u(1), triplets: r.u(1), offbeats: r.u(2), rests: r.u(2), range: r.u(3), leap: r.u(3) };
+      mb.auto = a;
+    } else {
+      const n = r.u(4);
+      for (let i = 0; i < n; i++) mb.examples.push(readMelody(r));
+    }
+    return MQ.melodySettings(mb);
+  }
+
   // ---------- quiz codes ----------
   // Retakes a quiz allows after the first attempt: a number from 0 to 31, or null for no limit.
   const retakeLimit = (cfg) => (cfg && Number.isInteger(cfg.retakes) && cfg.retakes >= 0 ? Math.min(31, cfg.retakes) : null);
@@ -270,15 +334,18 @@
     // play the example and their answer, then each example's meter, tempo and rhythm.
     // Extension 4: the same, plus how the quiz is scored (every note a point, or a percent of a
     // total) and whether the examples are written out or made automatically from the seed.
+    // Extension 5: Clefwork Melody — after the (empty) rhythm block, the melody block.
     const an = MQ.analysisSettings(cfg.analysis);
     const regions = an.regions.slice(0, MQ.ANALYSIS_MAX);
     const limit = retakeLimit(cfg);
     const rh = MQ.rhythmSettings(cfg.rhythm);
     const examples = rh.examples.slice(0, MQ.RHYTHM_MAX);
     const rhythm = rh.auto.on || examples.length > 0;
-    if (regions.length || an.img || limit != null || rhythm) {
+    const mb = MQ.melodySettings(cfg.melody);
+    const melody = mb.auto.on || mb.examples.length > 0;
+    if (regions.length || an.img || limit != null || rhythm || melody) {
       const q10 = (v) => Math.max(0, Math.min(1023, Math.round(v * 1023)));
-      const ext = rhythm ? 4 : limit != null ? 2 : 1;
+      const ext = melody ? 5 : rhythm ? 4 : limit != null ? 2 : 1;
       w.u(ext, 8).u(an.override, 2).u(an.img ? 1 : 0, 1);
       if (an.img) w.u(an.img.hash >>> 0, 32);
       w.strN(an.notes, 200, 8).u(regions.length, 6);
@@ -287,7 +354,7 @@
           .u(Math.max(1, MQ.ANALYSIS_ASKS.indexOf(r.ask)), 2).str(r.roman, 63).str(r.symbol, 63);
       });
       if (ext === 2) w.u(limit, 5);
-      if (ext === 4) {
+      if (ext >= 4) {
         w.u(limit != null ? 1 : 0, 1);
         if (limit != null) w.u(limit, 5);
         w.u(Math.min(15, rh.playsEx || 0), 4).u(Math.min(15, rh.playsAns || 0), 4)
@@ -304,6 +371,7 @@
           examples.forEach((ex) => writeExample(w, ex));
         }
       }
+      if (ext === 5) writeMelodyBlock(w, mb);
     }
     return pack(KIND_QUIZ, w.b);
   }
@@ -429,6 +497,8 @@
       cfg.counts.analysis = 0;
       cfg.rhythm = MQ.defaultConfig().rhythm;
       cfg.counts.rhythm = 0;
+      cfg.melody = MQ.defaultConfig().melody;
+      cfg.counts.melody = 0;
       if (cfg.helpOv.vprog == null) cfg.helpOv.vprog = 2;
       if (v >= 12) {
         cfg.helpOv.vprog = r.u(2);
@@ -479,6 +549,10 @@
             cfg.rhythm = MQ.rhythmSettings(rh);
             cfg.counts.rhythm = rh.auto ? rh.auto.count : rh.examples.length;
           }
+          if (ext >= 5) {
+            cfg.melody = readMelodyBlock(r);
+            cfg.counts.melody = cfg.melody.auto.on ? cfg.melody.auto.count : cfg.melody.examples.length;
+          }
         }
         const sum = (b) => MQ.TECHNIQUES.reduce((n, t) => n + ((b.tech && b.tech[t.id]) || 0), 0);
         cfg.counts.voicing = sum(cfg.vc);
@@ -519,6 +593,12 @@
   const KEY_ANSWERS = ['staff', 'name', 'piano'];
   // `plays` (rhythm questions): how often the student played the example and their own answer.
   function writeAnswer(w, q, resp, plays) {
+    if (q.type === 'melody') {
+      w.u(q.mel.measures - 1, 3);
+      for (let m = 0; m < q.mel.measures; m++) writeMelEvents(w, resp && resp[0] && resp[0][m]);
+      w.u(Math.min(31, (plays && plays.ex) || 0), 5).u(Math.min(31, (plays && plays.ans) || 0), 5);
+      return;
+    }
     if (q.type === 'rhythm') {
       const R = q.rh;
       w.u(R.parts - 1, 1).u(R.measures - 1, 2);
@@ -579,6 +659,11 @@
     }
   }
   function readAnswer(r, type, ver) {
+    if (type === 'melody') {
+      const n = r.u(3) + 1, L = [];
+      for (let m = 0; m < n; m++) L.push(readMelEvents(r));
+      return { kind: 'melody', value: [L], plays: { ex: r.u(5), ans: r.u(5) } };
+    }
     if (type === 'rhythm') {
       const parts = r.u(1) + 1, n = r.u(2) + 1, layers = [];
       for (let l = 0; l < parts; l++) { const L = []; for (let m = 0; m < n; m++) L.push(readEvents(r)); layers.push(L); }
@@ -650,7 +735,7 @@
     const qid = quizId(quizCode);
     const w = new Writer();
     // Version 10 added rhythm answers, with how often each example and answer was played.
-    w.u(11, 4).u(qid, 16).str(report.name, 40)
+    w.u(12, 4).u(qid, 16).str(report.name, 40)
       .u(Math.max(0, Math.round((report.submittedAt - EPOCH) / 60000)), 24)
       .u(Math.min(65535, Math.round(report.totalSec)), 16)
       .u(report.partial ? 1 : 0, 1).u(report.items.length, 7);
@@ -665,11 +750,16 @@
     w.u(Math.max(1, Math.min(31, Math.round(report.attempt || 1))), 5);   // version 9: which attempt this was
     // Version 11: rhythm quizzes are scored note by note — how many notes each example has and how
     // many were wrong, and whether the score is those notes or a percent of a set total.
+    // Version 12: melodies too — their pitch and rhythm mistakes, and whether those are half a point each.
     const sc = report.scoring;
     w.u(sc ? 1 : 0, 1);
     if (sc) {
-      w.u(sc.mode === 'percent' ? 1 : 0, 1).u(Math.max(1, Math.min(1000, Math.round(sc.outOf || 100))), 10);
-      report.items.forEach((it) => { if (it.type === 'rhythm') w.u(Math.min(511, it.notes || 0), 9).u(Math.min(511, it.wrong || 0), 9); });
+      w.u(sc.mode === 'percent' ? 1 : 0, 1).u(Math.max(1, Math.min(1000, Math.round(sc.outOf || 100))), 10).u(sc.split ? 1 : 0, 1);
+      const n9 = (v) => Math.max(0, Math.min(511, v || 0));
+      report.items.forEach((it) => {
+        if (it.type === 'rhythm' || it.type === 'melody') w.u(n9(it.notes), 9).u(n9(it.wrong), 9);
+        if (it.type === 'melody') w.u(n9(it.pw), 9).u(n9(it.rw), 9);
+      });
     }
     return pack(KIND_REPORT, w.b, sealKey(cfg, qid));
   }
@@ -684,7 +774,7 @@
     const restBits = body.slice(20);
     try {
       const ver = r.u(4);
-      if (ver < 1 || ver > 11) throw new CodeError('This report was made with a newer version of Clefwork.');
+      if (ver < 1 || ver > 12) throw new CodeError('This report was made with a newer version of Clefwork.');
       const rep = { code: group(clean), quizId: r.u(16), name: r.str() };
       rep.submittedAt = EPOCH + r.u(24) * 60000;
       rep.totalSec = r.u(16);
@@ -704,8 +794,11 @@
       rep.attempt = ver >= 9 ? r.u(5) || 1 : null;              // older reports didn't say
       rep.scoring = null;
       if (ver >= 11 && r.u(1)) {
-        rep.scoring = { mode: r.u(1) ? 'percent' : 'notes', outOf: r.u(10) };
-        rep.items.forEach((it) => { if (it.type === 'rhythm') { it.notes = r.u(9); it.wrong = r.u(9); } });
+        rep.scoring = { mode: r.u(1) ? 'percent' : 'notes', outOf: r.u(10), split: ver >= 12 ? r.u(1) : 0 };
+        rep.items.forEach((it) => {
+          if (it.type === 'rhythm' || (it.type === 'melody' && ver >= 12)) { it.notes = r.u(9); it.wrong = r.u(9); }
+          if (it.type === 'melody' && ver >= 12) { it.pw = r.u(9); it.rw = r.u(9); }
+        });
       }
       // True when the seal matches the quiz this report claims to belong to.
       rep.verifySeal = (cfg) => seal16(bitsToBytes(restBits), sealKey(cfg, rep.quizId)) === seal;
@@ -721,7 +814,9 @@
   function itemScore(it, sc) {
     if (sc && it.notes != null) {
       if (!it.notes) return { pts: it.wrong ? 0 : 1, max: 1, full: !it.wrong };
-      return { pts: Math.max(0, it.notes - it.wrong), max: it.notes, full: !it.wrong };
+      // A melody scored split: half a point for each pitch or rhythm mistake.
+      const lost = sc.split && it.pw != null ? (it.pw + it.rw) / 2 : it.wrong;
+      return { pts: Math.max(0, it.notes - lost), max: it.notes, full: !it.wrong };
     }
     return { pts: it.credit / 7, max: 1, full: it.credit === 7 };
   }

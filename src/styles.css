@@ -457,6 +457,7 @@ select.fig-sel { min-width: 0; }
 .qtable .num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
 .qtable td.num:first-child { text-align: left; color: var(--muted); font-family: var(--f-mono); }
 .qtable .ans { font-family: var(--f-mono); font-size: 13px; color: var(--accent); white-space: nowrap; }
+.qtable .ans.is-long { white-space: normal; min-width: 240px; }
 .qtable tr.is-sel td { background: var(--accent-soft); }
 .res { font-weight: 700; white-space: nowrap; }
 .res.is-good { color: var(--good); }
@@ -874,3 +875,10 @@ input.an-in { width: 100%; min-height: 34px; padding: 4px 2px; text-align: cente
   .rh-meter-label { min-width: 100%; }
   .rh-count { margin-left: 0; }
 }
+
+/* ---------- Clefwork Melody ---------- */
+.rstaff.mstaff .clef-glyph { font-family: 'Noto Music', 'Bravura Text', 'Apple Symbols', 'Segoe UI Symbol', serif; fill: currentColor; }
+.ml-key-pick { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.ml-key-pick select { flex: 1; min-width: 12em; }
+/* One-to-eight pickers in a half-width column: tighter buttons so they stay on one line */
+#ml-measures button, #ml-auto-measures button, #ml-keymax button { padding: 7px 7px; min-width: 25px; }

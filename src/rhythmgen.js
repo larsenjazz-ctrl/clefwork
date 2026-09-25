@@ -239,5 +239,6 @@
     return out;
   }
 
-  Object.assign(MQ, { RHYTHM_LEVELS: LEVELS, RHYTHM_GEN: GEN, rhythmRules: rulesOf, generateRhythms });
+  // For Clefwork Melody: a phrase's rhythm, a meter for the rules, and the meters' own beats.
+  Object.assign(MQ, { RHYTHM_LEVELS: LEVELS, RHYTHM_GEN: GEN, rhythmRules: rulesOf, generateRhythms, rhythmPhrase: buildExample, rhythmPickMeter: pickMeter, rhythmPlan: planOf });
 })(typeof window !== 'undefined' ? window : globalThis);

@@ -291,7 +291,8 @@
     // opts: {meter, measures, parts, layers, readOnly, active, marks, onChange(layers), onMove()}
     constructor(host, opts) {
       this.o = Object.assign({ readOnly: false, active: 0, marks: null, onChange: null, onMove: null }, opts);
-      this.model = { meter: this.o.meter, measures: this.o.measures, parts: this.o.parts || 1, layers: copyLayers(this.o.layers, this.o.parts || 1) };
+      this.slots = this.o.slots || 4;
+      this.model = { meter: this.o.meter, measures: this.o.measures, parts: this.o.parts || 1, layers: copyLayers(this.o.layers, this.o.parts || 1, this.slots) };
       this.active = Math.min(this.o.active || 0, this.model.parts - 1);
       this.caret = { m: 0, i: 0 };
       this.sel = null;
@@ -303,11 +304,13 @@
       svg.setAttribute('role', this.o.readOnly ? 'img' : 'application');
       if (!this.o.readOnly) svg.setAttribute('tabindex', '0');
       host.append(svg);
+      this.setup();
       if (!this.o.readOnly) this.bind();
       this.render();
     }
+    setup() { /* a subclass's own state, before the first drawing */ }
     info() { return MQ.rhythmMeter(this.model.meter); }
-    layers() { return copyLayers(this.model.layers, this.model.parts); }
+    layers() { return copyLayers(this.model.layers, this.model.parts, this.slots); }
     caretToEnd() {
       const info = this.info(), L = this.model.layers[this.active];
       let m = 0;
@@ -365,6 +368,7 @@
           : `Measure ${m + 1} is full. Select a note to change it, or delete one.`;
       }
       L[m] = next;
+      this.enteredAt = { m, i };
       this.sel = null;
       this.caret = { m, i: i + 1 };
       // A full measure moves the caret on to the next one.
@@ -469,16 +473,18 @@
       });
     }
   }
-  function copyLayers(layers, parts) {
+  function copyLayers(layers, parts, slots) {
     const out = [];
     for (let l = 0; l < Math.max(1, parts); l++) {
       const L = (layers && layers[l]) || [];
       const c = [];
-      for (let m = 0; m < 4; m++) c.push((L[m] || []).map(MQ.rhythmEvent));
+      for (let m = 0; m < (slots || 4); m++) c.push((L[m] || []).map(MQ.rhythmEvent));
       out.push(c);
     }
     return out;
   }
 
+  // The pieces Clefwork Melody's staff draws with.
+  MQ.rhythmDraw = { RX, RY, STEM, BEAM, BEAM_STEP, PAD_L, PAD_R, r1, headSVG, lineSVG, rectSVG, dotSVG, flagsSVG, restSVG, spacing, beamPlan, NAMES, copyLayers };
   Object.assign(MQ, { RhythmStaff, rhythmArt, rhythmIcon: icon, rhythmMarkup: build });
 })(window);
