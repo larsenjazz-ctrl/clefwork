@@ -36,23 +36,33 @@ The picture travels inside the quiz link as a compressed black-and-white copy �
 
 ### Clefwork Rhythm
 
-A separate app, built on the same engine, for rhythmic dictation. The teacher writes each example on a one-line staff; the computer plays it and students write what they hear.
+A separate app, built on the same engine, for rhythmic dictation. The teacher writes each example on a one-line staff, or lets Clefwork make them; the computer plays each one and students write what they hear.
 
+- **Made automatically.** The teacher chooses how many examples (up to 20), how many measures in each, the tempo (as a quarter note; other meters keep the same speed of eighth notes), and a level:
+  1. *Very easy* — 4/4, quarter notes and longer, every note on a beat.
+  2. *Easy* — 2/4 to 4/4, eighth notes and longer, no note starting off the beat.
+  3. *Medium easy* — 2/4 to 4/4, eighth notes and longer, one or two notes off the beat.
+  4. *Medium* — 2/4 to 6/4, and 3/8, 6/8, 9/8 and 12/8, eighth notes and longer, one or two notes off the beat.
+  5. *Advanced* — any time signature, sixteenth notes and longer, notes off the beat.
+  6. *Very hard* — any time signature and any rhythm, triplets included.
+  7. *Custom rules* — a range of time signatures from 2/4 to 6/4, plus compound meters, cut time (and 3/2) or uneven meters; the shortest note; dotted notes; triplets; and none, one or two, or more notes off the beat.
+
+  Each measure is built beat by beat from short rhythmic cells chosen for the level, in a phrase that repeats measures (A A B A, A B A B …), and the clearest of many tries is kept: about four to eight notes in a 4/4 measure, long notes with short ones, no more than one syncopation a measure (one or two in the whole example at the easier levels), and a long note to end. The quiz's seed picks everything, so the quiz code carries only the settings and every student gets the same examples; "Make new examples" picks a new set.
 - **Examples.** A quiz holds up to 12 examples, each one to four measures long, in 2/4 to 6/4, 3/8 to 12/8, or 2/2 and 3/2, with its own tempo. Irregular eighth-note meters (5/8, 7/8, 8/8, 10/8, 11/8) choose how their eighths group into beats (7/8 as 2+2+3, 3+2+2 or 2+3+2), which sets the beaming and the metronome.
 - **Writing a rhythm.** Note values from sixteenths to whole notes, with rests. To write a dotted note or a triplet, turn on Dot or Triplet, then choose the value; both stay on until turned off. A caret shows where the next note goes, a clicked note is selected and replaced by the next value chosen, and a full measure moves the caret on. Keys: W H Q E S for the values, period (or D) for Dot, T for Triplet, R for Rest, arrows to move, Backspace to delete.
 - **Full measures.** Every measure is checked against the time signature as it's written — a note that doesn't fit is refused, with how much room is left — and a quiz can't be shared until every measure is full (rests count).
 - **Triplets** start on a beat: a quarter-note triplet on any beat, an eighth-note triplet on a beat. A triplet group shorter than the beat — sixteenth-note triplets in quarter-note time — may also start halfway through a beat. Mixed triplets (a quarter-note and an eighth-note triplet) are fine; a triplet that breaks these rules is refused as it's written.
 - **Two parts.** A second part, with stems down, can have its own rhythm. The part with stems up plays on the piano, the part with stems down on the oboe.
 - **Listening.** Students choose which measures to play (tap one, drag across several, or All), a count-off of none, one or two bars, and whether the metronome clicks under the music. Each instrument and the click has its own volume slider. They can also hear what they've written, on the same instruments. The teacher sets how many times students may play each example, and their own answer, before submitting (unlimited, or once to 10 times); every play counts, whatever it covers. Once an answer has been checked, plays are unlimited.
-- **Grading.** Each measure of each part is marked by what sounds — when each note starts and how long it lasts — so a quarter rest and two eighth rests are the same answer. A measure must be complete to count. With partial credit, each measure earns its share.
-- **Results.** Report codes (now version 10) carry every note the student wrote and how often they played the example and their answer. The grade checker and results pages show the student's rhythm with each measure marked, the right rhythm beneath it, both playable, and the play counts.
+- **Scoring.** Graded note by note, by what sounds. Each note of the answer is right when the student has a note that starts at the same moment, in the same part, and lasts as long; a missing note, a note of the wrong length, and every extra note the student writes are each a wrong note. Rests only fill time, so a quarter rest and two eighth rests are the same answer. The teacher chooses how the quiz is scored: a point for every note (a quiz with 48 notes is out of 48, less one for each wrong note), or a percent of a total they set (the share of notes right, scaled to, say, 20 points). A question never scores below nothing.
+- **Results.** Report codes (now version 11) carry every note the student wrote, how often they played the example and their answer, and each example's notes and wrong notes. The grade checker and results pages show the score, the wrong notes, the student's rhythm with each note marked right or wrong, and the right rhythm beneath it with the missed notes marked — both playable — and the play counts.
 - **Printing.** The Print tab prints each example's tempo and a blank one-line staff with its time signature, two measures to a line, for dictation on paper.
 
 ### Retakes
 
 Every Clefwork page ends a quiz with a **Retake quiz** button: the same quiz code, so the same questions, and a fresh start. Retakes are unlimited unless the teacher sets a limit under **Quiz rules** (none, or 1–10 retakes). The limit travels in the quiz code; quizzes without one keep exactly the codes they had.
 
-A student's device counts their attempts and stops offering retakes once the limit is used. Because there's no server, a student could start again on another device — so every report code also records its attempt number, and the grade checker and results pages show it ("Attempt 2"), with a warning when an attempt goes past the quiz's limit. Report codes became version 9 with this (version 10 added rhythm answers).
+A student's device counts their attempts and stops offering retakes once the limit is used. Because there's no server, a student could start again on another device — so every report code also records its attempt number, and the grade checker and results pages show it ("Attempt 2"), with a warning when an attempt goes past the quiz's limit. Report codes became version 9 with this (version 10 added rhythm answers, 11 their note scores).
 
 ### Canvas
 

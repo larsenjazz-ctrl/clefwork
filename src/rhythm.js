@@ -175,13 +175,34 @@
     return e;
   }
   const newExample = (from) => exampleSettings(from ? { meter: Object.assign({}, from.meter), measures: from.measures, tempo: from.tempo, parts: 1 } : {});
+  // How a quiz is scored: every note is a point ('notes'), or the share of notes right is scaled
+  // to a total the teacher sets ('percent', out of `outOf`).
   function rhythmSettings(block) {
     const b = block || {};
     if (!Array.isArray(b.examples)) b.examples = [];
     b.examples.forEach(exampleSettings);
     if (b.playsEx == null) b.playsEx = 0;           // 0 = as many plays as students like
     if (b.playsAns == null) b.playsAns = 0;
+    if (b.score !== 'percent') b.score = 'notes';
+    b.outOf = Math.max(1, Math.min(1000, Math.round(b.outOf || 100)));
+    b.auto = autoSettings(b.auto);
     return b;
+  }
+  // Automatic examples: how many, how long, the level (1–6, or 7 for the teacher's own rules), the
+  // quarter-note tempo, and the custom rules.
+  function autoSettings(a) {
+    const o = a || {};
+    o.on = !!o.on;
+    o.count = Math.max(1, Math.min(20, o.count | 0 || 5));
+    o.measures = Math.max(1, Math.min(4, o.measures | 0 || 2));
+    o.level = Math.max(1, Math.min(7, o.level | 0 || 2));
+    o.tempo = Math.max(40, Math.min(240, Math.round(o.tempo || 80)));
+    const c = (o.custom = Object.assign({ lo: 2, hi: 4, compound: 0, cut: 0, uneven: 0, shortest: 3, dotted: 1, triplets: 0, offbeats: 1 }, o.custom));
+    c.lo = Math.max(2, Math.min(6, c.lo | 0));
+    c.hi = Math.max(c.lo, Math.min(6, c.hi | 0));
+    c.shortest = Math.max(2, Math.min(4, c.shortest | 0));
+    c.offbeats = Math.max(0, Math.min(2, c.offbeats | 0));
+    return o;
   }
   const partName = (l) => (l ? 'oboe part (stems down)' : 'piano part (stems up)');
   // Everything that stops an example being shared, in words.
@@ -196,10 +217,13 @@
         out.push(!s.total ? `${where} is empty.` : `${where}: ${note}${/[.)]$/.test(note) ? '' : '.'}`);
       }
     }
+    // Scores count notes, so an example needs at least one.
+    if (!out.length && !e.layers.slice(0, e.parts).some((L) => L.slice(0, e.measures).some((m) => m.some((x) => !x.r)))) out.push('There are only rests — add at least one note.');
     return out;
   }
   function rhythmProblems(block) {
     const b = rhythmSettings(block), out = [];
+    if (b.auto.on) return out;                      // generated examples are always complete
     b.examples.forEach((ex, i) => exampleProblems(ex).forEach((text) => out.push({ ex: i, text: `Example ${i + 1}: ${text}` })));
     return out;
   }
@@ -212,8 +236,10 @@
   }
   function rhythmQuestions(cfg) {
     const b = rhythmSettings(cfg.rhythm);
-    const n = Math.min(b.examples.length, cfg.counts && cfg.counts.rhythm != null ? cfg.counts.rhythm : b.examples.length);
-    return b.examples.slice(0, n).map((raw, i) => {
+    // Automatic examples come from the quiz's seed, so everyone with the code gets the same ones.
+    const list = b.auto.on && MQ.generateRhythms ? MQ.generateRhythms(cfg.seed, b.auto) : b.examples;
+    const n = b.auto.on ? list.length : Math.min(list.length, cfg.counts && cfg.counts.rhythm != null ? cfg.counts.rhythm : list.length);
+    return list.slice(0, n).map((raw, i) => {
       const ex = exampleSettings(raw), info = meterInfo(ex.meter);
       return {
         type: 'rhythm', clef: 'treble',
@@ -230,22 +256,46 @@
   const blankAnswer = (q) => q.rh.layers.map((L) => L.map(() => []));
 
   // ---------- grading ----------
-  // Graded by what sounds: when each note starts and how long it lasts. Rests only fill time, so a
-  // quarter rest and two eighth rests are the same answer. Each measure must be complete.
-  function soundOf(events) {
+  // Note by note, by what sounds. Each note of the answer is right when the student has a note that
+  // starts at the same moment, in the same part, and lasts as long. A note of the answer that is
+  // missing or the wrong length is a wrong note, and so is each extra note the student writes where
+  // the answer has none. Rests only fill time, so a quarter rest and two eighth rests are the same.
+  function notesOf(events) {
     const out = [];
     let at = 0;
-    (events || []).forEach((e) => { const d = dur(e); if (!e.r) out.push(at + ':' + d); at += d; });
-    return out.join(' ');
+    (events || []).forEach((e, i) => { const d = dur(e); if (!e.r) out.push({ t: at, d, i }); at += d; });
+    return out;
   }
-  const sameMeasure = (want, got, info) => total(got) === info.len && soundOf(want) === soundOf(got);
-  function markRhythm(q, resp) {
-    const R = q.rh, info = meterInfo(R.meter);
-    return R.layers.map((L, l) => L.map((want, m) => sameMeasure(want, resp && resp[l] && resp[l][m], info)));
+  // {notes, wrong, parts: [{measures: [{want: [..], got: [..], ok}]}]} — want and got mark each note
+  // and rest of the answer and of the student's rhythm: true right, false wrong, null for rests.
+  function compareRhythm(q, resp) {
+    const R = q.rh;
+    let notes = 0, wrong = 0;
+    const parts = R.layers.map((L, l) => ({
+      measures: L.map((answer, m) => {
+        const mine = (resp && resp[l] && resp[l][m]) || [];
+        const want = answer.map(() => null), got = mine.map(() => null);
+        const theirs = notesOf(mine);
+        let bad = 0;
+        notesOf(answer).forEach((a) => {
+          notes++;
+          const s = theirs.find((x) => x.t === a.t);
+          const ok = !!s && s.d === a.d;
+          want[a.i] = ok;
+          if (s) got[s.i] = ok;
+          if (!ok) bad++;
+        });
+        theirs.forEach((s) => { if (got[s.i] == null) { got[s.i] = false; bad++; } });
+        wrong += bad;
+        return { want, got, ok: !bad };
+      }),
+    }));
+    return { notes, wrong, parts };
   }
   function gradeRhythm(q, resp) {
-    const all = [].concat(...markRhythm(q, resp));
-    return all.length ? all.filter(Boolean).length / all.length : 0;
+    const c = compareRhythm(q, resp);
+    if (!c.notes) return c.wrong ? 0 : 1;
+    return Math.max(0, c.notes - c.wrong) / c.notes;
   }
   const hasRhythmAnswer = (q, resp) => !!resp && resp.some((L) => L && L.some((m) => m && m.length));
 
@@ -302,6 +352,6 @@
     rhythmDur: dur, rhythmTotal: total, rhythmEvent: cleanEvent, rhythmMeter: meterInfo, rhythmGroupings: groupingsOf,
     rhythmAmount: amountText, rhythmCount: countText, tripletGroups, tripletStartOk, tripletWhy, measureState, rhythmEditProblem: editProblem, measureNote,
     rhythmExample: newExample, exampleSettings, rhythmSettings, exampleProblems, rhythmProblems, rhythmQuestions, rhythmBlank: blankAnswer,
-    markRhythm, gradeRhythm, hasRhythmAnswer, describeRhythm, rhythmText, rhythmPlayEvents: playEvents, rhythmTempoText: tempoText,
+    compareRhythm, gradeRhythm, hasRhythmAnswer, rhythmAuto: autoSettings, describeRhythm, rhythmText, rhythmPlayEvents: playEvents, rhythmTempoText: tempoText,
   });
 })(typeof window !== 'undefined' ? window : globalThis);

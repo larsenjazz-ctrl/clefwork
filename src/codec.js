@@ -268,14 +268,17 @@
     // so those quizzes keep their codes too; a limit also writes the (possibly empty) block before it.
     // Extension 3: Clefwork Rhythm — the retake limit (if any) behind a flag, how often students may
     // play the example and their answer, then each example's meter, tempo and rhythm.
+    // Extension 4: the same, plus how the quiz is scored (every note a point, or a percent of a
+    // total) and whether the examples are written out or made automatically from the seed.
     const an = MQ.analysisSettings(cfg.analysis);
     const regions = an.regions.slice(0, MQ.ANALYSIS_MAX);
     const limit = retakeLimit(cfg);
     const rh = MQ.rhythmSettings(cfg.rhythm);
     const examples = rh.examples.slice(0, MQ.RHYTHM_MAX);
-    if (regions.length || an.img || limit != null || examples.length) {
+    const rhythm = rh.auto.on || examples.length > 0;
+    if (regions.length || an.img || limit != null || rhythm) {
       const q10 = (v) => Math.max(0, Math.min(1023, Math.round(v * 1023)));
-      const ext = examples.length ? 3 : limit != null ? 2 : 1;
+      const ext = rhythm ? 4 : limit != null ? 2 : 1;
       w.u(ext, 8).u(an.override, 2).u(an.img ? 1 : 0, 1);
       if (an.img) w.u(an.img.hash >>> 0, 32);
       w.strN(an.notes, 200, 8).u(regions.length, 6);
@@ -284,11 +287,21 @@
           .u(Math.max(1, MQ.ANALYSIS_ASKS.indexOf(r.ask)), 2).str(r.roman, 63).str(r.symbol, 63);
       });
       if (ext === 2) w.u(limit, 5);
-      if (ext === 3) {
+      if (ext === 4) {
         w.u(limit != null ? 1 : 0, 1);
         if (limit != null) w.u(limit, 5);
-        w.u(Math.min(15, rh.playsEx || 0), 4).u(Math.min(15, rh.playsAns || 0), 4).u(examples.length, 4);
-        examples.forEach((ex) => writeExample(w, ex));
+        w.u(Math.min(15, rh.playsEx || 0), 4).u(Math.min(15, rh.playsAns || 0), 4)
+          .u(rh.score === 'percent' ? 1 : 0, 1).u(rh.outOf, 10).u(rh.auto.on ? 1 : 0, 1);
+        if (rh.auto.on) {
+          // The generator's version comes first, so a later one can keep older quizzes' examples.
+          const a = rh.auto, c = a.custom;
+          w.u(1, 3).u(a.count - 1, 5).u(a.measures - 1, 2).u(a.level - 1, 3).u(a.tempo - 30, 8)
+            .u(c.lo - 2, 3).u(c.hi - 2, 3).u(c.compound ? 1 : 0, 1).u(c.cut ? 1 : 0, 1).u(c.uneven ? 1 : 0, 1)
+            .u(c.shortest - 2, 2).u(c.dotted ? 1 : 0, 1).u(c.triplets ? 1 : 0, 1).u(c.offbeats, 2);
+        } else {
+          w.u(examples.length, 4);
+          examples.forEach((ex) => writeExample(w, ex));
+        }
       }
     }
     return pack(KIND_QUIZ, w.b);
@@ -446,10 +459,23 @@
           if (ext >= 3) {
             if (r.u(1)) cfg.retakes = r.u(5);
             const rh = { playsEx: r.u(4), playsAns: r.u(4), examples: [] };
-            const n = r.u(4);
-            for (let i = 0; i < n; i++) rh.examples.push(readExample(r));
-            cfg.rhythm = rh;
-            cfg.counts.rhythm = n;
+            if (ext >= 4) {
+              rh.score = r.u(1) ? 'percent' : 'notes';
+              rh.outOf = r.u(10);
+              if (r.u(1)) {
+                const gen = r.u(3);
+                rh.auto = {
+                  on: true, gen, count: r.u(5) + 1, measures: r.u(2) + 1, level: r.u(3) + 1, tempo: r.u(8) + 30,
+                  custom: { lo: r.u(3) + 2, hi: r.u(3) + 2, compound: r.u(1), cut: r.u(1), uneven: r.u(1), shortest: r.u(2) + 2, dotted: r.u(1), triplets: r.u(1), offbeats: r.u(2) },
+                };
+              }
+            }
+            if (!rh.auto) {
+              const n = r.u(4);
+              for (let i = 0; i < n; i++) rh.examples.push(readExample(r));
+            }
+            cfg.rhythm = MQ.rhythmSettings(rh);
+            cfg.counts.rhythm = rh.auto ? rh.auto.count : rh.examples.length;
           }
         }
         const sum = (b) => MQ.TECHNIQUES.reduce((n, t) => n + ((b.tech && b.tech[t.id]) || 0), 0);
@@ -622,7 +648,7 @@
     const qid = quizId(quizCode);
     const w = new Writer();
     // Version 10 added rhythm answers, with how often each example and answer was played.
-    w.u(10, 4).u(qid, 16).str(report.name, 40)
+    w.u(11, 4).u(qid, 16).str(report.name, 40)
       .u(Math.max(0, Math.round((report.submittedAt - EPOCH) / 60000)), 24)
       .u(Math.min(65535, Math.round(report.totalSec)), 16)
       .u(report.partial ? 1 : 0, 1).u(report.items.length, 7);
@@ -635,6 +661,14 @@
     w.u(ans ? 1 : 0, 1);
     if (ans) ans.qs.forEach((q, i) => writeAnswer(w, q, ans.resp[i], ans.plays && ans.plays[i]));
     w.u(Math.max(1, Math.min(31, Math.round(report.attempt || 1))), 5);   // version 9: which attempt this was
+    // Version 11: rhythm quizzes are scored note by note — how many notes each example has and how
+    // many were wrong, and whether the score is those notes or a percent of a set total.
+    const sc = report.scoring;
+    w.u(sc ? 1 : 0, 1);
+    if (sc) {
+      w.u(sc.mode === 'percent' ? 1 : 0, 1).u(Math.max(1, Math.min(1000, Math.round(sc.outOf || 100))), 10);
+      report.items.forEach((it) => { if (it.type === 'rhythm') w.u(Math.min(511, it.notes || 0), 9).u(Math.min(511, it.wrong || 0), 9); });
+    }
     return pack(KIND_REPORT, w.b, sealKey(cfg, qid));
   }
 
@@ -648,7 +682,7 @@
     const restBits = body.slice(20);
     try {
       const ver = r.u(4);
-      if (ver < 1 || ver > 10) throw new CodeError('This report was made with a newer version of Clefwork.');
+      if (ver < 1 || ver > 11) throw new CodeError('This report was made with a newer version of Clefwork.');
       const rep = { code: group(clean), quizId: r.u(16), name: r.str() };
       rep.submittedAt = EPOCH + r.u(24) * 60000;
       rep.totalSec = r.u(16);
@@ -666,6 +700,11 @@
       rep.answers = null;
       if (ver >= 4 && r.u(1)) rep.answers = rep.items.map((it) => readAnswer(r, it.type, ver));
       rep.attempt = ver >= 9 ? r.u(5) || 1 : null;              // older reports didn't say
+      rep.scoring = null;
+      if (ver >= 11 && r.u(1)) {
+        rep.scoring = { mode: r.u(1) ? 'percent' : 'notes', outOf: r.u(10) };
+        rep.items.forEach((it) => { if (it.type === 'rhythm') { it.notes = r.u(9); it.wrong = r.u(9); } });
+      }
       // True when the seal matches the quiz this report claims to belong to.
       rep.verifySeal = (cfg) => seal16(bitsToBytes(restBits), sealKey(cfg, rep.quizId)) === seal;
       return rep;
@@ -675,16 +714,30 @@
     }
   }
 
+  // What one question is worth and earned: a point, or with note scoring one point a note, less
+  // one for each wrong note (never below nothing).
+  function itemScore(it, sc) {
+    if (sc && it.notes != null) {
+      if (!it.notes) return { pts: it.wrong ? 0 : 1, max: 1, full: !it.wrong };
+      return { pts: Math.max(0, it.notes - it.wrong), max: it.notes, full: !it.wrong };
+    }
+    return { pts: it.credit / 7, max: 1, full: it.credit === 7 };
+  }
+  // n: what the quiz is out of (questions, notes, or the teacher's total); count: questions.
   function reportStats(rep) {
-    const n = rep.items.length;
-    const points = rep.items.reduce((s, it) => s + it.credit / 7, 0);
-    const full = rep.items.filter((it) => it.credit === 7).length;
+    const sc = rep.scoring || null;
+    const count = rep.items.length;
+    const scores = rep.items.map((it) => itemScore(it, sc));
+    const raw = scores.reduce((s, x) => s + x.pts, 0), max = scores.reduce((s, x) => s + x.max, 0);
+    const percent = !!sc && sc.mode === 'percent';
+    const points = percent ? (max ? (raw / max) * sc.outOf : 0) : raw, n = percent ? sc.outOf : max;
+    const full = scores.filter((x) => x.full).length;
     const by = (key) => {
       const m = {};
-      rep.items.forEach((it) => {
-        const k = it[key];
-        m[k] = m[k] || { n: 0, points: 0, full: 0, sec: 0 };
-        m[k].n++; m[k].points += it.credit / 7; m[k].full += it.credit === 7 ? 1 : 0; m[k].sec += it.sec;
+      rep.items.forEach((it, i) => {
+        const k = it[key], x = scores[i];
+        m[k] = m[k] || { n: 0, count: 0, points: 0, full: 0, sec: 0 };
+        m[k].count++; m[k].n += x.max; m[k].points += x.pts; m[k].full += x.full ? 1 : 0; m[k].sec += it.sec;
       });
       return m;
     };
@@ -692,9 +745,11 @@
     let slowest = -1;
     rep.items.forEach((it, i) => { if (slowest < 0 || it.sec > rep.items[slowest].sec) slowest = i; });
     return {
-      n, points, full, answered, pct: n ? (points / n) * 100 : 0,
+      n, count, points, full, answered, pct: max ? (raw / max) * 100 : 0,
+      // Note scoring: how many notes there were, and how many were wrong.
+      noted: !!sc, notes: sc ? max : 0, wrong: sc ? rep.items.reduce((s, it) => s + (it.wrong || 0), 0) : 0, mode: sc ? sc.mode : null,
       byType: by('type'), byClef: by('clef'),
-      avgSec: n ? rep.items.reduce((s, it) => s + it.sec, 0) / n : 0,
+      avgSec: count ? rep.items.reduce((s, it) => s + it.sec, 0) / count : 0,
       slowest,
     };
   }

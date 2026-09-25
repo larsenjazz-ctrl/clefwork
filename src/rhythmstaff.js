@@ -76,7 +76,9 @@
   // ---------- the picture ----------
   // model: {meter, measures, parts, layers}. opts: print, first (number of the first measure shown),
   // showTime, measureW (a fixed width per measure, for blank paper staves), caret {l, m, i},
-  // sel {l, m, i}, active, marks [[bool]], playing, editing.
+  // sel {l, m, i}, active, playing, editing, and marks: {side: 'got' | 'want', parts} from
+  // MQ.compareRhythm — the student's notes marked right or wrong ('got'), or the answer with the
+  // notes the student missed picked out ('want').
   function build(model, opts) {
     const o = Object.assign({ print: false, first: 0, showTime: true, measureW: null, caret: null, sel: null, active: 0, marks: null, playing: -1, editing: false }, opts);
     const info = MQ.rhythmMeter(model.meter);
@@ -131,11 +133,11 @@
     const barH = two ? 17 : 13;
     if (!o.print) {
       geo.measures.forEach((g, m) => {
-        const marks = o.marks ? o.marks.map((pm) => pm[m]) : null;
+        const tint = o.marks && o.marks.side === 'got' ? (o.marks.parts.every((p) => p.measures[m].ok) ? 'is-right' : 'is-wrong') : '';
         const cls = ['r-meas',
           o.playing === m ? 'is-playing' : '',
           o.editing && o.caret && o.caret.m === m ? 'is-cur' : '',
-          marks ? (marks.every(Boolean) ? 'is-right' : 'is-wrong') : ''].filter(Boolean).join(' ');
+          tint].filter(Boolean).join(' ');
         s += `<rect class="${cls}" data-m="${m}" x="${r1(g.x0 + 1)}" y="4" width="${r1(g.x1 - g.x0 - 2)}" height="${H - 8}" rx="6"/>`;
       });
     }
@@ -162,7 +164,16 @@
         const st = MQ.measureState(events, info);
         const badAt = new Set();
         st.bad.forEach((tg) => { if (!tg.finishable || st.full) for (let i = tg.from; i <= tg.to; i++) badAt.add(i); });
-        const mark = o.marks && o.marks[l] ? (o.marks[l][m] ? ' is-right' : ' is-wrong') : '';
+        const pm = o.marks && o.marks.parts[l] && o.marks.parts[l].measures[m];
+        const flags = pm ? pm[o.marks.side] : null;
+        const wrongCls = o.marks && o.marks.side === 'want' ? ' is-missed' : ' is-wrong';
+        const markOf = (i) => (!flags || flags[i] == null ? '' : flags[i] ? (o.marks.side === 'got' ? ' is-right' : '') : wrongCls);
+        // Beams and triplet brackets take the colour only when all their notes share it.
+        const groupMark = (from, to) => {
+          const list = [];
+          for (let i = from; i <= to; i++) if (flags && flags[i] != null) list.push(flags[i]);
+          return !list.length ? '' : list.every(Boolean) ? markOf(from) || '' : list.every((x) => !x) ? wrongCls : '';
+        };
         const dim = o.editing && two && l !== o.active ? ' is-dim' : '';
         const { list, beamed, inBeam } = plans[l][m];
         list.forEach((n) => { n.hx = xOf(m, n.t) + RX + 1; });
@@ -174,7 +185,7 @@
         list.forEach((n) => {
           const e = n.e;
           const sel = o.sel && o.sel.l === l && o.sel.m === m && o.sel.i === n.i;
-          const cls = 'r-ev' + (sel && !o.print ? ' is-sel' : '') + (badAt.has(n.i) ? ' is-bad' : '') + mark + dim;
+          const cls = 'r-ev' + (sel && !o.print ? ' is-sel' : '') + (badAt.has(n.i) ? ' is-bad' : '') + markOf(n.i) + dim;
           let body = '';
           if (e.r) {
             const rx = barRest ? (g.x0 + g.x1) / 2 : n.hx;
@@ -212,7 +223,7 @@
             }
             j = k;
           }
-          s += `<g class="r-beam${cls}${mark}${dim}">${b}</g>`;
+          s += `<g class="r-beam${cls}${groupMark(grp[0].i, grp[grp.length - 1].i)}${dim}">${b}</g>`;
         });
         // ---------- triplet numbers and brackets ----------
         trips.forEach((tg) => {
@@ -228,7 +239,7 @@
             const by = up ? ny - 4 : ny - 4.5, hook = up ? 4 : -4;
             b += lineSVG(xa, by + hook, xa, by, 0.9) + lineSVG(xa, by, mid - 6, by, 0.9) + lineSVG(mid + 6, by, xb, by, 0.9) + lineSVG(xb, by, xb, by + hook, 0.9);
           }
-          s += `<g class="r-tripg${bad}${mark}${dim}">${b}</g>`;
+          s += `<g class="r-tripg${bad}${groupMark(tg.from, tg.to)}${dim}">${b}</g>`;
         });
       });
     });

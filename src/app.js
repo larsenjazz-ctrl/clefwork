@@ -79,7 +79,10 @@
     if (key === 'vprog') return techCount(cfg, 'vp');
     if (key === 'keys') return MQ.keysCombos(cfg.keys).length ? cfg.counts.keys || 0 : 0;
     if (key === 'analysis') return Math.min(cfg.counts.analysis || 0, MQ.analysisSettings(cfg.analysis).regions.length);
-    if (key === 'rhythm') return Math.min(cfg.counts.rhythm || 0, MQ.rhythmSettings(cfg.rhythm).examples.length);
+    if (key === 'rhythm') {
+      const b = MQ.rhythmSettings(cfg.rhythm);
+      return b.auto.on ? b.auto.count : Math.min(cfg.counts.rhythm || 0, b.examples.length);
+    }
     const list = key === 'custom' ? cfg.custom || [] : cfg.voicings || [];
     const n = cfg.counts[key] == null ? list.length : cfg.counts[key];
     return Math.min(n, list.length);
@@ -1053,8 +1056,7 @@
         STUDENT ? null : fld('Retakes', retakeIn, 'Students can retake the quiz to improve their score — the same questions each time. Each report shows its attempt number.')),
       h('div', { class: 'toggles' },
         ANALYSIS || RHYTHM ? null : flag('shuffle', 'Shuffle question order', 'Mixes the question types together instead of grouping them.'),
-        KEYS ? null : RHYTHM ? flag('partial', 'Partial credit', 'Each measure of each part earns its share of the example.')
-          : ANALYSIS ? flag('partial', 'Partial credit', 'A box that asks for both earns half credit for each right answer.')
+        KEYS || RHYTHM ? null : ANALYSIS ? flag('partial', 'Partial credit', 'A box that asks for both earns half credit for each right answer.')
           : flag('partial', 'Partial credit', 'Chords and scales earn credit for each correct note.'),
         STUDENT ? null : flag('feedback', 'Let students check answers', 'Students can check each question and see the right answer. Best for practice.'),
         ANALYSIS || RHYTHM ? null : flag('labels', 'Show note names while dragging', STUDENT ? 'The note’s name appears as you move it.' : 'Practice mode: the note’s name appears as students move it.'),
@@ -1150,8 +1152,10 @@
         if (R.code) R.code.textContent = S.code;
         [R.copy, R.link, R.tryBtn, R.exportBtn, R.canvasBtn, R.startBtn].forEach((b) => b && (b.disabled = false));
         const est = Math.max(1, Math.round((MQ.BUILT_IN.reduce((s, t) => s + t.est * (cfg.counts[t.id] || 0), 0) + 40 * listCount(cfg, 'custom') + 55 * listCount(cfg, 'voicing') + 90 * listCount(cfg, 'vprog') + 70 * listCount(cfg, 'progression') + 15 * listCount(cfg, 'keys') + 30 * listCount(cfg, 'analysis') + 120 * listCount(cfg, 'rhythm')) / 60));
-        R.summary.replaceChildren(h('b', null, STUDENT ? 'Your practice' : cfg.title || 'Untitled quiz'), ` — ${total} ${RHYTHM ? 'example' : 'question'}${total === 1 ? '' : 's'} · ${clefsText(cfg)} · about ${est} min${cfg.timeLimit ? ` · ${cfg.timeLimit}-minute limit` : ''}`);
+        const outOf = RHYTHM ? (cfg.rhythm.score === 'percent' ? ` · out of ${cfg.rhythm.outOf} points` : ` · out of ${rhythmNotes(S.qs)} notes`) : '';
+        R.summary.replaceChildren(h('b', null, STUDENT ? 'Your practice' : cfg.title || 'Untitled quiz'), ` — ${total} ${RHYTHM ? 'example' : 'question'}${total === 1 ? '' : 's'} · ${clefsText(cfg)}${outOf} · about ${est} min${cfg.timeLimit ? ` · ${cfg.timeLimit}-minute limit` : ''}`);
       }
+      if (R.scoreInfo) R.scoreInfo.textContent = total ? rhythmScoreText(cfg, S.qs) : '';
       if (R.ready) {
         const probs = MQ.rhythmProblems(cfg.rhythm);
         R.ready.replaceChildren(probs.length
@@ -1909,7 +1913,7 @@
           : h('div', null, h('dt', null, 'Clefs'), h('dd', null, [cfg.clefs & 1 ? 'Treble' : null, cfg.clefs & 2 ? 'Bass' : null, usesGrand(cfg) ? 'Grand staff' : null].filter(Boolean).join(', ')))),
       h('p', { class: 'types-line' }, types.join(' · ')),
       onlyAnalysis(cfg) && cfg.analysis.notes ? h('p', { class: 'an-notes' }, accText(cfg.analysis.notes)) : null,
-      listCount(cfg, 'rhythm') ? h('p', { class: 'an-notes rh-intro' }, rhythmIntro(cfg)) : null,
+      listCount(cfg, 'rhythm') ? h('p', { class: 'an-notes rh-intro' }, rhythmIntro(cfg, t.qs)) : null,
       fld('Your name', name),
       h('div', { class: 'btn-row' }, h('button', { type: 'button', class: 'btn btn-primary', onclick: start }, 'Start quiz'),
         h('button', { type: 'button', class: 'btn btn-quiet', onclick: () => { S.take = null; saveAttempt(); go(tv()); } }, 'Use a different code')),
@@ -2007,13 +2011,21 @@
     const t = S.take;
     if (!t || t.done) return;
     stopTicker();
-    const partial = t.cfg.flags.partial;
+    // Rhythm quizzes are scored note by note, so they always give partial credit.
+    const rhythm = t.qs.some((q) => q.type === 'rhythm');
+    const partial = t.cfg.flags.partial || rhythm;
     const items = t.qs.map((q, i) => {
       const frac = MQ.gradeQuestion(q, t.resp[i], t.cfg);
       const credit = frac === 1 ? 7 : partial ? Math.min(6, Math.round(frac * 7)) : 0;
-      return { type: q.type, clef: q.clef, credit, answered: MQ.hasAnswer(q, t.resp[i]), sec: t.secs[i] };
+      const it = { type: q.type, clef: q.clef, credit, answered: MQ.hasAnswer(q, t.resp[i]), sec: t.secs[i] };
+      if (q.type === 'rhythm') { const c = MQ.compareRhythm(q, t.resp[i]); it.notes = c.notes; it.wrong = c.wrong; }
+      return it;
     });
-    t.report = { name: t.name, submittedAt: Date.now(), totalSec: t.secs.reduce((a, b) => a + b, 0), partial, items, attempt: t.attempt || 1 };
+    const rh = MQ.rhythmSettings(t.cfg.rhythm);
+    t.report = {
+      name: t.name, submittedAt: Date.now(), totalSec: t.secs.reduce((a, b) => a + b, 0), partial, items, attempt: t.attempt || 1,
+      scoring: rhythm ? { mode: rh.score, outOf: rh.outOf } : null,
+    };
     if (!t.practice && !t.preview) recordAttempt(t.code, MQ.reportStats(t.report).pct);
     // The report code also carries what the student entered, so the teacher can see it on the staff.
     if (!t.practice) t.reportCode = MQ.encodeReport(Object.assign({}, t.report, { answers: { qs: t.qs, resp: t.resp, plays: t.plays } }), t.cfg, t.code);
@@ -2031,7 +2043,7 @@
         h('div', { class: 'eyebrow' }, 'Practice finished'),
         h('div', { class: 'score-line' },
           h('div', { class: 'score-big' }, fmtPts(st.points), h('span', null, '/' + st.n)),
-          h('div', { class: 'score-meta' }, h('strong', null, Math.round(st.pct) + '%'), h('span', null, `${st.full} fully correct · ${fmtDur(rep.totalSec)}`))),
+          h('div', { class: 'score-meta' }, h('strong', null, Math.round(st.pct) + '%'), h('span', null, `${scoreNote(st)} · ${fmtDur(rep.totalSec)}`))),
         h('div', { class: 'btn-row' },
           h('button', { type: 'button', class: 'btn btn-primary', onclick: () => { S.cfg.seed = MQ.randomSeed(); saveDraft(); startPractice(S.cfg); } }, 'Practise again with new questions'),
           h('button', { type: 'button', class: 'btn', onclick: () => { S.slots.practice = null; store.del('practice'); go('build'); } }, 'Change what I practise')),
@@ -2053,7 +2065,7 @@
         h('div', { class: 'eyebrow' }, t.preview ? 'Preview finished' : 'Submitted'),
         h('div', { class: 'score-line' },
           h('div', { class: 'score-big' }, fmtPts(st.points), h('span', null, '/' + st.n)),
-          h('div', { class: 'score-meta' }, h('strong', null, Math.round(st.pct) + '%'), h('span', null, `${st.full} fully correct · ${fmtDur(rep.totalSec)}`))),
+          h('div', { class: 'score-meta' }, h('strong', null, Math.round(st.pct) + '%'), h('span', null, `${scoreNote(st)} · ${fmtDur(rep.totalSec)}`))),
         h('h2', { class: 'report-h' }, `Send this report code to ${teacher}`),
         h('output', { class: 'code code-lg', id: 'report-code' }, t.reportCode),
         h('div', { class: 'btn-row' },
@@ -2084,7 +2096,7 @@
         h('div', { class: 'score-line' },
           h('div', { class: 'score-big' }, fmtPts(st.points), h('span', null, '/' + st.n)),
           h('div', { class: 'score-meta' }, h('strong', null, Math.round(st.pct) + '%'),
-            h('span', null, scaled != null ? `${fmtPts(scaled)} of ${outOf} points` : `${st.full} fully correct · ${fmtDur(rep.totalSec)}`))),
+            h('span', null, scaled != null ? `${fmtPts(scaled)} of ${outOf} points` : `${scoreNote(st)} · ${fmtDur(rep.totalSec)}`))),
         h('h2', { class: 'report-h' }, 'Now hand it in on Canvas'),
         h('ol', { class: 'cv-steps' },
           h('li', null, 'Press ', h('b', null, 'Copy results link'), '.'),
@@ -2110,12 +2122,22 @@
       h('span', { class: 'bar-val' }, `${fmtPts(pts)}/${n}`, sub ? h('small', null, sub) : null));
   }
   function typeBars(st) {
-    const rows = MQ.TYPES.filter((t) => st.byType[t.id]).map((t) => bar(t.label, st.byType[t.id].points, st.byType[t.id].n, `${Math.round(st.byType[t.id].sec / st.byType[t.id].n)} s avg`));
+    const rows = MQ.TYPES.filter((t) => st.byType[t.id]).map((t) => bar(t.label, st.byType[t.id].points, st.byType[t.id].n, `${Math.round(st.byType[t.id].sec / st.byType[t.id].count)} s avg`));
     const clefs = ['treble', 'bass', 'grand'].filter((c) => st.byClef[c]).map((c) => bar(MQ.clefLabel(c), st.byClef[c].points, st.byClef[c].n));
     return h('div', { class: 'bars' }, h('div', { class: 'bars-group' }, h('h4', null, 'By question type'), rows),
       clefs.length > 1 ? h('div', { class: 'bars-group' }, h('h4', null, 'By clef'), clefs) : null);
   }
+  // "3 wrong notes" for note-scored questions, or "12 fully correct" for the rest.
+  function scoreNote(st) {
+    if (st.noted) return `${st.wrong} wrong note${st.wrong === 1 ? '' : 's'} of ${st.notes}`;
+    return `${st.full} fully correct`;
+  }
   function resultCell(it) {
+    if (it.notes != null) {
+      if (!it.wrong) return h('span', { class: 'res is-good' }, '✓ Correct');
+      if (!it.answered) return h('span', { class: 'res is-blank' }, '— Blank');
+      return h('span', { class: 'res ' + (it.wrong < it.notes ? 'is-part' : 'is-bad') }, `${it.wrong < it.notes ? '◐' : '✗'} ${it.wrong} wrong of ${it.notes}`);
+    }
     if (it.credit === 7) return h('span', { class: 'res is-good' }, '✓ Correct');
     if (!it.answered) return h('span', { class: 'res is-blank' }, '— Blank');
     if (it.credit > 0) return h('span', { class: 'res is-part' }, `◐ ${Math.round((it.credit / 7) * 100)}%`);
@@ -2253,8 +2275,10 @@
           h('div', { class: 'score-pct' }, Math.round(st.pct) + '%'),
           scaled != null ? h('div', { class: 'canvas-score' }, 'For Canvas: ', h('b', null, `${fmtPts(scaled)} / ${outOf}`)) : null)),
       h('dl', { class: 'facts' },
-        h('div', null, h('dt', null, 'Fully correct'), h('dd', null, `${st.full} of ${st.n}`)),
-        h('div', null, h('dt', null, 'Answered'), h('dd', null, `${st.answered} of ${st.n}`)),
+        st.noted
+          ? h('div', null, h('dt', null, 'Wrong notes'), h('dd', null, `${st.wrong} of ${st.notes}`))
+          : h('div', null, h('dt', null, 'Fully correct'), h('dd', null, `${st.full} of ${st.count}`)),
+        h('div', null, h('dt', null, 'Answered'), h('dd', null, `${st.answered} of ${st.count}`)),
         h('div', null, h('dt', null, 'Avg per question'), h('dd', null, Math.round(st.avgSec) + ' s')),
         h('div', null, h('dt', null, 'Longest'), h('dd', null, st.slowest >= 0 ? `Q${st.slowest + 1} · ${r.items[st.slowest].sec >= 63 ? '63+' : r.items[st.slowest].sec} s` : '—'))),
       typeBars(st),
@@ -2318,7 +2342,7 @@
     });
     const csv = () => {
       const esc = (s) => `"${String(s).replace(/"/g, '""')}"`;
-      const rows = [['Student', 'Points', 'Questions', 'Percent', 'Minutes', 'Submitted', 'Quiz', 'Seal']].concat(reports.map((r) => [
+      const rows = [['Student', 'Points', 'Out of', 'Percent', 'Minutes', 'Submitted', 'Quiz', 'Seal']].concat(reports.map((r) => [
         r.name, fmtPts(r.stats.points), r.stats.n, Math.round(r.stats.pct), (r.totalSec / 60).toFixed(1), new Date(r.submittedAt).toISOString(),
         r.quiz ? r.quiz.cfg.title : r.quizId, r.sealOk === true ? 'verified' : r.sealOk === false ? 'mismatch' : 'unknown']));
       copyText(rows.map((row) => row.map(esc).join(',')).join('\n'), 'Spreadsheet data');
@@ -2349,9 +2373,18 @@
         const hard = q.type === 'scale' || q.type === 'chord' ? 0.15 : 0;
         const r = rng();
         const credit = r < skill - hard ? 7 : cfg.flags.partial && !q.choices && r < skill + 0.2 ? 3 + Math.floor(rng() * 3) : 0;
-        return { type: q.type, clef: q.clef, credit, answered: r < 0.97, sec: Math.round(8 + rng() * (q.type === 'scale' ? 55 : 25)) };
+        const it = { type: q.type, clef: q.clef, credit, answered: r < 0.97, sec: Math.round(8 + rng() * (q.type === 'scale' ? 55 : 25)) };
+        // Rhythm examples are scored by wrong notes: a few for a weaker student, none when it's right.
+        if (q.type === 'rhythm') {
+          it.notes = MQ.compareRhythm(q, null).notes;
+          it.wrong = !it.answered ? it.notes : Math.min(it.notes, Math.round(it.notes * (1 - skill) * rng() * 1.6));
+          it.credit = it.wrong ? Math.min(6, Math.round(((it.notes - it.wrong) / Math.max(1, it.notes)) * 7)) : 7;
+        }
+        return it;
       });
-      return MQ.encodeReport({ name, submittedAt: Date.now() - (k + 1) * 3600e3, totalSec: items.reduce((s, it) => s + it.sec, 0), partial: cfg.flags.partial, items }, cfg, code);
+      const rh = MQ.rhythmSettings(cfg.rhythm);
+      const scoring = qs.some((q) => q.type === 'rhythm') ? { mode: rh.score, outOf: rh.outOf } : null;
+      return MQ.encodeReport({ name, submittedAt: Date.now() - (k + 1) * 3600e3, totalSec: items.reduce((s, it) => s + it.sec, 0), partial: cfg.flags.partial || !!scoring, items, scoring }, cfg, code);
     });
   }
 
@@ -3282,41 +3315,45 @@
     };
     const use = (k) => () => { if (o.plays && !o.locked) { o.plays[k] = (o.plays[k] || 0) + 1; if (o.onPlays) o.onPlays(); } };
     let ed = null, key = null;
+    const cmp = reveal ? MQ.compareRhythm(q, resp) : null;
     const sources = [{ label: 'Play the example', primary: true, layers: () => R.layers, left: () => left('ex'), use: use('ex') }];
     if (!o.keyMode) sources.push({ label: grader ? 'Play their answer' : 'Hear my answer', layers: () => (ed ? ed.staff.layers() : resp), needsNotes: true, left: () => left('ans'), use: use('ans') });
     wrap.append(listenPanel({ ex: R, sources, staffs: () => [ed && ed.staff, key].filter(Boolean) }));
     if (!o.keyMode) {
       ed = rhythmEditor({ meter: R.meter, measures: R.measures, parts: R.parts, layers: resp }, {
-        readOnly: !!o.locked, marks: reveal ? MQ.markRhythm(q, resp) : null,
+        readOnly: !!o.locked, marks: cmp ? { side: 'got', parts: cmp.parts } : null,
         onChange: (L) => { if (o.onResponse) o.onResponse(L.slice(0, R.parts).map((layer) => layer.slice(0, R.measures))); },
       });
       wrap.append(h('div', { class: 'rh-block' }, h('span', { class: 'mini-label' }, grader ? 'Student’s answer' : o.locked ? 'Your answer' : 'Your answer — write the rhythm here'), ed.el));
     }
     if (reveal || o.keyMode) {
       const box = h('div', { class: 'rstaff-box' });
-      key = new MQ.RhythmStaff(box, { meter: R.meter, measures: R.measures, parts: R.parts, layers: R.layers, readOnly: true });
-      wrap.append(h('div', { class: 'rh-block' }, h('span', { class: 'mini-label' }, 'The answer'), box));
+      key = new MQ.RhythmStaff(box, { meter: R.meter, measures: R.measures, parts: R.parts, layers: R.layers, readOnly: true, marks: cmp ? { side: 'want', parts: cmp.parts } : null });
+      wrap.append(h('div', { class: 'rh-block' }, h('span', { class: 'mini-label' }, cmp && cmp.wrong ? 'The answer — notes that were missed or wrong are in red' : 'The answer'), box));
     }
     if (o.playsUsed) {
       const t = (k) => `${o.playsUsed[k]} time${o.playsUsed[k] === 1 ? '' : 's'}`;
       wrap.append(h('p', { class: 'fine rh-plays' }, `Played the example ${t('ex')} and their answer ${t('ans')}.`));
     }
-    if (reveal) {
-      const frac = MQ.gradeRhythm(q, resp), need = R.parts * R.measures;
-      wrap.append(frac === 1 ? h('p', { class: 'result is-good', role: 'status' }, h('strong', null, 'Correct.'), ' Every measure matches.')
-        : h('p', { class: 'result is-bad', role: 'status' }, h('strong', null, frac > 0 ? `Partly right — ${Math.round(frac * need)} of ${need} measures.` : 'Not quite.'),
-          ' Measures marked in red don’t match the answer, or aren’t complete.'));
+    if (cmp) {
+      const right = Math.max(0, cmp.notes - cmp.wrong);
+      wrap.append(!cmp.wrong ? h('p', { class: 'result is-good', role: 'status' }, h('strong', null, 'Correct.'), ` All ${cmp.notes} notes match.`)
+        : h('p', { class: 'result is-bad', role: 'status' }, h('strong', null, `${cmp.wrong} wrong note${cmp.wrong === 1 ? '' : 's'}`), ` — ${right} of ${cmp.notes} points. `,
+          'Red notes are the wrong length, in the wrong place, or extra; in the answer, red notes were missed or wrong.'));
     }
     return wrap;
   }
 
   // What students should know before a rhythm quiz: sound on, and how often they can listen.
-  function rhythmIntro(cfg) {
+  function rhythmIntro(cfg, qs) {
     const b = MQ.rhythmSettings(cfg.rhythm);
     const times = (n) => (n === 1 ? 'once' : n === 2 ? 'twice' : `${n} times`);
     const ex = b.playsEx ? `You can play each example ${times(b.playsEx)}` : 'You can play each example as often as you like';
     const ans = b.playsAns ? `, and hear your own answer ${times(b.playsAns)}` : ', and hear your own answer as often as you like';
-    return `Turn your sound on — headphones help. ${ex}${ans}.`;
+    const notes = rhythmNotes(qs);
+    const score = b.score === 'percent' ? ` The quiz is out of ${b.outOf} points — the share of its ${notes} notes you get right.`
+      : ` Every note is worth a point — ${notes} in all — and each wrong or extra note costs one.`;
+    return `Turn your sound on — headphones help. ${ex}${ans}.${score}`;
   }
 
   // ---------- Clefwork Rhythm: the builder ----------
@@ -3346,9 +3383,25 @@
   function rhythmSections(cfg, changed, R) {
     const rh = cfg.rhythm = MQ.rhythmSettings(cfg.rhythm);
     if (!rh.examples.length) rh.examples.push(MQ.rhythmExample());
-    cfg.counts.rhythm = rh.examples.length;
+    cfg.counts.rhythm = rh.auto.on ? rh.auto.count : rh.examples.length;
     S.rhEx = Math.max(0, Math.min(rh.examples.length - 1, S.rhEx || 0));
     R.total = h('span', { class: 'mix-total' });
+    const mode = seg('rh-mode', [{ v: 0, label: 'Write the rhythms myself' }, { v: 1, label: 'Make them automatically' }], rh.auto.on ? 1 : 0, (v) => {
+      rh.auto.on = !!v;
+      cfg.counts.rhythm = rh.auto.on ? rh.auto.count : rh.examples.length;
+      changed();
+      go('build');
+    });
+    const PLAYS = [{ v: 0, label: 'Unlimited' }].concat([1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((v) => ({ v, label: v === 1 ? 'Once' : `${v} times` })));
+    const later = [scoringSection(cfg, changed, R),
+      sec('rh-listen', 'Listening', 'How often students may play each example, and their own answer, before they submit. Choosing measures, the count-off and the metronome are up to them.',
+        h('div', { class: 'row2' },
+          fld('Plays of the example', selectEl('rh-plays-ex', PLAYS, rh.playsEx, (v) => { rh.playsEx = +v; changed(); }), 'Per example. Each play counts, however many measures it covers.'),
+          fld('Plays of their answer', selectEl('rh-plays-ans', PLAYS, rh.playsAns, (v) => { rh.playsAns = +v; changed(); }), 'Per example. Students hear what they’ve written, on the same instruments.')))];
+    if (rh.auto.on) {
+      return [sec('rh-examples', 'Examples', 'Clefwork writes the rhythms from the level you choose. Everyone with the quiz code gets the same ones.',
+        mode, autoPanel(cfg, changed), h('div', { class: 'mix-foot' }, R.total))].concat(later);
+    }
     const tabs = h('div', { class: 'rh-tabs', role: 'tablist', 'aria-label': 'Examples' });
     const body = h('div', { class: 'rh-ex' });
     const edited = () => { cfg.counts.rhythm = rh.examples.length; changed(); drawTabs(); };
@@ -3433,15 +3486,126 @@
     }
     drawTabs();
     drawExample();
-    const PLAYS = [{ v: 0, label: 'Unlimited' }].concat([1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((v) => ({ v, label: v === 1 ? 'Once' : `${v} times` })));
     return [
       sec('rh-examples', 'Examples', 'Write each rhythm students will hear. Every measure has to be full before the quiz can be shared — rests count.',
-        tabs, body, h('div', { class: 'mix-foot' }, R.total)),
-      sec('rh-listen', 'Listening', 'How often students may play each example, and their own answer, before they submit. Choosing measures, the count-off and the metronome are up to them.',
-        h('div', { class: 'row2' },
-          fld('Plays of the example', selectEl('rh-plays-ex', PLAYS, rh.playsEx, (v) => { rh.playsEx = +v; changed(); }), 'Per example. Each play counts, however many measures it covers.'),
-          fld('Plays of their answer', selectEl('rh-plays-ans', PLAYS, rh.playsAns, (v) => { rh.playsAns = +v; changed(); }), 'Per example. Students hear what they’ve written, on the same instruments.'))),
-    ];
+        mode, tabs, body, h('div', { class: 'mix-foot' }, R.total)),
+    ].concat(later);
+  }
+  // How the quiz is scored: a point for every note, or a percent of a total the teacher sets.
+  function scoringSection(cfg, changed, R) {
+    const rh = cfg.rhythm;
+    const outIn = h('input', { type: 'number', id: 'rh-outof', min: 1, max: 1000, inputmode: 'numeric' });
+    outIn.value = rh.outOf;
+    outIn.addEventListener('change', () => { rh.outOf = Math.max(1, Math.min(1000, Math.round(+outIn.value || 100))); outIn.value = rh.outOf; changed(); });
+    const outWrap = fld('Total points', outIn, 'The share of notes a student gets right, scaled to this total.');
+    outWrap.hidden = rh.score !== 'percent';
+    R.scoreInfo = h('p', { class: 'fine rh-score-info' });
+    return sec('rh-score', 'Scoring', 'Graded note by note. A note the student misses or writes the wrong length is a wrong note, and so is every extra note they write. Rests only fill time, so two eighth rests match a quarter rest.',
+      grp('Score the quiz', seg('rh-score', [{ v: 'notes', label: 'A point for every note' }, { v: 'percent', label: 'A percent of a total I choose' }], rh.score, (v) => {
+        rh.score = v;
+        outWrap.hidden = v !== 'percent';
+        changed();
+      })),
+      outWrap, R.scoreInfo);
+  }
+  // Notes in the quiz's examples — what a note-scored quiz is out of.
+  const rhythmNotes = (qs) => qs.filter((q) => q.type === 'rhythm').reduce((n, q) => n + MQ.compareRhythm(q, null).notes, 0);
+  function rhythmScoreText(cfg, qs) {
+    const b = MQ.rhythmSettings(cfg.rhythm), notes = rhythmNotes(qs);
+    if (!notes) return '';
+    if (b.score !== 'percent') return `These examples have ${notes} notes in all, so the quiz is out of ${notes}. Each wrong note costs a point.`;
+    const eg = Math.min(3, notes);
+    return `These examples have ${notes} notes in all. The quiz is out of ${b.outOf}: a student with ${eg} wrong note${eg === 1 ? '' : 's'} scores ${fmtPts(((notes - eg) / notes) * b.outOf)} of ${b.outOf}.`;
+  }
+
+  // ---------- Clefwork Rhythm: examples made automatically ----------
+  function autoPanel(cfg, changed) {
+    const a = cfg.rhythm.auto, c = a.custom;
+    const preview = h('div', { class: 'rh-auto-list' });
+    const redo = () => { cfg.counts.rhythm = a.count; changed(); drawPreview(); };
+    const count = counter('rh-auto-count', 'examples', (v) => {
+      a.count = Math.max(1, v);
+      if (v < 1) count.sync(1, 20);
+      redo();
+    });
+    count.sync(a.count, 20);
+    // ---------- the level ----------
+    const levels = h('div', { class: 'rh-levels', role: 'radiogroup', 'aria-label': 'Level' });
+    const custom = h('div', { class: 'rh-custom' });
+    const LIST = MQ.RHYTHM_LEVELS.map((L, i) => ({ id: i + 1, name: `Level ${i + 1} · ${L.name}`, blurb: L.blurb }))
+      .concat([{ id: 7, name: 'Custom rules', blurb: 'Choose the time signatures, the shortest note, and whether to use dotted notes, triplets and notes off the beat.' }]);
+    const drawLevels = () => {
+      levels.replaceChildren(...LIST.map((L) => h('button', {
+        type: 'button', role: 'radio', class: 'rh-level', 'aria-checked': String(a.level === L.id),
+        onclick: () => { a.level = L.id; custom.hidden = a.level !== 7; drawLevels(); redo(); },
+      }, h('strong', null, L.name), h('span', null, L.blurb))));
+      custom.hidden = a.level !== 7;
+    };
+    // ---------- custom rules ----------
+    const NUMS = [2, 3, 4, 5, 6].map((n) => ({ v: n, label: `${n}/4` }));
+    const lo = selectEl('rh-c-lo', NUMS, c.lo, (v) => { c.lo = +v; if (c.hi < c.lo) { c.hi = c.lo; hi.value = String(c.hi); } redo(); });
+    const hi = selectEl('rh-c-hi', NUMS, c.hi, (v) => { c.hi = +v; if (c.lo > c.hi) { c.lo = c.hi; lo.value = String(c.lo); } redo(); });
+    const flip = (k) => (v) => { c[k] = v ? 1 : 0; redo(); };
+    custom.append(
+      h('div', { class: 'row2' }, fld('Time signatures from', lo), fld('To', hi)),
+      h('div', { class: 'toggles' },
+        toggle('rh-c-compound', 'Compound meters', '3/8, 6/8, 9/8 and 12/8.', c.compound, flip('compound')),
+        toggle('rh-c-cut', 'Cut time', '2/2, and 3/2.', c.cut, flip('cut')),
+        toggle('rh-c-uneven', 'Uneven meters', '5/8, 7/8, 8/8, 10/8 and 11/8.', c.uneven, flip('uneven'))),
+      grp('Shortest note', seg('rh-c-short', [{ v: 2, label: 'Quarter' }, { v: 3, label: 'Eighth' }, { v: 4, label: 'Sixteenth' }], c.shortest, (v) => { c.shortest = v; redo(); })),
+      h('div', { class: 'toggles' },
+        toggle('rh-c-dotted', 'Dotted notes', 'Dotted halves, quarters and eighths.', c.dotted, flip('dotted')),
+        toggle('rh-c-trip', 'Triplets', 'Quarter-note triplets, and eighth- and sixteenth-note triplets when the shortest note allows.', c.triplets, flip('triplets'))),
+      grp('Notes off the beat', seg('rh-c-off', [{ v: 0, label: 'None' }, { v: 1, label: 'One or two' }, { v: 2, label: 'More' }], c.offbeats, (v) => { c.offbeats = v; redo(); }),
+        'One or two in each example, or up to about one a measure.'));
+    drawLevels();
+    // ---------- tempo ----------
+    const tempoIn = h('input', { type: 'number', id: 'rh-auto-tempo', min: 40, max: 240, inputmode: 'numeric' });
+    tempoIn.value = a.tempo;
+    tempoIn.addEventListener('change', () => { a.tempo = Math.max(40, Math.min(240, Math.round(+tempoIn.value || 80))); tempoIn.value = a.tempo; redo(); });
+    // ---------- what it made ----------
+    function drawPreview() {
+      const qs = MQ.rhythmQuestions(cfg);
+      preview.replaceChildren(...qs.map((q) => {
+        const R = q.rh, info = MQ.rhythmMeter(R.meter);
+        const box = h('div', { class: 'rstaff-box' });
+        new MQ.RhythmStaff(box, { meter: R.meter, measures: R.measures, parts: R.parts, layers: R.layers, readOnly: true });
+        return h('div', { class: 'rh-auto-item' },
+          h('div', { class: 'rh-auto-head' }, h('strong', null, `Example ${R.n + 1}`),
+            h('span', { class: 'help' }, `${info.label}${info.grouping ? ` (${info.grouping})` : ''} · ${tempoLabel(info, R.tempo)}`), rhythmPlayButton(R)),
+          box);
+      }));
+    }
+    const fresh = h('button', { type: 'button', class: 'btn btn-quiet sm', onclick: () => {
+      cfg.seed = MQ.randomSeed();
+      redo();
+      toast('New examples made — share the new code');
+    } }, '↻ Make new examples');
+    drawPreview();
+    return h('div', { class: 'rh-auto' },
+      h('div', { class: 'row2' },
+        grp('How many examples', count, 'Up to 20.'),
+        grp('Measures in each', seg('rh-auto-measures', [1, 2, 3, 4].map((v) => ({ v, label: String(v) })), a.measures, (v) => { a.measures = v; redo(); }))),
+      grp('Level', levels),
+      custom,
+      grp('Tempo', h('div', { class: 'rh-tempo' }, h('span', { class: 'rh-tempo-sign', 'aria-hidden': 'true' }, '♩ ='), tempoIn),
+        'In other meters the eighth notes keep this speed: ♩ = 80 is ♩. = 53 in 6/8.'),
+      h('div', { class: 'rh-auto-top' }, h('span', { class: 'mini-label' }, 'The examples'), fresh),
+      preview);
+  }
+  // Plays one example as written, with the listener's count-off and metronome.
+  function rhythmPlayButton(ex) {
+    const btn = h('button', { type: 'button', class: 'btn sm rh-mini-play' });
+    const idle = () => { btn.classList.remove('is-playing'); btn.replaceChildren(svgEl(PLAY_ICON), document.createTextNode('Play')); };
+    idle();
+    btn.addEventListener('click', () => {
+      if (btn.classList.contains('is-playing')) { MQ.Audio.stop(); return; }
+      const pe = MQ.rhythmPlayEvents(ex, ex.layers, { countIn: S.listen.countIn, metronome: S.listen.metro });
+      if (!MQ.Audio.sequence(pe.events, { total: pe.total, done: idle })) { toast('This browser can’t play sound.', 'bad'); return; }
+      btn.classList.add('is-playing');
+      btn.replaceChildren(svgEl(STOP), document.createTextNode('Stop'));
+    });
+    return btn;
   }
   // An answer-key entry: the example's rhythm, drawn small.
   function rhythmKeyItem(q) {
