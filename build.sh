@@ -26,7 +26,7 @@ body() {
   echo "<script>window.CLEFWORK_BASE = '$BASE';</script>"
   echo "<style>"; cat src/styles.css; echo "$MARK_CSS"; echo "</style>"
   cat src/shell.html
-  echo "<script>"; cat src/theory.js src/progressions.js src/chords.js src/figured.js src/voicings.js src/keys.js src/analysis.js src/qr.js src/pdf.js src/print.js src/docx.js src/codec.js src/staff.js src/piano.js src/audio.js src/app.js; echo "</script>"
+  echo "<script>"; cat src/theory.js src/progressions.js src/chords.js src/figured.js src/voicings.js src/keys.js src/analysis.js src/rhythm.js src/qr.js src/pdf.js src/print.js src/docx.js src/codec.js src/staff.js src/rhythmstaff.js src/piano.js src/audio.js src/app.js; echo "</script>"
 }
 # Student version: same app with practice + take-a-quiz only (no quiz codes, no grading tab).
 SHEAD=$(printf '%s' "$HEAD" | sed 's#<title>Clefwork Music Quizzes</title>#<title>Clefwork Practice</title>#; s#Build music theory quizzes, have students write notes on the staff, and grade them from report codes#Practise music theory on the staff, and take quizzes from your teacher#')
@@ -54,11 +54,17 @@ AHEAD=$(printf '%s' "$HEAD" | sed 's#<title>Clefwork Music Quizzes</title>#<titl
 AFLAG='<script>window.CLEFWORK_MODE = "analysis";</script>'
 { echo "$AHEAD"; echo "$AFLAG"; body; } > dist/clefwork-analysis.html
 { echo "$DOC"; echo "$AHEAD"; echo "$AFLAG"; echo '</head><body>'; body; echo '</body></html>'; } > dist/clefwork-analysis-standalone.html
+# Clefwork Rhythm: rhythmic dictation on a one-line staff, from the same engine.
+YHEAD=$(printf '%s' "$HEAD" | sed 's#<title>Clefwork Music Quizzes</title>#<title>Clefwork Rhythm</title>#; s#Build music theory quizzes, have students write notes on the staff, and grade them from report codes#Rhythmic dictation: students hear a rhythm in one or two parts and write it on a one-line staff#')
+YFLAG='<script>window.CLEFWORK_MODE = "rhythm";</script>'
+{ echo "$YHEAD"; echo "$YFLAG"; body; } > dist/clefwork-rhythm.html
+{ echo "$DOC"; echo "$YHEAD"; echo "$YFLAG"; echo '</head><body>'; body; echo '</body></html>'; } > dist/clefwork-rhythm-standalone.html
 # The landing page: pick a tool, or paste report codes to grade.
 HHEAD=$(printf '%s' "$HEAD" | sed 's#<title>Clefwork Music Quizzes</title>#<title>Clefwork</title>#; s#Build music theory quizzes, have students write notes on the staff, and grade them from report codes — no server needed#Music theory quiz tools for teachers: build quizzes, share links, and grade the reports students send back#')
 { echo "$DOC"; echo "$HHEAD"; echo "<style>"; cat src/styles.css; echo "$MARK_CSS"; logo_css logo-full logo; echo "</style>"; echo '</head><body>'; cat src/home.html; echo '</body></html>'; } > dist/clefwork-home.html
 # Copies for GitHub Pages: the landing page at index.html, the quiz builder at clefwork.html,
-# the student app at student.html, and the Canvas pages at take.html and results.html.
+# the student app at student.html, the Canvas pages at take.html and results.html, and the other
+# tools at keys.html, analysis.html and rhythm.html.
 mkdir -p dist/site
 cp dist/clefwork-home.html dist/site/index.html
 cp dist/clefwork-standalone.html dist/site/clefwork.html
@@ -67,4 +73,5 @@ cp dist/clefwork-take-standalone.html dist/site/take.html
 cp dist/clefwork-results-standalone.html dist/site/results.html
 cp dist/clefwork-keys-standalone.html dist/site/keys.html
 cp dist/clefwork-analysis-standalone.html dist/site/analysis.html
+cp dist/clefwork-rhythm-standalone.html dist/site/rhythm.html
 wc -c dist/*.html

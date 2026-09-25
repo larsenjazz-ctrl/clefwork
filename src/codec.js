@@ -137,6 +137,38 @@
 
   const quizId = (code) => crc16(utf8(normalize(code)));
 
+  // ---------- rhythms ----------
+  // Each note or rest: value (0 whole … 4 sixteenth), dot, triplet, rest. A measure is its count
+  // of notes and rests, then each one.
+  const METER_DENOMS = [2, 4, 8];
+  function writeEvents(w, list) {
+    const evs = (list || []).slice(0, 63);
+    w.u(evs.length, 6);
+    evs.forEach((e) => w.u(e.v, 3).u(e.d ? 1 : 0, 1).u(e.t ? 1 : 0, 1).u(e.r ? 1 : 0, 1));
+  }
+  function readEvents(r) {
+    const n = r.u(6), out = [];
+    for (let i = 0; i < n; i++) out.push({ v: Math.min(4, r.u(3)), d: r.u(1), t: r.u(1), r: r.u(1) });
+    return out;
+  }
+  // An example: measures, time signature (denominator, numerator, grouping), tempo, parts, rhythm.
+  function writeExample(w, raw) {
+    const ex = MQ.exampleSettings(raw);
+    w.u(ex.measures - 1, 2).u(METER_DENOMS.indexOf(ex.meter.d), 2).u(ex.meter.n, 4).u(ex.meter.g || 0, 2)
+      .u(ex.tempo - 30, 8).u(ex.parts - 1, 1);
+    for (let l = 0; l < ex.parts; l++) for (let m = 0; m < ex.measures; m++) writeEvents(w, ex.layers[l][m]);
+  }
+  function readExample(r) {
+    const ex = { measures: r.u(2) + 1 };
+    const d = METER_DENOMS[r.u(2)] || 4;
+    ex.meter = { d, n: r.u(4), g: r.u(2) };
+    ex.tempo = r.u(8) + 30;
+    ex.parts = r.u(1) + 1;
+    ex.layers = [[[], [], [], []], [[], [], [], []]];
+    for (let l = 0; l < ex.parts; l++) for (let m = 0; m < ex.measures; m++) ex.layers[l][m] = readEvents(r);
+    return MQ.exampleSettings(ex);
+  }
+
   // ---------- quiz codes ----------
   // Retakes a quiz allows after the first attempt: a number from 0 to 31, or null for no limit.
   const retakeLimit = (cfg) => (cfg && Number.isInteger(cfg.retakes) && cfg.retakes >= 0 ? Math.min(31, cfg.retakes) : null);
@@ -234,19 +266,30 @@
     // Quizzes without it keep exactly the codes they had.
     // Extension 2: a limit on retakes (0–31). Unlimited retakes — the default — write nothing,
     // so those quizzes keep their codes too; a limit also writes the (possibly empty) block before it.
+    // Extension 3: Clefwork Rhythm — the retake limit (if any) behind a flag, how often students may
+    // play the example and their answer, then each example's meter, tempo and rhythm.
     const an = MQ.analysisSettings(cfg.analysis);
     const regions = an.regions.slice(0, MQ.ANALYSIS_MAX);
     const limit = retakeLimit(cfg);
-    if (regions.length || an.img || limit != null) {
+    const rh = MQ.rhythmSettings(cfg.rhythm);
+    const examples = rh.examples.slice(0, MQ.RHYTHM_MAX);
+    if (regions.length || an.img || limit != null || examples.length) {
       const q10 = (v) => Math.max(0, Math.min(1023, Math.round(v * 1023)));
-      w.u(limit != null ? 2 : 1, 8).u(an.override, 2).u(an.img ? 1 : 0, 1);
+      const ext = examples.length ? 3 : limit != null ? 2 : 1;
+      w.u(ext, 8).u(an.override, 2).u(an.img ? 1 : 0, 1);
       if (an.img) w.u(an.img.hash >>> 0, 32);
       w.strN(an.notes, 200, 8).u(regions.length, 6);
       regions.forEach((r) => {
         w.u(q10(r.x), 10).u(q10(r.y), 10).u(q10(r.w), 10).u(q10(r.h), 10)
           .u(Math.max(1, MQ.ANALYSIS_ASKS.indexOf(r.ask)), 2).str(r.roman, 63).str(r.symbol, 63);
       });
-      if (limit != null) w.u(limit, 5);
+      if (ext === 2) w.u(limit, 5);
+      if (ext === 3) {
+        w.u(limit != null ? 1 : 0, 1);
+        if (limit != null) w.u(limit, 5);
+        w.u(Math.min(15, rh.playsEx || 0), 4).u(Math.min(15, rh.playsAns || 0), 4).u(examples.length, 4);
+        examples.forEach((ex) => writeExample(w, ex));
+      }
     }
     return pack(KIND_QUIZ, w.b);
   }
@@ -370,6 +413,8 @@
       cfg.counts.keys = 0;
       cfg.analysis = MQ.defaultConfig().analysis;
       cfg.counts.analysis = 0;
+      cfg.rhythm = MQ.defaultConfig().rhythm;
+      cfg.counts.rhythm = 0;
       if (cfg.helpOv.vprog == null) cfg.helpOv.vprog = 2;
       if (v >= 12) {
         cfg.helpOv.vprog = r.u(2);
@@ -397,7 +442,15 @@
             cfg.analysis = an;
             cfg.counts.analysis = n;
           }
-          if (ext >= 2) cfg.retakes = r.u(5);
+          if (ext === 2) cfg.retakes = r.u(5);
+          if (ext >= 3) {
+            if (r.u(1)) cfg.retakes = r.u(5);
+            const rh = { playsEx: r.u(4), playsAns: r.u(4), examples: [] };
+            const n = r.u(4);
+            for (let i = 0; i < n; i++) rh.examples.push(readExample(r));
+            cfg.rhythm = rh;
+            cfg.counts.rhythm = n;
+          }
         }
         const sum = (b) => MQ.TECHNIQUES.reduce((n, t) => n + ((b.tech && b.tech[t.id]) || 0), 0);
         cfg.counts.voicing = sum(cfg.vc);
@@ -436,7 +489,15 @@
     return s;
   }
   const KEY_ANSWERS = ['staff', 'name', 'piano'];
-  function writeAnswer(w, q, resp) {
+  // `plays` (rhythm questions): how often the student played the example and their own answer.
+  function writeAnswer(w, q, resp, plays) {
+    if (q.type === 'rhythm') {
+      const R = q.rh;
+      w.u(R.parts - 1, 1).u(R.measures - 1, 2);
+      for (let l = 0; l < R.parts; l++) for (let m = 0; m < R.measures; m++) writeEvents(w, resp && resp[l] && resp[l][m]);
+      w.u(Math.min(31, (plays && plays.ex) || 0), 5).u(Math.min(31, (plays && plays.ans) || 0), 5);
+      return;
+    }
     if (q.type === 'analysis') { writeText(w, resp && resp.r); writeText(w, resp && resp.s); return; }
     if (q.type === 'keys') {
       const kind = KEY_ANSWERS.indexOf(q.keys.answer);
@@ -490,6 +551,11 @@
     }
   }
   function readAnswer(r, type, ver) {
+    if (type === 'rhythm') {
+      const parts = r.u(1) + 1, n = r.u(2) + 1, layers = [];
+      for (let l = 0; l < parts; l++) { const L = []; for (let m = 0; m < n; m++) L.push(readEvents(r)); layers.push(L); }
+      return { kind: 'rhythm', value: layers, plays: { ex: r.u(5), ans: r.u(5) } };
+    }
     if (type === 'analysis') return { kind: 'text', value: { r: readText(r), s: readText(r) } };
     if (type === 'keys' && ver >= 7) {
       const kind = KEY_ANSWERS[r.u(2)];
@@ -550,11 +616,13 @@
     return q.columns.map((c) => (c.cap > 0 ? cols.shift() || [] : []));
   }
 
-  // report.answers (optional): {qs, resp} — the quiz's questions and what the student entered.
+  // report.answers (optional): {qs, resp, plays} — the quiz's questions, what the student entered,
+  // and (rhythm) how often each example and answer was played.
   function encodeReport(report, cfg, quizCode) {
     const qid = quizId(quizCode);
     const w = new Writer();
-    w.u(9, 4).u(qid, 16).str(report.name, 40)
+    // Version 10 added rhythm answers, with how often each example and answer was played.
+    w.u(10, 4).u(qid, 16).str(report.name, 40)
       .u(Math.max(0, Math.round((report.submittedAt - EPOCH) / 60000)), 24)
       .u(Math.min(65535, Math.round(report.totalSec)), 16)
       .u(report.partial ? 1 : 0, 1).u(report.items.length, 7);
@@ -565,7 +633,7 @@
     });
     const ans = report.answers;
     w.u(ans ? 1 : 0, 1);
-    if (ans) ans.qs.forEach((q, i) => writeAnswer(w, q, ans.resp[i]));
+    if (ans) ans.qs.forEach((q, i) => writeAnswer(w, q, ans.resp[i], ans.plays && ans.plays[i]));
     w.u(Math.max(1, Math.min(31, Math.round(report.attempt || 1))), 5);   // version 9: which attempt this was
     return pack(KIND_REPORT, w.b, sealKey(cfg, qid));
   }
@@ -580,7 +648,7 @@
     const restBits = body.slice(20);
     try {
       const ver = r.u(4);
-      if (ver < 1 || ver > 9) throw new CodeError('This report was made with a newer version of Clefwork.');
+      if (ver < 1 || ver > 10) throw new CodeError('This report was made with a newer version of Clefwork.');
       const rep = { code: group(clean), quizId: r.u(16), name: r.str() };
       rep.submittedAt = EPOCH + r.u(24) * 60000;
       rep.totalSec = r.u(16);

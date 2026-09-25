@@ -7,6 +7,7 @@ Music theory quizzes that run entirely in the browser — no server, no accounts
 - **Student app:** [student.html](https://larsenjazz-ctrl.github.io/clefwork/student.html) — practise with instant feedback, or take a teacher's quiz and send back a report code.
 - **Clefwork Keys:** [keys.html](https://larsenjazz-ctrl.github.io/clefwork/keys.html) — a separate app for reading notes: the grand staff, note names with octaves, and the piano keyboard.
 - **Clefwork Analysis:** [analysis.html](https://larsenjazz-ctrl.github.io/clefwork/analysis.html) — harmonic analysis on real music: upload a picture of a score, box the chords, and students write Roman numerals or chord symbols beside the music.
+- **Clefwork Rhythm:** [rhythm.html](https://larsenjazz-ctrl.github.io/clefwork/rhythm.html) — rhythmic dictation: students hear a rhythm in one or two parts and write it on a one-line staff.
 - **Canvas pages:** [take.html](https://larsenjazz-ctrl.github.io/clefwork/take.html) takes one quiz and ends with a results link to hand in; [results.html](https://larsenjazz-ctrl.github.io/clefwork/results.html) shows one student's results from that link.
 
 ## How it works
@@ -33,11 +34,25 @@ Students see the whole score with each box lightly highlighted in its own colour
 
 The picture travels inside the quiz link as a compressed black-and-white copy — about 8–15 KB for a passage, more for a dense full page — so nothing is hosted anywhere. Detail (Standard, High, Highest) and ink (Lighter, Normal, Darker) trade link length against sharpness. The quiz code on its own doesn't carry the picture, so students open the link; the code still works for grading on another computer. Report codes, the grade checker, results pages and Canvas work as they do everywhere else, and the grade checker shows each box cropped from the score with the student's answers marked. Analysis quizzes don't print.
 
+### Clefwork Rhythm
+
+A separate app, built on the same engine, for rhythmic dictation. The teacher writes each example on a one-line staff; the computer plays it and students write what they hear.
+
+- **Examples.** A quiz holds up to 12 examples, each one to four measures long, in 2/4 to 6/4, 3/8 to 12/8, or 2/2 and 3/2, with its own tempo. Irregular eighth-note meters (5/8, 7/8, 8/8, 10/8, 11/8) choose how their eighths group into beats (7/8 as 2+2+3, 3+2+2 or 2+3+2), which sets the beaming and the metronome.
+- **Writing a rhythm.** Note values from sixteenths to whole notes, with rests. To write a dotted note or a triplet, turn on Dot or Triplet, then choose the value; both stay on until turned off. A caret shows where the next note goes, a clicked note is selected and replaced by the next value chosen, and a full measure moves the caret on. Keys: W H Q E S for the values, period (or D) for Dot, T for Triplet, R for Rest, arrows to move, Backspace to delete.
+- **Full measures.** Every measure is checked against the time signature as it's written — a note that doesn't fit is refused, with how much room is left — and a quiz can't be shared until every measure is full (rests count).
+- **Triplets** start on a beat: a quarter-note triplet on any beat, an eighth-note triplet on a beat. A triplet group shorter than the beat — sixteenth-note triplets in quarter-note time — may also start halfway through a beat. Mixed triplets (a quarter-note and an eighth-note triplet) are fine; a triplet that breaks these rules is refused as it's written.
+- **Two parts.** A second part, with stems down, can have its own rhythm. The part with stems up plays on the piano, the part with stems down on the oboe.
+- **Listening.** Students choose which measures to play (tap one, drag across several, or All), a count-off of none, one or two bars, and whether the metronome clicks under the music. Each instrument and the click has its own volume slider. They can also hear what they've written, on the same instruments. The teacher sets how many times students may play each example, and their own answer, before submitting (unlimited, or once to 10 times); every play counts, whatever it covers. Once an answer has been checked, plays are unlimited.
+- **Grading.** Each measure of each part is marked by what sounds — when each note starts and how long it lasts — so a quarter rest and two eighth rests are the same answer. A measure must be complete to count. With partial credit, each measure earns its share.
+- **Results.** Report codes (now version 10) carry every note the student wrote and how often they played the example and their answer. The grade checker and results pages show the student's rhythm with each measure marked, the right rhythm beneath it, both playable, and the play counts.
+- **Printing.** The Print tab prints each example's tempo and a blank one-line staff with its time signature, two measures to a line, for dictation on paper.
+
 ### Retakes
 
 Every Clefwork page ends a quiz with a **Retake quiz** button: the same quiz code, so the same questions, and a fresh start. Retakes are unlimited unless the teacher sets a limit under **Quiz rules** (none, or 1–10 retakes). The limit travels in the quiz code; quizzes without one keep exactly the codes they had.
 
-A student's device counts their attempts and stops offering retakes once the limit is used. Because there's no server, a student could start again on another device — so every report code also records its attempt number, and the grade checker and results pages show it ("Attempt 2"), with a warning when an attempt goes past the quiz's limit. Report codes are now version 9.
+A student's device counts their attempts and stops offering retakes once the limit is used. Because there's no server, a student could start again on another device — so every report code also records its attempt number, and the grade checker and results pages show it ("Attempt 2"), with a warning when an attempt goes past the quiz's limit. Report codes became version 9 with this (version 10 added rhythm answers).
 
 ### Canvas
 
@@ -60,6 +75,7 @@ dist/clefwork-student.html            student app, body only
 dist/clefwork-student-standalone.html student app, complete page
 dist/clefwork-keys*.html              Clefwork Keys
 dist/clefwork-analysis*.html          Clefwork Analysis
+dist/clefwork-rhythm*.html            Clefwork Rhythm
 dist/clefwork-take-standalone.html    Canvas: take one quiz
 dist/clefwork-results-standalone.html Canvas: one student's results
 dist/site/                            copies published to GitHub Pages
