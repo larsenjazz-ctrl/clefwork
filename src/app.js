@@ -3522,7 +3522,8 @@
   function autoPanel(cfg, changed) {
     const a = cfg.rhythm.auto, c = a.custom;
     const preview = h('div', { class: 'rh-auto-list' });
-    const redo = () => { cfg.counts.rhythm = a.count; changed(); drawPreview(); };
+    // Any change moves the quiz onto the newest generator (an untouched draft keeps its examples).
+    const redo = () => { a.gen = MQ.RHYTHM_GEN; cfg.counts.rhythm = a.count; changed(); drawPreview(); };
     const count = counter('rh-auto-count', 'examples', (v) => {
       a.count = Math.max(1, v);
       if (v < 1) count.sync(1, 20);
@@ -3557,7 +3558,9 @@
         toggle('rh-c-dotted', 'Dotted notes', 'Dotted halves, quarters and eighths.', c.dotted, flip('dotted')),
         toggle('rh-c-trip', 'Triplets', 'Quarter-note triplets, and eighth- and sixteenth-note triplets when the shortest note allows.', c.triplets, flip('triplets'))),
       grp('Notes off the beat', seg('rh-c-off', [{ v: 0, label: 'None' }, { v: 1, label: 'One or two' }, { v: 2, label: 'More' }], c.offbeats, (v) => { c.offbeats = v; redo(); }),
-        'One or two in each example, or up to about one a measure.'));
+        'One or two in each example, or up to about one a measure.'),
+      grp('Rests', seg('rh-c-rests', [{ v: 0, label: 'None' }, { v: 1, label: 'A few' }, { v: 2, label: 'Some' }, { v: 3, label: 'Many' }], c.rests, (v) => { c.rests = v; redo(); }),
+        'How many measures have a rest: none, up to a quarter of them, a fifth to a half, or up to four in five. With notes off the beat, rests can fall on the beat too.'));
     drawLevels();
     // ---------- tempo ----------
     const tempoIn = h('input', { type: 'number', id: 'rh-auto-tempo', min: 40, max: 240, inputmode: 'numeric' });

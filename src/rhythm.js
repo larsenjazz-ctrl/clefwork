@@ -197,11 +197,17 @@
     o.measures = Math.max(1, Math.min(4, o.measures | 0 || 2));
     o.level = Math.max(1, Math.min(7, o.level | 0 || 2));
     o.tempo = Math.max(40, Math.min(240, Math.round(o.tempo || 80)));
-    const c = (o.custom = Object.assign({ lo: 2, hi: 4, compound: 0, cut: 0, uneven: 0, shortest: 3, dotted: 1, triplets: 0, offbeats: 1 }, o.custom));
+    // gen: the generator version the examples come from. A quiz keeps its own; new ones use the latest.
+    o.gen = Math.max(1, Math.min(7, o.gen | 0 || MQ.RHYTHM_GEN || 1));
+    // Filled in place: the builder keeps hold of this object while the teacher edits it.
+    const c = (o.custom = o.custom || {});
+    const D = { lo: 2, hi: 4, compound: 0, cut: 0, uneven: 0, shortest: 3, dotted: 1, triplets: 0, offbeats: 1, rests: 1 };
+    Object.keys(D).forEach((k) => { if (c[k] == null) c[k] = D[k]; });
     c.lo = Math.max(2, Math.min(6, c.lo | 0));
     c.hi = Math.max(c.lo, Math.min(6, c.hi | 0));
     c.shortest = Math.max(2, Math.min(4, c.shortest | 0));
     c.offbeats = Math.max(0, Math.min(2, c.offbeats | 0));
+    c.rests = Math.max(0, Math.min(3, c.rests | 0));
     return o;
   }
   const partName = (l) => (l ? 'oboe part (stems down)' : 'piano part (stems up)');

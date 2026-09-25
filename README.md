@@ -39,15 +39,15 @@ The picture travels inside the quiz link as a compressed black-and-white copy �
 A separate app, built on the same engine, for rhythmic dictation. The teacher writes each example on a one-line staff, or lets Clefwork make them; the computer plays each one and students write what they hear.
 
 - **Made automatically.** The teacher chooses how many examples (up to 20), how many measures in each, the tempo (as a quarter note; other meters keep the same speed of eighth notes), and a level:
-  1. *Very easy* — 4/4, quarter notes and longer, every note on a beat.
-  2. *Easy* — 2/4 to 4/4, eighth notes and longer, no note starting off the beat.
-  3. *Medium easy* — 2/4 to 4/4, eighth notes and longer, one or two notes off the beat.
-  4. *Medium* — 2/4 to 6/4, and 3/8, 6/8, 9/8 and 12/8, eighth notes and longer, one or two notes off the beat.
-  5. *Advanced* — any time signature, sixteenth notes and longer, notes off the beat.
-  6. *Very hard* — any time signature and any rhythm, triplets included.
-  7. *Custom rules* — a range of time signatures from 2/4 to 6/4, plus compound meters, cut time (and 3/2) or uneven meters; the shortest note; dotted notes; triplets; and none, one or two, or more notes off the beat.
+  1. *Very easy* — 4/4, quarter notes and longer, every note on a beat; rests in up to a fifth of the measures.
+  2. *Easy* — 2/4 to 4/4, eighth notes and longer, no note starting off the beat; rests in up to 30% of the measures.
+  3. *Medium easy* — 2/4 to 4/4, eighth notes and longer, one or two notes off the beat; rests in 10–40% of the measures.
+  4. *Medium* — 2/4 to 6/4, and 3/8, 6/8, 9/8 and 12/8, eighth notes and longer, one or two notes off the beat; rests in 20–50%.
+  5. *Advanced* — any time signature, sixteenth notes and longer, notes off the beat; rests in 30–70%, including ones that make the rhythm harder.
+  6. *Very hard* — any time signature and any rhythm, triplets included; rests in 40–80%.
+  7. *Custom rules* — a range of time signatures from 2/4 to 6/4, plus compound meters, cut time (and 3/2) or uneven meters; the shortest note; dotted notes; triplets; none, one or two, or more notes off the beat; and no rests, a few, some or many.
 
-  Each measure is built beat by beat from short rhythmic cells chosen for the level, in a phrase that repeats measures (A A B A, A B A B …), and the clearest of many tries is kept: about four to eight notes in a 4/4 measure, long notes with short ones, no more than one syncopation a measure (one or two in the whole example at the easier levels), and a long note to end. The quiz's seed picks everything, so the quiz code carries only the settings and every student gets the same examples; "Make new examples" picks a new set.
+  Each measure is built beat by beat from short rhythmic cells chosen for the level, in a phrase that repeats measures (A A B A, A B A B …), and the clearest of many tries is kept: about four to eight notes in a 4/4 measure, long notes with short ones, no more than one syncopation a measure (one or two in the whole example at the easier levels), and a long note to end. Rests go in the share of measures the level calls for, and never fill more than half of a measure. Easy levels use quarter and half rests on the beat and an eighth rest after an eighth; harder levels add the rests that make a rhythm harder — a rest on the beat before an entry, sixteenth rests, a rest inside a triplet — and may start an example on a rest. The quiz's seed picks everything, so the quiz code carries only the settings and every student gets the same examples; "Make new examples" picks a new set. The generator is versioned in the code, so a quiz shared earlier keeps the examples it was made with.
 - **Examples.** A quiz holds up to 12 examples, each one to four measures long, in 2/4 to 6/4, 3/8 to 12/8, or 2/2 and 3/2, with its own tempo. Irregular eighth-note meters (5/8, 7/8, 8/8, 10/8, 11/8) choose how their eighths group into beats (7/8 as 2+2+3, 3+2+2 or 2+3+2), which sets the beaming and the metronome.
 - **Writing a rhythm.** Note values from sixteenths to whole notes, with rests. To write a dotted note or a triplet, turn on Dot or Triplet, then choose the value; both stay on until turned off. A caret shows where the next note goes, a clicked note is selected and replaced by the next value chosen, and a full measure moves the caret on. Keys: W H Q E S for the values, period (or D) for Dot, T for Triplet, R for Rest, arrows to move, Backspace to delete.
 - **Full measures.** Every measure is checked against the time signature as it's written — a note that doesn't fit is refused, with how much room is left — and a quiz can't be shared until every measure is full (rests count).

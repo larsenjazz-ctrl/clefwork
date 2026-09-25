@@ -295,9 +295,10 @@
         if (rh.auto.on) {
           // The generator's version comes first, so a later one can keep older quizzes' examples.
           const a = rh.auto, c = a.custom;
-          w.u(1, 3).u(a.count - 1, 5).u(a.measures - 1, 2).u(a.level - 1, 3).u(a.tempo - 30, 8)
+          w.u(a.gen, 3).u(a.count - 1, 5).u(a.measures - 1, 2).u(a.level - 1, 3).u(a.tempo - 30, 8)
             .u(c.lo - 2, 3).u(c.hi - 2, 3).u(c.compound ? 1 : 0, 1).u(c.cut ? 1 : 0, 1).u(c.uneven ? 1 : 0, 1)
             .u(c.shortest - 2, 2).u(c.dotted ? 1 : 0, 1).u(c.triplets ? 1 : 0, 1).u(c.offbeats, 2);
+          if (a.gen >= 2) w.u(c.rests, 2);            // generator version 2: how many rests, in custom rules
         } else {
           w.u(examples.length, 4);
           examples.forEach((ex) => writeExample(w, ex));
@@ -468,6 +469,7 @@
                   on: true, gen, count: r.u(5) + 1, measures: r.u(2) + 1, level: r.u(3) + 1, tempo: r.u(8) + 30,
                   custom: { lo: r.u(3) + 2, hi: r.u(3) + 2, compound: r.u(1), cut: r.u(1), uneven: r.u(1), shortest: r.u(2) + 2, dotted: r.u(1), triplets: r.u(1), offbeats: r.u(2) },
                 };
+                rh.auto.custom.rests = gen >= 2 ? r.u(2) : 1;
               }
             }
             if (!rh.auto) {

@@ -4233,11 +4233,17 @@ input.an-in { width: 100%; min-height: 34px; padding: 4px 2px; text-align: cente
     o.measures = Math.max(1, Math.min(4, o.measures | 0 || 2));
     o.level = Math.max(1, Math.min(7, o.level | 0 || 2));
     o.tempo = Math.max(40, Math.min(240, Math.round(o.tempo || 80)));
-    const c = (o.custom = Object.assign({ lo: 2, hi: 4, compound: 0, cut: 0, uneven: 0, shortest: 3, dotted: 1, triplets: 0, offbeats: 1 }, o.custom));
+    // gen: the generator version the examples come from. A quiz keeps its own; new ones use the latest.
+    o.gen = Math.max(1, Math.min(7, o.gen | 0 || MQ.RHYTHM_GEN || 1));
+    // Filled in place: the builder keeps hold of this object while the teacher edits it.
+    const c = (o.custom = o.custom || {});
+    const D = { lo: 2, hi: 4, compound: 0, cut: 0, uneven: 0, shortest: 3, dotted: 1, triplets: 0, offbeats: 1, rests: 1 };
+    Object.keys(D).forEach((k) => { if (c[k] == null) c[k] = D[k]; });
     c.lo = Math.max(2, Math.min(6, c.lo | 0));
     c.hi = Math.max(c.lo, Math.min(6, c.hi | 0));
     c.shortest = Math.max(2, Math.min(4, c.shortest | 0));
     c.offbeats = Math.max(0, Math.min(2, c.offbeats | 0));
+    c.rests = Math.max(0, Math.min(3, c.rests | 0));
     return o;
   }
   const partName = (l) => (l ? 'oboe part (stems down)' : 'piano part (stems up)');
@@ -4395,8 +4401,10 @@ input.an-in { width: 100%; min-height: 34px; padding: 4px 2px; text-align: cente
    rhythmic cells chosen for the level (a quarter, two eighths, a dotted quarter and eighth …), in a
    phrase shape that repeats measures (A A B A, A B A B …), and the best of many tries is kept:
    about four to eight notes in a 4/4 measure, long notes with short ones, only one or two notes off
-   the beat at the easier levels, and a long note to end. The quiz's seed picks everything, so the
-   same code always makes the same examples. */
+   the beat at the easier levels, rests in a share of the measures that grows with the level, and a
+   long note to end. The quiz's seed picks everything, so the same code always makes the same
+   examples. The generator is versioned: a quiz keeps the version it was made with (version 1 had
+   almost no rests), so its examples never change. */
 (function (root) {
   'use strict';
   const MQ = (root.MQ = root.MQ || {});
@@ -4408,11 +4416,13 @@ input.an-in { width: 100%; min-height: 34px; padding: 4px 2px; text-align: cente
   });
   // A cell fills `span` beats of `beat` units (12: a quarter-note beat; 18: a dotted-quarter beat).
   // `off`: how many of its notes start off the beat. `w`: how often it is chosen. `unit`: a compound
-  // meter's own beat (q., h., w.), allowed even when dotted notes aren't.
-  function cell(str, beat, span, off, w, unit) {
+  // meter's own beat (q., h., w.), allowed even when dotted notes aren't. `since`: the generator
+  // version that first used it.
+  const GEN = 2;
+  function cell(str, beat, span, off, w, unit, since) {
     const ev = parse(str);
     return {
-      str, beat, span, off, w, unit: !!unit, ev,
+      str, beat, span, off, w, unit: !!unit, ev, since: since || 1,
       shortest: Math.max(...ev.map((e) => e.v)),
       dotted: ev.some((e) => e.d), halfDotsOnly: ev.every((e) => !e.d || e.v === 1),
       trip: ev.some((e) => e.t), rests: ev.filter((e) => e.r).length,
@@ -4433,6 +4443,13 @@ input.an-in { width: 100%; min-height: 34px; padding: 4px 2px; text-align: cente
     cell('e. s e', 18, 1, 0, 3), cell('s s e e', 18, 1, 0, 2), cell('e s s e', 18, 1, 0, 2), cell('e e s s', 18, 1, 0, 2), cell('q s s', 18, 1, 0, 1.5),
     // longer than a dotted-quarter beat
     cell('h.', 18, 2, 0, 5, true), cell('w.', 18, 4, 0, 1.5, true),
+    // Version 2: more rests, including ones that make a rhythm harder — a rest on the beat before an
+    // entry, a sixteenth rest inside the beat, a rest in the middle of a triplet.
+    cell('e. sr', 12, 1, 0, 0.8, false, 2), cell('sr e.', 12, 1, 1, 0.6, false, 2), cell('sr s s s', 12, 1, 1, 1, false, 2), cell('e sr s', 12, 1, 1, 1, false, 2),
+    cell('e3 e3r e3', 12, 1, 0, 0.8, false, 2), cell('e3r e3 e3', 12, 1, 1, 0.6, false, 2),
+    cell('q. er', 12, 2, 0, 1.2, false, 2), cell('er q e', 12, 2, 2, 0.6, false, 2),
+    cell('e er e', 18, 1, 0, 1, false, 2), cell('e e er', 18, 1, 0, 1, false, 2), cell('er q', 18, 1, 1, 0.8, false, 2),
+    cell('e. s er', 18, 1, 0, 0.8, false, 2), cell('sr s e e', 18, 1, 1, 0.6, false, 2),
   ];
   const FALLBACK = { 12: cell('q', 12, 1, 0, 1), 18: cell('q.', 18, 1, 0, 1, true) };
 
@@ -4440,14 +4457,17 @@ input.an-in { width: 100%; min-height: 34px; padding: 4px 2px; text-align: cente
   const meters = (list) => list.split(' ').map((x) => { const [n, d] = x.split('/').map(Number); return { n, d }; });
   const ALL = 'all';
   // offbeats: 0 none, 1 one or two in an example, 2 more (never more than about one a measure).
+  // rests: the share of an example's measures that have a rest, from none to 80%.
   const LEVELS = [
-    { name: 'Very easy', blurb: '4/4 only. Quarter notes and longer, and every note starts on a beat.', meters: meters('4/4'), shortest: 2, dotted: 'half', triplets: false, offbeats: 0 },
-    { name: 'Easy', blurb: '2/4 to 4/4. Eighth notes and longer; no note starts off the beat.', meters: meters('2/4 3/4 4/4'), shortest: 3, dotted: 'half', triplets: false, offbeats: 0 },
-    { name: 'Medium easy', blurb: '2/4 to 4/4. Eighth notes and longer, with one or two notes off the beat.', meters: meters('2/4 3/4 4/4'), shortest: 3, dotted: 'all', triplets: false, offbeats: 1 },
-    { name: 'Medium', blurb: '2/4 to 6/4, and 3/8, 6/8, 9/8 and 12/8. Eighth notes and longer, with one or two notes off the beat.', meters: meters('2/4 3/4 4/4 5/4 6/4 3/8 6/8 9/8 12/8'), shortest: 3, dotted: 'all', triplets: false, offbeats: 1 },
-    { name: 'Advanced', blurb: 'Any time signature. Sixteenth notes and longer, and notes off the beat.', meters: ALL, shortest: 4, dotted: 'all', triplets: false, offbeats: 2 },
-    { name: 'Very hard', blurb: 'Any time signature and any rhythm, triplets included.', meters: ALL, shortest: 4, dotted: 'all', triplets: true, offbeats: 2 },
+    { name: 'Very easy', blurb: '4/4 only. Quarter notes and longer, and every note starts on a beat. An occasional rest.', meters: meters('4/4'), shortest: 2, dotted: 'half', triplets: false, offbeats: 0, rests: [0, 0.2] },
+    { name: 'Easy', blurb: '2/4 to 4/4. Eighth notes and longer; no note starts off the beat. A few rests.', meters: meters('2/4 3/4 4/4'), shortest: 3, dotted: 'half', triplets: false, offbeats: 0, rests: [0, 0.3] },
+    { name: 'Medium easy', blurb: '2/4 to 4/4. Eighth notes and longer, with one or two notes off the beat, and some rests.', meters: meters('2/4 3/4 4/4'), shortest: 3, dotted: 'all', triplets: false, offbeats: 1, rests: [0.1, 0.4] },
+    { name: 'Medium', blurb: '2/4 to 6/4, and 3/8, 6/8, 9/8 and 12/8. Eighth notes and longer, with one or two notes off the beat, and some rests.', meters: meters('2/4 3/4 4/4 5/4 6/4 3/8 6/8 9/8 12/8'), shortest: 3, dotted: 'all', triplets: false, offbeats: 1, rests: [0.2, 0.5] },
+    { name: 'Advanced', blurb: 'Any time signature. Sixteenth notes and longer, notes off the beat, and rests that make the rhythm harder.', meters: ALL, shortest: 4, dotted: 'all', triplets: false, offbeats: 2, rests: [0.3, 0.7] },
+    { name: 'Very hard', blurb: 'Any time signature and any rhythm, triplets included, with plenty of rests.', meters: ALL, shortest: 4, dotted: 'all', triplets: true, offbeats: 2, rests: [0.4, 0.8] },
   ];
+  // Custom rules' rests: none, a few, some, many.
+  const REST_RANGES = [[0, 0], [0, 0.25], [0.2, 0.5], [0.4, 0.8]];
   const COMPOUND = meters('3/8 6/8 9/8 12/8'), CUT = meters('2/2 3/2'), UNEVEN = meters('5/8 7/8 8/8 10/8 11/8');
   // The rules for an automatic quiz: a level's, or the teacher's own (level 7).
   function rulesOf(auto) {
@@ -4457,7 +4477,7 @@ input.an-in { width: 100%; min-height: 34px; padding: 4px 2px; text-align: cente
     if (c.compound) list.push(...COMPOUND);
     if (c.cut) list.push(...CUT);
     if (c.uneven) list.push(...UNEVEN);
-    return { meters: list, shortest: c.shortest, dotted: c.dotted ? 'all' : 'none', triplets: !!c.triplets, offbeats: c.offbeats };
+    return { meters: list, shortest: c.shortest, dotted: c.dotted ? 'all' : 'none', triplets: !!c.triplets, offbeats: c.offbeats, rests: REST_RANGES[c.rests] || REST_RANGES[1] };
   }
   // Everyday meters come up more often.
   const METER_WEIGHT = { '4/4': 5, '3/4': 4, '2/4': 3, '6/8': 4, '12/8': 2, '9/8': 1.5, '3/8': 1.5, '5/4': 1, '6/4': 1.5, '2/2': 2, '3/2': 1, '5/8': 1, '7/8': 1, '4/8': 0.3, '8/8': 0.5, '10/8': 0.4, '11/8': 0.4 };
@@ -4494,8 +4514,9 @@ input.an-in { width: 100%; min-height: 34px; padding: 4px 2px; text-align: cente
     if (plan[i].strong) return 1;
     return plan.length === 3 ? 0.7 : 0.3;
   }
-  function allowedCells(rules) {
+  function allowedCells(rules, gen) {
     return CELLS.filter((c) => {
+      if (c.since > gen) return false;
       if (c.shortest > rules.shortest) return false;
       if (c.trip && !rules.triplets) return false;
       if (c.off && !rules.offbeats) return false;
@@ -4503,11 +4524,14 @@ input.an-in { width: 100%; min-height: 34px; padding: 4px 2px; text-align: cente
       return true;
     });
   }
-  function buildMeasure(rng, plan, cells, first) {
+  // rests (version 2): 'none' leaves rests out; 'more' makes them several times likelier. `lead`: how
+  // welcome a rest is at the very start of the example.
+  function buildMeasure(rng, plan, cells, first, rests, lead) {
     const ev = [], used = [];
     let i = 0, off = 0;
+    const restW = (c) => (!c.rests || !rests ? 1 : rests === 'none' ? 0 : 6);
     while (i < plan.length) {
-      let opts = cells.map((c) => ({ c, w: c.w * placeWeight(c, i, plan) * (first && i === 0 && c.ev[0].r ? 0.15 : 1) })).filter((x) => x.w > 0);
+      let opts = cells.map((c) => ({ c, w: c.w * placeWeight(c, i, plan) * restW(c) * (first && i === 0 && c.ev[0].r ? (lead == null ? 0.15 : lead) : 1) })).filter((x) => x.w > 0);
       if (!opts.length) opts = [{ c: FALLBACK[plan[i].len], w: 1 }];
       const c = pickWeighted(rng, opts, (x) => x.w).c;
       c.ev.forEach((e) => ev.push(Object.assign({}, e)));
@@ -4517,14 +4541,23 @@ input.an-in { width: 100%; min-height: 34px; padding: 4px 2px; text-align: cente
     }
     return { ev, off, key: used.join('|') };
   }
-  function measureScore(m, ctx, last) {
+  function measureScore(m, ctx, last, want) {
     const lens = m.ev.filter((e) => !e.r).map(MQ.rhythmDur);
     const n = lens.length, rests = m.ev.length - n;
     let s = 0;
-    if (n < ctx.lo) s -= (ctx.lo - n) * 2.5;
+    const lo = ctx.gen >= 2 && rests ? ctx.lo - 1 : ctx.lo;                   // a rest takes a note's place
+    if (n < lo) s -= (lo - n) * 2.5;
     if (n > ctx.hi) s -= (n - ctx.hi) * 2;
     if (n && Math.max(...lens) >= 2 * Math.min(...lens)) s += 2;          // long notes with short ones
-    s -= rests * 0.5 + Math.max(0, rests - 1) * 2;
+    if (ctx.gen < 2) s -= rests * 0.5 + Math.max(0, rests - 1) * 2;
+    else {
+      // Rests where they were wanted, never so many that the measure is mostly silence.
+      const silent = m.ev.filter((e) => e.r).reduce((t, e) => t + MQ.rhythmDur(e), 0) / ctx.len;
+      if (!n) s -= 20;
+      if (silent > ctx.restCap) s -= (silent - ctx.restCap) * 12;
+      if (want && !rests) s -= 6;
+      s -= Math.max(0, rests - ctx.restMax) * 2;
+    }
     if (m.off > 1) s -= (m.off - 1) * 3;                                    // no more than one syncopation a measure
     if (last) {
       const e = m.ev[m.ev.length - 1];
@@ -4535,23 +4568,36 @@ input.an-in { width: 100%; min-height: 34px; padding: 4px 2px; text-align: cente
 
   // ---------- one example ----------
   const FORMS = { 1: ['A'], 2: ['AB', 'AB', 'AA'], 3: ['AAB', 'ABA', 'ABB', 'ABC'], 4: ['AABA', 'ABAB', 'AABB', 'ABAC', 'AABC', 'ABCA'] };
-  function buildExample(rng, rules, bars, meter) {
-    const info = MQ.rhythmMeter(meter), plan = planOf(info), cells = allowedCells(rules);
+  function buildExample(rng, rules, bars, meter, gen) {
+    const info = MQ.rhythmMeter(meter), plan = planOf(info), cells = allowedCells(rules, gen);
     // About a note a quarter note to two (4 to 8 in 4/4); more at the hardest levels.
     const quarters = info.len / 12;
     const ctx = rules.shortest <= 2
       ? { lo: 2, hi: Math.max(2, Math.round(quarters)) }
       : { lo: Math.max(2, Math.round(quarters)), hi: Math.round(quarters * 2 * (rules.shortest >= 4 ? 1.5 : 1)) };
+    ctx.gen = gen;
+    // Version 2: how many measures get a rest — a share picked from the level's range — and how much
+    // rest a measure may hold: easy levels a quarter of it and one rest, hard levels half and three.
+    let target = 0, hard = false;
+    if (gen >= 2) {
+      const [lo, hi] = rules.rests;
+      target = Math.min(bars, Math.floor((lo + rng() * (hi - lo)) * bars + rng()));
+      hard = hi >= 0.5;
+      Object.assign(ctx, { len: info.len, restCap: hard ? 0.5 : 0.3, restMax: hard ? 3 : 1 });
+    }
     let best = null;
     for (let a = 0; a < 36; a++) {
       const form = FORMS[bars][Math.floor(rng() * FORMS[bars].length)];
       const lastL = form[form.length - 1];
       const bank = {};
       new Set(form).forEach((L) => {
+        // Which measures carry the rests varies from try to try; the score keeps the right number.
+        const want = gen >= 2 ? rng() < target / bars : null;
+        const rests = gen >= 2 ? (want ? 'more' : 'none') : null;
         let top = null;
         for (let k = 0; k < 8; k++) {
-          const m = buildMeasure(rng, plan, cells, L === 'A');
-          m.sc = measureScore(m, ctx, L === lastL);
+          const m = buildMeasure(rng, plan, cells, L === 'A', rests, gen >= 2 ? (hard ? 0.8 : 0.1) : null);
+          m.sc = measureScore(m, ctx, L === lastL, want);
           if (!top || m.sc > top.sc) top = m;
         }
         bank[L] = top;
@@ -4563,7 +4609,13 @@ input.an-in { width: 100%; min-height: 34px; padding: 4px 2px; text-align: cente
       // Harder ones: some, but no more than about one a measure.
       if (rules.offbeats === 1) sc -= (off ? 0 : 1.5) + Math.max(0, off - 2) * 8;
       else if (rules.offbeats === 2) sc -= (off ? 0 : 5) + Math.max(0, off - ms.length) * 4;
-      if (ms[0].ev[0].r) sc -= rules.shortest <= 3 ? 4 : 1.5;                             // start with a note
+      if (gen < 2) {
+        if (ms[0].ev[0].r) sc -= rules.shortest <= 3 ? 4 : 1.5;                           // start with a note
+      } else {
+        // Starting on a rest is a hard-level challenge; the right number of measures with rests.
+        if (ms[0].ev[0].r) sc -= hard ? 0.5 : 4;
+        sc -= Math.abs(ms.filter((m) => m.ev.some((e) => e.r)).length - target) * 3;
+      }
       if (ms.length > 1 && new Set(ms.map((m) => m.key)).size === 1) sc -= 3;             // not one measure over and over
       if (!best || sc > best.sc) best = { sc, ms };
     }
@@ -4577,7 +4629,7 @@ input.an-in { width: 100%; min-height: 34px; padding: 4px 2px; text-align: cente
       const rng = MQ.mulberry32((Math.imul((seed >>> 0) + 1, 2654435761) ^ Math.imul(k + 1, 40503) ^ 0x5bd1e995) >>> 0);
       const meter = pickMeter(rng, rules);
       const info = MQ.rhythmMeter(meter);
-      const bars = buildExample(rng, rules, a.measures, meter);
+      const bars = buildExample(rng, rules, a.measures, meter, a.gen);
       while (bars.length < 4) bars.push([]);
       // The tempo is set as a quarter note; other beats keep the same speed of eighth notes.
       const tempo = Math.max(40, Math.min(240, Math.round((a.tempo * 12) / MQ.RHYTHM_TEMPO_UNITS[info.tempo])));
@@ -4586,7 +4638,7 @@ input.an-in { width: 100%; min-height: 34px; padding: 4px 2px; text-align: cente
     return out;
   }
 
-  Object.assign(MQ, { RHYTHM_LEVELS: LEVELS, rhythmRules: rulesOf, generateRhythms });
+  Object.assign(MQ, { RHYTHM_LEVELS: LEVELS, RHYTHM_GEN: GEN, rhythmRules: rulesOf, generateRhythms });
 })(typeof window !== 'undefined' ? window : globalThis);
 /* Clefwork — QR codes, so a printed quiz can be scanned back open. Byte mode, versions 1–20,
    error correction L or M. Returns a square matrix of 0 (light) and 1 (dark) modules. */
@@ -6085,9 +6137,10 @@ svg.staff .nlabel { display: none; }
         if (rh.auto.on) {
           // The generator's version comes first, so a later one can keep older quizzes' examples.
           const a = rh.auto, c = a.custom;
-          w.u(1, 3).u(a.count - 1, 5).u(a.measures - 1, 2).u(a.level - 1, 3).u(a.tempo - 30, 8)
+          w.u(a.gen, 3).u(a.count - 1, 5).u(a.measures - 1, 2).u(a.level - 1, 3).u(a.tempo - 30, 8)
             .u(c.lo - 2, 3).u(c.hi - 2, 3).u(c.compound ? 1 : 0, 1).u(c.cut ? 1 : 0, 1).u(c.uneven ? 1 : 0, 1)
             .u(c.shortest - 2, 2).u(c.dotted ? 1 : 0, 1).u(c.triplets ? 1 : 0, 1).u(c.offbeats, 2);
+          if (a.gen >= 2) w.u(c.rests, 2);            // generator version 2: how many rests, in custom rules
         } else {
           w.u(examples.length, 4);
           examples.forEach((ex) => writeExample(w, ex));
@@ -6258,6 +6311,7 @@ svg.staff .nlabel { display: none; }
                   on: true, gen, count: r.u(5) + 1, measures: r.u(2) + 1, level: r.u(3) + 1, tempo: r.u(8) + 30,
                   custom: { lo: r.u(3) + 2, hi: r.u(3) + 2, compound: r.u(1), cut: r.u(1), uneven: r.u(1), shortest: r.u(2) + 2, dotted: r.u(1), triplets: r.u(1), offbeats: r.u(2) },
                 };
+                rh.auto.custom.rests = gen >= 2 ? r.u(2) : 1;
               }
             }
             if (!rh.auto) {
@@ -11231,7 +11285,8 @@ svg.staff .nlabel { display: none; }
   function autoPanel(cfg, changed) {
     const a = cfg.rhythm.auto, c = a.custom;
     const preview = h('div', { class: 'rh-auto-list' });
-    const redo = () => { cfg.counts.rhythm = a.count; changed(); drawPreview(); };
+    // Any change moves the quiz onto the newest generator (an untouched draft keeps its examples).
+    const redo = () => { a.gen = MQ.RHYTHM_GEN; cfg.counts.rhythm = a.count; changed(); drawPreview(); };
     const count = counter('rh-auto-count', 'examples', (v) => {
       a.count = Math.max(1, v);
       if (v < 1) count.sync(1, 20);
@@ -11266,7 +11321,9 @@ svg.staff .nlabel { display: none; }
         toggle('rh-c-dotted', 'Dotted notes', 'Dotted halves, quarters and eighths.', c.dotted, flip('dotted')),
         toggle('rh-c-trip', 'Triplets', 'Quarter-note triplets, and eighth- and sixteenth-note triplets when the shortest note allows.', c.triplets, flip('triplets'))),
       grp('Notes off the beat', seg('rh-c-off', [{ v: 0, label: 'None' }, { v: 1, label: 'One or two' }, { v: 2, label: 'More' }], c.offbeats, (v) => { c.offbeats = v; redo(); }),
-        'One or two in each example, or up to about one a measure.'));
+        'One or two in each example, or up to about one a measure.'),
+      grp('Rests', seg('rh-c-rests', [{ v: 0, label: 'None' }, { v: 1, label: 'A few' }, { v: 2, label: 'Some' }, { v: 3, label: 'Many' }], c.rests, (v) => { c.rests = v; redo(); }),
+        'How many measures have a rest: none, up to a quarter of them, a fifth to a half, or up to four in five. With notes off the beat, rests can fall on the beat too.'));
     drawLevels();
     // ---------- tempo ----------
     const tempoIn = h('input', { type: 'number', id: 'rh-auto-tempo', min: 40, max: 240, inputmode: 'numeric' });
