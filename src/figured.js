@@ -164,7 +164,7 @@
       return Object.assign({
         type: 'figured',
         text: `This chord is in ${keyText(kd)}. Write its Roman numeral with figured bass.`,
-        hint: 'Type the numeral (V, vii°, ♭VI…) and choose the figure, or type them together such as V65.',
+        hint: 'Type the numeral (V, vii, ♭VI…), then choose its sign (° or ø) and figure — or type them together, such as V65 or viio7.',
         columns: [{ given: notes, cap: 0 }],
         answer: [notes],
         tags: ['fdeg:' + ch.deg + inv, 'key:' + kd.fifths + kd.mode, 'pc:' + pcName({ ...ch.root, oct: 4 })],
@@ -233,7 +233,7 @@
     return {
       type: 'figprog', clef, keySig: kd.fifths, keyAware: true, key: kd,
       text: `This progression is in ${keyText(kd)}. Write the Roman numeral and figured bass for each chord.`,
-      hint: 'Type the numeral (V, vii°, ♭VI…) and choose the figure, or type them together such as V65.',
+      hint: 'Type the numeral (V, vii, ♭VI…), then choose its sign (° or ø) and figure — or type them together, such as V65 or viio7.',
       columns: chords.map((c) => ({ given: voiceFigured(c.ch, c.inv, clef, cfg), cap: 0 })),
       tags: chords.map((c) => 'fdeg:' + c.ch.deg + c.inv).concat(['key:' + kd.fifths + kd.mode]),
       figuredList: chords.map((c) => ({ numeral: romanOf(c.ch), figure: figureFor(isSeventh(c.ch.q), c.inv), parts: expectedParts(c.ch, c.inv) })),

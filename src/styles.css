@@ -882,3 +882,12 @@ input.an-in { width: 100%; min-height: 34px; padding: 4px 2px; text-align: cente
 .ml-key-pick select { flex: 1; min-width: 12em; }
 /* One-to-eight pickers in a half-width column: tighter buttons so they stay on one line */
 #ml-measures button, #ml-auto-measures button, #ml-keymax button { padding: 7px 7px; min-width: 25px; }
+
+/* the sign menu (°, ø, +) beside or under a Roman numeral box */
+select.rn-mark { min-width: 0; }
+.fig-row select.rn-mark { flex: none; width: 7.5em; }
+/* A progression's chords sit side by side, so each one stacks its box and two menus. */
+.fig-answers.is-multi .fig-row { flex-direction: column; gap: 5px; }
+.fig-answers.is-multi .fig-row > * { width: 100%; }
+.pg-cell select.rn-mark { width: 100%; min-height: 34px; padding: 2px 4px; font-size: 13px; }
+.an-field select.rn-mark { width: 100%; min-height: 28px; padding: 1px 2px; font-size: 12px; border-radius: 6px; }

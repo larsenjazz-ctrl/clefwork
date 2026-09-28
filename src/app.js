@@ -448,16 +448,47 @@
     else if (figure) el.append(h('span', { class: 'fig-stack' }, h('span', null, figure[0]), h('span', null, figure[1])));
     return el;
   }
-  // Typed numeral + figure dropdown. Typing "V65" fills the dropdown when the box loses focus.
+  // ---------- the quality sign of a Roman numeral ----------
+  // Every box that asks for a Roman numeral has a menu of signs: ° (diminished and fully diminished),
+  // ø (half-diminished, the same chord as mi7♭5) and + (augmented). The sign goes straight after the
+  // numeral — viiø7, vii°7/V — so the answer stored and graded is the text a student could have typed.
+  const RN_MARKS = [{ v: '', label: '— no sign' }, { v: '°', label: '° dim' }, { v: 'ø', label: 'ø half-dim' }, { v: '+', label: '+ aug' }];
+  const RN_HEAD = /^(\s*[b#♭♯]?(?:VII|VI|IV|V|III|II|I|vii|vi|iv|v|iii|ii|i))(ø|Ø|\/o|°|º|˚|dim|o|\+|aug)?/;
+  const markOf = (t) => {
+    const m = String(t || '').match(RN_HEAD);
+    return !m || !m[2] ? '' : /ø|Ø|\/o/.test(m[2]) ? 'ø' : /\+|aug/.test(m[2]) ? '+' : '°';
+  };
+  const withoutMark = (t) => String(t || '').replace(RN_HEAD, '$1');
+  const withMark = (t, mark) => (RN_HEAD.test(String(t || '')) ? String(t).replace(RN_HEAD, '$1' + (mark || '')) : String(t || ''));
+  // The sign menu for a numeral box. Call it before adding the box's own input listener. It shows the
+  // stored answer's sign in the menu and the rest in the box; a sign typed in the box (o, /o, °) sets the
+  // menu, and moves out of the box when it loses focus. full() is the answer with the sign in place.
+  function markPicker(id, inp, onChange) {
+    const stored = inp.value;
+    inp.value = withoutMark(stored);
+    let typed = false;                     // the menu's sign came from the box, not from the menu
+    const sel = selectEl(id, RN_MARKS, markOf(stored), () => { typed = false; inp.value = withoutMark(inp.value); onChange(); });
+    sel.classList.add('rn-mark');
+    sel.setAttribute('aria-label', 'Chord quality sign');
+    sel.title = 'Chord quality sign: ° diminished or fully diminished, ø half-diminished (mi7♭5), + augmented';
+    inp.addEventListener('input', () => {
+      const m = markOf(inp.value);
+      if (m) { sel.value = m; typed = true; } else if (typed) { sel.value = ''; typed = false; }
+    });
+    inp.addEventListener('blur', () => { if (markOf(inp.value)) { inp.value = withoutMark(inp.value); typed = false; onChange(); } });
+    return { sel, full: () => withMark(inp.value, sel.value) };
+  }
+  // Typed numeral + sign menu + figure dropdown. Typing "V65" fills the dropdown when the box loses focus.
   function figuredInput(id, value, o, onChange) {
     const cur = { text: (value && value.text) || '', fig: (value && value.fig) || '' };
     const inp = h('input', { type: 'text', id, class: 'fig-in', placeholder: 'V', autocomplete: 'off', autocapitalize: 'off', autocorrect: 'off', spellcheck: 'false', maxlength: 10, 'aria-label': 'Roman numeral' });
     inp.value = cur.text;
+    const mark = markPicker(id + '-mark', inp, () => fire());
     const sel = selectEl(id + '-fig', MQ.FIGURES.map((f) => ({ v: f.fig, label: f.label })), cur.fig, (v) => { cur.fig = v; fire(); });
     sel.setAttribute('aria-label', 'Figured bass');
     sel.classList.add('fig-sel');
     const preview = h('span', { class: 'fig-preview' });
-    const fire = () => { draw(); onChange({ text: cur.text, fig: cur.fig }); };
+    const fire = () => { cur.text = mark.full(); draw(); onChange({ text: cur.text, fig: cur.fig }); };
     function draw() {
       const typed = cur.text.trim();
       const parsed = MQ.parseFigured(MQ.answerText(cur));
@@ -468,9 +499,8 @@
         : bad ? h('span', { class: 'fig-unread is-bad' }, 'not a figured bass answer') : '');
     }
     inp.addEventListener('input', () => {
-      cur.text = inp.value;
       // A figure typed into the box moves the dropdown to match as you type.
-      const digits = (cur.text.match(/[\d/]+\s*$/) || [''])[0].replace(/[\s/]/g, '');
+      const digits = (inp.value.match(/[\d/]+\s*$/) || [''])[0].replace(/[\s/]/g, '');
       if (digits) {
         const fig = digits === '63' ? '6' : digits === '53' ? '' : digits === '2' ? '42' : digits;
         if (MQ.FIGURES.some((f) => f.fig === fig)) { cur.fig = fig; sel.value = fig; sel.classList.remove('is-invalid'); }
@@ -480,18 +510,17 @@
     });
     inp.addEventListener('blur', () => {
       // Tidy "V65" into the numeral box plus the dropdown.
-      const parsed = MQ.parseFigured(cur.text);
-      if (parsed && /[\d/]/.test(cur.text)) {
+      const parsed = MQ.parseFigured(mark.full());
+      if (parsed && /\d/.test(inp.value)) {
         cur.fig = parsed.figure;
-        cur.text = cur.text.replace(/[\d/]+\s*$/, '');
-        inp.value = cur.text;
+        inp.value = inp.value.replace(/[\d/]+\s*$/, '');
         sel.value = cur.fig;
         fire();
       }
     });
-    if (o.locked) { inp.disabled = true; sel.disabled = true; }
+    if (o.locked) { inp.disabled = true; sel.disabled = true; mark.sel.disabled = true; }
     draw();
-    return h('div', { class: 'fig-answer' }, h('div', { class: 'fig-row' }, inp, sel), preview);
+    return h('div', { class: 'fig-answer' }, h('div', { class: 'fig-row' }, inp, mark.sel, sel), preview);
   }
   let figUid = 0;
   function figuredCard(q, cfg, o) {
@@ -520,7 +549,7 @@
       // One answer box per chord.
       const list = q.type === 'figprog' ? q.figuredList : [q.figured];
       const resp = q.type === 'figprog' ? ((o.response || []).slice()) : null;
-      const grid = h('div', { class: 'fig-answers', style: `--n:${list.length}` });
+      const grid = h('div', { class: 'fig-answers' + (list.length > 1 ? ' is-multi' : ''), style: `--n:${list.length}` });
       list.forEach((item, i) => {
         const right = item.answer || item; // {numeral, figure} — a root-position figure is ""
         const value = o.keyMode ? { text: right.numeral, fig: right.figure }
@@ -567,7 +596,9 @@
         if ((k === 'r' && P.answer === 'symbol') || (k === 's' && P.answer === 'roman')) return;
         const inp = h('input', { type: 'text', class: 'pg-in', id: `pg-${uid}-${k}-${i}`, 'aria-label': `${label} for chord ${i + 1}`, placeholder: ph, autocomplete: 'off', autocapitalize: 'off', autocorrect: 'off', spellcheck: 'false', maxlength: 12 });
         inp.value = o.keyMode ? (k === 'r' ? P.romans[i] : P.symbols[i]) : resp[k][i] || '';
-        if (o.locked || o.keyMode) inp.disabled = true;
+        const send = () => { if (o.onResponse) o.onResponse({ r: resp.r.slice(), s: resp.s.slice() }); };
+        const mark = k === 'r' ? markPicker(`pg-${uid}-m-${i}`, inp, () => { resp.r[i] = mark.full(); send(); }) : null;
+        if (o.locked || o.keyMode) { inp.disabled = true; if (mark) mark.sel.disabled = true; }
         if (marks) inp.classList.add(marks[i][k] ? 'is-right' : 'is-wrong');
         inp.addEventListener('input', () => {
           // Chord symbols start with a capital root letter (Roman numerals keep their case — it matters).
@@ -576,10 +607,11 @@
             inp.value = inp.value[0].toUpperCase() + inp.value.slice(1);
             try { inp.setSelectionRange(at, at); } catch (e) { /* not focused */ }
           }
-          resp[k][i] = inp.value;
-          if (o.onResponse) o.onResponse({ r: resp.r.slice(), s: resp.s.slice() });
+          resp[k][i] = mark ? mark.full() : inp.value;
+          send();
         });
         cell.append(inp);
+        if (mark) cell.append(mark.sel);
         if (marks && !marks[i][k]) cell.append(h('span', { class: 'pg-fix' }, k === 'r' ? P.romans[i] : P.symbols[i]));
       });
       grid.append(cell);
@@ -2606,9 +2638,11 @@
       autocomplete: 'off', autocapitalize: 'off', autocorrect: 'off', spellcheck: 'false',
       'aria-label': `Box ${q.an.n + 1}: ${roman ? 'Roman numeral' : 'chord symbol'}` });
     inp.value = o.keyMode ? (roman ? q.an.roman[0] : q.an.symbol[0]) || '' : value || '';
+    const answer = () => (mark ? mark.full() : inp.value);
+    const mark = roman ? markPicker(inp.id + '-mark', inp, () => { draw(); if (onInput) onInput(answer()); }) : null;
     const pv = h('span', { class: 'an-pv' });
     const draw = () => {
-      const t = inp.value.trim();
+      const t = answer().trim();
       const p = t ? (roman ? MQ.parseAnalysisRoman(t) : MQ.symbolOk(t)) : null;
       inp.classList.toggle('is-invalid', !!t && !p);
       pv.replaceChildren(!t ? '' : !p ? h('span', { class: 'fig-unread is-bad' }, roman ? 'not a numeral' : 'not a symbol')
@@ -2617,11 +2651,11 @@
     inp.addEventListener('input', () => {
       if (!roman) upperFirst(inp);
       draw();
-      if (onInput) onInput(inp.value);
+      if (onInput) onInput(answer());
     });
-    if (o.locked || o.keyMode) inp.disabled = true;
+    if (o.locked || o.keyMode) { inp.disabled = true; if (mark) mark.sel.disabled = true; }
     draw();
-    const cell = h('div', { class: 'an-field' }, inp, pv);
+    const cell = h('div', { class: 'an-field' }, inp, mark ? mark.sel : null, pv);
     if (o.reveal && !o.keyMode) {
       const ok = MQ.markAnalysisPart(q, k, { [k]: value }, cfg);
       cell.classList.add(ok ? 'is-right' : 'is-wrong');
@@ -2674,7 +2708,7 @@
       roman ? [
         h('div', { class: 'an-key-row' }, h('b', null, 'Triads'), item('', 'root position'), item('6', '1st inversion'), item('64', '2nd inversion')),
         h('div', { class: 'an-key-row' }, h('b', null, 'Sevenths'), item('7', 'root position'), item('65', '1st inversion'), item('43', '2nd inversion'), item('42', '3rd inversion')),
-        h('p', { class: 'an-key-how' }, 'Type the figures right after the numeral: V65, ii6, V42. Type o for ° (viio7) and /o for ø (vii/o7). Applied chords: V7/V.'),
+        h('p', { class: 'an-key-how' }, 'Type the figures right after the numeral: V65, ii6, V42. Choose ° or ø from the menu under the box, or type o for ° (viio7) and /o for ø (vii/o7). Applied chords: V7/V.'),
       ] : null,
       symbol ? h('p', { class: 'an-key-how' }, 'Chord symbols: Dmi7, G7, Cma7, B°, Bmi7♭5, Csus4 — a slash names the bass note, as in C/E. Type b for ♭ and # for ♯.') : null);
   }

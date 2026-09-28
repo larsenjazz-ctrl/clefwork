@@ -355,9 +355,9 @@
     { answer: 'spell', show: 'both', label: 'Both printed — students spell the chords' },
   ];
   const HINTS = {
-    roman: 'Capitals for major, lower case for minor and diminished — for example ii7, V7, vii°. Type b for ♭, # for ♯ and o for °.',
+    roman: 'Capitals for major, lower case for minor and diminished — for example ii7, V7, vii°. Type b for ♭ and # for ♯; choose ° or ø from the menu under the box, or type o for °.',
     symbol: 'For example Dmi7, G7, Cma7, Bmi7b5. You can also type m or - for minor and b or # for ♭ and ♯.',
-    both: 'Roman numerals like ii7, V7, vii°; chord symbols like Dmi7, G7, Bmi7b5. Type b for ♭, # for ♯ and o for °.',
+    both: 'Roman numerals like ii7, V7, vii°; chord symbols like Dmi7, G7, Bmi7b5. Type b for ♭ and # for ♯; choose ° or ø from the menu under the numeral box, or type o for °.',
   };
   function progressionQuestion(entry, chords, cfg) {
     const kd = entry.key, mode = MODES[cfg.progMode || 0] || MODES[0];

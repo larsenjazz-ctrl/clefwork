@@ -894,6 +894,15 @@ input.an-in { width: 100%; min-height: 34px; padding: 4px 2px; text-align: cente
 .ml-key-pick select { flex: 1; min-width: 12em; }
 /* One-to-eight pickers in a half-width column: tighter buttons so they stay on one line */
 #ml-measures button, #ml-auto-measures button, #ml-keymax button { padding: 7px 7px; min-width: 25px; }
+
+/* the sign menu (°, ø, +) beside or under a Roman numeral box */
+select.rn-mark { min-width: 0; }
+.fig-row select.rn-mark { flex: none; width: 7.5em; }
+/* A progression's chords sit side by side, so each one stacks its box and two menus. */
+.fig-answers.is-multi .fig-row { flex-direction: column; gap: 5px; }
+.fig-answers.is-multi .fig-row > * { width: 100%; }
+.pg-cell select.rn-mark { width: 100%; min-height: 34px; padding: 2px 4px; font-size: 13px; }
+.an-field select.rn-mark { width: 100%; min-height: 28px; padding: 1px 2px; font-size: 12px; border-radius: 6px; }
 :root{--logo-mark:url(data:image/png;base64,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)}@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--logo-mark:url(data:image/png;base64,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)}}:root[data-theme="dark"]{--logo-mark:url(data:image/png;base64,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)}
 </style>
 <div class="shell">
@@ -2096,9 +2105,9 @@ input.an-in { width: 100%; min-height: 34px; padding: 4px 2px; text-align: cente
     { answer: 'spell', show: 'both', label: 'Both printed — students spell the chords' },
   ];
   const HINTS = {
-    roman: 'Capitals for major, lower case for minor and diminished — for example ii7, V7, vii°. Type b for ♭, # for ♯ and o for °.',
+    roman: 'Capitals for major, lower case for minor and diminished — for example ii7, V7, vii°. Type b for ♭ and # for ♯; choose ° or ø from the menu under the box, or type o for °.',
     symbol: 'For example Dmi7, G7, Cma7, Bmi7b5. You can also type m or - for minor and b or # for ♭ and ♯.',
-    both: 'Roman numerals like ii7, V7, vii°; chord symbols like Dmi7, G7, Bmi7b5. Type b for ♭, # for ♯ and o for °.',
+    both: 'Roman numerals like ii7, V7, vii°; chord symbols like Dmi7, G7, Bmi7b5. Type b for ♭ and # for ♯; choose ° or ø from the menu under the numeral box, or type o for °.',
   };
   function progressionQuestion(entry, chords, cfg) {
     const kd = entry.key, mode = MODES[cfg.progMode || 0] || MODES[0];
@@ -2676,7 +2685,7 @@ input.an-in { width: 100%; min-height: 34px; padding: 4px 2px; text-align: cente
       return Object.assign({
         type: 'figured',
         text: `This chord is in ${keyText(kd)}. Write its Roman numeral with figured bass.`,
-        hint: 'Type the numeral (V, vii°, ♭VI…) and choose the figure, or type them together such as V65.',
+        hint: 'Type the numeral (V, vii, ♭VI…), then choose its sign (° or ø) and figure — or type them together, such as V65 or viio7.',
         columns: [{ given: notes, cap: 0 }],
         answer: [notes],
         tags: ['fdeg:' + ch.deg + inv, 'key:' + kd.fifths + kd.mode, 'pc:' + pcName({ ...ch.root, oct: 4 })],
@@ -2745,7 +2754,7 @@ input.an-in { width: 100%; min-height: 34px; padding: 4px 2px; text-align: cente
     return {
       type: 'figprog', clef, keySig: kd.fifths, keyAware: true, key: kd,
       text: `This progression is in ${keyText(kd)}. Write the Roman numeral and figured bass for each chord.`,
-      hint: 'Type the numeral (V, vii°, ♭VI…) and choose the figure, or type them together such as V65.',
+      hint: 'Type the numeral (V, vii, ♭VI…), then choose its sign (° or ø) and figure — or type them together, such as V65 or viio7.',
       columns: chords.map((c) => ({ given: voiceFigured(c.ch, c.inv, clef, cfg), cap: 0 })),
       tags: chords.map((c) => 'fdeg:' + c.ch.deg + c.inv).concat(['key:' + kd.fifths + kd.mode]),
       figuredList: chords.map((c) => ({ numeral: romanOf(c.ch), figure: figureFor(isSeventh(c.ch.q), c.inv), parts: expectedParts(c.ch, c.inv) })),
@@ -9418,16 +9427,47 @@ svg.staff .nlabel { display: none; }
     else if (figure) el.append(h('span', { class: 'fig-stack' }, h('span', null, figure[0]), h('span', null, figure[1])));
     return el;
   }
-  // Typed numeral + figure dropdown. Typing "V65" fills the dropdown when the box loses focus.
+  // ---------- the quality sign of a Roman numeral ----------
+  // Every box that asks for a Roman numeral has a menu of signs: ° (diminished and fully diminished),
+  // ø (half-diminished, the same chord as mi7♭5) and + (augmented). The sign goes straight after the
+  // numeral — viiø7, vii°7/V — so the answer stored and graded is the text a student could have typed.
+  const RN_MARKS = [{ v: '', label: '— no sign' }, { v: '°', label: '° dim' }, { v: 'ø', label: 'ø half-dim' }, { v: '+', label: '+ aug' }];
+  const RN_HEAD = /^(\s*[b#♭♯]?(?:VII|VI|IV|V|III|II|I|vii|vi|iv|v|iii|ii|i))(ø|Ø|\/o|°|º|˚|dim|o|\+|aug)?/;
+  const markOf = (t) => {
+    const m = String(t || '').match(RN_HEAD);
+    return !m || !m[2] ? '' : /ø|Ø|\/o/.test(m[2]) ? 'ø' : /\+|aug/.test(m[2]) ? '+' : '°';
+  };
+  const withoutMark = (t) => String(t || '').replace(RN_HEAD, '$1');
+  const withMark = (t, mark) => (RN_HEAD.test(String(t || '')) ? String(t).replace(RN_HEAD, '$1' + (mark || '')) : String(t || ''));
+  // The sign menu for a numeral box. Call it before adding the box's own input listener. It shows the
+  // stored answer's sign in the menu and the rest in the box; a sign typed in the box (o, /o, °) sets the
+  // menu, and moves out of the box when it loses focus. full() is the answer with the sign in place.
+  function markPicker(id, inp, onChange) {
+    const stored = inp.value;
+    inp.value = withoutMark(stored);
+    let typed = false;                     // the menu's sign came from the box, not from the menu
+    const sel = selectEl(id, RN_MARKS, markOf(stored), () => { typed = false; inp.value = withoutMark(inp.value); onChange(); });
+    sel.classList.add('rn-mark');
+    sel.setAttribute('aria-label', 'Chord quality sign');
+    sel.title = 'Chord quality sign: ° diminished or fully diminished, ø half-diminished (mi7♭5), + augmented';
+    inp.addEventListener('input', () => {
+      const m = markOf(inp.value);
+      if (m) { sel.value = m; typed = true; } else if (typed) { sel.value = ''; typed = false; }
+    });
+    inp.addEventListener('blur', () => { if (markOf(inp.value)) { inp.value = withoutMark(inp.value); typed = false; onChange(); } });
+    return { sel, full: () => withMark(inp.value, sel.value) };
+  }
+  // Typed numeral + sign menu + figure dropdown. Typing "V65" fills the dropdown when the box loses focus.
   function figuredInput(id, value, o, onChange) {
     const cur = { text: (value && value.text) || '', fig: (value && value.fig) || '' };
     const inp = h('input', { type: 'text', id, class: 'fig-in', placeholder: 'V', autocomplete: 'off', autocapitalize: 'off', autocorrect: 'off', spellcheck: 'false', maxlength: 10, 'aria-label': 'Roman numeral' });
     inp.value = cur.text;
+    const mark = markPicker(id + '-mark', inp, () => fire());
     const sel = selectEl(id + '-fig', MQ.FIGURES.map((f) => ({ v: f.fig, label: f.label })), cur.fig, (v) => { cur.fig = v; fire(); });
     sel.setAttribute('aria-label', 'Figured bass');
     sel.classList.add('fig-sel');
     const preview = h('span', { class: 'fig-preview' });
-    const fire = () => { draw(); onChange({ text: cur.text, fig: cur.fig }); };
+    const fire = () => { cur.text = mark.full(); draw(); onChange({ text: cur.text, fig: cur.fig }); };
     function draw() {
       const typed = cur.text.trim();
       const parsed = MQ.parseFigured(MQ.answerText(cur));
@@ -9438,9 +9478,8 @@ svg.staff .nlabel { display: none; }
         : bad ? h('span', { class: 'fig-unread is-bad' }, 'not a figured bass answer') : '');
     }
     inp.addEventListener('input', () => {
-      cur.text = inp.value;
       // A figure typed into the box moves the dropdown to match as you type.
-      const digits = (cur.text.match(/[\d/]+\s*$/) || [''])[0].replace(/[\s/]/g, '');
+      const digits = (inp.value.match(/[\d/]+\s*$/) || [''])[0].replace(/[\s/]/g, '');
       if (digits) {
         const fig = digits === '63' ? '6' : digits === '53' ? '' : digits === '2' ? '42' : digits;
         if (MQ.FIGURES.some((f) => f.fig === fig)) { cur.fig = fig; sel.value = fig; sel.classList.remove('is-invalid'); }
@@ -9450,18 +9489,17 @@ svg.staff .nlabel { display: none; }
     });
     inp.addEventListener('blur', () => {
       // Tidy "V65" into the numeral box plus the dropdown.
-      const parsed = MQ.parseFigured(cur.text);
-      if (parsed && /[\d/]/.test(cur.text)) {
+      const parsed = MQ.parseFigured(mark.full());
+      if (parsed && /\d/.test(inp.value)) {
         cur.fig = parsed.figure;
-        cur.text = cur.text.replace(/[\d/]+\s*$/, '');
-        inp.value = cur.text;
+        inp.value = inp.value.replace(/[\d/]+\s*$/, '');
         sel.value = cur.fig;
         fire();
       }
     });
-    if (o.locked) { inp.disabled = true; sel.disabled = true; }
+    if (o.locked) { inp.disabled = true; sel.disabled = true; mark.sel.disabled = true; }
     draw();
-    return h('div', { class: 'fig-answer' }, h('div', { class: 'fig-row' }, inp, sel), preview);
+    return h('div', { class: 'fig-answer' }, h('div', { class: 'fig-row' }, inp, mark.sel, sel), preview);
   }
   let figUid = 0;
   function figuredCard(q, cfg, o) {
@@ -9490,7 +9528,7 @@ svg.staff .nlabel { display: none; }
       // One answer box per chord.
       const list = q.type === 'figprog' ? q.figuredList : [q.figured];
       const resp = q.type === 'figprog' ? ((o.response || []).slice()) : null;
-      const grid = h('div', { class: 'fig-answers', style: `--n:${list.length}` });
+      const grid = h('div', { class: 'fig-answers' + (list.length > 1 ? ' is-multi' : ''), style: `--n:${list.length}` });
       list.forEach((item, i) => {
         const right = item.answer || item; // {numeral, figure} — a root-position figure is ""
         const value = o.keyMode ? { text: right.numeral, fig: right.figure }
@@ -9537,7 +9575,9 @@ svg.staff .nlabel { display: none; }
         if ((k === 'r' && P.answer === 'symbol') || (k === 's' && P.answer === 'roman')) return;
         const inp = h('input', { type: 'text', class: 'pg-in', id: `pg-${uid}-${k}-${i}`, 'aria-label': `${label} for chord ${i + 1}`, placeholder: ph, autocomplete: 'off', autocapitalize: 'off', autocorrect: 'off', spellcheck: 'false', maxlength: 12 });
         inp.value = o.keyMode ? (k === 'r' ? P.romans[i] : P.symbols[i]) : resp[k][i] || '';
-        if (o.locked || o.keyMode) inp.disabled = true;
+        const send = () => { if (o.onResponse) o.onResponse({ r: resp.r.slice(), s: resp.s.slice() }); };
+        const mark = k === 'r' ? markPicker(`pg-${uid}-m-${i}`, inp, () => { resp.r[i] = mark.full(); send(); }) : null;
+        if (o.locked || o.keyMode) { inp.disabled = true; if (mark) mark.sel.disabled = true; }
         if (marks) inp.classList.add(marks[i][k] ? 'is-right' : 'is-wrong');
         inp.addEventListener('input', () => {
           // Chord symbols start with a capital root letter (Roman numerals keep their case — it matters).
@@ -9546,10 +9586,11 @@ svg.staff .nlabel { display: none; }
             inp.value = inp.value[0].toUpperCase() + inp.value.slice(1);
             try { inp.setSelectionRange(at, at); } catch (e) { /* not focused */ }
           }
-          resp[k][i] = inp.value;
-          if (o.onResponse) o.onResponse({ r: resp.r.slice(), s: resp.s.slice() });
+          resp[k][i] = mark ? mark.full() : inp.value;
+          send();
         });
         cell.append(inp);
+        if (mark) cell.append(mark.sel);
         if (marks && !marks[i][k]) cell.append(h('span', { class: 'pg-fix' }, k === 'r' ? P.romans[i] : P.symbols[i]));
       });
       grid.append(cell);
@@ -11576,9 +11617,11 @@ svg.staff .nlabel { display: none; }
       autocomplete: 'off', autocapitalize: 'off', autocorrect: 'off', spellcheck: 'false',
       'aria-label': `Box ${q.an.n + 1}: ${roman ? 'Roman numeral' : 'chord symbol'}` });
     inp.value = o.keyMode ? (roman ? q.an.roman[0] : q.an.symbol[0]) || '' : value || '';
+    const answer = () => (mark ? mark.full() : inp.value);
+    const mark = roman ? markPicker(inp.id + '-mark', inp, () => { draw(); if (onInput) onInput(answer()); }) : null;
     const pv = h('span', { class: 'an-pv' });
     const draw = () => {
-      const t = inp.value.trim();
+      const t = answer().trim();
       const p = t ? (roman ? MQ.parseAnalysisRoman(t) : MQ.symbolOk(t)) : null;
       inp.classList.toggle('is-invalid', !!t && !p);
       pv.replaceChildren(!t ? '' : !p ? h('span', { class: 'fig-unread is-bad' }, roman ? 'not a numeral' : 'not a symbol')
@@ -11587,11 +11630,11 @@ svg.staff .nlabel { display: none; }
     inp.addEventListener('input', () => {
       if (!roman) upperFirst(inp);
       draw();
-      if (onInput) onInput(inp.value);
+      if (onInput) onInput(answer());
     });
-    if (o.locked || o.keyMode) inp.disabled = true;
+    if (o.locked || o.keyMode) { inp.disabled = true; if (mark) mark.sel.disabled = true; }
     draw();
-    const cell = h('div', { class: 'an-field' }, inp, pv);
+    const cell = h('div', { class: 'an-field' }, inp, mark ? mark.sel : null, pv);
     if (o.reveal && !o.keyMode) {
       const ok = MQ.markAnalysisPart(q, k, { [k]: value }, cfg);
       cell.classList.add(ok ? 'is-right' : 'is-wrong');
@@ -11644,7 +11687,7 @@ svg.staff .nlabel { display: none; }
       roman ? [
         h('div', { class: 'an-key-row' }, h('b', null, 'Triads'), item('', 'root position'), item('6', '1st inversion'), item('64', '2nd inversion')),
         h('div', { class: 'an-key-row' }, h('b', null, 'Sevenths'), item('7', 'root position'), item('65', '1st inversion'), item('43', '2nd inversion'), item('42', '3rd inversion')),
-        h('p', { class: 'an-key-how' }, 'Type the figures right after the numeral: V65, ii6, V42. Type o for ° (viio7) and /o for ø (vii/o7). Applied chords: V7/V.'),
+        h('p', { class: 'an-key-how' }, 'Type the figures right after the numeral: V65, ii6, V42. Choose ° or ø from the menu under the box, or type o for ° (viio7) and /o for ø (vii/o7). Applied chords: V7/V.'),
       ] : null,
       symbol ? h('p', { class: 'an-key-how' }, 'Chord symbols: Dmi7, G7, Cma7, B°, Bmi7♭5, Csus4 — a slash names the bass note, as in C/E. Type b for ♭ and # for ♯.') : null);
   }
