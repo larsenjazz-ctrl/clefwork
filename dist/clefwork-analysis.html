@@ -7143,6 +7143,12 @@ svg.staff .nlabel { display: none; }
       w.u(q.symbolAnswer ? 1 : 0, 1);
       if (q.symbolAnswer) { writeText(w, resp); return; }
     }
+    if (q.type === 'figprog' || q.type === 'progression') {
+      // Version 13: 1 = the numerals or symbols were printed and the student wrote the chords on the
+      // staff, so the answer is notes. (Earlier versions saved these as blank text by mistake.)
+      w.u(q.colSpecs ? 1 : 0, 1);
+      if (q.colSpecs) { writeCols(w, q, resp); return; }
+    }
     if (q.type === 'figprog') {
       const n = Math.min(15, q.figuredList.length);
       w.u(n, 4);
@@ -7163,15 +7169,27 @@ svg.staff .nlabel { display: none; }
       for (let j = 0; j < n; j++) ['r', 's'].forEach((k) => writeText(w, resp && resp[k] && resp[k][j]));
     } else if (isChoiceType(q.type)) {
       w.u(resp == null ? 0 : resp + 1, 3);
-    } else {
-      const cols = q.columns.map((c, i) => (c.cap > 0 ? i : -1)).filter((i) => i >= 0).slice(0, 15);
-      w.u(cols.length, 4);
-      cols.forEach((ci) => {
-        const notes = ((resp && resp[ci]) || []).filter(Boolean).slice(0, 15);
-        w.u(notes.length, 4);
-        notes.forEach((p) => w.u(MQ.dia(p), 7).u(Math.max(-2, Math.min(2, p.alt)) + 2, 3).u(p.st === 1 ? 1 : 0, 1));
-      });
+    } else writeCols(w, q, resp);
+  }
+  // Notes on the staff: for each answer column, how many notes, then each note.
+  function writeCols(w, q, resp) {
+    const cols = q.columns.map((c, i) => (c.cap > 0 ? i : -1)).filter((i) => i >= 0).slice(0, 15);
+    w.u(cols.length, 4);
+    cols.forEach((ci) => {
+      const notes = ((resp && resp[ci]) || []).filter(Boolean).slice(0, 15);
+      w.u(notes.length, 4);
+      notes.forEach((p) => w.u(MQ.dia(p), 7).u(Math.max(-2, Math.min(2, p.alt)) + 2, 3).u(p.st === 1 ? 1 : 0, 1));
+    });
+  }
+  function readCols(r) {
+    const cols = [];
+    const nc = r.u(4);
+    for (let c = 0; c < nc; c++) {
+      const n = r.u(4), notes = [];
+      for (let j = 0; j < n; j++) { const d = r.u(7), alt = r.u(3) - 2, st = r.u(1); const p = MQ.fromDia(d, alt); if (st) p.st = 1; notes.push(p); }
+      cols.push(notes);
     }
+    return { kind: 'staff', value: cols };
   }
   function readAnswer(r, type, ver) {
     if (type === 'melody') {
@@ -7210,6 +7228,7 @@ svg.staff .nlabel { display: none; }
       }
       return { kind: 'staff', value: cols };
     }
+    if ((type === 'figprog' || type === 'progression') && ver >= 13 && r.u(1)) return readCols(r);
     if (type === 'figprog') {
       const n = r.u(4), out = [];
       for (let j = 0; j < n; j++) out.push({ text: readText(r), fig: readText(r) });
@@ -7237,8 +7256,10 @@ svg.staff .nlabel { display: none; }
     return { kind: 'staff', value: cols };
   }
   // Turns a decoded answer back into the response shape a question card expects.
+  // A report from before version 13 has no notes for a question where the student wrote the chords.
+  const answerLost = (q, a) => !!(q && q.colSpecs && a && a.kind !== 'staff');
   function answerFor(q, a) {
-    if (!a) return null;
+    if (!a || answerLost(q, a)) return null;
     if (a.kind !== 'staff') return a.value;
     const cols = a.value.slice();
     return q.columns.map((c) => (c.cap > 0 ? cols.shift() || [] : []));
@@ -7250,7 +7271,7 @@ svg.staff .nlabel { display: none; }
     const qid = quizId(quizCode);
     const w = new Writer();
     // Version 10 added rhythm answers, with how often each example and answer was played.
-    w.u(12, 4).u(qid, 16).str(report.name, 40)
+    w.u(13, 4).u(qid, 16).str(report.name, 40)
       .u(Math.max(0, Math.round((report.submittedAt - EPOCH) / 60000)), 24)
       .u(Math.min(65535, Math.round(report.totalSec)), 16)
       .u(report.partial ? 1 : 0, 1).u(report.items.length, 7);
@@ -7289,7 +7310,7 @@ svg.staff .nlabel { display: none; }
     const restBits = body.slice(20);
     try {
       const ver = r.u(4);
-      if (ver < 1 || ver > 12) throw new CodeError('This report was made with a newer version of Clefwork.');
+      if (ver < 1 || ver > 13) throw new CodeError('This report was made with a newer version of Clefwork.');
       const rep = { code: group(clean), quizId: r.u(16), name: r.str() };
       rep.submittedAt = EPOCH + r.u(24) * 60000;
       rep.totalSec = r.u(16);
@@ -7366,7 +7387,7 @@ svg.staff .nlabel { display: none; }
     };
   }
 
-  Object.assign(MQ, { retakeLimit, encodeQuiz, decodeQuiz, encodeReport, decodeReport, answerFor, reportStats, quizId, normalize, CodeError });
+  Object.assign(MQ, { retakeLimit, encodeQuiz, decodeQuiz, encodeReport, decodeReport, answerFor, answerLost, reportStats, quizId, normalize, CodeError });
 })(typeof window !== 'undefined' ? window : globalThis);
 /* Clefwork — interactive SVG staff (single staff or piano grand staff). Notes snap to
    lines and spaces; students drag, click, or use the keyboard to place and adjust them.
@@ -9097,7 +9118,7 @@ svg.staff .nlabel { display: none; }
   const canvasLink = (code) => (SITE ? SITE + 'take.html#take=' + withScore(code) : '');
   const resultsLink = (report, quiz) => (SITE
     ? SITE + 'results.html#r=' + MQ.normalize(report) + (quiz ? '&q=' + MQ.normalize(quiz) : '') : '');
-  const gradeLink = (report) => (SITE ? SITE + 'clefwork.html#grade=' + MQ.normalize(report) : '');
+  const gradeLink = (report, quiz) => (SITE ? SITE + 'clefwork.html#grade=' + MQ.normalize(report) + (quiz ? '&q=' + MQ.normalize(quiz) : '') : '');
   // Where the landing page lives: the site's front page, or the file beside this one.
   const HOME = SITE || 'index.html';
   const inFrame = (() => { try { return window.top !== window.self; } catch (e) { return true; } })();
@@ -11334,12 +11355,24 @@ svg.staff .nlabel { display: none; }
         const id = `ans-${r.quizId}-${i}`;
         jump.append(h('a', { href: '#' + id, class: 'qdot ' + tone, onclick: (e) => { e.preventDefault(); document.getElementById(id).scrollIntoView({ behavior: 'smooth', block: 'start' }); } }, String(i + 1)));
         // Without the key, show exactly what the student entered; the result sits in the heading.
-        const card = it.answered || q.type === 'progression' || !q.choices
-          ? questionCard(q, cfg, { response: MQ.answerFor(q, r.answers[i]), locked: true, reveal: o.showKey, playsUsed: r.answers[i] && r.answers[i].plays })
-          : h('div', null, h('p', { class: 'q-text' }, q.text),
-            h('p', { class: 'result is-bad' }, h('strong', null, 'Left blank.'), o.showKey ? [' The answer is ', h('b', null, MQ.describeAnswer(q, cfg)), '.'] : null));
+        const lost = MQ.answerLost(q, r.answers[i]);
+        let card;
+        try {
+          card = it.answered || q.type === 'progression' || !q.choices
+            ? questionCard(q, cfg, { response: MQ.answerFor(q, r.answers[i]), locked: true, reveal: o.showKey && !lost, playsUsed: r.answers[i] && r.answers[i].plays })
+            : h('div', null, h('p', { class: 'q-text' }, q.text),
+              h('p', { class: 'result is-bad' }, h('strong', null, 'Left blank.'), o.showKey ? [' The answer is ', h('b', null, MQ.describeAnswer(q, cfg)), '.'] : null));
+          // No notes to mark: the verdict is in the heading, so just give the answer.
+          if (lost && o.showKey) card.append(h('p', { class: 'result is-key' }, h('strong', null, 'Answer: '), MQ.describeAnswer(q, cfg)));
+        } catch (e) {
+          // One question that can't be drawn mustn't take the rest of the report with it.
+          card = h('div', null, h('p', { class: 'q-text' }, q.text),
+            h('p', { class: 'warn-note' }, 'This answer couldn’t be shown. The score above is still right.'),
+            o.showKey ? h('p', { class: 'result is-key' }, h('strong', null, 'Answer: '), MQ.describeAnswer(q, cfg)) : null);
+        }
         return h('section', { class: 'ans-card', id },
           h('div', { class: 'ans-head' }, h('strong', null, `Question ${i + 1}`), resultCell(it), h('span', { class: 'ans-time' }, it.sec >= 63 ? '63+ s' : it.sec + ' s')),
+          lost && it.answered ? h('p', { class: 'warn-note' }, 'This report was made before Clefwork saved the chords students write on the staff, so the notes for this question aren’t in the code. The score is right. Reports made from now on include them.') : null,
           card);
       }).filter(Boolean);
       box.replaceChildren(jump, ...cards);
@@ -13333,7 +13366,7 @@ svg.staff .nlabel { display: none; }
     wrap.append(h('p', { class: 'fine results-foot' },
       showKey ? 'Answers are marked against the quiz saved on this device.'
         : ['Correct answers are left off shared results. On the computer you built the quiz on, ',
-          SITE ? h('a', { href: gradeLink(p.r), target: '_blank', rel: 'noopener' }, 'open this report in the grade checker') : 'open this report in the grade checker',
+          SITE ? h('a', { href: gradeLink(p.r, p.q), target: '_blank', rel: 'noopener' }, 'open this report in the grade checker') : 'open this report in the grade checker',
           ' to see them.']));
   }
 
@@ -13461,7 +13494,12 @@ svg.staff .nlabel { display: none; }
         try { if (MQ.hashOfData(extra.img) === want) keepScore(extra.img, want); } catch (e) { /* a damaged link changes nothing */ }
       }
       view = 'take';
-    } else if (m && m[1] === 'grade' && !STUDENT) { S.grade.input = m[2]; view = 'grade'; }
+    } else if (m && m[1] === 'grade' && !STUDENT) {
+      // #grade=REPORT&q=QUIZ carries the quiz too, so the checker can show questions and answers.
+      const one = m[2].match(/^([0-9A-Za-z-]+)&q=([0-9A-Za-z-]+)$/);
+      if (one) { S.grade.input = one[1]; S.grade.quiz = one[2]; } else S.grade.input = m[2];
+      view = 'grade';
+    }
     else if (VIEWS[hash]) view = hash;
     else if (S.take && S.take.started && !S.take.done) view = 'take';
     go(view);

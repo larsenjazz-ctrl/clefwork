@@ -120,7 +120,7 @@
   const canvasLink = (code) => (SITE ? SITE + 'take.html#take=' + withScore(code) : '');
   const resultsLink = (report, quiz) => (SITE
     ? SITE + 'results.html#r=' + MQ.normalize(report) + (quiz ? '&q=' + MQ.normalize(quiz) : '') : '');
-  const gradeLink = (report) => (SITE ? SITE + 'clefwork.html#grade=' + MQ.normalize(report) : '');
+  const gradeLink = (report, quiz) => (SITE ? SITE + 'clefwork.html#grade=' + MQ.normalize(report) + (quiz ? '&q=' + MQ.normalize(quiz) : '') : '');
   // Where the landing page lives: the site's front page, or the file beside this one.
   const HOME = SITE || 'index.html';
   const inFrame = (() => { try { return window.top !== window.self; } catch (e) { return true; } })();
@@ -2357,12 +2357,24 @@
         const id = `ans-${r.quizId}-${i}`;
         jump.append(h('a', { href: '#' + id, class: 'qdot ' + tone, onclick: (e) => { e.preventDefault(); document.getElementById(id).scrollIntoView({ behavior: 'smooth', block: 'start' }); } }, String(i + 1)));
         // Without the key, show exactly what the student entered; the result sits in the heading.
-        const card = it.answered || q.type === 'progression' || !q.choices
-          ? questionCard(q, cfg, { response: MQ.answerFor(q, r.answers[i]), locked: true, reveal: o.showKey, playsUsed: r.answers[i] && r.answers[i].plays })
-          : h('div', null, h('p', { class: 'q-text' }, q.text),
-            h('p', { class: 'result is-bad' }, h('strong', null, 'Left blank.'), o.showKey ? [' The answer is ', h('b', null, MQ.describeAnswer(q, cfg)), '.'] : null));
+        const lost = MQ.answerLost(q, r.answers[i]);
+        let card;
+        try {
+          card = it.answered || q.type === 'progression' || !q.choices
+            ? questionCard(q, cfg, { response: MQ.answerFor(q, r.answers[i]), locked: true, reveal: o.showKey && !lost, playsUsed: r.answers[i] && r.answers[i].plays })
+            : h('div', null, h('p', { class: 'q-text' }, q.text),
+              h('p', { class: 'result is-bad' }, h('strong', null, 'Left blank.'), o.showKey ? [' The answer is ', h('b', null, MQ.describeAnswer(q, cfg)), '.'] : null));
+          // No notes to mark: the verdict is in the heading, so just give the answer.
+          if (lost && o.showKey) card.append(h('p', { class: 'result is-key' }, h('strong', null, 'Answer: '), MQ.describeAnswer(q, cfg)));
+        } catch (e) {
+          // One question that can't be drawn mustn't take the rest of the report with it.
+          card = h('div', null, h('p', { class: 'q-text' }, q.text),
+            h('p', { class: 'warn-note' }, 'This answer couldn’t be shown. The score above is still right.'),
+            o.showKey ? h('p', { class: 'result is-key' }, h('strong', null, 'Answer: '), MQ.describeAnswer(q, cfg)) : null);
+        }
         return h('section', { class: 'ans-card', id },
           h('div', { class: 'ans-head' }, h('strong', null, `Question ${i + 1}`), resultCell(it), h('span', { class: 'ans-time' }, it.sec >= 63 ? '63+ s' : it.sec + ' s')),
+          lost && it.answered ? h('p', { class: 'warn-note' }, 'This report was made before Clefwork saved the chords students write on the staff, so the notes for this question aren’t in the code. The score is right. Reports made from now on include them.') : null,
           card);
       }).filter(Boolean);
       box.replaceChildren(jump, ...cards);
@@ -4356,7 +4368,7 @@
     wrap.append(h('p', { class: 'fine results-foot' },
       showKey ? 'Answers are marked against the quiz saved on this device.'
         : ['Correct answers are left off shared results. On the computer you built the quiz on, ',
-          SITE ? h('a', { href: gradeLink(p.r), target: '_blank', rel: 'noopener' }, 'open this report in the grade checker') : 'open this report in the grade checker',
+          SITE ? h('a', { href: gradeLink(p.r, p.q), target: '_blank', rel: 'noopener' }, 'open this report in the grade checker') : 'open this report in the grade checker',
           ' to see them.']));
   }
 
@@ -4484,7 +4496,12 @@
         try { if (MQ.hashOfData(extra.img) === want) keepScore(extra.img, want); } catch (e) { /* a damaged link changes nothing */ }
       }
       view = 'take';
-    } else if (m && m[1] === 'grade' && !STUDENT) { S.grade.input = m[2]; view = 'grade'; }
+    } else if (m && m[1] === 'grade' && !STUDENT) {
+      // #grade=REPORT&q=QUIZ carries the quiz too, so the checker can show questions and answers.
+      const one = m[2].match(/^([0-9A-Za-z-]+)&q=([0-9A-Za-z-]+)$/);
+      if (one) { S.grade.input = one[1]; S.grade.quiz = one[2]; } else S.grade.input = m[2];
+      view = 'grade';
+    }
     else if (VIEWS[hash]) view = hash;
     else if (S.take && S.take.started && !S.take.done) view = 'take';
     go(view);

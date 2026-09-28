@@ -628,6 +628,12 @@
       w.u(q.symbolAnswer ? 1 : 0, 1);
       if (q.symbolAnswer) { writeText(w, resp); return; }
     }
+    if (q.type === 'figprog' || q.type === 'progression') {
+      // Version 13: 1 = the numerals or symbols were printed and the student wrote the chords on the
+      // staff, so the answer is notes. (Earlier versions saved these as blank text by mistake.)
+      w.u(q.colSpecs ? 1 : 0, 1);
+      if (q.colSpecs) { writeCols(w, q, resp); return; }
+    }
     if (q.type === 'figprog') {
       const n = Math.min(15, q.figuredList.length);
       w.u(n, 4);
@@ -648,15 +654,27 @@
       for (let j = 0; j < n; j++) ['r', 's'].forEach((k) => writeText(w, resp && resp[k] && resp[k][j]));
     } else if (isChoiceType(q.type)) {
       w.u(resp == null ? 0 : resp + 1, 3);
-    } else {
-      const cols = q.columns.map((c, i) => (c.cap > 0 ? i : -1)).filter((i) => i >= 0).slice(0, 15);
-      w.u(cols.length, 4);
-      cols.forEach((ci) => {
-        const notes = ((resp && resp[ci]) || []).filter(Boolean).slice(0, 15);
-        w.u(notes.length, 4);
-        notes.forEach((p) => w.u(MQ.dia(p), 7).u(Math.max(-2, Math.min(2, p.alt)) + 2, 3).u(p.st === 1 ? 1 : 0, 1));
-      });
+    } else writeCols(w, q, resp);
+  }
+  // Notes on the staff: for each answer column, how many notes, then each note.
+  function writeCols(w, q, resp) {
+    const cols = q.columns.map((c, i) => (c.cap > 0 ? i : -1)).filter((i) => i >= 0).slice(0, 15);
+    w.u(cols.length, 4);
+    cols.forEach((ci) => {
+      const notes = ((resp && resp[ci]) || []).filter(Boolean).slice(0, 15);
+      w.u(notes.length, 4);
+      notes.forEach((p) => w.u(MQ.dia(p), 7).u(Math.max(-2, Math.min(2, p.alt)) + 2, 3).u(p.st === 1 ? 1 : 0, 1));
+    });
+  }
+  function readCols(r) {
+    const cols = [];
+    const nc = r.u(4);
+    for (let c = 0; c < nc; c++) {
+      const n = r.u(4), notes = [];
+      for (let j = 0; j < n; j++) { const d = r.u(7), alt = r.u(3) - 2, st = r.u(1); const p = MQ.fromDia(d, alt); if (st) p.st = 1; notes.push(p); }
+      cols.push(notes);
     }
+    return { kind: 'staff', value: cols };
   }
   function readAnswer(r, type, ver) {
     if (type === 'melody') {
@@ -695,6 +713,7 @@
       }
       return { kind: 'staff', value: cols };
     }
+    if ((type === 'figprog' || type === 'progression') && ver >= 13 && r.u(1)) return readCols(r);
     if (type === 'figprog') {
       const n = r.u(4), out = [];
       for (let j = 0; j < n; j++) out.push({ text: readText(r), fig: readText(r) });
@@ -722,8 +741,10 @@
     return { kind: 'staff', value: cols };
   }
   // Turns a decoded answer back into the response shape a question card expects.
+  // A report from before version 13 has no notes for a question where the student wrote the chords.
+  const answerLost = (q, a) => !!(q && q.colSpecs && a && a.kind !== 'staff');
   function answerFor(q, a) {
-    if (!a) return null;
+    if (!a || answerLost(q, a)) return null;
     if (a.kind !== 'staff') return a.value;
     const cols = a.value.slice();
     return q.columns.map((c) => (c.cap > 0 ? cols.shift() || [] : []));
@@ -735,7 +756,7 @@
     const qid = quizId(quizCode);
     const w = new Writer();
     // Version 10 added rhythm answers, with how often each example and answer was played.
-    w.u(12, 4).u(qid, 16).str(report.name, 40)
+    w.u(13, 4).u(qid, 16).str(report.name, 40)
       .u(Math.max(0, Math.round((report.submittedAt - EPOCH) / 60000)), 24)
       .u(Math.min(65535, Math.round(report.totalSec)), 16)
       .u(report.partial ? 1 : 0, 1).u(report.items.length, 7);
@@ -774,7 +795,7 @@
     const restBits = body.slice(20);
     try {
       const ver = r.u(4);
-      if (ver < 1 || ver > 12) throw new CodeError('This report was made with a newer version of Clefwork.');
+      if (ver < 1 || ver > 13) throw new CodeError('This report was made with a newer version of Clefwork.');
       const rep = { code: group(clean), quizId: r.u(16), name: r.str() };
       rep.submittedAt = EPOCH + r.u(24) * 60000;
       rep.totalSec = r.u(16);
@@ -851,5 +872,5 @@
     };
   }
 
-  Object.assign(MQ, { retakeLimit, encodeQuiz, decodeQuiz, encodeReport, decodeReport, answerFor, reportStats, quizId, normalize, CodeError });
+  Object.assign(MQ, { retakeLimit, encodeQuiz, decodeQuiz, encodeReport, decodeReport, answerFor, answerLost, reportStats, quizId, normalize, CodeError });
 })(typeof window !== 'undefined' ? window : globalThis);
