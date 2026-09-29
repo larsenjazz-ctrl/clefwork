@@ -891,3 +891,10 @@ select.rn-mark { min-width: 0; }
 .fig-answers.is-multi .fig-row > * { width: 100%; }
 .pg-cell select.rn-mark { width: 100%; min-height: 34px; padding: 2px 4px; font-size: 13px; }
 .an-field select.rn-mark { width: 100%; min-height: 28px; padding: 1px 2px; font-size: 12px; border-radius: 6px; }
+
+/* Embedded in a Canvas page: the note about opening the quiz in its own tab, and, once the frame has
+   grown to fit the quiz, messages placed near the last tap (set from the script) instead of the bottom. */
+.frame-note { margin: 0 0 12px; padding: 10px 12px; border-radius: 10px; background: var(--accent-soft); font-size: 14.5px; }
+.frame-note a { font-weight: 700; color: var(--accent); }
+.take-bar-tab { margin-left: auto; text-decoration: none; }
+.is-fitted .toast { position: absolute; bottom: auto; }

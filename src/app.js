@@ -47,6 +47,7 @@
     const el = document.getElementById('toast');
     el.replaceChildren(accText(msg));
     el.className = 'toast is-on' + (tone ? ' is-' + tone : '');
+    el.style.top = frameFitted ? nearTap(64) + 'px' : '';
     clearTimeout(toastTimer);
     toastTimer = setTimeout(() => (el.className = 'toast'), 2800);
   }
@@ -124,6 +125,42 @@
   // Where the landing page lives: the site's front page, or the file beside this one.
   const HOME = SITE || 'index.html';
   const inFrame = (() => { try { return window.top !== window.self; } catch (e) { return true; } })();
+
+  // ---------- embedded in another page (Canvas) ----------
+  // The hosted pages can sit in an iframe on a Canvas page. Canvas resizes an iframe that asks with an
+  // lti.frameResize message, so the whole quiz shows without being cut off or scrolling inside the frame.
+  // Once the frame fits the quiz, messages and dialogs open near the last tap: the frame's own middle or
+  // bottom can be far off screen. (Claude artifacts are framed too, but aren't the hosted site.)
+  const EMBEDDED = inFrame && !!SITE && location.href.indexOf(SITE) === 0;
+  const LAUNCH_HASH = location.hash;          // the link the frame opened, before the app tidies it
+  let frameFitted = false, lastTapY = 0, sentHeight = 0;
+  function fitFrame() {
+    const want = Math.max(640, Math.ceil(document.body.offsetHeight) + 8);
+    if (Math.abs(want - sentHeight) < 4) return;
+    sentHeight = want;
+    try { window.parent.postMessage({ subject: 'lti.frameResize', height: want }, '*'); } catch (e) { /* no parent to ask */ }
+    setTimeout(() => {
+      if (Math.abs(window.innerHeight - want) < 4 && !frameFitted) { frameFitted = true; document.documentElement.classList.add('is-fitted'); }
+    }, 500);
+  }
+  if (EMBEDDED) {
+    if (window.ResizeObserver) new ResizeObserver(() => requestAnimationFrame(fitFrame)).observe(document.body);
+    document.addEventListener('pointerdown', (e) => { lastTapY = e.pageY; }, true);
+    document.addEventListener('focusin', (e) => { if (e.target.getBoundingClientRect) lastTapY = e.target.getBoundingClientRect().top + window.scrollY; });
+  }
+  // Where a message or dialog should appear in a frame that has grown to fit the quiz.
+  const nearTap = (above) => Math.max(12, lastTapY - above);
+  // The same quiz in its own browser tab — on tablets the Canvas app can't always show the keyboard
+  // in an embedded page. A tab has its own storage, so the quiz starts fresh there.
+  function ownTabHref() {
+    const base = location.href.split('#')[0];
+    const t = S.take;
+    const launch = LAUNCH_HASH.match(/^#take=([^&]+)/);
+    const launched = launch ? decodeURIComponent(launch[1]).replace(/[^0-9A-Za-z]/g, '').toUpperCase() : '';
+    if (t && !t.practice && t.code && t.code !== launched) return base + '#take=' + t.code;
+    return base + LAUNCH_HASH;
+  }
+  const ownTabLink = (cls, text) => h('a', { class: cls, href: ownTabHref(), target: '_blank', rel: 'noopener' }, text || 'Open in its own tab ↗');
 
   // ---------- state ----------
   function keysDefault() {
@@ -1814,6 +1851,7 @@
       : [t.cfg.title || 'Music quiz', t.preview ? 'preview' : `attempt ${t.attempt || 1}${limit != null ? ' of ' + (limit + 1) : ''}`].join(' · ');
     return h('div', { class: 'take-bar' },
       h('span', { class: 'take-bar-about' }, about),
+      EMBEDDED ? ownTabLink('btn btn-quiet sm take-bar-tab', 'Own tab ↗') : null,
       h('button', {
         type: 'button', class: 'btn sm', disabled: !t || noRetake || null,
         title: !t ? 'Open a quiz first' : noRetake ? 'There are no attempts left at this quiz' : 'Go back to the start of this quiz',
@@ -1860,6 +1898,7 @@
         h('button', { type: 'button', class: 'btn btn-quiet', onclick: close }, 'Cancel')));
     dlg.addEventListener('close', () => dlg.remove());
     document.body.append(dlg);
+    if (frameFitted) dlg.style.margin = `${nearTap(140)}px auto auto`;
     dlg.showModal();
     dlg.querySelector('.btn-quiet').focus();
   }
@@ -1966,6 +2005,8 @@
       h('p', { class: 'types-line' }, types.join(' · ')),
       onlyAnalysis(cfg) && cfg.analysis.notes ? h('p', { class: 'an-notes' }, accText(cfg.analysis.notes)) : null,
       listCount(cfg, 'rhythm') || listCount(cfg, 'melody') ? h('p', { class: 'an-notes rh-intro' }, rhythmIntro(cfg, t.qs)) : null,
+      EMBEDDED ? h('p', { class: 'frame-note' }, h('strong', null, 'On a tablet or phone? '),
+        'If the keyboard doesn’t come up or the quiz is cut off, ', ownTabLink('', 'open the quiz in its own tab ↗'), ' before you start.') : null,
       fld('Your name', name),
       h('div', { class: 'btn-row' }, h('button', { type: 'button', class: 'btn btn-primary', onclick: start }, 'Start quiz'),
         h('button', { type: 'button', class: 'btn btn-quiet', onclick: () => { S.take = null; saveAttempt(); go(tv()); } }, 'Use a different code')),
@@ -2496,7 +2537,10 @@
         + `<ol>\n  <li>Type your first and last name, then answer every question.</li>\n`
         + `  <li>When you finish, press <strong>Copy results link</strong>.</li>\n`
         + `  <li>Come back to this assignment, choose <strong>Start Assignment</strong> (or <strong>Submit Assignment</strong>), pick <strong>Website URL</strong>, paste the link, and submit.</li>\n</ol>`;
-      const embed = `<iframe src="${esc(link)}" title="${esc(title)}" width="100%" height="900" style="border: 0;" allow="clipboard-write"></iframe>`;
+      // The quiz asks Canvas to resize the frame to fit it. The link underneath is for tablets and the
+      // Canvas app, where an embedded page can't always bring up the keyboard.
+      const embed = `<iframe src="${esc(link)}" title="${esc(title)}" width="100%" height="1000" style="border: 0; width: 100%;" allow="clipboard-write"></iframe>\n`
+        + `<p><a href="${esc(link)}" target="_blank" rel="noopener">Open “${esc(title)}” in its own tab</a> — best on tablets, phones and the Canvas app.</p>`;
       const ptsIn = h('input', { type: 'number', id: 'cv-points', min: 0, max: 1000, inputmode: 'numeric', value: pts || '' , placeholder: 'e.g. 10' });
       ptsIn.addEventListener('change', () => {
         cfg.canvasPts = Math.max(0, Math.min(1000, Math.round(+ptsIn.value || 0)));
@@ -2513,7 +2557,7 @@
         fld('Points in Canvas', ptsIn, pts ? `Results pages show each score out of ${pts}, ready to type into SpeedGrader.` : 'Optional. When set, results pages also show the score scaled to these points.'),
         box('cv-desc', 'Assignment description (HTML)', describe, 'Paste into the HTML editor of the Canvas assignment.', 7),
         box('cv-link', 'Quiz link', link, 'The same link on its own — for an announcement, a module item, or an external URL.'),
-        box('cv-embed', 'Embed on a Canvas page (optional)', embed, 'Shows the quiz inside a Canvas page. Some schools block embedded sites; the link always works.', 3),
+        box('cv-embed', 'Embed on a Canvas page (optional)', embed, 'Shows the quiz inside a Canvas page. In a web browser the quiz grows to fit, so nothing is cut off. It comes with a link to open the quiz in its own tab — on tablets, and in the Canvas app, an embedded page can’t always bring up the keyboard. Some schools block embedded sites; the link always works.', 4),
         h('p', { class: 'fine' }, 'Canvas can’t receive the grade by itself — that would need a server connected to Canvas. SpeedGrader shows you the score to enter. Correct answers stay off the results page unless the quiz lets students check answers; on the computer you built the quiz on, the results page’s ', h('b', null, 'Open in grade checker'), ' link shows everything.'));
     };
     dlg.append(
