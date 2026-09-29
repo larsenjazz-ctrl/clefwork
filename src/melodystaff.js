@@ -31,8 +31,9 @@
   // ---------- the picture ----------
   // model: {meter, measures, layers: [[measure…]], key {fifths, mode}, clef}. opts as for the rhythm
   // staff (caret, sel, marks, playing, editing, print, measureW, first, showTime), plus perLine and
-  // cursor (a pitch to show at the caret: where the next note goes), and open (end on a plain bar line,
-  // for a line of a longer melody).
+  // cursor (a pitch to show at the caret: where the next note goes), open (end on a plain bar line,
+  // for a line of a longer melody), and noteLabels ([measure][event] → text drawn above that note, in
+  // labelColor — blue unless given).
   function build(model, opts) {
     const o = Object.assign({ print: false, first: 0, showTime: true, measureW: null, caret: null, sel: null, marks: null, playing: -1, editing: false, perLine: 4, cursor: null }, opts);
     const info = MQ.rhythmMeter(model.meter);
@@ -130,6 +131,7 @@
     });
 
     // ---------- the notes ----------
+    const labelTiers = {};              // per line: how far right each tier of note labels reaches
     events.forEach((evs, m) => {
       const g = geo.measures[m], sy = g.sy;
       const { list, beamed, inBeam } = plans[m];
@@ -209,6 +211,7 @@
         s += `<g class="r-beam${grp.some((n) => badAt.has(n.i)) ? ' is-bad' : ''}${gm}">${b}</g>`;
       });
       // ---------- triplets: the number on the stem side ----------
+      const tripTop = {};               // event index → the top of its triplet number or bracket
       MQ.tripletGroups(evs, info).forEach((tg) => {
         const notes = list.slice(tg.from, tg.to + 1);
         if (!notes.length) return;
@@ -219,6 +222,7 @@
         const xa = notes[0].hx - RX, xb = notes[notes.length - 1].hx + RX;
         const mid = grp ? (stemX(grp[0]) + stemX(grp[grp.length - 1])) / 2 : (xa + xb) / 2;
         const ny = up ? Math.min(sy + TOP - 6, ...ends.map((y) => y - 5)) : Math.max(sy + BOT + 14, ...ends.map((y) => y + 13));
+        if (up) for (let i = tg.from; i <= tg.to; i++) tripTop[i] = ny - 9 - (grp ? 0 : 4);
         let b = `<text class="clabel r-trip" x="${r1(mid)}" y="${r1(ny)}" font-size="11" text-anchor="middle" fill="currentColor">3</text>`;
         if (!grp) {
           const by = ny - 4, hook = up ? 4 : -4;
@@ -226,6 +230,24 @@
         }
         s += `<g class="r-tripg${badAt.has(tg.from) ? ' is-bad' : ''}">${b}</g>`;
       });
+      // ---------- labels above the notes: o.noteLabels[m][i], clear of stems, beams and triplets ----------
+      // A label that would crowd the one before it on the line moves up a tier (three at most).
+      const labels = o.noteLabels && o.noteLabels[m];
+      if (labels) {
+        const tiers = labelTiers[g.sys] = labelTiers[g.sys] || [-Infinity, -Infinity, -Infinity];
+        list.forEach((n) => {
+          const t = labels[n.i];
+          if (t == null || n.e.r) return;
+          let top = n.e.v >= 1 && n.up ? (inBeam.has(n.i) ? n.beamY : stemEnd(n, true)) : n.hy - 5;
+          if (tripTop[n.i] != null) top = Math.min(top, tripTop[n.i]);
+          const half = String(t).length * 3.2 + 1.5;          // half the label's width at 10.5 bold
+          let k = tiers.findIndex((right) => n.hx - half > right + 5);
+          if (k < 0) k = tiers.indexOf(Math.min(...tiers));
+          tiers[k] = n.hx + half;
+          const y = Math.max(sy + 10, Math.min(sy + TOP - 7, top - 6) - k * 11);
+          s += `<text class="n-label" x="${r1(n.hx)}" y="${r1(y)}" font-size="10.5" font-weight="700" text-anchor="middle" fill="${o.labelColor || '#2f3fbf'}">${t}</text>`;
+        });
+      }
     });
 
     // ---------- the caret, and where the next note will go ----------

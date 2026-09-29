@@ -881,52 +881,40 @@
         h('button', { type: 'button', class: 'btn sm', onclick: () => play(MQ.rhythmPlayEvents({ meter: D.meter, measures: D.measures, tempo: D.tempo, parts: 1 }, D.layers)) }, '♪ Hear the melody'),
         h('button', { type: 'button', class: 'btn btn-quiet sm', onclick: () => MQ.Audio.stop() }, 'Stop')));
     }
-    // Two measures a line, as on paper, so the menus under quick notes have room.
-    const per = Math.min(D.measures, 2);
+    // Two measures a line. Each note is numbered in blue above the staff (n1, n2 …), and each line's
+    // answer boxes, numbered the same way, sit in a row under it with room to spare.
+    // (One measure a line on a phone, so the numbers stay big enough to read.)
+    const per = Math.min(D.measures, window.innerWidth < 600 ? 1 : 2);
     const lines = h('div', { class: 'dg-lines' });
-    const lanes = [];
     let j = 0;
     for (let a = 0; a < D.measures; a += per) {
       const n = Math.min(per, D.measures - a);
-      const model = { meter: D.meter, measures: n, layers: [D.layers[0].slice(a, a + n)], key: D.key, clef: D.clef };
-      const b = MQ.melodyMarkup(model, { first: a, showTime: a === 0, perLine: n, print: true, open: a + n < D.measures });
+      const bars = D.layers[0].slice(a, a + n);
+      const first = j;
+      const labels = bars.map((bar) => bar.map((e) => (e.r || !e.p ? null : 'n' + ++j)));
+      const model = { meter: D.meter, measures: n, layers: [bars], key: D.key, clef: D.clef };
+      const b = MQ.melodyMarkup(model, { first: a, showTime: a === 0, perLine: n, print: true, open: a + n < D.measures, noteLabels: labels });
       const pic = h('div', { class: 'dg-pic' });
-      pic.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="mstaff dg-staff" viewBox="0 0 ${Math.round(b.W)} ${b.H}" role="img" aria-label="Measures ${a + 1} to ${a + n}">${b.inner}</svg>`;
-      const lane = h('div', { class: 'dg-lane' });
-      for (let m = 0; m < n; m++) {
-        D.layers[0][a + m].forEach((e, i) => {
-          if (e.r || !e.p) return;
-          const k = j++, x = b.geo.ev[0][m][i].x;
-          const sel = selectEl(`dg-${uid}-${k}`, DEG_OPTS, resp[k] ? String(resp[k]) : '', (v) => {
-            resp[k] = v ? +v : 0;
-            if (o.onResponse) o.onResponse(resp.slice());
-          });
-          sel.setAttribute('aria-label', `Measure ${a + m + 1}, note ${D.notes.filter((x2, t) => t < k && x2.m === a + m).length + 1}: scale degree`);
-          if (o.locked || o.keyMode) sel.disabled = true;
-          const cell = h('div', { class: 'dg-box', style: `left:${((x / b.W) * 100).toFixed(2)}%` }, sel);
-          if (marks) {
-            cell.classList.add(marks[k] ? 'is-right' : 'is-wrong');
-            if (!marks[k]) cell.append(h('span', { class: 'dg-fix', title: 'The right degree' }, String(D.notes[k].deg)));
-          }
-          lane.append(cell);
+      pic.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="mstaff dg-staff" viewBox="0 0 ${Math.round(b.W)} ${b.H}" role="img" aria-label="Measures ${a + 1} to ${a + n}, notes n${first + 1} to n${j}">${b.inner}</svg>`;
+      const row = h('div', { class: 'dg-answers' });
+      for (let k = first; k < j; k++) {
+        const id = `dg-${uid}-${k}`;
+        const sel = selectEl(id, DEG_OPTS, resp[k] ? String(resp[k]) : '', (v) => {
+          resp[k] = v ? +v : 0;
+          if (o.onResponse) o.onResponse(resp.slice());
         });
+        sel.setAttribute('aria-label', `Note n${k + 1}, measure ${D.notes[k].m + 1}: scale degree`);
+        if (o.locked || o.keyMode) sel.disabled = true;
+        const cell = h('div', { class: 'dg-box' }, h('label', { class: 'dg-n', for: id }, 'n' + (k + 1)), sel);
+        if (marks) {
+          cell.classList.add(marks[k] ? 'is-right' : 'is-wrong');
+          if (!marks[k]) cell.append(h('span', { class: 'dg-fix', title: 'The right degree' }, '→ ' + D.notes[k].deg));
+        }
+        row.append(cell);
       }
-      lanes.push(lane);
       // A line can grow to half again its drawn size; a one-measure line stays in proportion.
-      lines.append(h('div', { class: 'dg-line', style: `max-width:${Math.round(b.W * 1.5)}px` }, pic, lane));
+      lines.append(h('div', { class: 'dg-line' }, h('div', { class: 'dg-pic-wrap', style: `max-width:${Math.round(b.W * 1.5)}px` }, pic), row));
     }
-    // A menu that would overlap the one before it drops to a second row.
-    const layout = () => lanes.forEach((lane) => {
-      let lastRight = -Infinity, rows = 1;
-      Array.from(lane.children).forEach((c) => {
-        c.classList.remove('is-low');
-        const r = c.getBoundingClientRect();
-        if (r.left < lastRight + 2) { c.classList.add('is-low'); rows = 2; } else lastRight = r.right;
-      });
-      lane.classList.toggle('has-two', rows > 1);
-    });
-    requestAnimationFrame(layout);
-    if (window.ResizeObserver) new ResizeObserver(() => layout()).observe(lines);
     wrap.append(lines);
     if (o.keyMode) wrap.append(h('p', { class: 'result is-key' }, h('strong', null, 'Answer: '), MQ.describeAnswer(q, cfg)));
     else if (o.reveal) wrap.append(resultLine(q, cfg, resp));
@@ -1122,13 +1110,13 @@
     };
     const TABS = [
       { id: 'place', label: 'Place the Note' }, { id: 'identify', label: 'Name the Note' },
+      { id: 'degree', label: 'Scale Degrees', max: MQ.DEGREE_MAX },
       { id: 'interval', label: 'Intervals' }, { id: 'chord', label: 'Chords' },
       { id: 'scale', label: 'Scales' }, { id: 'keysig', label: 'Key Signatures' },
       { id: 'custom', label: 'Custom Chords', list: 'custom' },
       { id: 'voicing', label: 'Single Voiced Chords', tech: 'vc' }, { id: 'vprog', label: 'Voiced Progressions', tech: 'vp' },
       { id: 'progression', label: 'Chord Progressions', list: 'progs', pool: true },
       { id: 'figured', label: 'Figured Bass Chord' }, { id: 'figprog', label: 'Figured Bass Progression' },
-      { id: 'degree', label: 'Scale Degrees', max: MQ.DEGREE_MAX },
     ];
     // Custom Chords is hidden while it is being reworked.
     for (let i = TABS.length - 1; i >= 0; i--) if (TABS[i].id === 'custom') TABS.splice(i, 1);
@@ -4467,14 +4455,18 @@
     return h('li', null, h('span', { class: 'key-q' }, `Melody ${M.n + 1}`, h('span', { class: 'key-clef' }, ` · ${MQ.melodyKeyName(M.key)} · ${info.label} · ${tempoLabel(info, M.tempo)}`)), box);
   }
   // On paper: an empty staff with the clef, key signature and time signature, two measures to a line.
-  // Scale degrees on paper: the melody itself, two measures a line, with room under the notes to write.
+  // Scale degrees on paper: the melody two measures a line, its notes numbered n1, n2 … above the staff
+  // to match the answer blanks.
   function degreePrintArt(q, opts) {
     const D = q.deg, rows = [];
     const per = D.measures > 2 ? 2 : D.measures;
+    let j = 0;
     for (let a = 0; a < D.measures; a += per) {
       const n = Math.min(per, D.measures - a);
-      rows.push(MQ.melodyArt({ meter: D.meter, measures: n, layers: [D.layers[0].slice(a, a + n)], key: D.key, clef: D.clef },
-        { first: a, showTime: a === 0, measureW: 300, perLine: n, open: a + n < D.measures, heightIn: (opts && opts.height) || 1.25, drawnClefs: opts && opts.drawnClefs }));
+      const bars = D.layers[0].slice(a, a + n);
+      const labels = bars.map((bar) => bar.map((e) => (e.r || !e.p ? null : 'n' + ++j)));
+      rows.push(MQ.melodyArt({ meter: D.meter, measures: n, layers: [bars], key: D.key, clef: D.clef },
+        { first: a, showTime: a === 0, measureW: 300, perLine: n, open: a + n < D.measures, noteLabels: labels, heightIn: (opts && opts.height) || 1.25, drawnClefs: opts && opts.drawnClefs }));
     }
     return rows;
   }

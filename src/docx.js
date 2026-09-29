@@ -186,7 +186,10 @@
       if (it.hint) body.push(para(run(it.hint, { pt: 10, color: '444444' }), { indent: 720, after: 40, keep: true }));
       imgs.forEach((img, j) => body.push(para(drawing(100 + i * 10 + j, img.rid, img.wIn, img.hIn, img.name), { indent: 720, after: 60 })));
       const a = it.answer;
-      if (a.kind === 'lines') {
+      if (a.kind === 'lines' && a.narrow) {
+        // Short blanks, several to a line: "n1: ____   n2: ____ …"
+        body.push(para([].concat(...a.items.map((label) => [run(label + ': ', { pt: 10 }), run('          ', { pt: 10, u: true }), run('     ', { pt: 10 })])), { indent: 720, after: 40 }));
+      } else if (a.kind === 'lines') {
         a.items.forEach((label) => body.push(para([run(label + ': ', { pt: 10 }), run(BLANK, { pt: 10, u: true })], { indent: 720, after: 40 })));
       } else if (a.kind === 'choices') {
         body.push(para(a.items.map((t, k) => run(`${'ABCD'[k] || k + 1}. ${t}    `, { pt: 11 })), { indent: 720, after: 40 }));

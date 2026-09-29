@@ -37,6 +37,8 @@
       if (q.keys.answer === 'name') return { kind: 'lines', items: ['Note name with octave'] };
       return { kind: 'staff', items: [] };
     }
+    // Scale degrees: a short blank for each numbered note (n1, n2 …), several to a line.
+    if (q.type === 'degree') return { kind: 'lines', narrow: true, items: q.deg.notes.map((_, i) => 'n' + (i + 1)) };
     if (q.choices) return { kind: 'choices', items: q.choices.slice() };
     if (q.dropdowns) return { kind: 'lines', items: q.dropdowns.map((d, i) => d.label || `Answer ${i + 1}`) };
     if (q.symbolAnswers) return { kind: 'lines', items: q.symbolAnswers.map((_, i) => `Chord ${i + 1}`) };
@@ -110,6 +112,8 @@ li.q .hint { font-size: 10pt; margin: 2pt 0 0; color: #333; }
 .lines { margin: 8pt 0 0; display: flex; flex-wrap: wrap; gap: 6pt 16pt; }
 .lines .slot { font-size: 10pt; }
 .lines .slot i { font-style: normal; display: inline-block; border-bottom: 0.75pt solid #000; min-width: 1.5in; margin-left: 4pt; }
+.lines.is-narrow { gap: 8pt 14pt; }
+.lines.is-narrow .slot i { min-width: 0.45in; }
 .choices { margin: 8pt 0 0; padding: 0; list-style: none; display: flex; flex-wrap: wrap; gap: 4pt 20pt; font-size: 11pt; }
 .choices li { min-width: 1.2in; }
 .choices b { font-weight: normal; }
@@ -159,7 +163,7 @@ svg.staff .nlabel { display: none; }
       const a = it.answer;
       let answer = '';
       if (a.kind === 'lines') {
-        answer = `<div class="lines">${a.items.map((t) => `<span class="slot">${esc(t)}<i></i></span>`).join('')}</div>`;
+        answer = `<div class="lines${a.narrow ? ' is-narrow' : ''}">${a.items.map((t) => `<span class="slot">${esc(t)}<i></i></span>`).join('')}</div>`;
       } else if (a.kind === 'choices') {
         answer = `<ol class="choices">${a.items.map((t, i) => `<li><b>${'ABCD'[i] || i + 1}.</b> ${esc(t)}</li>`).join('')}</ol>`;
       }
@@ -256,7 +260,7 @@ svg.staff .nlabel { display: none; }
       const artH = arts.reduce((n, x) => n + x.h + 8, 0);
       const art = arts.length > 0;
       const a = it.answer;
-      const slotW = Math.min(textW, 190);
+      const slotW = a.narrow ? 66 : Math.min(textW, 190);
       const perRow = Math.max(1, Math.floor(textW / slotW));
       const choiceCols = a.kind === 'choices'
         ? Math.max(1, Math.min(a.items.length, Math.floor(textW / Math.max(90, ...a.items.map((t, i) => MQ.pdfTextWidth(`${'ABCD'[i] || i + 1}.  ${t}`, 11, 'F1') + 18)))))
