@@ -952,6 +952,87 @@ select.rn-mark { min-width: 0; }
 .dg-share-row { display: flex; align-items: center; gap: 12px; }
 .dg-share { flex: 1; max-width: 320px; accent-color: var(--accent); }
 .dg-share-val { font-weight: 700; color: var(--accent); min-width: 9em; }
+
+/* ---------- Clefwork Chord Graph: worksheet tables, phrases and the graph ---------- */
+.cg-scroll { overflow-x: auto; padding: 2px 2px 6px; margin: 0 -2px; }
+.cg-table { border-collapse: collapse; }
+.cg-table th, .cg-table td { padding: 0; }
+.cg-head {
+  border: 1.5px solid var(--line-2); background: var(--surface-2); padding: 6px 8px; min-width: 108px; max-width: 136px;
+  text-align: center; vertical-align: middle; font: 700 12.5px/1.25 var(--f-body); color: var(--ink-2);
+}
+.cg-head.is-key { background: var(--accent-soft); color: var(--ink); font: 800 18px/1.1 var(--f-display); }
+.cg-head.is-sub { color: var(--muted); font-size: 11.5px; }
+.cg-head-text { display: inline; }
+.cg-head .cg-play { display: inline-grid; width: 28px; height: 28px; margin-left: 6px; vertical-align: middle; }
+.cg-head .cg-play svg { width: 15px; height: 15px; }
+.cg-cell { position: relative; border: 1.5px solid var(--line-2); min-width: 66px; height: 46px; text-align: center; vertical-align: middle; background: var(--surface); }
+.cg-cell.is-given { background: var(--surface-2); }
+.cg-table.is-tt .cg-cell { min-width: 72px; height: 50px; }
+.cg-void { border: 0; background: transparent; }
+.cg-given { display: inline-block; padding: 0 6px; font: 700 17px/1 var(--f-display); white-space: nowrap; }
+.cg-cap { position: absolute; top: 3px; left: 5px; font: 700 10.5px/1 var(--f-mono); color: var(--muted); }
+.cg-table.is-tt .cg-cell:has(.cg-cap) .cg-slots { padding-top: 13px; }
+.cg-slots { display: flex; align-items: flex-start; justify-content: center; gap: 3px; padding: 4px; }
+.cg-slot { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+.cg-or { align-self: center; font-size: 11.5px; font-style: italic; color: var(--muted); }
+input.cg-in { width: 66px; min-height: 34px; padding: 3px 2px; border-radius: 7px; text-align: center; font: 700 15px var(--f-mono); }
+.cg-slots.is-two input.cg-in { width: 58px; }
+.cg-head input.cg-in { width: 84px; }
+input.cg-in:disabled { color: var(--ink); opacity: 1; }
+.cg-card input.is-invalid { border-color: var(--warn); background: var(--surface); }
+.cg-card input.is-right { border-color: var(--good); background: var(--good-soft); color: var(--good); }
+.cg-card input.is-wrong { border-color: var(--bad); background: var(--bad-soft); color: var(--bad); }
+.cg-card input.is-part { border-color: var(--warn); background: var(--warn-soft); color: var(--warn); }
+.cg-fix { font: 700 12px/1.2 var(--f-mono); color: var(--good); white-space: nowrap; }
+/* A tritone substitute that's right though it looks wrong (minor's VI) is written in italics. */
+.cg-slot.is-italic input.cg-in, .cg-slot.is-italic .cg-fix, i.cg-italic { font-style: italic; }
+.cg-card.is-compact .cg-head { min-width: 86px; padding: 4px 6px; font-size: 11px; }
+.cg-card.is-compact .cg-head.is-key { font-size: 15px; }
+.cg-card.is-compact .cg-cell { min-width: 52px; height: 40px; }
+.cg-card.is-compact input.cg-in { width: 52px; min-height: 30px; font-size: 13px; }
+.cg-card.is-compact .cg-slots.is-two input.cg-in { width: 46px; }
+.cg-card.is-compact .cg-given { font-size: 14px; }
+
+/* The chord graph beside a phrase: each column's chord, its stand-ins above and below. */
+.cg-graph-wrap { margin: 0; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface-2); }
+.cg-graph { display: flex; align-items: center; justify-content: space-between; gap: 4px; overflow-x: auto; }
+.cg-g-col { display: grid; grid-template-rows: 16px 26px 16px; justify-items: center; align-items: center; min-width: 38px; }
+.cg-g-main { font: 800 19px/1 var(--f-display); color: var(--ink); }
+.cg-g-alt { font: 700 12.5px/1 var(--f-display); color: var(--accent); }
+.cg-g-arrow { font-size: 16px; color: var(--muted); }
+.cg-graph-cap { margin: 8px 0 0; font-size: 12.5px; color: var(--muted); }
+
+/* A phrase: measures between double bars, two lines of them. */
+.cg-bars { display: flex; flex-direction: column; gap: 12px; }
+.cg-line { display: grid; grid-template-columns: repeat(var(--n), minmax(0, 1fr)); border-left: 4px double var(--ink-2); border-right: 5px double var(--ink-2); }
+.cg-bar { display: flex; flex-direction: column; gap: 5px; min-width: 0; padding: 6px 8px 8px; border-left: 1.5px solid var(--ink-2); }
+.cg-bar:first-child { border-left: 0; }
+.cg-bar-n { font: 700 11px/1 var(--f-mono); color: var(--muted); }
+.cg-bar-rn { display: flex; flex-direction: column; gap: 4px; }
+.cg-bar-rn select.rn-mark { width: 100%; min-height: 32px; padding: 2px 4px; font-size: 13px; }
+input.cg-sym { font-size: 15px; }
+.cg-why { font-size: 12px; line-height: 1.3; color: var(--bad); }
+.cg-rules { display: flex; flex-wrap: wrap; gap: 6px 16px; margin: 0; padding: 0; list-style: none; font-size: 14px; font-weight: 700; }
+.cg-rules .is-right { color: var(--good); }
+.cg-rules .is-wrong { color: var(--bad); }
+.cg-card.is-compact .cg-line { grid-template-columns: repeat(auto-fill, minmax(84px, 1fr)); }
+.cg-card.is-compact .cg-bar { border-left: 0; border-bottom: 1px solid var(--line); }
+@media (max-width: 640px) {
+  /* Tables scroll sideways on a phone, with the row labels kept in view. */
+  .cg-head { position: sticky; left: 0; z-index: 1; min-width: 78px; padding: 4px 5px; font-size: 11px; }
+  .cg-head.is-key { font-size: 15px; }
+  .cg-cell { min-width: 58px; }
+  input.cg-in { width: 54px; font-size: 14px; }
+  .cg-slots.is-two input.cg-in { width: 48px; }
+  .cg-line { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .cg-bar:nth-child(2n+1) { border-left: 0; }
+  .cg-bar:nth-child(n+3) { border-top: 1.5px solid var(--line); }
+  .cg-graph { gap: 2px; }
+  .cg-g-main { font-size: 16px; }
+  .cg-g-col { min-width: 26px; }
+  .cg-g-arrow { font-size: 13px; }
+}
 :root{--logo-mark:url(data:image/png;base64,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)}@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--logo-mark:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGEAAABwCAMAAAA5Uu6vAAADAFBMVEUAAABt5ern7PBp3eIku8jx9/ooxdP+/v4cuMYA//9+//9y8vdz19t11tlUqap9vr5V//8/v79x2Nxw2d1u2d1u2t0st8RS1Nuu//+F1dds3eF41Nbk6u5Y2+LR5Oh/f39x4eWP2NeQycvj6e1x3eF2y84wtsJGzNXj6e1ry8w1t8J13eGqqqzj6e2C19oewtEAf3961daQ3OGQ2d2s3eFLqrO2u7zT2Nl14OTk6u4Aqquw1NJ/v//m5+9Vqv83tsE3sbyn2d3/AAAAAP/b4ua04+ePu7vM3uJY4+vO1tlrp61Ht8Kzyc1Jsrvc4+eEy9B0zdLT5ek8sbvd5Og2q7Yysr3R19ri6Ox54eXT2+HLy8x23eIAqv//f3/c4+dyu8nd4+ex5OSM5OmZmZlU1dUusr4Fv78v0+FDs7wtrrp/f/8lsb7U2ON13eGTys8srrqC293/VVV0mJi5f3+J2+E5p7Q2rbnR//860dxX1dw///80wMu8vMuUzLa/v//ZurrGxsyXl6qE3eHx8fRTydFLuMNLs7NCqrd74+XQ2d0zzMza3eI8tsD/qqr//382qrDq8PNe1t3//9CM4OTY3uF75OqE6OrY8fQZsr+C3OHr8fWW09f/fwAAf///urpwub12vMSNo6N43eWVlWliy9E3mJ0/f7+617pJnKtGnKg0f5RFs7+qqv9Et8D//7Q5wMpVAAAAmcwAqtQA/wAA/6o4ODg/f38+nqUzmcwpr7wqqtQktto/v/9VampLh5ZIkZFVqtRAsbxbt8FHv8dIyMhYzMxdx8pNw8tKydFa0NVf199b8fxtbZFzi4tqlKpqqq9/v59lur97z89/1P9u5e5o5OSGu8mAz8+Z5eWW4eGN7OyZ//+qAACqVVW/n5+/v3+/v5+lvLyssrW1wMa+xMirys2lztKq1P+q4sa//7/MZjPUf3/GqqrUqtTMz9LV3eDa3+Pf5en/AP//Var/f///mZn/qlX//wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABKic5SAAABAHRSTlMA/fz6+f3+Av0BAv5wTwUFAwSOsPbQ0PwDLNEsy/v9AtAREK+yKq79bQqQjgSRUP4CFPv+/SoIDrEyAwkEFQNvbv4BAS7/DPv+MBFMEi5uKkoVSU9QjE9LiSoMcQMCkRSvCv4JCLME/0uQAskXWv+qbgMLBC4zcgX/0gTLEwwECCcPVqq0PA5EfHIGZ1QDAhUtlgXXUlVh//5w3KsCAgUjLhItBmwbBAkkFwxyA20DpQMFBgEDEgQlBcQGBwQMEQcGjhmBDjdXbM5Xo/8HCwwwCP+RBh4xE2EKM1EFAwMIBAg2Wi1PnP4GCQQFBgkGUI/CygEDAgUDAQAAAAAAAAAAMzMbmwAAEcdJREFUeNq1WnV8G1e2PldDmhkxg2WBZZSMMTuG2LFjTJM0zC9JmzRtyrDlLW+73W6XmZkf7D7YfczMzMyM/75zzp2R5NhJ2l11frEjSzP3u4e+A1cAr+cKwWhFEZVRy4A35grBTQUhFDuKr96QKwBpXB8v2/fGQFgSgP6JQdNqPoAZGM2wBIgh3hA9pcBnkwAoAf5LQ9OFsMz7eX1cHS87gohN96OI4NUlhNINTfbYPBRJ/876+N+nIdxchCD4HICy3x9FjGfReZvrSa/EpYb89FdEiM4vgtn0WKCrD7pTPz6AGks+0FwhdrKSFOGDQfxrAOIi92BzDRGCKMVyZjREHhQ2oyJ3F3y9qWZ4G8UzGiFIf4WhInK3N9UOBvwu6Sg+aDqOFRXJxJPNhAhAVrAVdroIdlK9t2kIRsjqBv8mMjoVF53qKjwSzDdh+ZQkUUKIG2bddXX1DBso+B0xoMHUU/Qf9bOzRmpK8tk5VQ2A7z3ku2bqO9HWfOnpcYWYFKMYzRB07B4XSa/6RUOxlfET9xPmt8WCIROyg6gO26a1SYasNEOKlNTpTfxXKY4f2qJ85fFvBwMZ4R6IREHBFfrSzHuKg0DRJ/T+BJil+ysZhXZwtASvM18YIfjwlULaJ9oH37PuMKtQiuyeYejD1169A26lW9MVLD9scaKEafb1JEzoKwj7D3x2oR33nMqH0JdEfJ7BA5/LkJL0OSSPABnmcwpBiBPgmOk1MEQQiuNE1SUfaqCPVCMR/oQ+7SajK6pX3XB0FnxIifhRDjGehdeWvPGmPuLpSgkiGR8VLnmKAEXKYBGW0L164j7poyZ8Vy53HzBG5b7XUoKk4J8rtKE0mCZauh2jIIj+WYqJ+HGAGXxDiJxX1Xsc8kaEmIg+CY/TU4WbbixFGNK0mw+gUv8IfSkE+6LoVyaMxcnSQZhCjhWoI3XESUAmTMWWRRSdKUsP+snLr68iv7MVC1+jDFbx97AKwNeIkDWtPx9HgE4E+KH5AajJkEn+0rNLF+BPKxyW1y2bLfJKUakyPVikpVA9A+H+7oliUYaEoaoH4bMuwv6Yv/1h+9NwAeBpehpuCOCTLhEKQYUQFuQnEfqgTKlURyvcnh9wPQ9+P+aHpYzy65C3WFPjRcO4TjKmXB+WN0ydqdRkCJL2yiiBgn6kevUDtTKAtOTHpWNZfMuCUsG27w4WLStlXAvAjx6Pz5nzvkyuXgATYStceSOAivFci18TUijDIxD303shKL437RKbtaXmojDYxwCkFVs0IBjWk3UAJG5zABplAKsUH2ROoVXTd0ciPv8WqpIVkd8FaMcaOFfjazMFd3O5RG7kRTPXKUgiQDrC76Fq/OOSj5Xy5vrcsNYzZMtuBy4rloUdLVrs3HmTmU9QVkAj3CY5T9az3VYREcx97eTUhnm+QqKei8UU9plAYyijO0ZqoKbhy2R8IHO9BfMRVhFJoOq3/N9MI8kDIIJUphn6s7IdG25t9ezZtUPhHiBUD2XcZPzD4e3isQqjZVupASRW60ZAbfoiEcWPbGIwXsTe0erxaJrH42mNIYSvwVXQ0V1SyVuBarWYSv2dIT2gxN0VGpncKPGFunYt2MfW2Qcz7ipDcn362YMQImu6IRsXsqAzgqGrXQw7XOp8EMDr7U98BsPFkCGF1lKWc7mcaJfaCkLkHC7ecvip0YmzCNGqUMPnGAHjKYoBYdHyxm9nP/4Xr/71X668+tiYYRGZSgDVi5z9mU3uFxEIsPxwUZY5phFv1bSWX+YPexFih0Kpl5a8XMIlihaVPqUr4/Edi60oJgqq9aZID9R9qgSgJgKAlDBtTO93SMYmLm+XejPhp2MowmFacdSAFg1NQXWilE7Iuj2NvnYOTSUv7d/H4KYagMpkMTCh8UfvRtOaC92RTPnEGaejM2FyCHe1MjZxnCqtvSSEYDWZJooQn3oE0uPCHqqtjwr9Ee7RhSOBjmnHNPd7WLq2hkbRcsvnlwjhbIum/SschwkPI2TcQgLD0of5fMjTADDNNnAB1FtU/Wu4WpvGH1ZlAFhWvVKqwoekG2meKQPOt2qeO/FhFiFux/8hWBYituiuTtcKq8gB6FfnQNV/3khBl1TT7q3drgUjezS5wDTAN/B1q0IITMy+59HnY7uc9T0tvV2H/wqKmQaAg7CQuJhEUkE10T1d2/TTBrwo4VurBqzji12MkIe4raxTUC066/dO8P3/HSWAnAQYQS7qWU62o2c7ampEcE2dgtMsPvnBCt51J9mBONWOUG6RNtDajuETTzxRlK6IEmCcqQ9AOAw/t4zmKjpq8hyH/HbN0uG2lmeOoLvCEbztHKYt6dTvwrUcgF5Z1FuOG7EEiR9A4uKqzAdTMMG0o+2tCWHAW9+VyWQKRICG845BIUfUFAFjPi47ZXZT7UWnaQgAv82RnPg88Y4FN2FhFLpQKp3+ILlCWwNCi0ZMyvmKKCVF8d3ChiYnzUpWGHIkeMioJzzKB+imI/D9vNAg+pxcc6ULn3/MgcjDHR5tOKeI2OO1zu7LQJFJhi5x/4QIsT2O+QzJMKW4cNwIAcLs+kA99d0+nz9dxL8Pt9zsIEiVx7jBCNTEIl4akswX4anRDrbCm6HaOCchHakvMADGbfGEM5pRlHLfKMAdDkKKV8P91npV3OeYp0ZL1TgjtFI0nnZViyyJi5GO9AfhB5nel04IOUaUQ6xCH7gbNqotTNXSbxwRuphaqRLFQoc2FuMwOuaUUlVyG64rsG4JcwrkMagzXJKvxksyfxkgyXAH9zCOL+UdO0ekC+JHwxwJrghMtigCW9miSqpPUmyyU9c7O5OysHESj+EEyA4uVVIS9GZ8a5gtU+UqTChs55uNJxxD0VSSkhqWFWFSEQFgOUnRR7B6pxxmcWIwZJDzliuy+uG3yApRuoGndwqlb8+YIwPVMoKCzat+AbO+E3ydvL7KF4LQW5mlAOp12iMRMLziYxJgN3OSImUqk8AxNHSdaYI8AUiyCCfBtP4+LiXy9uuYI/BiDKdaSTlmkGrKSql6pRXi1cu4XEY4jIHRZtTyr03lnbSC9Fyuh9VDs8+tzfYkVJ0SHj2YRhZxeMozrFD1YuEqRL/DtWERTyCHNvGxhYLJXg1j1KQGi22izt3rmOlAQkLQjN2ihCwpOyb9lU1PVogP8oKEoNzp4RRuuN6ckQizaGdOH8n3I/2NoNeG16fCWLbd00MQSRbCMYOHmZT8lYsAsoJT9TICpR7tSI3mcSBGeUHfQHcMULmpvt97+4/CSwuj8FbiioAJh8gYVNSZ0gz/hj+L3H1MsWHIuEuyyKGAI1fyaBM1hCczHA04fTGxEWSjq58nv0U35Lg3vwc60Hc7SS3HOGuN4b6xyEPbcwIZrosgZRjeLMNHGaE/8U5YoLqOFDbHAMZ5j/S4y2aQzE1q+c8W9kMKiiF0nylWEhJGrGiaNQSxjR2SXp1mhRwb6EirAyZp+EUNbxsziEdQT94cNqi0ttZrkEfRzrPE5a2CCMOZlrK37trkSwHypaR0JUbAih4mibNWKAnvJmEsc0Pa2s8IN3OQSTJFLt8hGkZ2NMMWi5viYSe3WHUERdXnFnBDj3V5uB7ae5x0eSqhkyH6WD/rwFwXoxqvS9uj0P9uriCOEzs4/bhNKhfKuGwCh8N5GFSWVSwnv/xqr6a51U7bhNENPTpFHSEgZz4kS2F87tZejXKF33S7OGY+Yg3KP/kGXkJLligrYqqgBn3SmOiSsaW1dU2MoZLnGCFNCKTgI0ynQvxMm0bRNmW6GVWyd+smQ5jYk5B5R1AIZHJbV1/mHiR/WuPbZNf0FdISWhpxqQCkrLaHZoLPvC9Wd1WaRJIz5YY3FVm0Kg2pDnAT3i6SPInJG8TKZC4jTwhfYoRBXLkFWbnq+qviWczVJnZ8xV1D1GOOR8Roap7wUFDrCR6UGMZ+zTNdNaQMqKWkXUYn4tRlLHTJrKO0YgEQb2x0I3ZNTW3whMt9cR4W0pTKMrMoxBp7twH/0QbH+ZZJjGr0Vp+xV5pBJgUMa+VvuSZoQGBDOEK4BYqkO1TTQoiE8Av99q+a1C8bp/e6ddi/JPpVVBIpR9bh58kR0AS/EbvqMG0qVre1dsytsk6REOivk7IVzl08RKUX1rtvhhFWpPkA8hKy9wqaIW/USqRdfOYYbxwjy6wvxLDsSp4Co3YEikJcYuVgoi4s9/yYrOhG7qLft8Jt/V4F99qrOaE6yumfUhvxX7BxGOBvrFtbPgHHDecEES2hBjg0Q/DR9z787MdQUWHoUJeIEDeQ3XGlsZpuDSIk9iYKw8bBqFmVpbFTe7cg7aQMw6QzBorr8wxBP9kgDW0v6Rgmnz1J7C3iJXZRp4CVRQcFnZLeVPk7FaSkcLJF1xg75kMYdqinjl+pla0gKVVfM78XbtORWLOkmFoYyfaTOCkevKqp6Ma6BAnQ6YE82gf3rnD52p6xEeLRDTBnTDmh4SjA5Io43jfhsOEYtYV7awjHNI/T4Ya2nHgKv6/eKBLDtZx9ZjeUyngYo6tfwZtOzjDPhK0D2POudhBAO4ySf6L/vc1tS8gQi8rmaOC9dVMQ+p080diM/lNELKNFH11bqiuVcpuu5gofg3UG8EzVMxdXf0PukddVQvggu7lhR5QjPKbN6f16oufgxq/e87//GNz4kkpVWdL3x2Dtpc5ZO9vYbRHk8NbDa8sclHX40+Pi3KKnAaN3P8z7CrmLyNO480QiobIE+jtwHlKC3U4/l6ohrMjS7MKWTjhEWYIHZOmjBWXxfVrtalu34Lv973hYl9dFLin1nwVpyrFpvI67yg7iPHp6ev9+Y3q7E5NTPF/6LTTm//yO7zc/9Ddn21pazp7uOnaHYZCvvvOTv/BTX+vAq2f2Uo+uz4W2HGbw3AjWV69/ove4iYPY7T7d5HsHdf2QU0YYeU4VMloGfeVMLJYp+0e3PfRNkZ6ieCqCpXYwSBkgSF1r1U16Vjh8ctI0J09+M7BBjdHk1Wcu2YrbH4mCf9szoUfkrLLbEckfucaRiwkBKhE2vZWCJV4/mUx2JpPKVVPQmh6t7kwtcWB6sNuvAbFgYOG92nAkiiPZvgJmsaTTIelJSg/bQfDpiJwZE0Kh3XVqK0hnQ67/TcItOpcINVo7dZSGyTTi4gv/l93VNqbwy1N6Yh8/TrMciMDmSVgY6yT95dr5OnWpNu2/X1c7Hlxbm01wxbz9F0Z2OhAWJTU8YyqUDFY8xkih8JaS88wMOdOsg2B9hPaSo30nZqWnfqKDKmbf9udBEgLNdAF8dMZEPoFjYDpsw599rkgjtWOmIJeMJIA6+xRtZibwdljFejZ39BonTt0MEaFKMIpyfABSNGeW2YPGv5f5WwhvV7miBTwHLJZtHiUfQlX+sLlKR1JkJ++bKtc60+IaQ4wPgq8M3Xlq+vlsHee2wq11TfhJdldMgo6G9MRB+nLCDPzEpfwMDCwQtZ9wJxzbQLTjMUuheKIM97L1qd1Okp5zxI0WIRQdGdrHqWHt13vuhUly3nl1Fr71EnyVyPf+a5/LhWHpqH+KZbDw2KukyH4Lk4TTf5vQzTIs4fAULaAnXnDdbV5VPw7wCjaResIwr3touXQ0WihLuwzKGRBd+vI+Mq1jh+4MK0idzUsBMAtCx0W1p4caYf25630fxbqcRcfBUiuKDkqHBknVufTnzAs78wHzEhGTf1lHD+oYaYyXB1RJ7jgxut5Bcv4VGjjZvnXEiZAMSa8L8Xwt4ubwF66/AQ3nNSjdCwnCSBy4LoAJozEUIV48g0f0In0q4yJ4kbOD/rf4B86gJUeCqtqD+6+fptD1EfjUgdnZtfNXMe9WCH+hUKFvSlwZx+iLYFlGGtL1jmqwIjLtJEIHPH8wQJy+5Vlo5JkbHIPTr09mqYFhSyewSCpWrgDMIdoGVTYnre2+LxcOB2783Qq8hc8tQ3y47rPJW38Nn+ZjqDmUZw7VMNOcb7RY+e8LnIra6JWPvky8trqGtKbfBTPN/FqRYVbLdo6KmVvuYk9B1jPN5n6BDOmnkJOzMXLFNRho+rcdLfjUH/7io+RRiY61+Ru44tbr/wFlfRtzVxH7bAAAAABJRU5ErkJggg==)}}:root[data-theme="dark"]{--logo-mark:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGEAAABwCAMAAAA5Uu6vAAADAFBMVEUAAABt5ern7PBp3eIku8jx9/ooxdP+/v4cuMYA//9+//9y8vdz19t11tlUqap9vr5V//8/v79x2Nxw2d1u2d1u2t0st8RS1Nuu//+F1dds3eF41Nbk6u5Y2+LR5Oh/f39x4eWP2NeQycvj6e1x3eF2y84wtsJGzNXj6e1ry8w1t8J13eGqqqzj6e2C19oewtEAf3961daQ3OGQ2d2s3eFLqrO2u7zT2Nl14OTk6u4Aqquw1NJ/v//m5+9Vqv83tsE3sbyn2d3/AAAAAP/b4ua04+ePu7vM3uJY4+vO1tlrp61Ht8Kzyc1Jsrvc4+eEy9B0zdLT5ek8sbvd5Og2q7Yysr3R19ri6Ox54eXT2+HLy8x23eIAqv//f3/c4+dyu8nd4+ex5OSM5OmZmZlU1dUusr4Fv78v0+FDs7wtrrp/f/8lsb7U2ON13eGTys8srrqC293/VVV0mJi5f3+J2+E5p7Q2rbnR//860dxX1dw///80wMu8vMuUzLa/v//ZurrGxsyXl6qE3eHx8fRTydFLuMNLs7NCqrd74+XQ2d0zzMza3eI8tsD/qqr//382qrDq8PNe1t3//9CM4OTY3uF75OqE6OrY8fQZsr+C3OHr8fWW09f/fwAAf///urpwub12vMSNo6N43eWVlWliy9E3mJ0/f7+617pJnKtGnKg0f5RFs7+qqv9Et8D//7Q5wMpVAAAAmcwAqtQA/wAA/6o4ODg/f38+nqUzmcwpr7wqqtQktto/v/9VampLh5ZIkZFVqtRAsbxbt8FHv8dIyMhYzMxdx8pNw8tKydFa0NVf199b8fxtbZFzi4tqlKpqqq9/v59lur97z89/1P9u5e5o5OSGu8mAz8+Z5eWW4eGN7OyZ//+qAACqVVW/n5+/v3+/v5+lvLyssrW1wMa+xMirys2lztKq1P+q4sa//7/MZjPUf3/GqqrUqtTMz9LV3eDa3+Pf5en/AP//Var/f///mZn/qlX//wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABKic5SAAABAHRSTlMA/fz6+f3+Av0BAv5wTwUFAwSOsPbQ0PwDLNEsy/v9AtAREK+yKq79bQqQjgSRUP4CFPv+/SoIDrEyAwkEFQNvbv4BAS7/DPv+MBFMEi5uKkoVSU9QjE9LiSoMcQMCkRSvCv4JCLME/0uQAskXWv+qbgMLBC4zcgX/0gTLEwwECCcPVqq0PA5EfHIGZ1QDAhUtlgXXUlVh//5w3KsCAgUjLhItBmwbBAkkFwxyA20DpQMFBgEDEgQlBcQGBwQMEQcGjhmBDjdXbM5Xo/8HCwwwCP+RBh4xE2EKM1EFAwMIBAg2Wi1PnP4GCQQFBgkGUI/CygEDAgUDAQAAAAAAAAAAMzMbmwAAEcdJREFUeNq1WnV8G1e2PldDmhkxg2WBZZSMMTuG2LFjTJM0zC9JmzRtyrDlLW+73W6XmZkf7D7YfczMzMyM/75zzp2R5NhJ2l11frEjSzP3u4e+A1cAr+cKwWhFEZVRy4A35grBTQUhFDuKr96QKwBpXB8v2/fGQFgSgP6JQdNqPoAZGM2wBIgh3hA9pcBnkwAoAf5LQ9OFsMz7eX1cHS87gohN96OI4NUlhNINTfbYPBRJ/876+N+nIdxchCD4HICy3x9FjGfReZvrSa/EpYb89FdEiM4vgtn0WKCrD7pTPz6AGks+0FwhdrKSFOGDQfxrAOIi92BzDRGCKMVyZjREHhQ2oyJ3F3y9qWZ4G8UzGiFIf4WhInK3N9UOBvwu6Sg+aDqOFRXJxJPNhAhAVrAVdroIdlK9t2kIRsjqBv8mMjoVF53qKjwSzDdh+ZQkUUKIG2bddXX1DBso+B0xoMHUU/Qf9bOzRmpK8tk5VQ2A7z3ku2bqO9HWfOnpcYWYFKMYzRB07B4XSa/6RUOxlfET9xPmt8WCIROyg6gO26a1SYasNEOKlNTpTfxXKY4f2qJ85fFvBwMZ4R6IREHBFfrSzHuKg0DRJ/T+BJil+ysZhXZwtASvM18YIfjwlULaJ9oH37PuMKtQiuyeYejD1169A26lW9MVLD9scaKEafb1JEzoKwj7D3x2oR33nMqH0JdEfJ7BA5/LkJL0OSSPABnmcwpBiBPgmOk1MEQQiuNE1SUfaqCPVCMR/oQ+7SajK6pX3XB0FnxIifhRDjGehdeWvPGmPuLpSgkiGR8VLnmKAEXKYBGW0L164j7poyZ8Vy53HzBG5b7XUoKk4J8rtKE0mCZauh2jIIj+WYqJ+HGAGXxDiJxX1Xsc8kaEmIg+CY/TU4WbbixFGNK0mw+gUv8IfSkE+6LoVyaMxcnSQZhCjhWoI3XESUAmTMWWRRSdKUsP+snLr68iv7MVC1+jDFbx97AKwNeIkDWtPx9HgE4E+KH5AajJkEn+0rNLF+BPKxyW1y2bLfJKUakyPVikpVA9A+H+7oliUYaEoaoH4bMuwv6Yv/1h+9NwAeBpehpuCOCTLhEKQYUQFuQnEfqgTKlURyvcnh9wPQ9+P+aHpYzy65C3WFPjRcO4TjKmXB+WN0ydqdRkCJL2yiiBgn6kevUDtTKAtOTHpWNZfMuCUsG27w4WLStlXAvAjx6Pz5nzvkyuXgATYStceSOAivFci18TUijDIxD303shKL437RKbtaXmojDYxwCkFVs0IBjWk3UAJG5zABplAKsUH2ROoVXTd0ciPv8WqpIVkd8FaMcaOFfjazMFd3O5RG7kRTPXKUgiQDrC76Fq/OOSj5Xy5vrcsNYzZMtuBy4rloUdLVrs3HmTmU9QVkAj3CY5T9az3VYREcx97eTUhnm+QqKei8UU9plAYyijO0ZqoKbhy2R8IHO9BfMRVhFJoOq3/N9MI8kDIIJUphn6s7IdG25t9ezZtUPhHiBUD2XcZPzD4e3isQqjZVupASRW60ZAbfoiEcWPbGIwXsTe0erxaJrH42mNIYSvwVXQ0V1SyVuBarWYSv2dIT2gxN0VGpncKPGFunYt2MfW2Qcz7ipDcn362YMQImu6IRsXsqAzgqGrXQw7XOp8EMDr7U98BsPFkCGF1lKWc7mcaJfaCkLkHC7ecvip0YmzCNGqUMPnGAHjKYoBYdHyxm9nP/4Xr/71X668+tiYYRGZSgDVi5z9mU3uFxEIsPxwUZY5phFv1bSWX+YPexFih0Kpl5a8XMIlihaVPqUr4/Edi60oJgqq9aZID9R9qgSgJgKAlDBtTO93SMYmLm+XejPhp2MowmFacdSAFg1NQXWilE7Iuj2NvnYOTSUv7d/H4KYagMpkMTCh8UfvRtOaC92RTPnEGaejM2FyCHe1MjZxnCqtvSSEYDWZJooQn3oE0uPCHqqtjwr9Ee7RhSOBjmnHNPd7WLq2hkbRcsvnlwjhbIum/SschwkPI2TcQgLD0of5fMjTADDNNnAB1FtU/Wu4WpvGH1ZlAFhWvVKqwoekG2meKQPOt2qeO/FhFiFux/8hWBYituiuTtcKq8gB6FfnQNV/3khBl1TT7q3drgUjezS5wDTAN/B1q0IITMy+59HnY7uc9T0tvV2H/wqKmQaAg7CQuJhEUkE10T1d2/TTBrwo4VurBqzji12MkIe4raxTUC066/dO8P3/HSWAnAQYQS7qWU62o2c7ampEcE2dgtMsPvnBCt51J9mBONWOUG6RNtDajuETTzxRlK6IEmCcqQ9AOAw/t4zmKjpq8hyH/HbN0uG2lmeOoLvCEbztHKYt6dTvwrUcgF5Z1FuOG7EEiR9A4uKqzAdTMMG0o+2tCWHAW9+VyWQKRICG845BIUfUFAFjPi47ZXZT7UWnaQgAv82RnPg88Y4FN2FhFLpQKp3+ILlCWwNCi0ZMyvmKKCVF8d3ChiYnzUpWGHIkeMioJzzKB+imI/D9vNAg+pxcc6ULn3/MgcjDHR5tOKeI2OO1zu7LQJFJhi5x/4QIsT2O+QzJMKW4cNwIAcLs+kA99d0+nz9dxL8Pt9zsIEiVx7jBCNTEIl4akswX4anRDrbCm6HaOCchHakvMADGbfGEM5pRlHLfKMAdDkKKV8P91npV3OeYp0ZL1TgjtFI0nnZViyyJi5GO9AfhB5nel04IOUaUQ6xCH7gbNqotTNXSbxwRuphaqRLFQoc2FuMwOuaUUlVyG64rsG4JcwrkMagzXJKvxksyfxkgyXAH9zCOL+UdO0ekC+JHwxwJrghMtigCW9miSqpPUmyyU9c7O5OysHESj+EEyA4uVVIS9GZ8a5gtU+UqTChs55uNJxxD0VSSkhqWFWFSEQFgOUnRR7B6pxxmcWIwZJDzliuy+uG3yApRuoGndwqlb8+YIwPVMoKCzat+AbO+E3ydvL7KF4LQW5mlAOp12iMRMLziYxJgN3OSImUqk8AxNHSdaYI8AUiyCCfBtP4+LiXy9uuYI/BiDKdaSTlmkGrKSql6pRXi1cu4XEY4jIHRZtTyr03lnbSC9Fyuh9VDs8+tzfYkVJ0SHj2YRhZxeMozrFD1YuEqRL/DtWERTyCHNvGxhYLJXg1j1KQGi22izt3rmOlAQkLQjN2ihCwpOyb9lU1PVogP8oKEoNzp4RRuuN6ckQizaGdOH8n3I/2NoNeG16fCWLbd00MQSRbCMYOHmZT8lYsAsoJT9TICpR7tSI3mcSBGeUHfQHcMULmpvt97+4/CSwuj8FbiioAJh8gYVNSZ0gz/hj+L3H1MsWHIuEuyyKGAI1fyaBM1hCczHA04fTGxEWSjq58nv0U35Lg3vwc60Hc7SS3HOGuN4b6xyEPbcwIZrosgZRjeLMNHGaE/8U5YoLqOFDbHAMZ5j/S4y2aQzE1q+c8W9kMKiiF0nylWEhJGrGiaNQSxjR2SXp1mhRwb6EirAyZp+EUNbxsziEdQT94cNqi0ttZrkEfRzrPE5a2CCMOZlrK37trkSwHypaR0JUbAih4mibNWKAnvJmEsc0Pa2s8IN3OQSTJFLt8hGkZ2NMMWi5viYSe3WHUERdXnFnBDj3V5uB7ae5x0eSqhkyH6WD/rwFwXoxqvS9uj0P9uriCOEzs4/bhNKhfKuGwCh8N5GFSWVSwnv/xqr6a51U7bhNENPTpFHSEgZz4kS2F87tZejXKF33S7OGY+Yg3KP/kGXkJLligrYqqgBn3SmOiSsaW1dU2MoZLnGCFNCKTgI0ynQvxMm0bRNmW6GVWyd+smQ5jYk5B5R1AIZHJbV1/mHiR/WuPbZNf0FdISWhpxqQCkrLaHZoLPvC9Wd1WaRJIz5YY3FVm0Kg2pDnAT3i6SPInJG8TKZC4jTwhfYoRBXLkFWbnq+qviWczVJnZ8xV1D1GOOR8Roap7wUFDrCR6UGMZ+zTNdNaQMqKWkXUYn4tRlLHTJrKO0YgEQb2x0I3ZNTW3whMt9cR4W0pTKMrMoxBp7twH/0QbH+ZZJjGr0Vp+xV5pBJgUMa+VvuSZoQGBDOEK4BYqkO1TTQoiE8Av99q+a1C8bp/e6ddi/JPpVVBIpR9bh58kR0AS/EbvqMG0qVre1dsytsk6REOivk7IVzl08RKUX1rtvhhFWpPkA8hKy9wqaIW/USqRdfOYYbxwjy6wvxLDsSp4Co3YEikJcYuVgoi4s9/yYrOhG7qLft8Jt/V4F99qrOaE6yumfUhvxX7BxGOBvrFtbPgHHDecEES2hBjg0Q/DR9z787MdQUWHoUJeIEDeQ3XGlsZpuDSIk9iYKw8bBqFmVpbFTe7cg7aQMw6QzBorr8wxBP9kgDW0v6Rgmnz1J7C3iJXZRp4CVRQcFnZLeVPk7FaSkcLJF1xg75kMYdqinjl+pla0gKVVfM78XbtORWLOkmFoYyfaTOCkevKqp6Ma6BAnQ6YE82gf3rnD52p6xEeLRDTBnTDmh4SjA5Io43jfhsOEYtYV7awjHNI/T4Ya2nHgKv6/eKBLDtZx9ZjeUyngYo6tfwZtOzjDPhK0D2POudhBAO4ySf6L/vc1tS8gQi8rmaOC9dVMQ+p080diM/lNELKNFH11bqiuVcpuu5gofg3UG8EzVMxdXf0PukddVQvggu7lhR5QjPKbN6f16oufgxq/e87//GNz4kkpVWdL3x2Dtpc5ZO9vYbRHk8NbDa8sclHX40+Pi3KKnAaN3P8z7CrmLyNO480QiobIE+jtwHlKC3U4/l6ohrMjS7MKWTjhEWYIHZOmjBWXxfVrtalu34Lv973hYl9dFLin1nwVpyrFpvI67yg7iPHp6ev9+Y3q7E5NTPF/6LTTm//yO7zc/9Ddn21pazp7uOnaHYZCvvvOTv/BTX+vAq2f2Uo+uz4W2HGbw3AjWV69/ove4iYPY7T7d5HsHdf2QU0YYeU4VMloGfeVMLJYp+0e3PfRNkZ6ieCqCpXYwSBkgSF1r1U16Vjh8ctI0J09+M7BBjdHk1Wcu2YrbH4mCf9szoUfkrLLbEckfucaRiwkBKhE2vZWCJV4/mUx2JpPKVVPQmh6t7kwtcWB6sNuvAbFgYOG92nAkiiPZvgJmsaTTIelJSg/bQfDpiJwZE0Kh3XVqK0hnQ67/TcItOpcINVo7dZSGyTTi4gv/l93VNqbwy1N6Yh8/TrMciMDmSVgY6yT95dr5OnWpNu2/X1c7Hlxbm01wxbz9F0Z2OhAWJTU8YyqUDFY8xkih8JaS88wMOdOsg2B9hPaSo30nZqWnfqKDKmbf9udBEgLNdAF8dMZEPoFjYDpsw599rkgjtWOmIJeMJIA6+xRtZibwdljFejZ39BonTt0MEaFKMIpyfABSNGeW2YPGv5f5WwhvV7miBTwHLJZtHiUfQlX+sLlKR1JkJ++bKtc60+IaQ4wPgq8M3Xlq+vlsHee2wq11TfhJdldMgo6G9MRB+nLCDPzEpfwMDCwQtZ9wJxzbQLTjMUuheKIM97L1qd1Okp5zxI0WIRQdGdrHqWHt13vuhUly3nl1Fr71EnyVyPf+a5/LhWHpqH+KZbDw2KukyH4Lk4TTf5vQzTIs4fAULaAnXnDdbV5VPw7wCjaResIwr3touXQ0WihLuwzKGRBd+vI+Mq1jh+4MK0idzUsBMAtCx0W1p4caYf25630fxbqcRcfBUiuKDkqHBknVufTnzAs78wHzEhGTf1lHD+oYaYyXB1RJ7jgxut5Bcv4VGjjZvnXEiZAMSa8L8Xwt4ubwF66/AQ3nNSjdCwnCSBy4LoAJozEUIV48g0f0In0q4yJ4kbOD/rf4B86gJUeCqtqD+6+fptD1EfjUgdnZtfNXMe9WCH+hUKFvSlwZx+iLYFlGGtL1jmqwIjLtJEIHPH8wQJy+5Vlo5JkbHIPTr09mqYFhSyewSCpWrgDMIdoGVTYnre2+LxcOB2783Qq8hc8tQ3y47rPJW38Nn+ZjqDmUZw7VMNOcb7RY+e8LnIra6JWPvky8trqGtKbfBTPN/FqRYVbLdo6KmVvuYk9B1jPN5n6BDOmnkJOzMXLFNRho+rcdLfjUH/7io+RRiY61+Ru44tbr/wFlfRtzVxH7bAAAAABJRU5ErkJggg==)}
 </style>
 <div class="shell">
@@ -1083,6 +1164,10 @@ select.rn-mark { min-width: 0; }
     // Rhythm grid questions come from the rhythm block (cfg.rhythm.task = 'grid'), counted as rhythm examples.
     { id: 'rgrid', label: 'Rhythm Grid', blurb: 'Read or hear a rhythm, then show on a grid of beats and boxes where each note starts and how long it lasts.', est: 100, custom: true },
     { id: 'degree', label: 'Scale Degrees', blurb: 'Read a melody of one to eight measures in a major or minor key and label every note with its scale degree, 1 to 7.', est: 60, custom: true },
+    // Clefwork Chord Graph (see chordgraph.js).
+    { id: 'cgtable', label: 'Diatonic Progression Table', blurb: 'Write the chord symbols for a key’s Roman numerals, in the order the chord graph moves — vii° iii vi ii V I — for the major key, its relative minor and the common-tone substitutions.', est: 150, custom: true },
+    { id: 'cgtritone', label: 'Tritone Substitution Graph', blurb: 'Write a key’s chords round the circle of fifths, I vii° iii vi ii V I, in major and the relative minor, with the dominant seventh a tritone from each.', est: 180, custom: true },
+    { id: 'cgphrase', label: 'Musical Phrase', blurb: 'Write a phrase in Roman numerals, one chord a measure, that starts on the tonic, follows the chord graph and ends with a cadence.', est: 120, custom: true },
   ];
   const BUILT_IN = TYPES.filter((t) => !t.custom);
   const MAX_CUSTOM = 20, MAX_CUSTOM_NOTES = 6, MAX_VOICING_NOTES = 8;
@@ -1138,7 +1223,7 @@ select.rn-mark { min-width: 0; }
       // Per-tab notes setting: 0 use the quiz setting, 1 print the helper note, 2 students write every note.
       helpOv: { interval: 0, chord: 0, custom: 2, voicing: 2, vprog: 2 },
       figpAsk: 1, // figured bass progression: 1 analyse, 2 spell, 3 both
-      counts: { place: 4, identify: 3, interval: 3, chord: 2, scale: 1, keysig: 2, custom: 0, voicing: 0, vprog: 0, progression: 0, figured: 0, figprog: 0, keys: 0, analysis: 0, rhythm: 0, melody: 0, degree: 0 },
+      counts: { place: 4, identify: 3, interval: 3, chord: 2, scale: 1, keysig: 2, custom: 0, voicing: 0, vprog: 0, progression: 0, figured: 0, figprog: 0, keys: 0, analysis: 0, rhythm: 0, melody: 0, degree: 0, cgtable: 0, cgtritone: 0, cgphrase: 0 },
       ledger: 1,
       accMode: 3,
       intervals: maskOf(INTERVALS, ['M2', 'm3', 'M3', 'P4', 'P5', 'P8']),
@@ -1184,6 +1269,8 @@ select.rn-mark { min-width: 0; }
       melody: { examples: [], playsEx: 0, playsAns: 0 },
       // Scale degrees: the melodies' length, level, keys and clefs (see degrees.js).
       deg: { measures: 2, level: 1, keyMode: 1, keyMax: 3, clefs: 1 },
+      // Clefwork Chord Graph: keys, chords, what's printed and how it's scored (see chordgraph.js).
+      graph: null,
       custom: [],
       customGrade: 0,
       voicings: [],
@@ -1192,7 +1279,7 @@ select.rn-mark { min-width: 0; }
       flags: { shuffle: true, partial: true, feedback: false, labels: false, enharmonic: false, strictOctave: false, noHelpers: false },
     };
   }
-  const zeroCounts = () => ({ place: 0, identify: 0, interval: 0, chord: 0, scale: 0, keysig: 0, custom: 0, voicing: 0, vprog: 0, progression: 0, figured: 0, figprog: 0, keys: 0, analysis: 0, rhythm: 0, melody: 0, degree: 0 });
+  const zeroCounts = () => ({ place: 0, identify: 0, interval: 0, chord: 0, scale: 0, keysig: 0, custom: 0, voicing: 0, vprog: 0, progression: 0, figured: 0, figprog: 0, keys: 0, analysis: 0, rhythm: 0, melody: 0, degree: 0, cgtable: 0, cgtritone: 0, cgphrase: 0 });
   const withCfg = (c, patch) => Object.assign(JSON.parse(JSON.stringify(c)), patch);
 
   const PRESETS = [
@@ -1644,7 +1731,7 @@ select.rn-mark { min-width: 0; }
     // Variety: no interval, chord type, root, key or scale more than twice in a short quiz
     // (three times past 20 questions). When the settings are narrow, the roots vary the most.
     const total = BUILT_IN.reduce((n, t) => n + (cfg.counts[t.id] || 0), 0)
-      + ['custom', 'voicing', 'vprog', 'progression', 'keys', 'analysis', 'rhythm', 'melody', 'degree'].reduce((n, k) => n + (cfg.counts[k] || 0), 0);
+      + ['custom', 'voicing', 'vprog', 'progression', 'keys', 'analysis', 'rhythm', 'melody', 'degree', 'cgtable', 'cgtritone', 'cgphrase'].reduce((n, k) => n + (cfg.counts[k] || 0), 0);
     const cap = total > 20 ? 3 : 2;
     const used = {};
     function pickVaried(make) {
@@ -1702,6 +1789,7 @@ select.rn-mark { min-width: 0; }
     if (MQ.rhythmQuestions && cfg.counts.rhythm) MQ.rhythmQuestions(cfg).forEach((q) => qs.push(q));
     if (MQ.melodyQuestions && cfg.counts.melody) MQ.melodyQuestions(cfg).forEach((q) => qs.push(q));
     if (MQ.degreeQuestions && cfg.counts.degree) MQ.degreeQuestions(cfg).forEach((q) => qs.push(q));
+    if (MQ.graphQuestions && (cfg.counts.cgtable || cfg.counts.cgtritone || cfg.counts.cgphrase)) MQ.graphQuestions(cfg).forEach((q) => qs.push(q));
     if (cfg.flags.shuffle) shuffle(qs, rng);
     return qs;
   }
@@ -1737,6 +1825,7 @@ select.rn-mark { min-width: 0; }
     if (q.type === 'melody') return MQ.gradeMelody(q, response);
     if (q.type === 'degree') return MQ.gradeDegrees(q, response);
     if (q.type === 'rgrid') return MQ.gradeGrid(q, response);
+    if (MQ.isGraph && MQ.isGraph(q)) return MQ.gradeGraph(q, response, cfg);
     if (q.type === 'figured' || q.type === 'figprog') return MQ.gradeFigured(q, response, cfg);
     if (q.type === 'progression') return MQ.gradeProgression(q, response, cfg);
     if (q.symbolAnswers) {
@@ -1766,6 +1855,7 @@ select.rn-mark { min-width: 0; }
       : q.type === 'melody' ? MQ.hasMelodyAnswer(q, response)
       : q.type === 'degree' ? MQ.hasDegreeAnswer(q, response)
       : q.type === 'rgrid' ? MQ.hasGridAnswer(q, response)
+      : MQ.isGraph && MQ.isGraph(q) ? MQ.hasGraphAnswer(q, response)
       : q.type === 'figured' || q.type === 'figprog' ? MQ.hasFiguredAnswer(q, response)
       : q.colSpecs ? !!response && response.some((col) => col && col.some(Boolean))
         : q.type === 'progression' ? !!response && ['r', 's'].some((k) => (response[k] || []).some((x) => x && x.trim()))
@@ -1781,6 +1871,7 @@ select.rn-mark { min-width: 0; }
     if (q.type === 'melody') return MQ.describeMelody(q);
     if (q.type === 'degree') return MQ.describeDegrees(q);
     if (q.type === 'rgrid') return MQ.describeGrid(q);
+    if (MQ.isGraph && MQ.isGraph(q)) return MQ.describeGraph(q);
     if (q.symbolAnswers) return q.symbolAnswers.map((a) => a.shown).join('  ');
     if (q.symbolAnswer) return q.symbolAnswer.shown;
     if (q.dropdowns) return q.dropdowns.map((d) => d.options[d.answer]).join(' · ');
@@ -5509,6 +5600,478 @@ select.rn-mark { min-width: 0; }
     DEGREE_MAX: MAX_MELODIES, degreeSettings, degreeOf, degreeQuestions, cleanDegrees, markDegrees, gradeDegrees, hasDegreeAnswer, compareDegrees, describeDegrees,
   });
 })(typeof window !== 'undefined' ? window : globalThis);
+/* Clefwork Chord Graph — a key's chords laid out the way they move. The graph puts the chords in the
+   order their roots fall by fifths, vii° iii vi ii V I, with the relative minor's under them
+   (VII III VI ii° V i). Chords that share notes can stand in: IV for ii, vii° or IV for V (in minor
+   iv for ii°, VII or iv for V). Each chord can also be replaced by its tritone substitute, the
+   dominant seventh a half step above the chord it leads to (♭II7 of the next chord). Where the graph
+   falls a perfect fifth that is a tritone from the chord it replaces; in minor, VI falls to ii° by a
+   tritone, so VI's substitute is a perfect fifth above it — the tritone substitute of V7/ii°, whose
+   root is melodic minor's raised sixth (B♭7 for E♭ in G minor). Three kinds of question:
+   - Diatonic progression table: the key's chord symbols under their Roman numerals, major and
+     relative minor, with the common-tone substitutions above and below.
+   - Tritone substitution graph: I vii° iii vi ii V I in the major key and its relative minor, with
+     the tritone substitute of every chord between.
+   - Musical phrase: students write a phrase in Roman numerals, checked against the graph's rules.
+   cfg.graph holds the settings; cfg.counts.cgtable, .cgtritone and .cgphrase say how many of each. */
+(function (root) {
+  'use strict';
+  const MQ = root.MQ;
+  const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
+  const MAX = 20;                                   // questions of each kind
+  const GRAPH_TYPES = ['cgtable', 'cgtritone', 'cgphrase'];
+
+  // ---------- settings ----------
+  // keys: which major keys, one bit each (bit f + 7 for f fifths: −7 is seven flats, 7 seven sharps);
+  // each table is in one of them and its relative minor. sevenths: 0 triads, 1 seventh chords.
+  // minor: the tables include the relative minor. findMinor: students work out the relative minor
+  // (its name isn't printed). romans: the diatonic table prints its Roman numerals (1) or students
+  // write them (0). subs: the diatonic table's common-tone substitution rows. ttRomans: the tritone
+  // graph shows each chord's numeral. quality: 0 a chord symbol needs its root and quality, 1 the right
+  // root alone earns half, 2 only the root counts. score: 'question' (each table or phrase is one
+  // question), 'answers' (each answer a point) or 'percent' (the answers' share of outOf points).
+  // phrase: mode 1 major, 2 minor, 3 both (taking turns); bars 4 or 8; rules (bit 0 start on the
+  // tonic, 1 end with a cadence, 2 follow the graph, 3 a half cadence halfway); symbols: students
+  // also write the chord symbols, in a key the quiz picks; showGraph: the graph is drawn beside it.
+  // gen: the question maker's version, so a quiz code keeps its questions.
+  const keyBit = (f) => 1 << (f + 7);
+  const DEFAULT_KEYS = [-4, -3, -2, -1, 0, 1, 2, 3, 4].reduce((m, f) => m | keyBit(f), 0);
+  const SCORES = ['question', 'answers', 'percent'];
+  const RULES = [
+    { bit: 1, id: 'start', label: 'Starts on the tonic' },
+    { bit: 2, id: 'cadence', label: 'Ends with a cadence' },
+    { bit: 4, id: 'graph', label: 'Every chord follows the graph' },
+    { bit: 8, id: 'half', label: 'A half cadence halfway' },
+  ];
+  const bit01 = (v, d) => (v == null ? d : v ? 1 : 0);
+  function graphSettings(g) {
+    const s = g || {};
+    s.keys = (s.keys == null ? DEFAULT_KEYS : s.keys & 0x7fff) || DEFAULT_KEYS;
+    s.sevenths = bit01(s.sevenths, 0);
+    s.minor = bit01(s.minor, 1);
+    s.findMinor = bit01(s.findMinor, 0);
+    s.romans = bit01(s.romans, 1);
+    s.subs = bit01(s.subs, 1);
+    s.ttRomans = bit01(s.ttRomans, 0);
+    s.quality = clamp(s.quality | 0, 0, 2);
+    if (!SCORES.includes(s.score)) s.score = 'answers';
+    s.outOf = clamp(Math.round(s.outOf || 100), 1, 1000);
+    const p = s.phrase = s.phrase || {};
+    p.mode = clamp(p.mode | 0 || 3, 1, 3);
+    p.bars = p.bars === 4 ? 4 : 8;
+    p.rules = p.rules == null ? 0b0111 : p.rules & 15;
+    p.symbols = bit01(p.symbols, 0);
+    p.showGraph = bit01(p.showGraph, 1);
+    s.gen = clamp(s.gen | 0 || 1, 1, 7);
+    return s;
+  }
+  const keyList = (mask) => { const out = []; for (let f = -7; f <= 7; f++) if (mask & keyBit(f)) out.push(f); return out; };
+
+  // ---------- keys and chords ----------
+  // The graph's chord on each scale degree, as a triad and as a seventh chord. The minor key takes
+  // VII, III and VI from the natural minor and ii° and V from the harmonic minor, as its table does.
+  const QUAL = {
+    major: { 1: ['maj', 'maj7'], 2: ['min', 'min7'], 3: ['min', 'min7'], 4: ['maj', 'maj7'], 5: ['maj', 'dom7'], 6: ['min', 'min7'], 7: ['dim', 'hdim7'] },
+    minor: { 1: ['min', 'min7'], 2: ['dim', 'hdim7'], 3: ['maj', 'maj7'], 4: ['min', 'min7'], 5: ['maj', 'dom7'], 6: ['maj', 'maj7'], 7: ['maj', 'dom7'] },
+  };
+  const RN_NAMES = { major: [null, 'I', 'ii', 'iii', 'IV', 'V', 'vi', 'vii°'], minor: [null, 'i', 'ii°', 'III', 'iv', 'V', 'VI', 'VII'] };
+  const keyOf = (mode, f) => MQ.makeKey(mode, f);
+  const chordAt = (kd, deg, sev) => ({ root: MQ.keyPitch(kd, deg - 1), q: QUAL[kd.mode][deg][sev ? 1 : 0] });
+  const pcText = (pc) => MQ.pcName({ step: pc.step, alt: pc.alt, oct: 4 });
+  const keyTitle = (kd) => `${pcText(kd.tonic)} ${kd.mode}`;
+  const minorName = (kd) => pcText(kd.tonic) + 'mi';
+  const pcOf = (pc) => ((MQ.midi({ step: pc.step, alt: pc.alt, oct: 4 }) % 12) + 12) % 12;
+  const sameRoot = (a, b, enh) => (enh ? pcOf(a) === pcOf(b) : a.step === b.step && a.alt === b.alt);
+
+  // The tritone substitute that leads to a chord: the dominant seventh a half step above it, ♭II7.
+  // Written the simpler way — fewer sharps or flats, no C♭, F♭, E♯ or B♯ — and on a tie as ♭II
+  // (E♭7 before D, not D♯7). Either spelling is right in an answer.
+  const oddSpelling = (x) => (x.alt === -1 && (x.step === 0 || x.step === 3)) || (x.alt === 1 && (x.step === 2 || x.step === 6));
+  function tritoneSub(target) {
+    const p = { step: target.root.step, alt: target.root.alt, oct: 4 };
+    const flat = MQ.transpose(p, 2, 1, 1), sharp = MQ.transpose(p, 1, 1, 1);
+    const cost = (x) => Math.abs(x.alt) * 2 + (Math.abs(x.alt) > 1 || oddSpelling(x) ? 1 : 0);
+    const main = cost(sharp) < cost(flat) ? sharp : flat, other = main === flat ? sharp : flat;
+    return { root: { step: main.step, alt: main.alt }, q: 'dom7', other: { root: { step: other.step, alt: other.alt }, q: 'dom7' } };
+  }
+
+  // ---------- the order keys come in ----------
+  // One shuffled deal of the teacher's keys per quiz, used up before any key comes round again, so
+  // the tables and phrases of a quiz are in different keys as far as the choice allows.
+  function keyDealer(cfg, s) {
+    const pool = keyList(s.keys);
+    const rng = MQ.mulberry32(((cfg.seed >>> 0) ^ 0xc40d6a9e) >>> 0);
+    let deck = [], last = null;
+    return () => {
+      if (!deck.length) {
+        deck = pool.slice();
+        for (let i = deck.length - 1; i > 0; i--) { const j = Math.floor(rng() * (i + 1)); [deck[i], deck[j]] = [deck[j], deck[i]]; }
+        if (deck.length > 1 && deck[deck.length - 1] === last) [deck[0], deck[deck.length - 1]] = [deck[deck.length - 1], deck[0]];
+      }
+      last = deck.pop();
+      return last;
+    };
+  }
+
+  // ---------- the tables ----------
+  // A table is rows of cells under the graph's columns. Each row has a head (its label, at the left)
+  // and a cell per column. A cell is null (outside the table's shape), {text} (printed), or
+  // {slots: [i] or [i, j]} (one answer box, or two with "or" between), with cap: a small numeral
+  // above it. Every answer box is a slot:
+  //   {kind: 'chord', want: {root, q}, shown, tt}   a chord symbol (tt: a tritone substitute, either spelling;
+  //                                                  italic: one that isn't a tritone from its column's chord)
+  //   {kind: 'rn', want: 'vii°', shown}              a Roman numeral
+  //   {kind: 'key', want: {root}, shown: 'Gmi'}      the relative minor's name
+  // Rows that hold answers have a name for the answer key, and rows of chords can be played (play).
+  const CYCLE = [7, 3, 6, 2, 5, 1];
+  const TT_CYCLE = [1, 7, 3, 6, 2, 5, 1];
+  // Common-tone substitutions: IV for ii; vii° or IV for V (iv for ii°; VII or iv for V in minor).
+  const SUBS = { 2: [4], 5: [7, 4] };
+
+  function diatonicTable(f, s) {
+    const M = keyOf('major', f), m = keyOf('minor', f), sev = !!s.sevenths;
+    const t = { kind: 'diatonic', fifths: f, sevenths: sev, quality: s.quality, cols: CYCLE.length, rows: [], slots: [] };
+    const slot = (x) => { t.slots.push(x); return t.slots.length - 1; };
+    // Box labels name the row and column, never the answer.
+    const where = (row, c, k, n) => `${row}, column ${c + 1}${n > 1 ? `, box ${k + 1} of ${n}` : ''}`;
+    const rnCell = (kd, degs, c, row) => {
+      const names = degs.map((d) => MQ.romanOf(chordAt(kd, d, sev), kd));
+      return s.romans ? { text: names.join(' or ') } : { slots: names.map((n, k) => slot({ kind: 'rn', want: n, shown: n, label: where(row, c, k, names.length) })) };
+    };
+    const chordCell = (kd, degs, c, row) => ({
+      slots: degs.map((d, k) => { const ch = chordAt(kd, d, sev); return slot({ kind: 'chord', want: ch, shown: MQ.symbolOf(ch), label: where(row, c, k, degs.length) }); }),
+    });
+    // Each band is a row of numerals over a row of chords.
+    const band = (kd, head1, head2, degsAt, name, rnName, play) => {
+      t.rows.push({ head: head1, name: rnName, cells: CYCLE.map((d, c) => (degsAt(d) ? rnCell(kd, degsAt(d), c, rnName) : null)) });
+      t.rows.push({ head: head2, name, play, key: kd, cells: CYCLE.map((d, c) => (degsAt(d) ? chordCell(kd, degsAt(d), c, name) : null)) });
+    };
+    const subHead = { text: 'Common tone substitutions', span: 2, sub: true };
+    if (s.subs) band(M, subHead, null, (d) => SUBS[d], 'Substitutions (major)', 'Substitution numerals (major)', false);
+    band(M, { text: 'Major' }, { text: MQ.MAJOR_KEYS[f + 7], key: true }, (d) => [d], keyTitle(M), 'Major numerals', true);
+    if (s.minor) {
+      const head = s.findMinor ? { slots: [slot({ kind: 'key', want: { root: m.tonic }, shown: minorName(m), label: 'The relative minor key' })], key: true } : { text: minorName(m), key: true };
+      band(m, { text: 'Minor' }, head, (d) => [d], keyTitle(m), 'Minor numerals', true);
+      if (s.subs) band(m, subHead, null, (d) => SUBS[d], 'Substitutions (minor)', 'Substitution numerals (minor)', false);
+    }
+    return t;
+  }
+
+  function tritoneTable(f, s) {
+    const M = keyOf('major', f), m = keyOf('minor', f), sev = !!s.sevenths;
+    const t = { kind: 'tritone', fifths: f, sevenths: sev, quality: s.quality, cols: TT_CYCLE.length, rows: [], slots: [] };
+    const slot = (x) => { t.slots.push(x); return t.slots.length - 1; };
+    const chordRow = (kd, label, firstGiven) => ({
+      head: { text: label }, name: keyTitle(kd), play: true, key: kd,
+      cells: TT_CYCLE.map((d, i) => {
+        const ch = chordAt(kd, d, sev), cap = s.ttRomans ? MQ.romanOf(ch, kd) : null;
+        if (i === 0 && firstGiven) return { text: MQ.symbolOf(ch), cap };
+        return { slots: [slot({ kind: 'chord', want: ch, shown: MQ.symbolOf(ch), label: `${label}, column ${i + 1}` })], cap };
+      }),
+    });
+    // The first and last columns are the tonic, which the graph arrives at rather than leaves. Each
+    // other column's substitute leads to the next column's chord. When it isn't a tritone from its own
+    // column's chord (minor's VI, a perfect fifth below it) the box is in italics: right, though it
+    // looks wrong.
+    const subRow = (kd, label) => ({
+      head: { text: label }, name: label, key: kd,
+      cells: TT_CYCLE.map((d, i) => {
+        if (i === 0 || i === TT_CYCLE.length - 1) return null;
+        const sub = tritoneSub(chordAt(kd, TT_CYCLE[i + 1], sev));
+        const italic = (pcOf(sub.root) - pcOf(chordAt(kd, d, sev).root) + 12) % 12 !== 6;
+        return { slots: [slot({ kind: 'chord', want: { root: sub.root, q: 'dom7' }, shown: MQ.symbolOf(sub), other: MQ.symbolOf(sub.other), tt: true, italic, label: `${label}, column ${i + 1}` })] };
+      }),
+    });
+    t.rows.push(subRow(M, 'Tritone subs of major'));
+    t.rows.push(chordRow(M, 'Diatonic major', true));
+    if (s.minor) {
+      t.rows.push(chordRow(m, 'Relative minor', !s.findMinor));
+      t.rows.push(subRow(m, 'Tritone subs of minor'));
+    }
+    return t;
+  }
+
+  function tableQuestion(kind, f, s, i) {
+    const M = keyOf('major', f), m = keyOf('minor', f);
+    const T = kind === 'tritone' ? tritoneTable(f, s) : diatonicTable(f, s);
+    const keys = s.minor ? (s.findMinor ? `${keyTitle(M)} and its relative minor` : `${keyTitle(M)} and its relative minor, ${keyTitle(m)}`) : keyTitle(M);
+    const eg = s.sevenths ? 'B♭ma7, Gmi7, Dmi7♭5, F7' : 'B♭, Gmi, D°';
+    const typing = `Type mi or - for minor, o or dim for diminished${s.sevenths ? ', ma7 for a major seventh, mi7♭5 or ø for half-diminished' : ''}.`;
+    // On paper the typing tips are left off.
+    let text, paper, screen = '';
+    if (kind === 'tritone') {
+      text = `Fill in the tritone substitution graph for ${keys}.`;
+      paper = `Write each chord of the key${s.minor ? ' and of its relative minor' : ''} — root and quality (${eg}) — and above or below it its tritone substitute: the dominant seventh a half step above the next chord, which it leads to. Either spelling is fine (C♭7 or B7).${s.minor ? ' In minor, VI’s substitute is a perfect fifth above it, from melodic minor’s raised sixth.' : ''}`;
+      if (s.minor) screen = ' Its box is in italics.';
+    } else {
+      text = `Fill in the diatonic progression table for ${keys}.`;
+      paper = `Write the chord symbol for each Roman numeral (${eg})${s.romans ? '' : ', and write the Roman numerals too'}.${s.minor && s.findMinor ? ' Name the relative minor in its box.' : ''}`;
+    }
+    return { type: kind === 'tritone' ? 'cgtritone' : 'cgtable', clef: 'treble', text, hint: paper + screen + ' ' + typing, printHint: paper, cg: T, sig: 'cg' + kind[0] + i, tags: [] };
+  }
+
+  // ---------- reading what students type ----------
+  // A chord symbol: a root (with ♭ ♯, b #, bb ## or x) and anything Clefwork reads after one —
+  // mi, m, -, min or minor for minor; ° o or dim; +; 7, ma7, M7, Δ7; mi7♭5, -7b5 or ø. A triangle on its
+  // own (B♭Δ) means major: the triad in a table of triads, the major seventh in a table of sevenths.
+  // Returns {root, q, delta, explicit} (explicit: something followed the root), or null.
+  const ACC = { '': 0, '#': 1, '♯': 1, '##': 2, '♯♯': 2, x: 2, '𝄪': 2, b: -1, '♭': -1, bb: -2, '♭♭': -2, '𝄫': -2 };
+  function readChord(str) {
+    const s = String(str || '').trim().replace(/\s+/g, '').replace(/[()]/g, '')
+      .replace(/[△∆▵^]/g, 'Δ').replace(/[−–—]/g, '-').replace(/[º˚]/g, '°').replace(/Ø/g, 'ø');
+    if (!s || s.includes('/')) return null;
+    const m = s.match(/^([A-Ga-g])(##|♯♯|x|𝄪|#|♯|bb|♭♭|𝄫|b|♭)?(.*)$/u);
+    if (!m) return null;
+    const root = { step: 'CDEFGAB'.indexOf(m[1].toUpperCase()), alt: ACC[m[2] || ''] };
+    let suf = m[3];
+    if (/^(major|minor)$/i.test(suf)) suf = suf.toLowerCase();
+    if (suf === 'Δ') return { root, q: 'maj', delta: true, explicit: true };
+    const ch = MQ.parseSymbol('C' + suf);
+    if (!ch || ch.bass) return null;
+    return { root, q: ch.q, delta: false, explicit: suf !== '' };
+  }
+  // How a read chord is written back (report codes carry the chord, not the keystrokes).
+  function chordText(c) {
+    if (!c) return '';
+    const sym = c.delta ? 'Δ' : c.q === 'maj' ? (c.explicit ? 'ma' : '') : (MQ.QUALITIES.find((x) => x.id === c.q) || { sym: '' }).sym;
+    return pcText(c.root) + sym;
+  }
+  // Roman numerals, read by Clefwork Analysis's reader: vii°, viio, viiø7, V7, IVma7, IΔ7 …
+  const readRoman = (str) => MQ.parseAnalysisRoman(String(str || '').replace(/[△∆▵^]/g, 'Δ'));
+
+  // ---------- marking the tables ----------
+  const full = (ok, rootOk, quality) => (ok ? 1 : !rootOk ? 0 : quality === 2 ? 1 : quality === 1 ? 0.5 : 0);
+  // What one answer earns in one slot: 1, ½ (the right root, when the quiz gives half for it) or 0.
+  function slotCredit(slot, text, quality, enh) {
+    if (!String(text || '').trim()) return 0;
+    if (slot.kind === 'rn') {
+      const got = readRoman(text), want = readRoman(slot.want);
+      if (!got || !want || got.kind !== 'rn' || got.applied) return 0;
+      const degOk = got.deg === want.deg && got.acc === want.acc;
+      const ok = degOk && got.low === want.low && got.mark === want.mark && got.seventh === want.seventh && !got.ninth && got.inv === 0;
+      return full(ok, degOk, quality);
+    }
+    const c = readChord(text);
+    if (!c) return 0;
+    const rootOk = sameRoot(c.root, slot.want.root, enh || !!slot.tt);
+    if (slot.kind === 'key') return full(rootOk && (c.q === 'min' || !c.explicit), rootOk, quality);
+    return full(rootOk && (c.q === slot.want.q || (c.delta && slot.want.q === 'maj7')), rootOk, quality);
+  }
+  const tableCells = (T) => [].concat(...T.rows.map((r) => [r.head].concat(r.cells))).filter((c) => c && c.slots);
+  // Per slot: {credit, want} — want is the slot whose answer the box was marked against. The two boxes
+  // of an "or" cell can come in either order.
+  function markTable(q, resp, cfg) {
+    const T = q.cg, enh = !!(cfg && cfg.flags && cfg.flags.enharmonic);
+    const got = (i) => (resp && resp[i]) || '';
+    const cr = (want, box) => slotCredit(T.slots[want], got(box), T.quality, enh);
+    const out = T.slots.map((_, i) => ({ credit: 0, want: i }));
+    tableCells(T).forEach((cell) => {
+      const [a, b] = cell.slots;
+      if (b == null) { out[a] = { credit: cr(a, a), want: a }; return; }
+      const straight = cr(a, a) + cr(b, b), crossed = cr(a, b) + cr(b, a);
+      if (crossed > straight) { out[a] = { credit: cr(b, a), want: b }; out[b] = { credit: cr(a, b), want: a }; }
+      else { out[a] = { credit: cr(a, a), want: a }; out[b] = { credit: cr(b, b), want: b }; }
+    });
+    return out;
+  }
+
+  // ---------- phrases ----------
+  // Where each chord sits in the graph, by scale degree: columns 0–5 are vii° iii vi ii V I (VII III
+  // VI ii° V i in minor). IV stands in for ii or V, and vii° (VII) for V, so each can be in two places.
+  const POS = { 1: [5], 2: [3], 3: [1], 4: [3, 4], 5: [4], 6: [2], 7: [0, 4] };
+  const DOMINANT = [5, 7, 4];                        // what can come just before the tonic: V, vii°/VII, IV/iv
+  // The graph's moves: one column to the right; anywhere from the tonic; staying on a chord; and from V,
+  // the deceptive vi or iii (VI or III), or IV on the way to I. Everything else goes backwards.
+  function allowedMove(a, b) {
+    if (a === b || a === 1) return true;
+    if (a === 5 && (b === 6 || b === 3 || b === 4)) return true;
+    return POS[a].some((pa) => POS[b].includes(pa + 1));
+  }
+  // A numeral a phrase may use: the key's own chord on that degree, as a triad or a seventh chord, in
+  // any inversion. vii° (ii° in minor) takes ° or, as a seventh chord, ø. Returns {deg, seventh, mark}.
+  function phraseChord(text, mode) {
+    const p = readRoman(text);
+    if (!p || p.kind !== 'rn' || p.acc || p.applied || p.ninth) return null;
+    const deg = p.deg + 1, want = RN_NAMES[mode][deg];
+    if (p.low !== (want[0] === want[0].toLowerCase())) return null;
+    const dim = /°/.test(want);
+    if (dim ? !(p.mark === '°' || (p.mark === 'ø' && p.seventh)) : p.mark) return null;
+    return { deg, seventh: p.seventh, mark: p.mark };
+  }
+  const rulesOn = (P) => RULES.filter((r) => P.rules & r.bit && r.id !== 'graph' && (r.id !== 'half' || P.bars >= 8));
+  const dominantText = (mode) => (mode === 'minor' ? 'V, VII or iv' : 'V, vii° or IV');
+  function ruleLabel(id, P) {
+    const I = RN_NAMES[P.mode][1];
+    if (id === 'start') return `Starts on ${I}`;
+    if (id === 'cadence') return `Ends on ${I}, after ${dominantText(P.mode)}`;
+    return `Measure ${P.bars / 2} is ${dominantText(P.mode)} — a half cadence`;
+  }
+  // The expected chord for a numeral a student wrote, for the chord symbols under it.
+  function chordForNumeral(kd, c) {
+    const ch = chordAt(kd, c.deg, c.seventh);
+    if (c.mark === '°' && c.seventh) ch.q = 'dim7';
+    return ch;
+  }
+  // Everything a phrase is marked on: each measure (a chord of the key that the graph allows after the
+  // one before), each rule the teacher chose, and each chord symbol when those are asked for.
+  function checkPhrase(q, resp, cfg) {
+    const P = q.ph, enh = !!(cfg && cfg.flags && cfg.flags.enharmonic);
+    const r = (resp && resp.r) || [], sy = (resp && resp.s) || [];
+    const text = (i) => String(r[i] || '').trim();
+    const chords = [];
+    for (let i = 0; i < P.bars; i++) chords.push(text(i) ? phraseChord(text(i), P.mode) : null);
+    const name = (c) => RN_NAMES[P.mode][c.deg];
+    const bars = chords.map((c, i) => {
+      if (!text(i)) return { ok: false, why: 'Empty' };
+      if (!c) return { ok: false, why: readRoman(text(i)) ? `${text(i)} isn’t one of the key’s chords` : `${text(i)} isn’t a Roman numeral` };
+      const prev = chords[i - 1];
+      if (P.rules & 4 && prev && !allowedMove(prev.deg, c.deg)) return { ok: false, why: `The graph doesn’t go from ${name(prev)} to ${name(c)}` };
+      return { ok: true, why: '' };
+    });
+    // The cadence: the last chord is the tonic, and the chord before the final tonic(s) leads to it.
+    let last = P.bars - 1;
+    const endsOnI = !!chords[last] && chords[last].deg === 1;
+    while (last > 0 && chords[last] && chords[last].deg === 1) last--;
+    const rules = rulesOn(P).map((ru) => {
+      let ok = false;
+      if (ru.id === 'start') ok = !!chords[0] && chords[0].deg === 1;
+      if (ru.id === 'cadence') ok = endsOnI && !!chords[last] && chords[last].deg !== 1 && DOMINANT.includes(chords[last].deg);
+      if (ru.id === 'half') { const c = chords[P.bars / 2 - 1]; ok = !!c && DOMINANT.includes(c.deg); }
+      return { id: ru.id, label: ruleLabel(ru.id, P), ok };
+    });
+    const symbols = P.symbols ? chords.map((c, i) => {
+      if (!c) return 0;
+      return slotCredit({ kind: 'chord', want: chordForNumeral(P.key, c) }, sy[i], P.quality, enh);
+    }) : null;
+    const points = bars.length + rules.length + (symbols ? symbols.length : 0);
+    const earned = bars.filter((b) => b.ok).length + rules.filter((x) => x.ok).length + (symbols ? symbols.reduce((a, b) => a + b, 0) : 0);
+    return { bars, rules, symbols, points, earned, chords };
+  }
+  // A phrase that keeps every rule, for the answer key and the preview: one of these everyday phrases
+  // (scale degrees; the same shapes serve minor), or failing those, a walk through the graph.
+  const STOCK = {
+    4: [[1, 4, 5, 1], [1, 2, 5, 1], [1, 6, 4, 1], [1, 5, 4, 1], [1, 6, 2, 5]],
+    8: [[1, 6, 2, 5, 1, 4, 5, 1], [1, 4, 7, 3, 6, 2, 5, 1], [1, 6, 4, 5, 6, 2, 5, 1], [1, 5, 6, 4, 1, 4, 5, 1],
+      [1, 2, 5, 1, 6, 4, 5, 1], [1, 3, 6, 4, 5, 1, 5, 1], [1, 6, 4, 5, 1, 2, 5, 1], [1, 6, 2, 5, 6, 2, 5, 1]],
+  };
+  function examplePhrase(rng, P) {
+    const keeps = (seq) => {
+      const c = checkPhrase({ ph: Object.assign({}, P, { symbols: 0 }) }, { r: seq.map((d) => RN_NAMES[P.mode][d]) }, null);
+      return c.earned === c.points;
+    };
+    const ok = STOCK[P.bars].filter(keeps);
+    if (ok.length) return ok[Math.floor(rng() * ok.length)].slice();
+    for (let t = 0; t < 400; t++) {
+      const seq = [1];
+      while (seq.length < P.bars) {
+        const a = seq[seq.length - 1];
+        const opts = [2, 3, 4, 5, 6, 7, 1].filter((b) => b !== a && allowedMove(a, b));
+        seq.push(opts[Math.floor(rng() * opts.length)]);
+      }
+      if (keeps(seq)) return seq;
+    }
+    return STOCK[P.bars][0].slice();
+  }
+  function rulesSentence(P) {
+    const I = RN_NAMES[P.mode][1], parts = [];
+    if (P.rules & 1) parts.push(`start on ${I}`);
+    if (P.rules & 2) parts.push(`end on ${I} after ${dominantText(P.mode)}`);
+    if (P.rules & 4) parts.push('let every chord follow the chord graph');
+    const cap = (t) => t.charAt(0).toUpperCase() + t.slice(1);
+    let out = 'Write one chord in each measure.' + (parts.length ? ' ' + cap(parts.join('; ')) + '.' : '');
+    if (P.rules & 8 && P.bars >= 8) out += ` End the first half, in measure ${P.bars / 2}, on ${dominantText(P.mode)} — a half cadence.`;
+    return out;
+  }
+  function phraseQuestion(mode, f, s, rng, i) {
+    const p = s.phrase, kd = keyOf(mode, f);
+    const P = { mode, bars: p.bars, rules: p.rules, symbols: p.symbols, showGraph: p.showGraph, fifths: f, key: kd, quality: s.quality };
+    P.example = examplePhrase(rng, P);
+    return {
+      type: 'cgphrase', clef: 'treble',
+      text: `Create a complete phrase in a ${mode} key using Roman numerals.` + (p.symbols ? ` Then write its chord symbols in ${keyTitle(kd)}.` : ''),
+      hint: rulesSentence(P),
+      ph: P, sig: 'cgp' + i, tags: [],
+    };
+  }
+
+  // ---------- the questions ----------
+  function graphQuestions(cfg) {
+    const s = graphSettings(cfg.graph), c = cfg.counts || {};
+    const n = (k) => clamp(c[k] | 0, 0, MAX);
+    if (!n('cgtable') && !n('cgtritone') && !n('cgphrase')) return [];
+    const deal = keyDealer(cfg, s);
+    const out = [];
+    for (let i = 0; i < n('cgtable'); i++) out.push(tableQuestion('diatonic', deal(), s, i));
+    for (let i = 0; i < n('cgtritone'); i++) out.push(tableQuestion('tritone', deal(), s, i));
+    const rng = MQ.mulberry32(((cfg.seed >>> 0) ^ 0x7a11ed05) >>> 0);
+    for (let i = 0; i < n('cgphrase'); i++) {
+      const mode = s.phrase.mode === 3 ? (i % 2 ? 'minor' : 'major') : s.phrase.mode === 2 ? 'minor' : 'major';
+      out.push(phraseQuestion(mode, deal(), s, rng, i));
+    }
+    return out;
+  }
+
+  // ---------- grading, for every kind ----------
+  const isGraph = (q) => GRAPH_TYPES.includes(q.type);
+  // How many points a question has when each answer is a point.
+  function graphPoints(q) {
+    if (q.type !== 'cgphrase') return q.cg.slots.length;
+    const P = q.ph;
+    return P.bars + rulesOn(P).length + (P.symbols ? P.bars : 0);
+  }
+  // {notes, wrong}: the points and the points lost (halves when a right root earns half).
+  function compareGraph(q, resp, cfg) {
+    if (q.type === 'cgphrase') { const c = checkPhrase(q, resp, cfg); return { notes: c.points, wrong: c.points - c.earned }; }
+    const credit = markTable(q, resp, cfg).reduce((a, m) => a + m.credit, 0);
+    return { notes: q.cg.slots.length, wrong: q.cg.slots.length - credit };
+  }
+  function gradeGraph(q, resp, cfg) {
+    const c = compareGraph(q, resp, cfg);
+    return c.notes ? (c.notes - c.wrong) / c.notes : 0;
+  }
+  function hasGraphAnswer(q, resp) {
+    if (!resp) return false;
+    if (q.type === 'cgphrase') return ['r', 's'].some((k) => (resp[k] || []).some((x) => String(x || '').trim()));
+    return Array.isArray(resp) && resp.some((x) => String(x || '').trim());
+  }
+  // The answer key, row by row: "B♭ major: A° Dmi Gmi Cmi F B♭ · Substitutions (major): E♭ | A° or E♭ …"
+  const exampleText = (P) => P.example.map((d) => RN_NAMES[P.mode][d]);
+  const exampleSymbols = (P) => P.example.map((d) => MQ.symbolOf(chordAt(P.key, d, false)));
+  // italic (optional): a function that marks the text of an italic box; the answer comes back as a list
+  // of strings and whatever it returns, rather than as one string.
+  function describeGraph(q, italic) {
+    if (q.type === 'cgphrase') {
+      const P = q.ph, rn = exampleText(P), half = P.bars / 2;
+      const line = (list) => (P.bars > 4 ? `| ${list.slice(0, half).join(' | ')} || ${list.slice(half).join(' | ')} |` : `| ${list.join(' | ')} |`);
+      return `Any phrase that keeps the rules, such as ${line(rn)}` + (P.symbols ? ` — in ${keyTitle(P.key)}: ${exampleSymbols(P).join(' ')}` : '');
+    }
+    const T = q.cg, parts = [];
+    const add = (x) => { if (typeof x === 'string' && typeof parts[parts.length - 1] === 'string') parts[parts.length - 1] += x; else parts.push(x); };
+    T.rows.filter((row) => row.cells.some((c) => c && c.slots) || (row.head && row.head.slots)).forEach((row, r) => {
+      add(`${r ? ' · ' : ''}${row.name}: `);
+      if (row.head && row.head.slots) add(`(${T.slots[row.head.slots[0]].shown}) `);
+      row.cells.filter(Boolean).forEach((c, k) => {
+        if (k) add(' ');
+        if (!c.slots) { add(c.text); return; }
+        c.slots.forEach((i, j) => { if (j) add(' or '); add(italic && T.slots[i].italic ? italic(T.slots[i].shown) : T.slots[i].shown); });
+      });
+    });
+    return italic ? parts : parts.join('');
+  }
+  // The graph as the phrase card draws it: per column the chord, what can stand in above it, and below.
+  const GRAPH_VIEW = {
+    major: [['vii°'], ['iii'], ['vi'], ['ii', 'IV'], ['V', 'IV', 'vii°'], ['I']],
+    minor: [['VII'], ['III'], ['VI'], ['ii°', 'iv'], ['V', 'iv', 'VII'], ['i']],
+  };
+
+  Object.assign(MQ, {
+    GRAPH_TYPES, GRAPH_MAX: MAX, GRAPH_RULES: RULES, GRAPH_SCORES: SCORES, GRAPH_VIEW, GRAPH_RN: RN_NAMES,
+    graphKeyBit: keyBit, graphKeyList: keyList, graphSettings, graphQuestions, isGraph,
+    readGraphChord: readChord, graphChordText: chordText, graphChordAt: chordAt, graphKeyTitle: keyTitle, tritoneSub,
+    markGraphTable: markTable, checkPhrase, phraseChord, allowedGraphMove: allowedMove, chordForNumeral, graphExample: exampleText, graphExampleSymbols: exampleSymbols,
+    graphPoints, compareGraph, gradeGraph, hasGraphAnswer, describeGraph,
+  });
+})(typeof window !== 'undefined' ? window : globalThis);
 /* Clefwork — QR codes, so a printed quiz can be scanned back open. Versions 1–20, error correction
    L or M. Returns a square matrix of 0 (light) and 1 (dark) modules. Text is written in byte mode,
    except a long run at the end in capitals and digits — a quiz code — which goes in alphanumeric
@@ -6278,7 +6841,7 @@ select.rn-mark { min-width: 0; }
       prompt: q.type === 'keys' && MQ.keysPrintText ? MQ.keysPrintText(q) : q.text,
       hint: q.type === 'keys'
         ? (q.keys.answer === 'piano' || q.keys.prompt === 'piano' ? 'Middle C is C4, marked with a dot on the keyboard.' : 'Middle C is C4.')
-        : q.hint || '',
+        : q.printHint != null ? q.printHint : q.hint || '',
       staff: q.noStaff ? null : q,
       answer: answerFor(q),
     }));
@@ -6321,6 +6884,8 @@ li.q .hint { font-size: 10pt; margin: 2pt 0 0; color: #333; }
 /* A grand staff is drawn larger, so there is room to write in both clefs. */
 .example.is-grand svg { height: ${Math.round(staffH * 1.65 * 100) / 100}in; }
 .example svg.piano, .example.is-grand svg.piano { height: 1in; margin: 4pt 0; }
+/* Chord Graph tables and phrases keep their own shape. */
+.example svg.cg-art { height: auto; }
 .lines { margin: 8pt 0 0; display: flex; flex-wrap: wrap; gap: 6pt 16pt; }
 .lines .slot { font-size: 10pt; }
 .lines .slot i { font-style: normal; display: inline-block; border-bottom: 0.75pt solid #000; min-width: 1.5in; margin-left: 4pt; }
@@ -7005,6 +7570,29 @@ svg.staff .nlabel { display: none; }
   // ---------- quiz codes ----------
   // Retakes a quiz allows after the first attempt: a number from 0 to 31, or null for no limit.
   const retakeLimit = (cfg) => (cfg && Number.isInteger(cfg.retakes) && cfg.retakes >= 0 ? Math.min(31, cfg.retakes) : null);
+  // ---------- Clefwork Chord Graph ----------
+  // Its generator version first, so a later one can keep older quizzes' questions; then how many of
+  // each question, the keys (a bit each), the table and chord choices, scoring, and the phrase rules.
+  const GRAPH_COUNTS = ['cgtable', 'cgtritone', 'cgphrase'];
+  function writeGraphBlock(w, cfg) {
+    const g = MQ.graphSettings(cfg.graph), p = g.phrase;
+    w.u(g.gen, 3);
+    GRAPH_COUNTS.forEach((k) => w.u(Math.min(MQ.GRAPH_MAX, cfg.counts[k] || 0), 5));
+    w.u(g.keys, 15).u(g.sevenths, 1).u(g.minor, 1).u(g.findMinor, 1).u(g.romans, 1).u(g.subs, 1).u(g.ttRomans, 1)
+      .u(g.quality, 2).u(MQ.GRAPH_SCORES.indexOf(g.score), 2).u(g.outOf, 10)
+      .u(p.mode, 2).u(p.bars === 4 ? 0 : 1, 1).u(p.rules, 4).u(p.symbols, 1).u(p.showGraph, 1);
+  }
+  function readGraphBlock(r, cfg) {
+    const gen = r.u(3);
+    GRAPH_COUNTS.forEach((k) => (cfg.counts[k] = r.u(5)));
+    const g = { gen, keys: r.u(15), sevenths: r.u(1), minor: r.u(1), findMinor: r.u(1), romans: r.u(1), subs: r.u(1), ttRomans: r.u(1) };
+    g.quality = r.u(2);
+    g.score = MQ.GRAPH_SCORES[r.u(2)] || 'answers';
+    g.outOf = r.u(10);
+    g.phrase = { mode: r.u(2), bars: r.u(1) ? 8 : 4, rules: r.u(4), symbols: r.u(1), showGraph: r.u(1) };
+    cfg.graph = MQ.graphSettings(g);
+  }
+
   function encodeQuiz(cfg) {
     const w = new Writer();
     // Version 2 added teacher-defined chords after the flags; version 3 adds how many to ask
@@ -7113,6 +7701,9 @@ svg.staff .nlabel { display: none; }
     // Extension 8: the same, then the share of notes asked about and how the quiz is scored. Written
     // only when those aren't the defaults (every note; each melody one question), so extension-7
     // quizzes keep their codes.
+    // Extension 9: Clefwork Chord Graph — the retake limit (if any) behind a flag, then the graph block:
+    // how many of each question, the keys, the chord and table choices, the scoring and the phrase
+    // rules. No rhythm, melody or degree blocks.
     const an = MQ.analysisSettings(cfg.analysis);
     const regions = an.regions.slice(0, MQ.ANALYSIS_MAX);
     const limit = retakeLimit(cfg);
@@ -7126,9 +7717,10 @@ svg.staff .nlabel { display: none; }
     const degrees = grid ? 0 : Math.min(MQ.DEGREE_MAX, (cfg.counts && cfg.counts.degree) || 0);
     const dg = degrees ? MQ.degreeSettings(cfg.deg) : null;
     const dgMore = !!dg && (dg.share < 100 || dg.score !== 'question');
-    if (regions.length || an.img || limit != null || rhythm || melody || degrees) {
+    const graph = GRAPH_COUNTS.some((k) => cfg.counts && cfg.counts[k] > 0);
+    if (regions.length || an.img || limit != null || rhythm || melody || degrees || graph) {
       const q10 = (v) => Math.max(0, Math.min(1023, Math.round(v * 1023)));
-      const ext = grid ? 6 : degrees ? (dgMore ? 8 : 7) : melody ? 5 : rhythm ? 4 : limit != null ? 2 : 1;
+      const ext = graph ? 9 : grid ? 6 : degrees ? (dgMore ? 8 : 7) : melody ? 5 : rhythm ? 4 : limit != null ? 2 : 1;
       w.u(ext, 8).u(an.override, 2).u(an.img ? 1 : 0, 1);
       if (an.img) w.u(an.img.hash >>> 0, 32);
       w.strN(an.notes, 200, 8).u(regions.length, 6);
@@ -7137,7 +7729,12 @@ svg.staff .nlabel { display: none; }
           .u(Math.max(1, MQ.ANALYSIS_ASKS.indexOf(r.ask)), 2).str(r.roman, 63).str(r.symbol, 63);
       });
       if (ext === 2) w.u(limit, 5);
-      if (ext >= 4) {
+      if (ext === 9) {
+        w.u(limit != null ? 1 : 0, 1);
+        if (limit != null) w.u(limit, 5);
+        writeGraphBlock(w, cfg);
+      }
+      if (ext >= 4 && ext <= 8) {
         w.u(limit != null ? 1 : 0, 1);
         if (limit != null) w.u(limit, 5);
         w.u(Math.min(15, rh.playsEx || 0), 4).u(Math.min(15, rh.playsAns || 0), 4)
@@ -7154,13 +7751,13 @@ svg.staff .nlabel { display: none; }
           examples.forEach((ex) => writeExample(w, ex, grid));
         }
       }
-      if (ext === 5 || ext >= 7) writeMelodyBlock(w, mb);
+      if (ext === 5 || ext === 7 || ext === 8) writeMelodyBlock(w, mb);
       if (ext === 6) w.u(MQ.RHYTHM_GRID_BOXES.indexOf(rh.grid.box), 2).u(rh.grid.show, 2).u(rh.grid.rests ? 1 : 0, 1);
-      if (ext >= 7) {
+      if (ext === 7 || ext === 8) {
         const d = dg;
         w.u(degrees, 5).u(d.gen, 3).u(d.measures - 1, 3).u(d.level - 1, 3).u(d.keyMode, 2).u(d.keyMax, 3).u(d.clefs, 2).u(d.hear, 1);
       }
-      if (ext >= 8) w.u(dg.share / 10 - 1, 4).u(DEGREE_SCORES.indexOf(dg.score), 2).u(dg.outOf, 10);
+      if (ext === 8) w.u(dg.share / 10 - 1, 4).u(DEGREE_SCORES.indexOf(dg.score), 2).u(dg.outOf, 10);
     }
     return pack(KIND_QUIZ, w.b);
   }
@@ -7288,6 +7885,8 @@ svg.staff .nlabel { display: none; }
       cfg.counts.rhythm = 0;
       cfg.melody = MQ.defaultConfig().melody;
       cfg.counts.melody = 0;
+      cfg.graph = null;
+      GRAPH_COUNTS.forEach((k) => (cfg.counts[k] = 0));
       if (cfg.helpOv.vprog == null) cfg.helpOv.vprog = 2;
       if (v >= 12) {
         cfg.helpOv.vprog = r.u(2);
@@ -7316,7 +7915,11 @@ svg.staff .nlabel { display: none; }
             cfg.counts.analysis = n;
           }
           if (ext === 2) cfg.retakes = r.u(5);
-          if (ext >= 3) {
+          if (ext === 9) {
+            if (r.u(1)) cfg.retakes = r.u(5);
+            readGraphBlock(r, cfg);
+          }
+          if (ext >= 3 && ext <= 8) {
             if (r.u(1)) cfg.retakes = r.u(5);
             const rh = { playsEx: r.u(4), playsAns: r.u(4), examples: [] };
             const grid = ext === 6;
@@ -7343,15 +7946,15 @@ svg.staff .nlabel { display: none; }
             cfg.rhythm = MQ.rhythmSettings(rh);
             cfg.counts.rhythm = rh.auto ? rh.auto.count : rh.examples.length;
           }
-          if (ext === 5 || ext >= 7) {
+          if (ext === 5 || ext === 7 || ext === 8) {
             cfg.melody = readMelodyBlock(r);
             cfg.counts.melody = cfg.melody.auto.on ? cfg.melody.auto.count : cfg.melody.examples.length;
           }
-          if (ext >= 7) {
+          if (ext === 7 || ext === 8) {
             cfg.counts.degree = r.u(5);
             cfg.deg = MQ.degreeSettings({ gen: r.u(3), measures: r.u(3) + 1, level: r.u(3) + 1, keyMode: r.u(2), keyMax: r.u(3), clefs: r.u(2), hear: r.u(1) });
           }
-          if (ext >= 8) Object.assign(cfg.deg, { share: (r.u(4) + 1) * 10, score: DEGREE_SCORES[r.u(2)] || 'question', outOf: r.u(10) });
+          if (ext === 8) Object.assign(cfg.deg, { share: (r.u(4) + 1) * 10, score: DEGREE_SCORES[r.u(2)] || 'question', outOf: r.u(10) });
         }
         const sum = (b) => MQ.TECHNIQUES.reduce((n, t) => n + ((b.tech && b.tech[t.id]) || 0), 0);
         cfg.counts.voicing = sum(cfg.vc);
@@ -7392,7 +7995,38 @@ svg.staff .nlabel { display: none; }
   const KEY_ANSWERS = ['staff', 'name', 'piano'];
   const DEGREE_SCORES = ['question', 'notes', 'percent'];
   // `plays` (rhythm questions): how often the student played the example and their own answer.
+  // Chord Graph answers: a flag, then either the chord a student wrote (root, quality, and whether it
+  // was a bare triangle or had anything after the root) or, for anything else, the text itself.
+  function writeGraphText(w, text) {
+    const c = String(text || '').trim() && MQ.readGraphChord(text);
+    w.u(c ? 1 : 0, 1);
+    if (!c) { writeText(w, text); return; }
+    w.u(c.root.step, 3).u(c.root.alt + 2, 3).u(Math.max(0, MQ.QUALITY_IDS.indexOf(c.q)), 5).u(c.delta ? 1 : 0, 1).u(c.explicit ? 1 : 0, 1);
+  }
+  function readGraphText(r) {
+    if (!r.u(1)) return readText(r);
+    const c = { root: { step: r.u(3), alt: r.u(3) - 2 }, q: MQ.QUALITY_IDS[r.u(5)] || 'maj', delta: !!r.u(1), explicit: !!r.u(1) };
+    return MQ.graphChordText(c);
+  }
   function writeAnswer(w, q, resp, plays) {
+    if (q.type === 'cgtable' || q.type === 'cgtritone') {
+      // A table: how many answer boxes, then each one.
+      const n = Math.min(63, q.cg.slots.length);
+      w.u(n, 6);
+      for (let j = 0; j < n; j++) writeGraphText(w, resp && resp[j]);
+      return;
+    }
+    if (q.type === 'cgphrase') {
+      // A phrase: how many measures, whether chord symbols were asked for, then each measure's numeral
+      // (and chord symbol).
+      const n = Math.min(15, q.ph.bars), sym = q.ph.symbols ? 1 : 0;
+      w.u(n, 4).u(sym, 1);
+      for (let j = 0; j < n; j++) {
+        writeText(w, resp && resp.r && resp.r[j]);
+        if (sym) writeGraphText(w, resp && resp.s && resp.s[j]);
+      }
+      return;
+    }
     if (q.type === 'degree') {
       // Scale degrees: how many notes, then each note's number (0 blank, 1–7).
       const list = MQ.cleanDegrees(q, resp).slice(0, 127);
@@ -7496,6 +8130,16 @@ svg.staff .nlabel { display: none; }
     return { kind: 'staff', value: cols };
   }
   function readAnswer(r, type, ver) {
+    if (type === 'cgtable' || type === 'cgtritone') {
+      const n = r.u(6), out = [];
+      for (let j = 0; j < n; j++) out.push(readGraphText(r));
+      return { kind: 'text', value: out };
+    }
+    if (type === 'cgphrase') {
+      const n = r.u(4), sym = r.u(1), out = { r: [], s: [] };
+      for (let j = 0; j < n; j++) { out.r.push(readText(r)); out.s.push(sym ? readGraphText(r) : ''); }
+      return { kind: 'text', value: out };
+    }
     if (type === 'degree') {
       const n = r.u(7), list = [];
       for (let j = 0; j < n; j++) list.push(r.u(3));
@@ -7617,6 +8261,8 @@ svg.staff .nlabel { display: none; }
       report.items.forEach((it) => {
         // (Scale degrees too, when scored by note. No report has both kinds, so earlier reports read the same.)
         if (it.type === 'rhythm' || it.type === 'melody' || it.type === 'rgrid' || it.type === 'degree') w.u(n9(it.notes), 9).u(n9(it.wrong), 9);
+        // Chord Graph: points, and points lost in halves (a right root can earn half).
+        if (GRAPH_COUNTS.includes(it.type)) w.u(n9(it.notes), 9).u(n9(Math.round((it.wrong || 0) * 2)), 9);
         if (it.type === 'melody') w.u(n9(it.pw), 9).u(n9(it.rw), 9);
       });
     }
@@ -7658,6 +8304,7 @@ svg.staff .nlabel { display: none; }
         rep.scoring = { mode: r.u(1) ? 'percent' : 'notes', outOf: r.u(10), split: ver >= 12 ? r.u(1) : 0 };
         rep.items.forEach((it) => {
           if (it.type === 'rhythm' || it.type === 'rgrid' || it.type === 'degree' || (it.type === 'melody' && ver >= 12)) { it.notes = r.u(9); it.wrong = r.u(9); }
+          if (GRAPH_COUNTS.includes(it.type)) { it.notes = r.u(9); it.wrong = r.u(9) / 2; }
           if (it.type === 'melody' && ver >= 12) { it.pw = r.u(9); it.rw = r.u(9); }
         });
       }
@@ -7706,6 +8353,7 @@ svg.staff .nlabel { display: none; }
       n, count, points, full, answered, pct: max ? (raw / max) * 100 : 0,
       // Note scoring: how many notes there were, and how many were wrong.
       noted: !!sc, notes: sc ? max : 0, wrong: sc ? rep.items.reduce((s, it) => s + (it.wrong || 0), 0) : 0, mode: sc ? sc.mode : null,
+      graph: rep.items.some((it) => GRAPH_COUNTS.includes(it.type)),    // Chord Graph: answers, not notes
       byType: by('type'), byClef: by('clef'),
       avgSec: count ? rep.items.reduce((s, it) => s + it.sec, 0) / count : 0,
       slowest,
@@ -9914,13 +10562,16 @@ svg.staff .nlabel { display: none; }
       const b = MQ.melodySettings(cfg.melody);
       return b.auto.on ? b.auto.count : Math.min(cfg.counts.melody || 0, b.examples.length);
     }
+    if (key === 'cgtable' || key === 'cgtritone' || key === 'cgphrase') return Math.min(MQ.GRAPH_MAX, cfg.counts[key] || 0);
     const list = key === 'custom' ? cfg.custom || [] : cfg.voicings || [];
     const n = cfg.counts[key] == null ? list.length : cfg.counts[key];
     return Math.min(n, list.length);
   };
   const sumCounts = (cfg) => MQ.BUILT_IN.reduce((s, t) => s + (cfg.counts[t.id] || 0), 0) + listCount(cfg, 'custom') + listCount(cfg, 'voicing') + listCount(cfg, 'vprog') + listCount(cfg, 'progression')
     + listCount(cfg, 'keys') + listCount(cfg, 'analysis') + listCount(cfg, 'rhythm') + listCount(cfg, 'melody')
-    + Math.min(MQ.DEGREE_MAX, cfg.counts.degree || 0);
+    + Math.min(MQ.DEGREE_MAX, cfg.counts.degree || 0) + graphCount(cfg);
+  // Clefwork Chord Graph: its tables and phrases.
+  const graphCount = (cfg) => listCount(cfg, 'cgtable') + listCount(cfg, 'cgtritone') + listCount(cfg, 'cgphrase');
   const usesGrand = (cfg) => (listCount(cfg, 'voicing') > 0 || listCount(cfg, 'vprog') > 0)
     || (listCount(cfg, 'progression') > 0 && cfg.progs.some((e) => e.staff === 'grand'))
     || ((cfg.counts.chord || 0) > 0 && !!(cfg.chordStaff & 4) && !(cfg.v && cfg.v < 7));
@@ -9928,11 +10579,12 @@ svg.staff .nlabel { display: none; }
   const onlyAnalysis = (cfg) => !!(listCount(cfg, 'analysis') && sumCounts(cfg) === listCount(cfg, 'analysis'));
   const onlyRhythm = (cfg) => !!(listCount(cfg, 'rhythm') && sumCounts(cfg) === listCount(cfg, 'rhythm'));
   const onlyMelody = (cfg) => !!(listCount(cfg, 'melody') && sumCounts(cfg) === listCount(cfg, 'melody'));
+  const onlyGraph = (cfg) => !!(graphCount(cfg) && sumCounts(cfg) === graphCount(cfg));
   // Clefwork Rhythm quizzes are rhythmic dictation or rhythm grids.
   const gridQuiz = (cfg) => MQ.rhythmSettings(cfg.rhythm).task === 'grid';
   // A rhythm grid's rhythm is read, heard, or both.
   const gridHow = (cfg) => ['read', 'heard', 'read and heard'][MQ.rhythmSettings(cfg.rhythm).grid.show];
-  const clefsText = (cfg) => onlyMelody(cfg) ? 'heard, then written on the staff' : onlyRhythm(cfg) ? (gridQuiz(cfg) ? `${gridHow(cfg)}, then shown on a grid` : 'heard, then written on a one-line staff') : onlyAnalysis(cfg) ? 'answered beside a picture of the score' : onlyKeys(cfg) ? 'grand staff, note names & piano' : [cfg.clefs & 1 ? 'treble' : null, cfg.clefs & 2 ? 'bass' : null].filter(Boolean).join(' & ') + ' clef' + (usesGrand(cfg) ? ' + grand staff' : '');
+  const clefsText = (cfg) => onlyGraph(cfg) ? 'chord symbols and Roman numerals' : onlyMelody(cfg) ? 'heard, then written on the staff' : onlyRhythm(cfg) ? (gridQuiz(cfg) ? `${gridHow(cfg)}, then shown on a grid` : 'heard, then written on a one-line staff') : onlyAnalysis(cfg) ? 'answered beside a picture of the score' : onlyKeys(cfg) ? 'grand staff, note names & piano' : [cfg.clefs & 1 ? 'treble' : null, cfg.clefs & 2 ? 'bass' : null].filter(Boolean).join(' & ') + ' clef' + (usesGrand(cfg) ? ' + grand staff' : '');
   const clonePlaced = (pl) => (pl ? pl.map((c) => (c || []).map((p) => ({ ...p }))) : null);
   // The student version (practice + take a quiz, no quiz codes shown) is the same app with this flag set.
   const STUDENT = !!window.CLEFWORK_STUDENT;
@@ -9945,8 +10597,9 @@ svg.staff .nlabel { display: none; }
   const ANALYSIS = MODE === 'analysis';              // Clefwork Analysis: questions on a picture of the score
   const RHYTHM = MODE === 'rhythm';                  // Clefwork Rhythm: rhythmic dictation
   const MELODY = MODE === 'melody';                  // Clefwork Melody: melodic dictation
+  const GRAPH = MODE === 'graph';                    // Clefwork Chord Graph: chord tables and phrases
   const DICTATION = RHYTHM || MELODY;
-  const DRAFT = KEYS ? 'draft-keys' : ANALYSIS ? 'draft-analysis' : RHYTHM ? 'draft-rhythm' : MELODY ? 'draft-melody' : 'draft';
+  const DRAFT = KEYS ? 'draft-keys' : ANALYSIS ? 'draft-analysis' : RHYTHM ? 'draft-rhythm' : MELODY ? 'draft-melody' : GRAPH ? 'draft-graph' : 'draft';
   // An Analysis quiz's picture travels in its links, after the code: #take=CODE&img=…
   const withScore = (code) => MQ.normalize(code) + (ANALYSIS && S.aimg && S.code && MQ.normalize(code) === MQ.normalize(S.code) ? '&img=' + S.aimg.data : '');
   const canvasLink = (code) => (SITE ? SITE + 'take.html#take=' + withScore(code) : '');
@@ -10023,9 +10676,21 @@ svg.staff .nlabel { display: none; }
     c.melody = { examples: [], auto: { on: true } };       // melodies made automatically, to start with
     return c;
   }
+  // A worksheet set to start from: two diatonic tables, a tritone graph and two phrases (one major,
+  // one minor), in the order the worksheets come.
+  function graphDefault() {
+    const c = MQ.defaultConfig();
+    Object.keys(c.counts).forEach((k) => (c.counts[k] = 0));
+    Object.assign(c.counts, { cgtable: 2, cgtritone: 1, cgphrase: 2 });
+    c.title = 'Chord Graph';
+    c.flags.shuffle = false;
+    c.flags.partial = true;
+    c.graph = MQ.graphSettings(null);
+    return c;
+  }
   function loadDraft() {
     const d = store.get(DRAFT, null);
-    const base = KEYS ? keysDefault() : ANALYSIS ? analysisDefault() : RHYTHM ? rhythmDefault() : MELODY ? melodyDefault() : MQ.defaultConfig();
+    const base = KEYS ? keysDefault() : ANALYSIS ? analysisDefault() : RHYTHM ? rhythmDefault() : MELODY ? melodyDefault() : GRAPH ? graphDefault() : MQ.defaultConfig();
     if (d && d.counts && d.flags) {
       const custom = Array.isArray(d.custom) ? d.custom : [];
       const voicings = Array.isArray(d.voicings) ? d.voicings : [];
@@ -10291,6 +10956,13 @@ svg.staff .nlabel { display: none; }
   }
   function resultLine(q, cfg, response) {
     const frac = MQ.gradeQuestion(q, response, cfg);
+    if (MQ.isGraph(q)) {
+      // The table or phrase itself shows what's right; say how much.
+      const c = MQ.compareGraph(q, response, cfg), what = q.type === 'cgphrase' ? 'points' : 'answers';
+      if (frac === 1) return h('p', { class: 'result is-good', role: 'status' }, h('strong', null, 'Correct.'), q.type === 'cgphrase' ? ' Every measure and rule checks out.' : ' Every box is right.');
+      return h('p', { class: 'result is-bad', role: 'status' }, h('strong', null, frac > 0 ? `Partly right — ${fmtPts(c.notes - c.wrong)} of ${c.notes} ${what}.` : 'Not quite.'),
+        q.type === 'cgphrase' ? ' The marks show which measures and rules need another look.' : ' The right answers are under the boxes marked in red or amber.');
+    }
     const ans = MQ.describeAnswer(q, cfg);
     if (frac === 1) return h('p', { class: 'result is-good', role: 'status' }, h('strong', null, 'Correct.'), ' ', ans);
     let lead = 'Not quite.';
@@ -10780,7 +11452,151 @@ svg.staff .nlabel { display: none; }
     else if (o.reveal) wrap.append(resultLine(q, cfg, resp));
     return wrap;
   }
+  // ---------- Clefwork Chord Graph: tables and phrases ----------
+  // A chord symbol box capitalises its root as you type; a box it can't read turns red.
+  const capRoot = (inp) => {
+    if (!/^[a-g]/.test(inp.value)) return;
+    const at = inp.selectionStart;
+    inp.value = inp.value[0].toUpperCase() + inp.value.slice(1);
+    try { inp.setSelectionRange(at, at); } catch (e) { /* not focused */ }
+  };
+  const graphReadable = (kind, text) => !String(text || '').trim() || (kind === 'rn' ? !!MQ.parseAnalysisRoman(text) : !!MQ.readGraphChord(text));
+  // Chords to hear from a row of a table, or a phrase: what's printed or typed, left to right, one a
+  // beat; anything unreadable is a silent beat.
+  const heardChords = (chords) => (chords.some(Boolean) ? chords.map((c) => (c ? MQ.hearChord(c) : [])) : 'Type some chords first — then you can hear them.');
+  const cgKeyText = (q) => (q.type === 'cgphrase' ? `${q.ph.mode} key · ${q.ph.bars} measures` : MQ.graphKeyTitle(MQ.makeKey('major', q.cg.fifths)) + (q.cg.rows.some((r) => r.key && r.key.mode === 'minor') ? ' · relative minor' : ''));
+  // A table's answer key, with the italic box in italics.
+  const graphAnswer = (q) => MQ.describeGraph(q, (t) => h('i', { class: 'cg-italic' }, accText(t)));
+  let cgUid = 0;
+  function graphTableCard(q, cfg, o) {
+    const T = q.cg, uid = ++cgUid;
+    const reveal = !!o.reveal && !o.keyMode;
+    const resp = T.slots.map((sl, i) => (o.keyMode ? sl.shown : (o.response && o.response[i]) || ''));
+    const marks = reveal ? MQ.markGraphTable(q, resp, cfg) : null;
+    const wrap = h('div', { class: 'qcard cg-card' + (o.compact ? ' is-compact' : '') });
+    wrap.append(h('div', { class: 'q-eyebrow' }, typeOf(q.type).label, h('span', { class: 'q-clef' }, cgKeyText(q))));
+    wrap.append(h(o.compact ? 'h3' : 'h2', { class: 'q-text' }, q.text));
+    if (q.hint && !o.locked && !o.keyMode) wrap.append(h('p', { class: 'q-hint' }, q.hint));
+    const send = () => { if (o.onResponse) o.onResponse(resp.slice()); };
+    const box = (i) => {
+      const sl = T.slots[i];
+      const inp = h('input', { type: 'text', class: 'cg-in' + (sl.kind === 'rn' ? ' is-rn' : ''), id: `cg-${uid}-${i}`, autocomplete: 'off', autocapitalize: 'off', autocorrect: 'off', spellcheck: 'false', maxlength: 12, 'aria-label': sl.label || `Answer ${i + 1}` });
+      inp.value = resp[i];
+      const paint = () => inp.classList.toggle('is-invalid', !graphReadable(sl.kind, inp.value));
+      inp.addEventListener('input', () => { if (sl.kind !== 'rn') capRoot(inp); resp[i] = inp.value; paint(); send(); });
+      if (o.locked || o.keyMode) inp.disabled = true;
+      paint();
+      // In italics: a tritone substitute that's right though it looks wrong (minor's VI).
+      const out = h('span', { class: 'cg-slot' + (sl.italic ? ' is-italic' : ''), title: sl.italic ? 'A perfect fifth above VI: the tritone substitute of V7/ii°, from melodic minor’s raised sixth' : null }, inp);
+      if (marks) {
+        const m = marks[i], want = T.slots[m.want];
+        inp.classList.add(m.credit === 1 ? 'is-right' : m.credit > 0 ? 'is-part' : 'is-wrong');
+        if (m.credit < 1) out.append(h('span', { class: 'cg-fix', title: 'The right answer' }, accText(want.shown + (want.other ? ` or ${want.other}` : ''))));
+      }
+      return out;
+    };
+    // The chord in a cell, for playing: the printed chord, or the first box's.
+    const cellChord = (cell) => MQ.readGraphChord(cell.text != null ? cell.text : resp[cell.slots[0]]);
+    const tbody = h('tbody');
+    T.rows.forEach((row) => {
+      const tr = h('tr', { class: row.play ? 'is-chords' : null });
+      if (row.head) {
+        const th = h('th', { scope: 'row', class: 'cg-head' + (row.head.sub ? ' is-sub' : '') + (row.head.key ? ' is-key' : ''), rowspan: row.head.span || null });
+        th.append(row.head.slots ? box(row.head.slots[0]) : h('span', { class: 'cg-head-text' }, accText(row.head.text)));
+        if (row.play) th.append(playButton(() => heardChords(row.cells.map((c) => (c ? cellChord(c) : null))), 0.9, row.name + ' chords', 'play-inline cg-play'));
+        tr.append(th);
+      }
+      row.cells.forEach((cell) => {
+        if (!cell) { tr.append(h('td', { class: 'cg-void' })); return; }
+        const td = h('td', { class: 'cg-cell' + (cell.slots ? ' is-ans' : ' is-given') });
+        if (cell.cap) td.append(h('span', { class: 'cg-cap' }, accText(cell.cap)));
+        if (cell.slots) {
+          const inner = h('span', { class: 'cg-slots' + (cell.slots.length > 1 ? ' is-two' : '') });
+          cell.slots.forEach((i, k) => { if (k) inner.append(h('span', { class: 'cg-or' }, 'or')); inner.append(box(i)); });
+          td.append(inner);
+        } else td.append(h('span', { class: 'cg-given' }, accText(cell.text)));
+        tr.append(td);
+      });
+      tbody.append(tr);
+    });
+    wrap.append(h('div', { class: 'cg-scroll' }, h('table', { class: 'cg-table' + (T.kind === 'tritone' ? ' is-tt' : '') }, tbody)));
+    if (o.keyMode) wrap.append(h('p', { class: 'result is-key' }, h('strong', null, 'Answer: '), 'shown in the table.'));
+    else if (o.reveal) wrap.append(resultLine(q, cfg, resp));
+    return wrap;
+  }
+  // The chord graph, drawn as the phrase worksheet shows it: each column's chord, with what can stand
+  // in for it above and below, and arrows the way the chords move.
+  function graphStrip(mode) {
+    const cols = MQ.GRAPH_VIEW[mode], I = MQ.GRAPH_RN[mode][1];
+    const said = cols.map((c) => c[0] + (c.length > 1 ? ` (or ${c.slice(1).join(' or ')})` : '')).join(', then ');
+    const strip = h('div', { class: 'cg-graph', role: 'img', 'aria-label': `The chord graph in ${mode}: ${said}.` });
+    cols.forEach((c, i) => {
+      if (i) strip.append(h('span', { class: 'cg-g-arrow', 'aria-hidden': 'true' }, '→'));
+      strip.append(h('span', { class: 'cg-g-col', 'aria-hidden': 'true' },
+        h('span', { class: 'cg-g-alt' }, c[1] || ''), h('span', { class: 'cg-g-main' }, c[0]), h('span', { class: 'cg-g-alt' }, c[2] || '')));
+    });
+    const sub = mode === 'minor' ? 'iv can stand in for ii° or V, and VII for V' : 'IV can stand in for ii or V, and vii° for V';
+    const dec = mode === 'minor' ? 'VI or III' : 'vi or iii';
+    return h('figure', { class: 'cg-graph-wrap' }, strip,
+      h('figcaption', { class: 'cg-graph-cap' }, `Chords move to the right. ${sub}. From ${I}, go anywhere; V can also go to ${dec} (a deceptive cadence), or to ${mode === 'minor' ? 'iv' : 'IV'} and on to ${I}.`));
+  }
+  function phraseCard(q, cfg, o) {
+    const P = q.ph, uid = ++cgUid;
+    const reveal = !!o.reveal && !o.keyMode;
+    const got = o.response || {};
+    const resp = o.keyMode
+      ? { r: MQ.graphExample(P), s: P.symbols ? MQ.graphExampleSymbols(P) : [] }
+      : { r: Array.from({ length: P.bars }, (_, i) => (got.r && got.r[i]) || ''), s: Array.from({ length: P.bars }, (_, i) => (got.s && got.s[i]) || '') };
+    const check = reveal ? MQ.checkPhrase(q, resp, cfg) : null;
+    const wrap = h('div', { class: 'qcard cg-card' + (o.compact ? ' is-compact' : '') });
+    wrap.append(h('div', { class: 'q-eyebrow' }, typeOf(q.type).label, h('span', { class: 'q-clef' }, cgKeyText(q) + (P.symbols ? ` · symbols in ${MQ.graphKeyTitle(P.key)}` : ''))));
+    wrap.append(h(o.compact ? 'h3' : 'h2', { class: 'q-text' }, q.text));
+    if (q.hint && !o.locked && !o.keyMode) wrap.append(h('p', { class: 'q-hint' }, q.hint, P.symbols ? ' Type mi or - for minor, o or dim for diminished.' : ''));
+    if (P.showGraph) wrap.append(graphStrip(P.mode));
+    const send = () => { if (o.onResponse) o.onResponse({ r: resp.r.slice(), s: resp.s.slice() }); };
+    const bars = [];
+    for (let i = 0; i < P.bars; i++) {
+      const cell = h('div', { class: 'cg-bar' }, h('span', { class: 'cg-bar-n' }, String(i + 1)));
+      const inp = h('input', { type: 'text', class: 'pg-in cg-rn', id: `cgp-${uid}-${i}`, placeholder: 'RN', autocomplete: 'off', autocapitalize: 'off', autocorrect: 'off', spellcheck: 'false', maxlength: 10, 'aria-label': `Measure ${i + 1}: Roman numeral` });
+      inp.value = resp.r[i] || '';
+      const mark = markPicker(`cgp-${uid}-m-${i}`, inp, () => { resp.r[i] = mark.full(); send(); });
+      inp.addEventListener('input', () => { resp.r[i] = mark.full(); inp.classList.toggle('is-invalid', !graphReadable('rn', resp.r[i])); send(); });
+      if (o.locked || o.keyMode) { inp.disabled = true; mark.sel.disabled = true; }
+      cell.append(h('div', { class: 'cg-bar-rn' }, inp, mark.sel));
+      if (P.symbols) {
+        const sy = h('input', { type: 'text', class: 'pg-in cg-sym', id: `cgs-${uid}-${i}`, placeholder: 'Chord', autocomplete: 'off', autocapitalize: 'off', autocorrect: 'off', spellcheck: 'false', maxlength: 12, 'aria-label': `Measure ${i + 1}: chord symbol` });
+        sy.value = resp.s[i] || '';
+        sy.addEventListener('input', () => { capRoot(sy); resp.s[i] = sy.value; sy.classList.toggle('is-invalid', !graphReadable('chord', sy.value)); send(); });
+        if (o.locked || o.keyMode) sy.disabled = true;
+        if (check) {
+          const c = check.symbols[i];
+          sy.classList.add(c === 1 ? 'is-right' : c > 0 ? 'is-part' : 'is-wrong');
+          if (c < 1 && check.chords[i]) cell.append(sy, h('span', { class: 'pg-fix' }, accText(MQ.symbolOf(MQ.chordForNumeral(P.key, check.chords[i])))));
+          else cell.append(sy);
+        } else cell.append(sy);
+      }
+      if (check) {
+        inp.classList.add(check.bars[i].ok ? 'is-right' : 'is-wrong');
+        if (!check.bars[i].ok) cell.append(h('span', { class: 'cg-why' }, check.bars[i].why));
+      }
+      bars.push(cell);
+    }
+    // Two lines of measures, as on the worksheet, each between double bars.
+    const half = P.bars > 4 ? P.bars / 2 : P.bars;
+    const lines = h('div', { class: 'cg-bars' });
+    for (let a = 0; a < P.bars; a += half) lines.append(h('div', { class: 'cg-line', style: `--n:${half}` }, ...bars.slice(a, a + half)));
+    const typed = () => heardChords(resp.r.map((t) => (String(t || '').trim() ? MQ.parseRoman(t, P.key) : null)));
+    wrap.append(h('div', { class: 'pg-hear' }, playButton(typed, 1, 'your phrase', 'play-inline'), h('span', null, `Hear your phrase in ${MQ.graphKeyTitle(P.key)}`)), lines);
+    if (check && check.rules.length) {
+      wrap.append(h('ul', { class: 'cg-rules' }, check.rules.map((r) => h('li', { class: r.ok ? 'is-right' : 'is-wrong' }, h('span', { 'aria-hidden': 'true' }, r.ok ? '✓ ' : '✗ '), r.label, h('span', { class: 'sr-only' }, r.ok ? ' — kept' : ' — not kept')))));
+    }
+    if (o.keyMode) wrap.append(h('p', { class: 'result is-key' }, h('strong', null, 'Answer: '), MQ.describeAnswer(q, cfg)));
+    else if (o.reveal) wrap.append(resultLine(q, cfg, resp));
+    return wrap;
+  }
   function questionCard(q, cfg, o) {
+    if (q.type === 'cgtable' || q.type === 'cgtritone') return graphTableCard(q, cfg, o);
+    if (q.type === 'cgphrase') return phraseCard(q, cfg, o);
     if (q.type === 'degree') return degreeCard(q, cfg, o);
     if (q.type === 'melody') return melodyCard(q, cfg, o);
     if (q.type === 'rhythm') return rhythmCard(q, cfg, o);
@@ -10832,7 +11648,7 @@ svg.staff .nlabel { display: none; }
       STUDENT ? null : h('div', { class: 'row2' },
         fld('Title', textIn('q-title', cfg.title, 60, 'e.g. Unit 3 note reading', (v) => { cfg.title = v; changed(); })),
         fld('Teacher', textIn('q-teacher', cfg.teacher, 40, 'e.g. Ms. Rivera', (v) => { cfg.teacher = v; changed(); }))),
-      KEYS ? keysPresets(cfg) : ANALYSIS || DICTATION ? null : h('div', { class: 'presets' }, h('span', { class: 'mini-label' }, STUDENT ? 'Presets' : 'Or start from a preset'),
+      KEYS ? keysPresets(cfg) : GRAPH ? graphPresets(cfg) : ANALYSIS || DICTATION ? null : h('div', { class: 'presets' }, h('span', { class: 'mini-label' }, STUDENT ? 'Presets' : 'Or start from a preset'),
         h('div', { class: 'preset-row' }, MQ.PRESETS.map((p) => h('button', { type: 'button', class: 'btn btn-quiet sm', onclick: () => {
           const keep = { custom: cfg.counts.custom, voicing: cfg.counts.voicing, progression: cfg.counts.progression };
           S.cfg = p.apply(S.cfg); Object.assign(S.cfg.counts, keep);
@@ -10844,7 +11660,8 @@ svg.staff .nlabel { display: none; }
     if (ANALYSIS) form.append(...analysisSections(cfg, changed, R));
     if (RHYTHM) form.append(...rhythmSections(cfg, changed, R));
     if (MELODY) form.append(...melodySections(cfg, changed, R));
-    if (!KEYS && !ANALYSIS && !DICTATION) form.append(sec('staff', 'Staff & notes', 'Applies to every question type.',
+    if (GRAPH) form.append(graphKeysSection(cfg, changed));
+    if (!KEYS && !ANALYSIS && !DICTATION && !GRAPH) form.append(sec('staff', 'Staff & notes', 'Applies to every question type.',
       h('div', { class: 'row2' },
         grp('Clefs', chips('q-clefs', [{ label: 'Treble' }, { label: 'Bass' }, { label: 'Grand staff' }], cfg.clefs, (m) => { cfg.clefs = m; changed(); }, (x) => x.label), 'Each tab can override this.'),
         grp('Ledger lines', seg('q-ledger', [0, 1, 2, 3].map((v) => ({ v, label: v === 0 ? 'None' : v === 1 ? '1' : String(v) })), cfg.ledger, (v) => { cfg.ledger = v; changed(); }), 'Maximum above or below the staff.')),
@@ -10956,6 +11773,9 @@ svg.staff .nlabel { display: none; }
           degreeScoreField(d, changed),
         ];
       },
+      cgtable: () => graphTablePanel(cfg, changed),
+      cgtritone: () => graphTritonePanel(cfg, changed),
+      cgphrase: () => graphPhrasePanel(cfg, changed),
       figprog: () => [
         h('p', { class: 'help' }, 'A progression of figured-bass chords. Students write the Roman numeral and figure for each one. Roots move by the same rules as the Chord progressions tab.'),
         grp('Chords in each progression', seg('q-figlen', [3, 4, 5, 6, 7, 8].map((v) => ({ v, label: String(v) })), cfg.figLen, (v) => { cfg.figLen = v; changed(); })),
@@ -10970,7 +11790,10 @@ svg.staff .nlabel { display: none; }
         grp('Notes on the staff', seg('q-figpask', [{ v: 1, label: 'Print the chords — students write the numerals' }, { v: 2, label: 'Print the numerals — students write the chords' }, { v: 3, label: 'A mix of both' }], cfg.figpAsk, (v) => { cfg.figpAsk = v; changed(); })),
       ],
     };
-    const TABS = [
+    const TABS = GRAPH ? [
+      { id: 'cgtable', label: 'Diatonic Tables', max: MQ.GRAPH_MAX }, { id: 'cgtritone', label: 'Tritone Graphs', max: MQ.GRAPH_MAX },
+      { id: 'cgphrase', label: 'Musical Phrases', max: MQ.GRAPH_MAX },
+    ] : [
       { id: 'place', label: 'Place the Note' }, { id: 'identify', label: 'Name the Note' },
       { id: 'degree', label: 'Scale Degrees', max: MQ.DEGREE_MAX },
       { id: 'interval', label: 'Intervals' }, { id: 'chord', label: 'Chords' },
@@ -10983,7 +11806,7 @@ svg.staff .nlabel { display: none; }
     // Custom Chords is hidden while it is being reworked.
     for (let i = TABS.length - 1; i >= 0; i--) if (TABS[i].id === 'custom') TABS.splice(i, 1);
     cfg.counts.custom = 0;
-    if (!TABS.some((t) => t.id === S.buildTab)) S.buildTab = 'place';
+    if (!TABS.some((t) => t.id === S.buildTab)) S.buildTab = TABS[0].id;
     const strip = h('div', { class: 'qt-strip', role: 'tablist', 'aria-label': 'Question types' });
     const panels = h('div', { class: 'qt-panels' });
     const select = (id) => {
@@ -11074,9 +11897,12 @@ svg.staff .nlabel { display: none; }
       go('build');
       toast('Cleared — the quiz is empty');
     } }, 'Clear all questions');
-    if (!KEYS && !ANALYSIS && !DICTATION) form.append(sec('types', 'Question types', 'Choose a type to change its settings. The counter on each tab sets how many of those questions the quiz asks.',
+    if (!KEYS && !ANALYSIS && !DICTATION) form.append(sec('types', GRAPH ? 'Worksheets' : 'Question types', GRAPH
+      ? 'Choose a worksheet to change its settings. The counter on each tab sets how many the quiz asks — each table or phrase is one question, in its own key.'
+      : 'Choose a type to change its settings. The counter on each tab sets how many of those questions the quiz asks.',
       h('div', { class: 'types-top' }, clearBtn),
       strip, panels, h('div', { class: 'mix-foot' }, R.total)));
+    if (GRAPH) form.append(graphScoreSection(cfg, changed));
 
     const timeIn = h('input', { type: 'number', id: 'q-time', min: 0, max: 120, inputmode: 'numeric' });
     timeIn.value = cfg.timeLimit;
@@ -11091,12 +11917,14 @@ svg.staff .nlabel { display: none; }
       h('div', { class: 'toggles' },
         ANALYSIS || DICTATION ? null : flag('shuffle', 'Shuffle question order', 'Mixes the question types together instead of grouping them.'),
         KEYS || DICTATION ? null : ANALYSIS ? flag('partial', 'Partial credit', 'A box that asks for both earns half credit for each right answer.')
+          : GRAPH ? flag('partial', 'Partial credit', 'When each table or phrase is one question: a table earns credit for each right answer, a phrase for each measure and rule. Without it, only a perfect one counts.')
           : flag('partial', 'Partial credit', 'Chords and scales earn credit for each correct note.'),
         STUDENT ? null : flag('feedback', 'Let students check answers', 'Students can check each question and see the right answer. Best for practice.'),
-        ANALYSIS || DICTATION ? null : flag('labels', 'Show note names while dragging', STUDENT ? 'The note’s name appears as you move it.' : 'Practice mode: the note’s name appears as students move it.'),
+        ANALYSIS || DICTATION || GRAPH ? null : flag('labels', 'Show note names while dragging', STUDENT ? 'The note’s name appears as you move it.' : 'Practice mode: the note’s name appears as students move it.'),
         DICTATION ? null : ANALYSIS ? flag('enharmonic', 'Accept enharmonic spellings', 'Counts a G♭7 chord symbol as correct when the answer is F♯7.')
+          : GRAPH ? flag('enharmonic', 'Accept enharmonic spellings', 'Counts A♯mi as correct when the answer is B♭mi. Tritone substitutes always take either spelling (C♭7 or B7).')
           : flag('enharmonic', 'Accept enharmonic spellings', 'Counts G♭ as correct when the answer is F♯.'),
-        KEYS || ANALYSIS || DICTATION ? null : flag('noHelpers', 'Hide starting and helper notes', 'Students write every note themselves: both notes of an interval, every note of a scale, and a chord’s bass note.'))));
+        KEYS || ANALYSIS || DICTATION || GRAPH ? null : flag('noHelpers', 'Hide starting and helper notes', 'Students write every note themselves: both notes of an interval, every note of a scale, and a chord’s bass note.'))));
 
     // Side: share + preview + answer key
     R.summary = h('p', { class: 'share-summary' });
@@ -11174,7 +12002,7 @@ svg.staff .nlabel { display: none; }
     function refresh() {
       R.syncTabs();
       const total = sumCounts(cfg);
-      R.total.textContent = MELODY ? `${total} melod${total === 1 ? 'y' : 'ies'} in the quiz` : RHYTHM ? `${total} example${total === 1 ? '' : 's'} in the quiz` : `${total} question${total === 1 ? '' : 's'} in the quiz`;
+      R.total.textContent = GRAPH ? `${total} worksheet${total === 1 ? '' : 's'} in the quiz` : MELODY ? `${total} melod${total === 1 ? 'y' : 'ies'} in the quiz` : RHYTHM ? `${total} example${total === 1 ? '' : 's'} in the quiz` : `${total} question${total === 1 ? '' : 's'} in the quiz`;
       if (!total) {
         S.code = ''; S.qs = [];
         if (R.code) R.code.textContent = '—';
@@ -11185,12 +12013,13 @@ svg.staff .nlabel { display: none; }
         S.qs = MQ.generateQuiz(cfg);
         if (R.code) R.code.textContent = S.code;
         [R.copy, R.link, R.tryBtn, R.exportBtn, R.canvasBtn, R.startBtn].forEach((b) => b && (b.disabled = false));
-        const est = Math.max(1, Math.round((MQ.BUILT_IN.reduce((s, t) => s + t.est * (cfg.counts[t.id] || 0), 0) + 40 * listCount(cfg, 'custom') + 55 * listCount(cfg, 'voicing') + 90 * listCount(cfg, 'vprog') + 70 * listCount(cfg, 'progression') + 15 * listCount(cfg, 'keys') + 30 * listCount(cfg, 'analysis') + 120 * listCount(cfg, 'rhythm') + 180 * listCount(cfg, 'melody') + 60 * Math.min(MQ.DEGREE_MAX, cfg.counts.degree || 0)) / 60));
+        const est = Math.max(1, Math.round((MQ.BUILT_IN.reduce((s, t) => s + t.est * (cfg.counts[t.id] || 0), 0) + 40 * listCount(cfg, 'custom') + 55 * listCount(cfg, 'voicing') + 90 * listCount(cfg, 'vprog') + 70 * listCount(cfg, 'progression') + 15 * listCount(cfg, 'keys') + 30 * listCount(cfg, 'analysis') + 120 * listCount(cfg, 'rhythm') + 180 * listCount(cfg, 'melody') + 60 * Math.min(MQ.DEGREE_MAX, cfg.counts.degree || 0)
+          + 150 * listCount(cfg, 'cgtable') + 180 * listCount(cfg, 'cgtritone') + 120 * listCount(cfg, 'cgphrase')) / 60));
         const sb = DICTATION ? dictation(cfg) : null;
         const dsc = !sb ? quizScoring(cfg, S.qs) : null;          // scale degrees scored by note or percent
         const outOf = sb ? (sb.score === 'percent' ? ` · out of ${sb.outOf} points` : ` · out of ${rhythmNotes(S.qs)} notes`)
-          : dsc ? ` · out of ${fmtPts(MQ.reportStats({ items: S.qs.map((q) => ({ type: q.type, clef: q.clef, credit: 7, answered: true, sec: 0, notes: q.type === 'degree' ? q.deg.notes.length : undefined, wrong: 0 })), scoring: dsc }).n)} points` : '';
-        const noun = MELODY ? (total === 1 ? 'melody' : 'melodies') : `${RHYTHM ? 'example' : 'question'}${total === 1 ? '' : 's'}`;
+          : dsc ? ` · out of ${fmtPts(MQ.reportStats({ items: S.qs.map((q) => ({ type: q.type, clef: q.clef, credit: 7, answered: true, sec: 0, notes: q.type === 'degree' ? q.deg.notes.length : MQ.isGraph(q) ? MQ.graphPoints(q) : undefined, wrong: 0 })), scoring: dsc }).n)} points` : '';
+        const noun = MELODY ? (total === 1 ? 'melody' : 'melodies') : `${RHYTHM ? 'example' : GRAPH ? 'worksheet' : 'question'}${total === 1 ? '' : 's'}`;
         R.summary.replaceChildren(h('b', null, STUDENT ? 'Your practice' : cfg.title || 'Untitled quiz'), ` — ${total} ${noun} · ${clefsText(cfg)}${outOf} · about ${est} min${cfg.timeLimit ? ` · ${cfg.timeLimit}-minute limit` : ''}`);
       }
       if (R.scoreInfo) R.scoreInfo.textContent = total ? rhythmScoreText(cfg, S.qs) : '';
@@ -11200,7 +12029,7 @@ svg.staff .nlabel { display: none; }
           ? h('p', { class: 'warn-note' }, `Not ready to share yet. ${probs[0].text}${probs.length > 1 ? ` (${probs.length - 1} more to fix)` : ''}`)
           : h('p', { class: 'fine rh-ready-ok' }, '✓ Every measure is complete.'));
       }
-      R.keyList.replaceChildren(...S.qs.map((q) => q.type === 'melody' ? melodyKeyItem(q) : q.type === 'rhythm' ? rhythmKeyItem(q) : q.type === 'rgrid' ? gridKeyItem(q) : h('li', null, h('span', { class: 'key-q' }, q.text, q.type === 'analysis' ? null : h('span', { class: 'key-clef' }, ' · ' + MQ.clefLabel(q.clef))), h('span', { class: 'key-a' }, q.type === 'analysis' ? accText(MQ.describeAnswer(q, cfg)) : MQ.describeAnswer(q, cfg)))));
+      R.keyList.replaceChildren(...S.qs.map((q) => q.type === 'melody' ? melodyKeyItem(q) : q.type === 'rhythm' ? rhythmKeyItem(q) : q.type === 'rgrid' ? gridKeyItem(q) : h('li', null, h('span', { class: 'key-q' }, q.text, q.type === 'analysis' || MQ.isGraph(q) ? null : h('span', { class: 'key-clef' }, ' · ' + MQ.clefLabel(q.clef))), h('span', { class: 'key-a' }, q.cg ? graphAnswer(q) : q.type === 'analysis' || MQ.isGraph(q) ? accText(MQ.describeAnswer(q, cfg)) : MQ.describeAnswer(q, cfg)))));
       if (R.linkSize) {
         const kb = S.aimg ? Math.max(1, Math.round((S.aimg.data.length + S.code.length) / 1024)) : 0;
         R.linkSize.replaceChildren(!S.code ? '' : kb > 150
@@ -11584,6 +12413,7 @@ svg.staff .nlabel { display: none; }
   const typeCount = (cfg, id) => (id === 'rgrid' ? (gridQuiz(cfg) ? listCount(cfg, 'rhythm') : 0)
     : id === 'rhythm' && gridQuiz(cfg) ? 0
     : id === 'degree' ? Math.min(MQ.DEGREE_MAX, cfg.counts.degree || 0)
+    : MQ.GRAPH_TYPES.includes(id) ? listCount(cfg, id)
     : MQ.BUILT_IN.some((t) => t.id === id) ? cfg.counts[id] || 0 : listCount(cfg, id));
   const EXPORT_HEADERS = ['Title', 'Teacher', 'Date created', 'Question types'].concat(MQ.TYPES.map((t) => t.label), ['Total questions', 'Quiz code']);
   const ymd = (ms) => { const d = new Date(ms); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; };
@@ -11955,6 +12785,9 @@ svg.staff .nlabel { display: none; }
     if (listCount(cfg, 'vprog')) types.push(`Voiced progressions (${listCount(cfg, 'vprog')})`);
     if (cfg.counts.keys && MQ.keysCombos(cfg.keys).length) types.push(`Keys & notes (${cfg.counts.keys})`);
     if (cfg.counts.degree) types.push(`Scale degrees (${cfg.counts.degree} melod${cfg.counts.degree === 1 ? 'y' : 'ies'})`);
+    if (listCount(cfg, 'cgtable')) types.push(`Diatonic progression tables (${listCount(cfg, 'cgtable')})`);
+    if (listCount(cfg, 'cgtritone')) types.push(`Tritone substitution graphs (${listCount(cfg, 'cgtritone')})`);
+    if (listCount(cfg, 'cgphrase')) types.push(`Musical phrases (${listCount(cfg, 'cgphrase')})`);
     if (listCount(cfg, 'progression')) types.push(`Chord progressions (${listCount(cfg, 'progression')})`);
     if (listCount(cfg, 'rhythm')) types.push(`${gridQuiz(cfg) ? 'Rhythm grid' : 'Rhythmic dictation'} (${listCount(cfg, 'rhythm')} example${listCount(cfg, 'rhythm') > 1 ? 's' : ''})`);
     if (listCount(cfg, 'melody')) types.push(`Melodic dictation (${listCount(cfg, 'melody')} melod${listCount(cfg, 'melody') > 1 ? 'ies' : 'y'})`);
@@ -11972,7 +12805,9 @@ svg.staff .nlabel { display: none; }
         h('div', null, h('dt', null, 'Time limit'), h('dd', null, cfg.timeLimit ? cfg.timeLimit + ' min' : 'None')),
         h('div', null, h('dt', null, 'Retakes'), h('dd', null, retakeText(MQ.retakeLimit(cfg)))),
         // A quiz of only Keys questions is on the grand staff and the piano, whatever the clef setting.
-        onlyMelody(cfg)
+        onlyGraph(cfg)
+          ? h('div', null, h('dt', null, 'Uses'), h('dd', null, 'Tables, phrases'))
+          : onlyMelody(cfg)
           ? h('div', null, h('dt', null, 'Uses'), h('dd', null, 'Listening, the staff'))
           : onlyRhythm(cfg)
           ? h('div', null, h('dt', null, 'Uses'), h('dd', null, !gridQuiz(cfg) ? 'Listening, one-line staff' : ['Reading rhythm, a grid', 'Listening, a grid', 'Reading & listening, a grid'][MQ.rhythmSettings(cfg.rhythm).grid.show]))
@@ -11984,6 +12819,7 @@ svg.staff .nlabel { display: none; }
       h('p', { class: 'types-line' }, types.join(' · ')),
       onlyAnalysis(cfg) && cfg.analysis.notes ? h('p', { class: 'an-notes' }, accText(cfg.analysis.notes)) : null,
       listCount(cfg, 'rhythm') || listCount(cfg, 'melody') ? h('p', { class: 'an-notes rh-intro' }, rhythmIntro(cfg, t.qs)) : null,
+      graphCount(cfg) ? h('p', { class: 'an-notes' }, graphIntro(cfg, t.qs)) : null,
       EMBEDDED ? h('p', { class: 'frame-note' }, h('strong', null, 'On a tablet or phone? '),
         'If the keyboard doesn’t come up or the quiz is cut off, ', ownTabLink('', 'open the quiz in its own tab ↗'), ' before you start.') : null,
       fld('Your name', name),
@@ -12087,6 +12923,11 @@ svg.staff .nlabel { display: none; }
       const rh = dictation(cfg);
       return { mode: rh.score, outOf: rh.outOf, split: rh.split ? 1 : 0 };
     }
+    if (qs.some((q) => MQ.isGraph(q))) {
+      // Chord Graph: every answer a point ('notes' in the report), or their share of a total.
+      const g = MQ.graphSettings(cfg.graph);
+      return g.score === 'question' ? null : { mode: g.score === 'percent' ? 'percent' : 'notes', outOf: g.outOf, split: 0 };
+    }
     const d = MQ.degreeSettings(cfg.deg);
     return d.score !== 'question' && qs.some((q) => q.type === 'degree') ? { mode: d.score, outOf: d.outOf, split: 0 } : null;
   }
@@ -12096,7 +12937,9 @@ svg.staff .nlabel { display: none; }
     stopTicker();
     // Rhythm quizzes are scored note by note, so they always give partial credit.
     const rhythm = t.qs.some((q) => q.type === 'rhythm' || q.type === 'melody' || q.type === 'rgrid');
-    const partial = t.cfg.flags.partial || rhythm;
+    // Chord Graph quizzes scored by answer give credit for each one, whatever the partial-credit switch says.
+    const byAnswer = t.qs.some((q) => MQ.isGraph(q)) && !!quizScoring(t.cfg, t.qs);
+    const partial = t.cfg.flags.partial || rhythm || byAnswer;
     const items = t.qs.map((q, i) => {
       const frac = MQ.gradeQuestion(q, t.resp[i], t.cfg);
       const credit = frac === 1 ? 7 : partial ? Math.min(6, Math.round(frac * 7)) : 0;
@@ -12105,6 +12948,7 @@ svg.staff .nlabel { display: none; }
       if (q.type === 'rgrid') { const c = MQ.compareGrid(q, t.resp[i]); it.notes = c.notes; it.wrong = c.wrong; }
       if (q.type === 'melody') { const c = MQ.compareMelody(q, t.resp[i]); Object.assign(it, { notes: c.notes, wrong: c.wrong, pw: c.pw, rw: c.rw }); }
       if (q.type === 'degree') Object.assign(it, MQ.compareDegrees(q, t.resp[i]));
+      if (MQ.isGraph(q)) Object.assign(it, MQ.compareGraph(q, t.resp[i], t.cfg));
       return it;
     });
     t.report = {
@@ -12214,10 +13058,17 @@ svg.staff .nlabel { display: none; }
   }
   // "3 wrong notes" for note-scored questions, or "12 fully correct" for the rest.
   function scoreNote(st) {
+    if (st.noted && st.graph) return `${fmtPts(st.notes - st.wrong)} of ${st.notes} answers right`;
     if (st.noted) return `${st.wrong} wrong note${st.wrong === 1 ? '' : 's'} of ${st.notes}`;
     return `${st.full} fully correct`;
   }
   function resultCell(it) {
+    if (it.notes != null && MQ.GRAPH_TYPES.includes(it.type)) {
+      // Chord Graph: points out of points, halves included.
+      if (!it.wrong) return h('span', { class: 'res is-good' }, '✓ Correct');
+      if (!it.answered) return h('span', { class: 'res is-blank' }, '— Blank');
+      return h('span', { class: 'res ' + (it.wrong < it.notes ? 'is-part' : 'is-bad') }, `${it.wrong < it.notes ? '◐' : '✗'} ${fmtPts(it.notes - it.wrong)} of ${it.notes}`);
+    }
     if (it.notes != null) {
       if (!it.wrong) return h('span', { class: 'res is-good' }, '✓ Correct');
       if (!it.answered) return h('span', { class: 'res is-blank' }, '— Blank');
@@ -12238,8 +13089,8 @@ svg.staff .nlabel { display: none; }
       tbody.append(h('tr', null,
         h('td', { class: 'num' }, String(i + 1)),
         h('td', null, q ? q.text : typeOf(it.type).label),
-        h('td', null, it.type === 'analysis' ? 'Score' : it.type === 'rhythm' ? 'Rhythm' : it.type === 'rgrid' ? 'Grid' : MQ.CLEFS[it.clef].label),
-        key ? h('td', { class: 'ans' + (q && (q.mel || q.rh) ? ' is-long' : '') }, q ? MQ.describeAnswer(q, quiz.cfg) : '') : null,
+        h('td', null, it.type === 'analysis' ? 'Score' : it.type === 'rhythm' ? 'Rhythm' : it.type === 'rgrid' ? 'Grid' : it.type === 'cgphrase' ? 'Phrase' : MQ.GRAPH_TYPES.includes(it.type) ? 'Table' : MQ.CLEFS[it.clef].label),
+        key ? h('td', { class: 'ans' + (q && (q.mel || q.rh || q.cg || q.ph) ? ' is-long' : '') }, q ? (q.cg ? graphAnswer(q) : q.ph ? accText(MQ.describeAnswer(q, quiz.cfg)) : MQ.describeAnswer(q, quiz.cfg)) : '') : null,
         h('td', null, resultCell(it)),
         h('td', { class: 'num' }, it.sec >= 63 ? '63+ s' : it.sec + ' s')));
     });
@@ -12361,7 +13212,9 @@ svg.staff .nlabel { display: none; }
           h('div', { class: 'score-pct' }, Math.round(st.pct) + '%'),
           scaled != null ? h('div', { class: 'canvas-score' }, 'For Canvas: ', h('b', null, `${fmtPts(scaled)} / ${outOf}`)) : null)),
       h('dl', { class: 'facts' },
-        st.noted
+        st.noted && st.graph
+          ? h('div', null, h('dt', null, 'Answers right'), h('dd', null, `${fmtPts(st.notes - st.wrong)} of ${st.notes}`))
+          : st.noted
           ? h('div', null, h('dt', null, 'Wrong notes'), h('dd', null, `${st.wrong} of ${st.notes}`))
           : h('div', null, h('dt', null, 'Fully correct'), h('dd', null, `${st.full} of ${st.count}`)),
         h('div', null, h('dt', null, 'Answered'), h('dd', null, `${st.answered} of ${st.count}`)),
@@ -12411,11 +13264,13 @@ svg.staff .nlabel { display: none; }
       box.replaceChildren(jump, ...cards);
     };
     if (o.openAnswers) { build(); return h('div', { class: 'ans-wrap' }, box); }
-    const btn = h('button', { type: 'button', class: 'btn', 'aria-expanded': 'false' }, 'See answers on the staff');
+    // Chord Graph answers are tables and phrases, not notes on a staff.
+    const seeText = r.items.every((it) => MQ.GRAPH_TYPES.includes(it.type)) ? 'See answers' : 'See answers on the staff';
+    const btn = h('button', { type: 'button', class: 'btn', 'aria-expanded': 'false' }, seeText);
     btn.addEventListener('click', () => {
       const open = btn.getAttribute('aria-expanded') !== 'true';
       btn.setAttribute('aria-expanded', String(open));
-      btn.textContent = open ? 'Hide answers' : 'See answers on the staff';
+      btn.textContent = open ? 'Hide answers' : seeText;
       if (!open) { box.replaceChildren(); return; }
       build();
     });
@@ -12478,6 +13333,11 @@ svg.staff .nlabel { display: none; }
           it.pw = !it.answered ? it.notes : Math.min(it.notes, Math.round(it.notes * (1 - skill) * rng() * 1.4));
           it.rw = !it.answered ? it.notes : Math.min(it.notes, Math.round(it.notes * (1 - skill) * rng()));
           it.wrong = Math.min(it.notes, Math.max(it.pw, it.rw));
+          it.credit = it.wrong ? Math.min(6, Math.round(((it.notes - it.wrong) / Math.max(1, it.notes)) * 7)) : 7;
+        }
+        if (MQ.isGraph(q)) {
+          it.notes = MQ.graphPoints(q);
+          it.wrong = !it.answered ? it.notes : Math.min(it.notes, Math.round(it.notes * (1 - skill) * rng() * 2.4) / 2);
           it.credit = it.wrong ? Math.min(6, Math.round(((it.notes - it.wrong) / Math.max(1, it.notes)) * 7)) : 7;
         }
         if (q.type === 'degree') {
@@ -12617,6 +13477,105 @@ svg.staff .nlabel { display: none; }
       grp('Sharps and flats', seg('k-acc', [{ v: 0, label: 'Naturals only' }, { v: 1, label: '+ Sharps' }, { v: 2, label: '+ Flats' }, { v: 3, label: 'Sharps & flats' }], cfg.accMode, (v) => { cfg.accMode = v; changed(); }),
         'Plain letters come up about half the time, B♭ E♭ A♭ D♭ most of the rest, and remote spellings rarely.'),
       h('div', { class: 'mix-foot' }, R.total));
+  }
+
+  // ---------- Clefwork Chord Graph: the builder ----------
+  // Starting points modelled on the worksheets: tables, tritone graphs, phrases, or all three.
+  const GRAPH_PRESETS = [
+    { label: 'Diatonic tables', title: 'Diatonic Progression Table', counts: { cgtable: 4 } },
+    { label: 'Tritone graphs', title: 'Tritone Substitution Graph', counts: { cgtritone: 3 } },
+    { label: 'Musical phrases', title: 'Creating a Musical Phrase', counts: { cgphrase: 8 }, phrase: { mode: 3 } },
+    { label: 'All three', title: 'Chord Graph', counts: { cgtable: 2, cgtritone: 1, cgphrase: 2 } },
+  ];
+  function graphPresets(cfg) {
+    return h('div', { class: 'presets' }, h('span', { class: 'mini-label' }, 'Or start from a worksheet'),
+      h('div', { class: 'preset-row' }, GRAPH_PRESETS.map((p) => h('button', { type: 'button', class: 'btn btn-quiet sm', onclick: () => {
+        const g = cfg.graph = MQ.graphSettings(cfg.graph);
+        MQ.GRAPH_TYPES.forEach((k) => (cfg.counts[k] = p.counts[k] || 0));
+        if (p.phrase) Object.assign(g.phrase, p.phrase);
+        cfg.title = p.title;
+        cfg.seed = MQ.randomSeed(); S.pvIdx = 0; S.pvShow = false; S.pvResp = null;
+        saveDraft(); go('build'); toast(`Loaded the “${p.label}” worksheet`);
+      } }, p.label))));
+  }
+  // The keys the tables and phrases are in, what the chords are, and how strictly they're marked.
+  const GRAPH_KEY_SETS = [
+    { label: 'Up to 3 ♯ or ♭', max: 3 }, { label: 'Up to 5', max: 5 }, { label: 'All 15', max: 7 },
+  ];
+  function graphKeysSection(cfg, changed) {
+    const g = cfg.graph = MQ.graphSettings(cfg.graph);
+    const keys = [];
+    for (let f = -7; f <= 7; f++) keys.push({ f, major: MQ.MAJOR_KEYS[f + 7], minor: MQ.MINOR_KEYS[f + 7] });
+    const findBox = grp('The relative minor', seg('cg-find', [{ v: 0, label: 'Printed — the key is given' }, { v: 1, label: 'Students work it out' }], g.findMinor, (v) => { g.findMinor = v; changed(); }),
+      'Worked out, the tables leave the minor key’s name blank (a box of its own in the diatonic table) and don’t print its first chord.');
+    findBox.hidden = !g.minor;
+    return sec('cg-keys', 'Keys & chords', 'Every table is in one major key and its relative minor, and every phrase in one key — each in a different key while the choice lasts.',
+      grp('Keys', chips('cg-keys', keys, g.keys, (m) => { g.keys = m; changed(); }, (x) => x.major, (x) => `${x.major} major and ${x.minor} minor — ${sigLabel(x.f).toLowerCase()}`),
+        'Major keys, from seven flats to seven sharps. Each brings its relative minor.'),
+      h('div', { class: 'btn-row cg-keysets' }, GRAPH_KEY_SETS.map((k) => h('button', { type: 'button', class: 'btn btn-quiet sm', onclick: () => {
+        g.keys = 0;
+        for (let f = -k.max; f <= k.max; f++) g.keys |= MQ.graphKeyBit(f);
+        saveDraft(); go('build');
+      } }, k.label))),
+      h('div', { class: 'row2' },
+        grp('Chords', seg('cg-size', [{ v: 0, label: 'Triads' }, { v: 1, label: 'Seventh chords' }], g.sevenths, (v) => { g.sevenths = v; changed(); }),
+          'Triads are B♭, Cmi, A°; sevenths B♭ma7, Cmi7, Ami7♭5. Tritone substitutes are always dominant sevenths.'),
+        grp('Relative minor', seg('cg-minor', [{ v: 1, label: 'Include it' }, { v: 0, label: 'Major key only' }], g.minor, (v) => { g.minor = v; findBox.hidden = !v; changed(); }),
+          'Minor uses VII, III and VI from the natural minor and ii° and V from the harmonic minor.')),
+      findBox,
+      grp('Chord quality', seg('cg-quality', [{ v: 0, label: 'Root and quality must be right' }, { v: 1, label: 'Half credit for the right root' }, { v: 2, label: 'Only the root counts' }], g.quality, (v) => { g.quality = v; changed(); }),
+        'When the answer is Gmi, what G earns. The worksheets ask for the root and, preferably, the quality. Roman numerals work the same way: the right degree in the wrong case or quality.'));
+  }
+  function graphTablePanel(cfg, changed) {
+    const g = cfg.graph = MQ.graphSettings(cfg.graph);
+    return [
+      h('p', { class: 'help' }, 'The key’s chords in the order the graph moves — vii° iii vi ii V I — with the major key’s numerals over its chord symbols, and the relative minor’s (VII III VI ii° V i) beneath. Above and below go the common-tone substitutions: IV for ii, vii° or IV for V (iv for ii°, VII or iv for V in minor). A box with two answers takes them in either order.'),
+      grp('Roman numerals', seg('cg-romans', [{ v: 1, label: 'Printed — students write the chord symbols' }, { v: 0, label: 'Students write the numerals too' }], g.romans, (v) => { g.romans = v; changed(); })),
+      grp('Common-tone substitutions', seg('cg-subs', [{ v: 1, label: 'Include them' }, { v: 0, label: 'Leave them out' }], g.subs, (v) => { g.subs = v; changed(); })),
+    ];
+  }
+  function graphTritonePanel(cfg, changed) {
+    const g = cfg.graph = MQ.graphSettings(cfg.graph);
+    return [
+      h('p', { class: 'help' }, 'The key’s chords round the circle of fifths — I vii° iii vi ii V I — for the major key and its relative minor. Above the major row and below the minor row go the tritone substitutes: the dominant seventh a half step above the next chord, which it leads to — a tritone from the chord it replaces. In minor, VI falls to ii° by a tritone, so VI’s substitute is a perfect fifth above it (B♭7 for E♭ in G minor: the tritone substitute of V7/ii°, from melodic minor’s raised sixth); that box is in italics, since it looks wrong but is right. Either spelling of a substitute counts (C♭7 or B7). The first chord of the major row is printed to give the key.'),
+      grp('Roman numerals', seg('cg-ttromans', [{ v: 0, label: 'Hidden, as on the worksheet' }, { v: 1, label: 'Shown above each chord' }], g.ttRomans, (v) => { g.ttRomans = v; changed(); })),
+    ];
+  }
+  function graphPhrasePanel(cfg, changed) {
+    const g = cfg.graph = MQ.graphSettings(cfg.graph), p = g.phrase;
+    const RULE_TEXT = [
+      { label: 'Start on the tonic', title: 'The first measure is I (i in minor).' },
+      { label: 'End with a cadence', title: 'The last chord is I (i), and the chord before it V, vii° or IV (V, VII or iv in minor).' },
+      { label: 'Follow the chord graph', title: 'Each chord moves one column to the right in the graph, or stays; from I anything goes; V may also go to vi, iii or IV.' },
+      { label: 'Half cadence halfway', title: 'Eight-measure phrases: measure 4 is V, vii° or IV (V, VII or iv in minor).' },
+    ];
+    return [
+      h('p', { class: 'help' }, 'Students write a phrase in Roman numerals, one chord a measure, on two lines like the worksheet. There’s no single answer: each measure earns a point when its chord is one of the key’s (and, with the graph rule, follows from the chord before), and each other rule is a point. Students can hear their phrase; the answer key shows an example.'),
+      h('div', { class: 'row2' },
+        grp('Key', seg('cg-pmode', [{ v: 1, label: 'Major' }, { v: 2, label: 'Minor' }, { v: 3, label: 'Both' }], p.mode, (v) => { p.mode = v; changed(); }), 'Both takes turns, major first.'),
+        grp('Measures', seg('cg-pbars', [{ v: 4, label: '4' }, { v: 8, label: '8' }], p.bars, (v) => { p.bars = v; changed(); }))),
+      grp('Rules', chips('cg-prules', RULE_TEXT, p.rules, (m) => { p.rules = m; changed(); }, (x) => x.label, (x) => x.title, true),
+        'The half cadence applies to eight-measure phrases.'),
+      grp('Chord symbols', seg('cg-psym', [{ v: 0, label: 'Roman numerals only' }, { v: 1, label: 'Chord symbols too, in a key the quiz picks' }], p.symbols, (v) => { p.symbols = v; changed(); }),
+        'Each chord symbol is a point, marked against the numeral the student wrote above it.'),
+      grp('The chord graph', seg('cg-pgraph', [{ v: 1, label: 'Show it beside the phrase' }, { v: 0, label: 'Leave it out' }], p.showGraph, (v) => { p.showGraph = v; changed(); })),
+    ];
+  }
+  function graphScoreSection(cfg, changed) {
+    const g = cfg.graph = MQ.graphSettings(cfg.graph);
+    const outIn = h('input', { type: 'number', id: 'cg-out', min: 1, max: 1000, inputmode: 'numeric', value: g.outOf });
+    outIn.addEventListener('change', () => {
+      g.outOf = Math.max(1, Math.min(1000, Math.round(+outIn.value || 100)));
+      outIn.value = g.outOf;
+      changed();
+    });
+    const outFld = fld('Total points', outIn, 'The score is the share of answers right, times this total — ready to type into a gradebook.');
+    outFld.hidden = g.score !== 'percent';
+    return sec('cg-score', 'Scoring', null,
+      grp('Scoring', seg('cg-score', [{ v: 'answers', label: 'Each answer is a point' }, { v: 'question', label: 'Each table or phrase is one question' }, { v: 'percent', label: 'Percent of a total' }],
+        g.score, (v) => { g.score = v; outFld.hidden = v !== 'percent'; changed(); }),
+      'Each answer a point: a table is worth a point for every box, a phrase a point for every measure, rule and chord symbol — like marking the worksheet by hand. Half credit for a right root counts half a point.'),
+      outFld);
   }
 
   // ---------- Clefwork Analysis: pictures of the score ----------
@@ -14358,6 +15317,104 @@ svg.staff .nlabel { display: none; }
     return rows;
   }
 
+  // ---------- Clefwork Chord Graph: intro and paper ----------
+  // What students read before they start.
+  function graphIntro(cfg, qs) {
+    const g = MQ.graphSettings(cfg.graph), sc = quizScoring(cfg, qs), parts = [];
+    if (qs.some((q) => q.type !== 'cgphrase')) parts.push(`Write chord symbols as you would on paper: B♭ for major, Gmi, Gm or G- for minor, A°, Ao or Adim for diminished${g.sevenths ? '; B♭ma7, Gmi7, F7 and Ami7♭5 (or Aø) for sevenths' : ''}.`);
+    if (qs.some((q) => q.type === 'cgphrase')) parts.push('Each phrase shows the rules it’s marked on, and the speaker button plays it.');
+    parts.push(!sc ? 'Each table or phrase is one question.' : sc.mode === 'percent' ? `The quiz is out of ${sc.outOf} points — your share of the answers.` : 'Every answer is a point.');
+    if (g.quality === 1) parts.push('The right root with the wrong quality earns half.');
+    if (g.quality === 2) parts.push('Only the root of each chord is marked.');
+    return parts.join(' ');
+  }
+  // On paper: the table as on the worksheet — printed cells filled in, answer cells empty, "or" where
+  // a cell takes two — or a phrase's measures, two lines of them, with the chord graph above.
+  const svgText = (x, y, str, size, o) => `<text x="${x}" y="${y}" font-size="${size}" text-anchor="${(o && o.anchor) || 'middle'}" font-family="Georgia, 'Times New Roman', serif"${o && o.bold ? ' font-weight="bold" class="clabel"' : ''} fill="#000">${MQ.printEscape(str)}</text>`;
+  const svgBox = (x, y, w, hgt) => `<rect x="${x}" y="${y}" width="${w}" height="${hgt}" fill="none" stroke="#000" stroke-width="1.1"/>`;
+  const svgLine = (x1, y1, x2, y2, w) => `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#000" stroke-width="${w || 1.1}"/>`;
+  function svgArt(markup, W, H) {
+    const svg = new DOMParser().parseFromString(markup, 'image/svg+xml').documentElement;
+    return { svg, markup, wIn: W / 96, hIn: H / 96 };
+  }
+  // Up to two lines of a head label, split between words.
+  function headLines(text, max) {
+    if (text.length <= max) return [text];
+    const words = text.split(' ');
+    let a = '';
+    while (words.length && (a + ' ' + words[0]).trim().length <= max) a = (a + ' ' + words.shift()).trim();
+    return [a, words.join(' ')];
+  }
+  function graphPrintArt(q) {
+    if (q.type === 'cgphrase') return [phrasePrintArt(q)];
+    const T = q.cg;
+    const HEAD = 124, COL = T.kind === 'tritone' ? 72 : 82, W = HEAD + COL * T.cols + 2;
+    // Rows of chords are tall enough to write in; rows of printed numerals are shorter.
+    const rowH = (row) => (T.kind === 'tritone' ? 42 : row.play || row.cells.some((c) => c && c.slots) ? 40 : 28);
+    let y = 1, out = '';
+    const tops = T.rows.map((row) => { const t = y; y += rowH(row); return t; });
+    const H = y + 1;
+    T.rows.forEach((row, ri) => {
+      const top = tops[ri], hgt = rowH(row);
+      if (row.head) {
+        const span = row.head.span || 1;
+        const hh = T.rows.slice(ri, ri + span).reduce((a, r) => a + rowH(r), 0);
+        out += svgBox(1, top, HEAD, hh);
+        if (!row.head.slots) {
+          const lines = headLines(row.head.text, 16), size = row.head.key ? 15 : 12.5;
+          const mid = top + hh / 2 + size * 0.36 - (lines.length - 1) * size * 0.55;
+          lines.forEach((ln, k) => { out += svgText(1 + HEAD / 2, mid + k * size * 1.1, ln, size, { bold: !!row.head.key }); });
+        }
+      }
+      row.cells.forEach((cell, c) => {
+        if (!cell) return;
+        const x = 1 + HEAD + c * COL;
+        out += svgBox(x, top, COL, hgt);
+        if (cell.cap) out += svgText(x + 4, top + 10, cell.cap, 8.5, { anchor: 'start' });
+        if (cell.text) out += svgText(x + COL / 2, top + hgt / 2 + 5, cell.text, row.play || T.kind === 'tritone' ? 14 : 12.5, { bold: !row.play && T.kind !== 'tritone' });
+        else if (cell.slots.length > 1) out += svgText(x + COL / 2, top + hgt / 2 + 4, 'or', 10);
+      });
+    });
+    const markup = `<svg xmlns="http://www.w3.org/2000/svg" class="cg-art" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}">${out}</svg>`;
+    return [svgArt(markup, W, H)];
+  }
+  function phrasePrintArt(q) {
+    const P = q.ph, W = 640;
+    let out = '', y = 4;
+    if (P.showGraph) {
+      // The graph: each column's chord, its stand-ins above and below, arrows between.
+      const cols = MQ.GRAPH_VIEW[P.mode], step = W / cols.length;
+      cols.forEach((c, i) => {
+        const cx = step * i + step / 2;
+        if (c[1]) out += svgText(cx, y + 12, c[1], 10.5);
+        out += svgText(cx, y + 30, c[0], 14, { bold: true });
+        if (c[2]) out += svgText(cx, y + 46, c[2], 10.5);
+        if (i) {
+          const x1 = cx - step + 22, x2 = cx - 22;
+          out += svgLine(x1, y + 25, x2, y + 25, 1) + `<path d="M${x2} ${y + 25}l-6 -3.2v6.4z" fill="#000"/>`;
+        }
+      });
+      y += 60;
+    }
+    const half = P.bars > 4 ? P.bars / 2 : P.bars, rows = P.symbols ? 2 : 1, lineH = rows === 2 ? 62 : 38;
+    const x0 = 8, x1 = W - 8, mw = (x1 - x0) / half;
+    for (let a = 0; a < P.bars; a += half) {
+      const top = y + 4, bot = top + lineH;
+      // Double bars at both ends, single bars between, a writing line under each row.
+      out += svgLine(x0, top, x0, bot, 1.1) + svgLine(x0 + 3.5, top, x0 + 3.5, bot, 1.1);
+      out += svgLine(x1 - 3.5, top, x1 - 3.5, bot, 1.1) + svgLine(x1, top, x1, bot, 2.2);
+      for (let m = 1; m < half; m++) out += svgLine(x0 + m * mw, top, x0 + m * mw, bot, 1.1);
+      for (let m = 0; m < half; m++) out += svgText(x0 + m * mw + 10, top + 12, String(a + m + 1), 11, { anchor: 'start' });
+      out += svgLine(x0, top + 32, x1, top + 32, 0.7);
+      if (rows === 2) out += svgLine(x0, bot - 4, x1, bot - 4, 0.7);
+      y = bot + 12;
+    }
+    if (rows === 2) out += svgText(x0, y + 4, `Top line: Roman numerals · bottom line: chord symbols in ${MQ.graphKeyTitle(P.key)}`, 9.5, { anchor: 'start' });
+    const H = y + (rows === 2 ? 10 : 0);
+    const markup = `<svg xmlns="http://www.w3.org/2000/svg" class="cg-art" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}">${out}</svg>`;
+    return svgArt(markup, W, H);
+  }
+
   // ---------- print: a paper copy of the quiz, as PDF or a Word document ----------
   // A standalone SVG for one question's staff: no colours from the app, drawn clefs when the
   // picture has to be rasterised, and cropped to the part of the staff that is used.
@@ -14410,6 +15467,7 @@ svg.staff .nlabel { display: none; }
     return { svg, markup, wIn: (vb[2] / vb[3]) * hIn, hIn };
   }
   function exportArt(q, opts) {
+    if (MQ.isGraph(q)) return graphPrintArt(q);
     if (q.type === 'melody') return melodyPrintArt(q, opts);
     if (q.type === 'degree') return degreePrintArt(q, opts);
     if (q.type === 'rhythm') return rhythmPrintArt(q, opts);
@@ -14738,6 +15796,15 @@ svg.staff .nlabel { display: none; }
       document.querySelector('.flow').replaceChildren(
         h('li', null, h('b', null, '1'), ' Write rhythms, or let Clefwork make them'),
         h('li', null, h('b', null, '2'), ' Students write what they hear on a one-line staff, or show each note’s start and length on a grid'),
+        h('li', null, h('b', null, '3'), ' Students send back a report code — no accounts, no server'));
+    }
+    if (GRAPH) {
+      const name = document.querySelector('.brand-name');
+      if (name) name.textContent = 'Clefwork Chord Graph';
+      document.title = 'Clefwork Chord Graph';
+      document.querySelector('.flow').replaceChildren(
+        h('li', null, h('b', null, '1'), ' Choose the keys and worksheets: diatonic tables, tritone graphs and phrases'),
+        h('li', null, h('b', null, '2'), ' Students write chord symbols and Roman numerals in the tables, and compose phrases'),
         h('li', null, h('b', null, '3'), ' Students send back a report code — no accounts, no server'));
     }
     if (MELODY) {

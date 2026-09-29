@@ -240,6 +240,29 @@
   // ---------- quiz codes ----------
   // Retakes a quiz allows after the first attempt: a number from 0 to 31, or null for no limit.
   const retakeLimit = (cfg) => (cfg && Number.isInteger(cfg.retakes) && cfg.retakes >= 0 ? Math.min(31, cfg.retakes) : null);
+  // ---------- Clefwork Chord Graph ----------
+  // Its generator version first, so a later one can keep older quizzes' questions; then how many of
+  // each question, the keys (a bit each), the table and chord choices, scoring, and the phrase rules.
+  const GRAPH_COUNTS = ['cgtable', 'cgtritone', 'cgphrase'];
+  function writeGraphBlock(w, cfg) {
+    const g = MQ.graphSettings(cfg.graph), p = g.phrase;
+    w.u(g.gen, 3);
+    GRAPH_COUNTS.forEach((k) => w.u(Math.min(MQ.GRAPH_MAX, cfg.counts[k] || 0), 5));
+    w.u(g.keys, 15).u(g.sevenths, 1).u(g.minor, 1).u(g.findMinor, 1).u(g.romans, 1).u(g.subs, 1).u(g.ttRomans, 1)
+      .u(g.quality, 2).u(MQ.GRAPH_SCORES.indexOf(g.score), 2).u(g.outOf, 10)
+      .u(p.mode, 2).u(p.bars === 4 ? 0 : 1, 1).u(p.rules, 4).u(p.symbols, 1).u(p.showGraph, 1);
+  }
+  function readGraphBlock(r, cfg) {
+    const gen = r.u(3);
+    GRAPH_COUNTS.forEach((k) => (cfg.counts[k] = r.u(5)));
+    const g = { gen, keys: r.u(15), sevenths: r.u(1), minor: r.u(1), findMinor: r.u(1), romans: r.u(1), subs: r.u(1), ttRomans: r.u(1) };
+    g.quality = r.u(2);
+    g.score = MQ.GRAPH_SCORES[r.u(2)] || 'answers';
+    g.outOf = r.u(10);
+    g.phrase = { mode: r.u(2), bars: r.u(1) ? 8 : 4, rules: r.u(4), symbols: r.u(1), showGraph: r.u(1) };
+    cfg.graph = MQ.graphSettings(g);
+  }
+
   function encodeQuiz(cfg) {
     const w = new Writer();
     // Version 2 added teacher-defined chords after the flags; version 3 adds how many to ask
@@ -348,6 +371,9 @@
     // Extension 8: the same, then the share of notes asked about and how the quiz is scored. Written
     // only when those aren't the defaults (every note; each melody one question), so extension-7
     // quizzes keep their codes.
+    // Extension 9: Clefwork Chord Graph — the retake limit (if any) behind a flag, then the graph block:
+    // how many of each question, the keys, the chord and table choices, the scoring and the phrase
+    // rules. No rhythm, melody or degree blocks.
     const an = MQ.analysisSettings(cfg.analysis);
     const regions = an.regions.slice(0, MQ.ANALYSIS_MAX);
     const limit = retakeLimit(cfg);
@@ -361,9 +387,10 @@
     const degrees = grid ? 0 : Math.min(MQ.DEGREE_MAX, (cfg.counts && cfg.counts.degree) || 0);
     const dg = degrees ? MQ.degreeSettings(cfg.deg) : null;
     const dgMore = !!dg && (dg.share < 100 || dg.score !== 'question');
-    if (regions.length || an.img || limit != null || rhythm || melody || degrees) {
+    const graph = GRAPH_COUNTS.some((k) => cfg.counts && cfg.counts[k] > 0);
+    if (regions.length || an.img || limit != null || rhythm || melody || degrees || graph) {
       const q10 = (v) => Math.max(0, Math.min(1023, Math.round(v * 1023)));
-      const ext = grid ? 6 : degrees ? (dgMore ? 8 : 7) : melody ? 5 : rhythm ? 4 : limit != null ? 2 : 1;
+      const ext = graph ? 9 : grid ? 6 : degrees ? (dgMore ? 8 : 7) : melody ? 5 : rhythm ? 4 : limit != null ? 2 : 1;
       w.u(ext, 8).u(an.override, 2).u(an.img ? 1 : 0, 1);
       if (an.img) w.u(an.img.hash >>> 0, 32);
       w.strN(an.notes, 200, 8).u(regions.length, 6);
@@ -372,7 +399,12 @@
           .u(Math.max(1, MQ.ANALYSIS_ASKS.indexOf(r.ask)), 2).str(r.roman, 63).str(r.symbol, 63);
       });
       if (ext === 2) w.u(limit, 5);
-      if (ext >= 4) {
+      if (ext === 9) {
+        w.u(limit != null ? 1 : 0, 1);
+        if (limit != null) w.u(limit, 5);
+        writeGraphBlock(w, cfg);
+      }
+      if (ext >= 4 && ext <= 8) {
         w.u(limit != null ? 1 : 0, 1);
         if (limit != null) w.u(limit, 5);
         w.u(Math.min(15, rh.playsEx || 0), 4).u(Math.min(15, rh.playsAns || 0), 4)
@@ -389,13 +421,13 @@
           examples.forEach((ex) => writeExample(w, ex, grid));
         }
       }
-      if (ext === 5 || ext >= 7) writeMelodyBlock(w, mb);
+      if (ext === 5 || ext === 7 || ext === 8) writeMelodyBlock(w, mb);
       if (ext === 6) w.u(MQ.RHYTHM_GRID_BOXES.indexOf(rh.grid.box), 2).u(rh.grid.show, 2).u(rh.grid.rests ? 1 : 0, 1);
-      if (ext >= 7) {
+      if (ext === 7 || ext === 8) {
         const d = dg;
         w.u(degrees, 5).u(d.gen, 3).u(d.measures - 1, 3).u(d.level - 1, 3).u(d.keyMode, 2).u(d.keyMax, 3).u(d.clefs, 2).u(d.hear, 1);
       }
-      if (ext >= 8) w.u(dg.share / 10 - 1, 4).u(DEGREE_SCORES.indexOf(dg.score), 2).u(dg.outOf, 10);
+      if (ext === 8) w.u(dg.share / 10 - 1, 4).u(DEGREE_SCORES.indexOf(dg.score), 2).u(dg.outOf, 10);
     }
     return pack(KIND_QUIZ, w.b);
   }
@@ -523,6 +555,8 @@
       cfg.counts.rhythm = 0;
       cfg.melody = MQ.defaultConfig().melody;
       cfg.counts.melody = 0;
+      cfg.graph = null;
+      GRAPH_COUNTS.forEach((k) => (cfg.counts[k] = 0));
       if (cfg.helpOv.vprog == null) cfg.helpOv.vprog = 2;
       if (v >= 12) {
         cfg.helpOv.vprog = r.u(2);
@@ -551,7 +585,11 @@
             cfg.counts.analysis = n;
           }
           if (ext === 2) cfg.retakes = r.u(5);
-          if (ext >= 3) {
+          if (ext === 9) {
+            if (r.u(1)) cfg.retakes = r.u(5);
+            readGraphBlock(r, cfg);
+          }
+          if (ext >= 3 && ext <= 8) {
             if (r.u(1)) cfg.retakes = r.u(5);
             const rh = { playsEx: r.u(4), playsAns: r.u(4), examples: [] };
             const grid = ext === 6;
@@ -578,15 +616,15 @@
             cfg.rhythm = MQ.rhythmSettings(rh);
             cfg.counts.rhythm = rh.auto ? rh.auto.count : rh.examples.length;
           }
-          if (ext === 5 || ext >= 7) {
+          if (ext === 5 || ext === 7 || ext === 8) {
             cfg.melody = readMelodyBlock(r);
             cfg.counts.melody = cfg.melody.auto.on ? cfg.melody.auto.count : cfg.melody.examples.length;
           }
-          if (ext >= 7) {
+          if (ext === 7 || ext === 8) {
             cfg.counts.degree = r.u(5);
             cfg.deg = MQ.degreeSettings({ gen: r.u(3), measures: r.u(3) + 1, level: r.u(3) + 1, keyMode: r.u(2), keyMax: r.u(3), clefs: r.u(2), hear: r.u(1) });
           }
-          if (ext >= 8) Object.assign(cfg.deg, { share: (r.u(4) + 1) * 10, score: DEGREE_SCORES[r.u(2)] || 'question', outOf: r.u(10) });
+          if (ext === 8) Object.assign(cfg.deg, { share: (r.u(4) + 1) * 10, score: DEGREE_SCORES[r.u(2)] || 'question', outOf: r.u(10) });
         }
         const sum = (b) => MQ.TECHNIQUES.reduce((n, t) => n + ((b.tech && b.tech[t.id]) || 0), 0);
         cfg.counts.voicing = sum(cfg.vc);
@@ -627,7 +665,38 @@
   const KEY_ANSWERS = ['staff', 'name', 'piano'];
   const DEGREE_SCORES = ['question', 'notes', 'percent'];
   // `plays` (rhythm questions): how often the student played the example and their own answer.
+  // Chord Graph answers: a flag, then either the chord a student wrote (root, quality, and whether it
+  // was a bare triangle or had anything after the root) or, for anything else, the text itself.
+  function writeGraphText(w, text) {
+    const c = String(text || '').trim() && MQ.readGraphChord(text);
+    w.u(c ? 1 : 0, 1);
+    if (!c) { writeText(w, text); return; }
+    w.u(c.root.step, 3).u(c.root.alt + 2, 3).u(Math.max(0, MQ.QUALITY_IDS.indexOf(c.q)), 5).u(c.delta ? 1 : 0, 1).u(c.explicit ? 1 : 0, 1);
+  }
+  function readGraphText(r) {
+    if (!r.u(1)) return readText(r);
+    const c = { root: { step: r.u(3), alt: r.u(3) - 2 }, q: MQ.QUALITY_IDS[r.u(5)] || 'maj', delta: !!r.u(1), explicit: !!r.u(1) };
+    return MQ.graphChordText(c);
+  }
   function writeAnswer(w, q, resp, plays) {
+    if (q.type === 'cgtable' || q.type === 'cgtritone') {
+      // A table: how many answer boxes, then each one.
+      const n = Math.min(63, q.cg.slots.length);
+      w.u(n, 6);
+      for (let j = 0; j < n; j++) writeGraphText(w, resp && resp[j]);
+      return;
+    }
+    if (q.type === 'cgphrase') {
+      // A phrase: how many measures, whether chord symbols were asked for, then each measure's numeral
+      // (and chord symbol).
+      const n = Math.min(15, q.ph.bars), sym = q.ph.symbols ? 1 : 0;
+      w.u(n, 4).u(sym, 1);
+      for (let j = 0; j < n; j++) {
+        writeText(w, resp && resp.r && resp.r[j]);
+        if (sym) writeGraphText(w, resp && resp.s && resp.s[j]);
+      }
+      return;
+    }
     if (q.type === 'degree') {
       // Scale degrees: how many notes, then each note's number (0 blank, 1–7).
       const list = MQ.cleanDegrees(q, resp).slice(0, 127);
@@ -731,6 +800,16 @@
     return { kind: 'staff', value: cols };
   }
   function readAnswer(r, type, ver) {
+    if (type === 'cgtable' || type === 'cgtritone') {
+      const n = r.u(6), out = [];
+      for (let j = 0; j < n; j++) out.push(readGraphText(r));
+      return { kind: 'text', value: out };
+    }
+    if (type === 'cgphrase') {
+      const n = r.u(4), sym = r.u(1), out = { r: [], s: [] };
+      for (let j = 0; j < n; j++) { out.r.push(readText(r)); out.s.push(sym ? readGraphText(r) : ''); }
+      return { kind: 'text', value: out };
+    }
     if (type === 'degree') {
       const n = r.u(7), list = [];
       for (let j = 0; j < n; j++) list.push(r.u(3));
@@ -852,6 +931,8 @@
       report.items.forEach((it) => {
         // (Scale degrees too, when scored by note. No report has both kinds, so earlier reports read the same.)
         if (it.type === 'rhythm' || it.type === 'melody' || it.type === 'rgrid' || it.type === 'degree') w.u(n9(it.notes), 9).u(n9(it.wrong), 9);
+        // Chord Graph: points, and points lost in halves (a right root can earn half).
+        if (GRAPH_COUNTS.includes(it.type)) w.u(n9(it.notes), 9).u(n9(Math.round((it.wrong || 0) * 2)), 9);
         if (it.type === 'melody') w.u(n9(it.pw), 9).u(n9(it.rw), 9);
       });
     }
@@ -893,6 +974,7 @@
         rep.scoring = { mode: r.u(1) ? 'percent' : 'notes', outOf: r.u(10), split: ver >= 12 ? r.u(1) : 0 };
         rep.items.forEach((it) => {
           if (it.type === 'rhythm' || it.type === 'rgrid' || it.type === 'degree' || (it.type === 'melody' && ver >= 12)) { it.notes = r.u(9); it.wrong = r.u(9); }
+          if (GRAPH_COUNTS.includes(it.type)) { it.notes = r.u(9); it.wrong = r.u(9) / 2; }
           if (it.type === 'melody' && ver >= 12) { it.pw = r.u(9); it.rw = r.u(9); }
         });
       }
@@ -941,6 +1023,7 @@
       n, count, points, full, answered, pct: max ? (raw / max) * 100 : 0,
       // Note scoring: how many notes there were, and how many were wrong.
       noted: !!sc, notes: sc ? max : 0, wrong: sc ? rep.items.reduce((s, it) => s + (it.wrong || 0), 0) : 0, mode: sc ? sc.mode : null,
+      graph: rep.items.some((it) => GRAPH_COUNTS.includes(it.type)),    // Chord Graph: answers, not notes
       byType: by('type'), byClef: by('clef'),
       avgSec: count ? rep.items.reduce((s, it) => s + it.sec, 0) / count : 0,
       slowest,

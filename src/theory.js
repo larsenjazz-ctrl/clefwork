@@ -105,6 +105,10 @@
     // Rhythm grid questions come from the rhythm block (cfg.rhythm.task = 'grid'), counted as rhythm examples.
     { id: 'rgrid', label: 'Rhythm Grid', blurb: 'Read or hear a rhythm, then show on a grid of beats and boxes where each note starts and how long it lasts.', est: 100, custom: true },
     { id: 'degree', label: 'Scale Degrees', blurb: 'Read a melody of one to eight measures in a major or minor key and label every note with its scale degree, 1 to 7.', est: 60, custom: true },
+    // Clefwork Chord Graph (see chordgraph.js).
+    { id: 'cgtable', label: 'Diatonic Progression Table', blurb: 'Write the chord symbols for a key’s Roman numerals, in the order the chord graph moves — vii° iii vi ii V I — for the major key, its relative minor and the common-tone substitutions.', est: 150, custom: true },
+    { id: 'cgtritone', label: 'Tritone Substitution Graph', blurb: 'Write a key’s chords round the circle of fifths, I vii° iii vi ii V I, in major and the relative minor, with the dominant seventh a tritone from each.', est: 180, custom: true },
+    { id: 'cgphrase', label: 'Musical Phrase', blurb: 'Write a phrase in Roman numerals, one chord a measure, that starts on the tonic, follows the chord graph and ends with a cadence.', est: 120, custom: true },
   ];
   const BUILT_IN = TYPES.filter((t) => !t.custom);
   const MAX_CUSTOM = 20, MAX_CUSTOM_NOTES = 6, MAX_VOICING_NOTES = 8;
@@ -160,7 +164,7 @@
       // Per-tab notes setting: 0 use the quiz setting, 1 print the helper note, 2 students write every note.
       helpOv: { interval: 0, chord: 0, custom: 2, voicing: 2, vprog: 2 },
       figpAsk: 1, // figured bass progression: 1 analyse, 2 spell, 3 both
-      counts: { place: 4, identify: 3, interval: 3, chord: 2, scale: 1, keysig: 2, custom: 0, voicing: 0, vprog: 0, progression: 0, figured: 0, figprog: 0, keys: 0, analysis: 0, rhythm: 0, melody: 0, degree: 0 },
+      counts: { place: 4, identify: 3, interval: 3, chord: 2, scale: 1, keysig: 2, custom: 0, voicing: 0, vprog: 0, progression: 0, figured: 0, figprog: 0, keys: 0, analysis: 0, rhythm: 0, melody: 0, degree: 0, cgtable: 0, cgtritone: 0, cgphrase: 0 },
       ledger: 1,
       accMode: 3,
       intervals: maskOf(INTERVALS, ['M2', 'm3', 'M3', 'P4', 'P5', 'P8']),
@@ -206,6 +210,8 @@
       melody: { examples: [], playsEx: 0, playsAns: 0 },
       // Scale degrees: the melodies' length, level, keys and clefs (see degrees.js).
       deg: { measures: 2, level: 1, keyMode: 1, keyMax: 3, clefs: 1 },
+      // Clefwork Chord Graph: keys, chords, what's printed and how it's scored (see chordgraph.js).
+      graph: null,
       custom: [],
       customGrade: 0,
       voicings: [],
@@ -214,7 +220,7 @@
       flags: { shuffle: true, partial: true, feedback: false, labels: false, enharmonic: false, strictOctave: false, noHelpers: false },
     };
   }
-  const zeroCounts = () => ({ place: 0, identify: 0, interval: 0, chord: 0, scale: 0, keysig: 0, custom: 0, voicing: 0, vprog: 0, progression: 0, figured: 0, figprog: 0, keys: 0, analysis: 0, rhythm: 0, melody: 0, degree: 0 });
+  const zeroCounts = () => ({ place: 0, identify: 0, interval: 0, chord: 0, scale: 0, keysig: 0, custom: 0, voicing: 0, vprog: 0, progression: 0, figured: 0, figprog: 0, keys: 0, analysis: 0, rhythm: 0, melody: 0, degree: 0, cgtable: 0, cgtritone: 0, cgphrase: 0 });
   const withCfg = (c, patch) => Object.assign(JSON.parse(JSON.stringify(c)), patch);
 
   const PRESETS = [
@@ -666,7 +672,7 @@
     // Variety: no interval, chord type, root, key or scale more than twice in a short quiz
     // (three times past 20 questions). When the settings are narrow, the roots vary the most.
     const total = BUILT_IN.reduce((n, t) => n + (cfg.counts[t.id] || 0), 0)
-      + ['custom', 'voicing', 'vprog', 'progression', 'keys', 'analysis', 'rhythm', 'melody', 'degree'].reduce((n, k) => n + (cfg.counts[k] || 0), 0);
+      + ['custom', 'voicing', 'vprog', 'progression', 'keys', 'analysis', 'rhythm', 'melody', 'degree', 'cgtable', 'cgtritone', 'cgphrase'].reduce((n, k) => n + (cfg.counts[k] || 0), 0);
     const cap = total > 20 ? 3 : 2;
     const used = {};
     function pickVaried(make) {
@@ -724,6 +730,7 @@
     if (MQ.rhythmQuestions && cfg.counts.rhythm) MQ.rhythmQuestions(cfg).forEach((q) => qs.push(q));
     if (MQ.melodyQuestions && cfg.counts.melody) MQ.melodyQuestions(cfg).forEach((q) => qs.push(q));
     if (MQ.degreeQuestions && cfg.counts.degree) MQ.degreeQuestions(cfg).forEach((q) => qs.push(q));
+    if (MQ.graphQuestions && (cfg.counts.cgtable || cfg.counts.cgtritone || cfg.counts.cgphrase)) MQ.graphQuestions(cfg).forEach((q) => qs.push(q));
     if (cfg.flags.shuffle) shuffle(qs, rng);
     return qs;
   }
@@ -759,6 +766,7 @@
     if (q.type === 'melody') return MQ.gradeMelody(q, response);
     if (q.type === 'degree') return MQ.gradeDegrees(q, response);
     if (q.type === 'rgrid') return MQ.gradeGrid(q, response);
+    if (MQ.isGraph && MQ.isGraph(q)) return MQ.gradeGraph(q, response, cfg);
     if (q.type === 'figured' || q.type === 'figprog') return MQ.gradeFigured(q, response, cfg);
     if (q.type === 'progression') return MQ.gradeProgression(q, response, cfg);
     if (q.symbolAnswers) {
@@ -788,6 +796,7 @@
       : q.type === 'melody' ? MQ.hasMelodyAnswer(q, response)
       : q.type === 'degree' ? MQ.hasDegreeAnswer(q, response)
       : q.type === 'rgrid' ? MQ.hasGridAnswer(q, response)
+      : MQ.isGraph && MQ.isGraph(q) ? MQ.hasGraphAnswer(q, response)
       : q.type === 'figured' || q.type === 'figprog' ? MQ.hasFiguredAnswer(q, response)
       : q.colSpecs ? !!response && response.some((col) => col && col.some(Boolean))
         : q.type === 'progression' ? !!response && ['r', 's'].some((k) => (response[k] || []).some((x) => x && x.trim()))
@@ -803,6 +812,7 @@
     if (q.type === 'melody') return MQ.describeMelody(q);
     if (q.type === 'degree') return MQ.describeDegrees(q);
     if (q.type === 'rgrid') return MQ.describeGrid(q);
+    if (MQ.isGraph && MQ.isGraph(q)) return MQ.describeGraph(q);
     if (q.symbolAnswers) return q.symbolAnswers.map((a) => a.shown).join('  ');
     if (q.symbolAnswer) return q.symbolAnswer.shown;
     if (q.dropdowns) return q.dropdowns.map((d) => d.options[d.answer]).join(' · ');
