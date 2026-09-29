@@ -861,6 +861,40 @@
 
   // ---------- scale degrees ----------
   // The melody printed on the staff a line at a time, with a menu under every note for its degree.
+  // ---------- scale degrees: builder settings ----------
+  // What share of each melody's notes get a box: a slider in tens. Clefwork picks the notes at random.
+  function degreeShareField(d, changed) {
+    const text = (v) => (v >= 100 ? 'Every note' : `${v}% of the notes`);
+    const out = h('output', { class: 'dg-share-val', for: 'q-degshare' }, text(d.share));
+    const slider = h('input', { type: 'range', id: 'q-degshare', class: 'dg-share', min: 10, max: 100, step: 10, value: d.share });
+    slider.addEventListener('input', () => { out.textContent = text(+slider.value); });
+    slider.addEventListener('change', () => { d.share = +slider.value; changed(); });
+    return h('div', { class: 'fld' },
+      h('label', { class: 'mini-label', for: 'q-degshare' }, 'Notes to label'),
+      h('div', { class: 'dg-share-row' }, slider, out),
+      h('span', { class: 'help' }, 'Clefwork picks that share of each melody’s notes at random (always at least one). Only those notes are numbered and get an answer box; the rest are left for context.'));
+  }
+  // Scoring: each melody one question, each labelled note a point, or the notes' share of a total.
+  function degreeScoreField(d, changed) {
+    const outIn = h('input', { type: 'number', id: 'q-degout', min: 1, max: 1000, inputmode: 'numeric', value: d.outOf });
+    outIn.addEventListener('change', () => {
+      d.outOf = Math.max(1, Math.min(1000, Math.round(+outIn.value || 100)));
+      outIn.value = d.outOf;
+      changed();
+    });
+    const outFld = fld('Total points', outIn, 'The score is the share of labelled notes answered correctly, times this total — ready to type into a gradebook.');
+    outFld.hidden = d.score !== 'percent';
+    return h('div', null,
+      grp('Scoring', seg('q-degscore', [{ v: 'question', label: 'Each melody is one question' }, { v: 'notes', label: 'Each note is a point' }, { v: 'percent', label: 'Percent of a total' }],
+        d.score, (v) => { d.score = v; outFld.hidden = v !== 'percent'; changed(); }),
+      'With note or percent scoring, a melody is worth one point for each labelled note, and any other questions in the quiz count one point each.'),
+      outFld);
+  }
+  // Labels for the notes asked about in measures a … a+n−1: [measure][event] → text, or null.
+  function degreeLabels(D, a, n, next) {
+    const asked = new Set(D.notes.map((x) => x.m + ':' + x.i));
+    return D.layers[0].slice(a, a + n).map((bar, mm) => bar.map((e, i) => (asked.has(a + mm + ':' + i) ? next() : null)));
+  }
   const DEG_OPTS = [{ v: '', label: '–' }].concat([1, 2, 3, 4, 5, 6, 7].map((n) => ({ v: String(n), label: String(n) })));
   let dgUid = 0;
   function degreeCard(q, cfg, o) {
@@ -872,7 +906,7 @@
     wrap.append(h('div', { class: 'q-eyebrow' }, typeOf(q.type).label,
       h('span', { class: 'q-clef' }, `${MQ.melodyKeyName(D.key)} · ${info.label} · ${MQ.clefLabel(D.clef)}`)));
     wrap.append(h(o.compact ? 'h3' : 'h2', { class: 'q-text' }, q.text));
-    if (q.hint && !o.locked && !o.keyMode) wrap.append(h('p', { class: 'q-hint' }, q.hint, ' Choose a number under each note.'));
+    if (q.hint && !o.locked && !o.keyMode) wrap.append(h('p', { class: 'q-hint' }, q.hint, ' Choose a scale degree for each numbered note.'));
     // Listening, when the quiz allows it: the tonic chord, and the melody at its tempo.
     if (MQ.degreeSettings(cfg.deg).hear && !o.keyMode) {
       const play = (pe) => { if (!MQ.Audio.sequence(pe.events, { total: pe.total })) toast('This browser can’t play sound.', 'bad'); };
@@ -891,7 +925,7 @@
       const n = Math.min(per, D.measures - a);
       const bars = D.layers[0].slice(a, a + n);
       const first = j;
-      const labels = bars.map((bar) => bar.map((e) => (e.r || !e.p ? null : 'n' + ++j)));
+      const labels = degreeLabels(D, a, n, () => 'n' + ++j);
       const model = { meter: D.meter, measures: n, layers: [bars], key: D.key, clef: D.clef };
       const b = MQ.melodyMarkup(model, { first: a, showTime: a === 0, perLine: n, print: true, open: a + n < D.measures, noteLabels: labels });
       const pic = h('div', { class: 'dg-pic' });
@@ -1092,6 +1126,8 @@
             levelHelp),
           grp('Clefs', chips('q-degclefs', [{ label: 'Treble' }, { label: 'Bass' }], d.clefs, (m) => { d.clefs = m || 1; changed(); }, (x) => x.label)),
           grp('Listening', seg('q-deghear', [{ v: 1, label: 'Students may hear the melody and the key' }, { v: 0, label: 'Reading only' }], d.hear, (v) => { d.hear = v; changed(); })),
+          degreeShareField(d, changed),
+          degreeScoreField(d, changed),
         ];
       },
       figprog: () => [
@@ -1323,9 +1359,11 @@
         S.qs = MQ.generateQuiz(cfg);
         if (R.code) R.code.textContent = S.code;
         [R.copy, R.link, R.tryBtn, R.exportBtn, R.canvasBtn, R.startBtn].forEach((b) => b && (b.disabled = false));
-        const est = Math.max(1, Math.round((MQ.BUILT_IN.reduce((s, t) => s + t.est * (cfg.counts[t.id] || 0), 0) + 40 * listCount(cfg, 'custom') + 55 * listCount(cfg, 'voicing') + 90 * listCount(cfg, 'vprog') + 70 * listCount(cfg, 'progression') + 15 * listCount(cfg, 'keys') + 30 * listCount(cfg, 'analysis') + 120 * listCount(cfg, 'rhythm') + 180 * listCount(cfg, 'melody')) / 60));
+        const est = Math.max(1, Math.round((MQ.BUILT_IN.reduce((s, t) => s + t.est * (cfg.counts[t.id] || 0), 0) + 40 * listCount(cfg, 'custom') + 55 * listCount(cfg, 'voicing') + 90 * listCount(cfg, 'vprog') + 70 * listCount(cfg, 'progression') + 15 * listCount(cfg, 'keys') + 30 * listCount(cfg, 'analysis') + 120 * listCount(cfg, 'rhythm') + 180 * listCount(cfg, 'melody') + 60 * Math.min(MQ.DEGREE_MAX, cfg.counts.degree || 0)) / 60));
         const sb = DICTATION ? dictation(cfg) : null;
-        const outOf = sb ? (sb.score === 'percent' ? ` · out of ${sb.outOf} points` : ` · out of ${rhythmNotes(S.qs)} notes`) : '';
+        const dsc = !sb ? quizScoring(cfg, S.qs) : null;          // scale degrees scored by note or percent
+        const outOf = sb ? (sb.score === 'percent' ? ` · out of ${sb.outOf} points` : ` · out of ${rhythmNotes(S.qs)} notes`)
+          : dsc ? ` · out of ${fmtPts(MQ.reportStats({ items: S.qs.map((q) => ({ type: q.type, clef: q.clef, credit: 7, answered: true, sec: 0, notes: q.type === 'degree' ? q.deg.notes.length : undefined, wrong: 0 })), scoring: dsc }).n)} points` : '';
         const noun = MELODY ? (total === 1 ? 'melody' : 'melodies') : `${RHYTHM ? 'example' : 'question'}${total === 1 ? '' : 's'}`;
         R.summary.replaceChildren(h('b', null, STUDENT ? 'Your practice' : cfg.title || 'Untitled quiz'), ` — ${total} ${noun} · ${clefsText(cfg)}${outOf} · about ${est} min${cfg.timeLimit ? ` · ${cfg.timeLimit}-minute limit` : ''}`);
       }
@@ -2216,6 +2254,16 @@
           h('button', { type: 'button', class: 'btn btn-quiet', onclick: () => { t.reviewing = false; saveAttempt(); go(tv()); } }, 'Keep working')))));
     startTicker();
   }
+  // How a quiz is scored when it isn't one point a question: rhythm and melody dictation by note, and
+  // scale degrees when the teacher chose note or percent scoring.
+  function quizScoring(cfg, qs) {
+    if (qs.some((q) => q.type === 'rhythm' || q.type === 'melody' || q.type === 'rgrid')) {
+      const rh = dictation(cfg);
+      return { mode: rh.score, outOf: rh.outOf, split: rh.split ? 1 : 0 };
+    }
+    const d = MQ.degreeSettings(cfg.deg);
+    return d.score !== 'question' && qs.some((q) => q.type === 'degree') ? { mode: d.score, outOf: d.outOf, split: 0 } : null;
+  }
   function submitQuiz() {
     const t = S.take;
     if (!t || t.done) return;
@@ -2230,12 +2278,12 @@
       if (q.type === 'rhythm') { const c = MQ.compareRhythm(q, t.resp[i]); it.notes = c.notes; it.wrong = c.wrong; }
       if (q.type === 'rgrid') { const c = MQ.compareGrid(q, t.resp[i]); it.notes = c.notes; it.wrong = c.wrong; }
       if (q.type === 'melody') { const c = MQ.compareMelody(q, t.resp[i]); Object.assign(it, { notes: c.notes, wrong: c.wrong, pw: c.pw, rw: c.rw }); }
+      if (q.type === 'degree') Object.assign(it, MQ.compareDegrees(q, t.resp[i]));
       return it;
     });
-    const rh = dictation(t.cfg);
     t.report = {
       name: t.name, submittedAt: Date.now(), totalSec: t.secs.reduce((a, b) => a + b, 0), partial, items, attempt: t.attempt || 1,
-      scoring: rhythm ? { mode: rh.score, outOf: rh.outOf, split: rh.split ? 1 : 0 } : null,
+      scoring: quizScoring(t.cfg, t.qs),
     };
     if (!t.practice && !t.preview) recordAttempt(t.code, MQ.reportStats(t.report).pct);
     // The report code also carries what the student entered, so the teacher can see it on the staff.
@@ -2606,6 +2654,11 @@
           it.wrong = Math.min(it.notes, Math.max(it.pw, it.rw));
           it.credit = it.wrong ? Math.min(6, Math.round(((it.notes - it.wrong) / Math.max(1, it.notes)) * 7)) : 7;
         }
+        if (q.type === 'degree') {
+          it.notes = q.deg.notes.length;
+          it.wrong = !it.answered ? it.notes : Math.min(it.notes, Math.round(it.notes * (1 - skill) * rng() * 1.4));
+          it.credit = it.wrong ? Math.min(6, Math.round(((it.notes - it.wrong) / Math.max(1, it.notes)) * 7)) : 7;
+        }
         if (q.type === 'rhythm' || q.type === 'rgrid') {
           it.notes = q.type === 'rgrid' ? MQ.compareGrid(q, null).notes : MQ.compareRhythm(q, null).notes;
           it.wrong = !it.answered ? it.notes : Math.min(it.notes, Math.round(it.notes * (1 - skill) * rng() * 1.6));
@@ -2613,8 +2666,7 @@
         }
         return it;
       });
-      const rh = dictation(cfg);
-      const scoring = qs.some((q) => q.type === 'rhythm' || q.type === 'melody' || q.type === 'rgrid') ? { mode: rh.score, outOf: rh.outOf, split: rh.split ? 1 : 0 } : null;
+      const scoring = quizScoring(cfg, qs);
       return MQ.encodeReport({ name, submittedAt: Date.now() - (k + 1) * 3600e3, totalSec: items.reduce((s, it) => s + it.sec, 0), partial: cfg.flags.partial || !!scoring, items, scoring }, cfg, code);
     });
   }
@@ -4464,7 +4516,7 @@
     for (let a = 0; a < D.measures; a += per) {
       const n = Math.min(per, D.measures - a);
       const bars = D.layers[0].slice(a, a + n);
-      const labels = bars.map((bar) => bar.map((e) => (e.r || !e.p ? null : 'n' + ++j)));
+      const labels = degreeLabels(D, a, n, () => 'n' + ++j);
       rows.push(MQ.melodyArt({ meter: D.meter, measures: n, layers: [bars], key: D.key, clef: D.clef },
         { first: a, showTime: a === 0, measureW: 300, perLine: n, open: a + n < D.measures, noteLabels: labels, heightIn: (opts && opts.height) || 1.25, drawnClefs: opts && opts.drawnClefs }));
     }

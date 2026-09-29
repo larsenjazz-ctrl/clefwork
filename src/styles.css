@@ -937,3 +937,6 @@ select.rn-mark { min-width: 0; }
 .rgrid .g-ent.is-dim { opacity: 0.4; }
 .g-status { margin: 8px 2px 0; font-size: 13.5px; color: var(--ink-2); min-height: 1.4em; }
 .key-list .rgrid { min-width: 0 !important; }
+.dg-share-row { display: flex; align-items: center; gap: 12px; }
+.dg-share { flex: 1; max-width: 320px; accent-color: var(--accent); }
+.dg-share-val { font-weight: 700; color: var(--accent); min-width: 9em; }

@@ -345,6 +345,9 @@
     // Extension 7: Scale degrees — the extension-5 blocks (usually empty), then how many melodies,
     // the melody generator's version, the melodies' length, level, keys and clefs, and whether
     // students may hear them.
+    // Extension 8: the same, then the share of notes asked about and how the quiz is scored. Written
+    // only when those aren't the defaults (every note; each melody one question), so extension-7
+    // quizzes keep their codes.
     const an = MQ.analysisSettings(cfg.analysis);
     const regions = an.regions.slice(0, MQ.ANALYSIS_MAX);
     const limit = retakeLimit(cfg);
@@ -356,9 +359,11 @@
     // A rhythm grid (Clefwork Rhythm) has its own extension, with no melody or degree blocks.
     const melody = !grid && (mb.auto.on || mb.examples.length > 0);
     const degrees = grid ? 0 : Math.min(MQ.DEGREE_MAX, (cfg.counts && cfg.counts.degree) || 0);
+    const dg = MQ.degreeSettings(cfg.deg);
+    const dgMore = dg.share < 100 || dg.score !== 'question';
     if (regions.length || an.img || limit != null || rhythm || melody || degrees) {
       const q10 = (v) => Math.max(0, Math.min(1023, Math.round(v * 1023)));
-      const ext = grid ? 6 : degrees ? 7 : melody ? 5 : rhythm ? 4 : limit != null ? 2 : 1;
+      const ext = grid ? 6 : degrees ? (dgMore ? 8 : 7) : melody ? 5 : rhythm ? 4 : limit != null ? 2 : 1;
       w.u(ext, 8).u(an.override, 2).u(an.img ? 1 : 0, 1);
       if (an.img) w.u(an.img.hash >>> 0, 32);
       w.strN(an.notes, 200, 8).u(regions.length, 6);
@@ -387,9 +392,10 @@
       if (ext === 5 || ext >= 7) writeMelodyBlock(w, mb);
       if (ext === 6) w.u(MQ.RHYTHM_GRID_BOXES.indexOf(rh.grid.box), 2).u(rh.grid.show, 2).u(rh.grid.rests ? 1 : 0, 1);
       if (ext >= 7) {
-        const d = MQ.degreeSettings(cfg.deg);
+        const d = dg;
         w.u(degrees, 5).u(d.gen, 3).u(d.measures - 1, 3).u(d.level - 1, 3).u(d.keyMode, 2).u(d.keyMax, 3).u(d.clefs, 2).u(d.hear, 1);
       }
+      if (ext >= 8) w.u(dg.share / 10 - 1, 4).u(DEGREE_SCORES.indexOf(dg.score), 2).u(dg.outOf, 10);
     }
     return pack(KIND_QUIZ, w.b);
   }
@@ -580,6 +586,7 @@
             cfg.counts.degree = r.u(5);
             cfg.deg = MQ.degreeSettings({ gen: r.u(3), measures: r.u(3) + 1, level: r.u(3) + 1, keyMode: r.u(2), keyMax: r.u(3), clefs: r.u(2), hear: r.u(1) });
           }
+          if (ext >= 8) Object.assign(cfg.deg, { share: (r.u(4) + 1) * 10, score: DEGREE_SCORES[r.u(2)] || 'question', outOf: r.u(10) });
         }
         const sum = (b) => MQ.TECHNIQUES.reduce((n, t) => n + ((b.tech && b.tech[t.id]) || 0), 0);
         cfg.counts.voicing = sum(cfg.vc);
@@ -618,6 +625,7 @@
     return s;
   }
   const KEY_ANSWERS = ['staff', 'name', 'piano'];
+  const DEGREE_SCORES = ['question', 'notes', 'percent'];
   // `plays` (rhythm questions): how often the student played the example and their own answer.
   function writeAnswer(w, q, resp, plays) {
     if (q.type === 'degree') {
@@ -842,7 +850,8 @@
       w.u(sc.mode === 'percent' ? 1 : 0, 1).u(Math.max(1, Math.min(1000, Math.round(sc.outOf || 100))), 10).u(sc.split ? 1 : 0, 1);
       const n9 = (v) => Math.max(0, Math.min(511, v || 0));
       report.items.forEach((it) => {
-        if (it.type === 'rhythm' || it.type === 'melody' || it.type === 'rgrid') w.u(n9(it.notes), 9).u(n9(it.wrong), 9);
+        // (Scale degrees too, when scored by note. No report has both kinds, so earlier reports read the same.)
+        if (it.type === 'rhythm' || it.type === 'melody' || it.type === 'rgrid' || it.type === 'degree') w.u(n9(it.notes), 9).u(n9(it.wrong), 9);
         if (it.type === 'melody') w.u(n9(it.pw), 9).u(n9(it.rw), 9);
       });
     }
@@ -883,7 +892,7 @@
       if (ver >= 11 && r.u(1)) {
         rep.scoring = { mode: r.u(1) ? 'percent' : 'notes', outOf: r.u(10), split: ver >= 12 ? r.u(1) : 0 };
         rep.items.forEach((it) => {
-          if (it.type === 'rhythm' || it.type === 'rgrid' || (it.type === 'melody' && ver >= 12)) { it.notes = r.u(9); it.wrong = r.u(9); }
+          if (it.type === 'rhythm' || it.type === 'rgrid' || it.type === 'degree' || (it.type === 'melody' && ver >= 12)) { it.notes = r.u(9); it.wrong = r.u(9); }
           if (it.type === 'melody' && ver >= 12) { it.pw = r.u(9); it.rw = r.u(9); }
         });
       }
