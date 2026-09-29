@@ -1,5 +1,7 @@
-/* Clefwork — QR codes, so a printed quiz can be scanned back open. Byte mode, versions 1–20,
-   error correction L or M. Returns a square matrix of 0 (light) and 1 (dark) modules. */
+/* Clefwork — QR codes, so a printed quiz can be scanned back open. Versions 1–20, error correction
+   L or M. Returns a square matrix of 0 (light) and 1 (dark) modules. Text is written in byte mode,
+   except a long run at the end in capitals and digits — a quiz code — which goes in alphanumeric
+   mode, two characters to 11 bits instead of 16, so a quiz link makes a smaller, easier-to-scan code. */
 (function (root) {
   'use strict';
   const MQ = (root.MQ = root.MQ || {});
@@ -52,12 +54,44 @@
   }
 
   // ---------- the bit stream ----------
-  function encodeData(bytes, ver, level) {
+  const ALNUM = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ $%*+-./:';
+  function utf8(str) {
+    const bytes = [];
+    for (const ch of str) {
+      const cp = ch.codePointAt(0);
+      if (cp < 128) bytes.push(cp);
+      else encodeURIComponent(ch).split('%').slice(1).forEach((h) => bytes.push(parseInt(h, 16)));
+    }
+    return bytes;
+  }
+  // The text as segments: bytes, then (when the text ends with at least 20 of them) the capitals,
+  // digits and alphanumeric symbols it ends with.
+  function segmentsOf(text) {
+    const s = String(text);
+    let k = s.length;
+    while (k > 0 && ALNUM.includes(s[k - 1])) k--;
+    if (s.length - k < 20) return [{ mode: 'byte', bytes: utf8(s) }];
+    return (k ? [{ mode: 'byte', bytes: utf8(s.slice(0, k)) }] : []).concat([{ mode: 'alnum', text: s.slice(k) }]);
+  }
+  const countBits = (seg, ver) => (seg.mode === 'byte' ? (ver < 10 ? 8 : 16) : ver < 10 ? 9 : 11);
+  const segLength = (seg, ver) => 4 + countBits(seg, ver)
+    + (seg.mode === 'byte' ? seg.bytes.length * 8 : Math.floor(seg.text.length / 2) * 11 + (seg.text.length % 2) * 6);
+  function encodeData(segs, ver, level) {
     const bits = [];
     const put = (val, len) => { for (let i = len - 1; i >= 0; i--) bits.push((val >> i) & 1); };
-    put(4, 4);                              // byte mode
-    put(bytes.length, ver < 10 ? 8 : 16);
-    bytes.forEach((b) => put(b, 8));
+    segs.forEach((seg) => {
+      if (seg.mode === 'byte') {
+        put(4, 4);
+        put(seg.bytes.length, countBits(seg, ver));
+        seg.bytes.forEach((b) => put(b, 8));
+      } else {
+        put(2, 4);
+        put(seg.text.length, countBits(seg, ver));
+        const v = [...seg.text].map((ch) => ALNUM.indexOf(ch));
+        for (let i = 0; i + 1 < v.length; i += 2) put(v[i] * 45 + v[i + 1], 11);
+        if (v.length % 2) put(v[v.length - 1], 6);
+      }
+    });
     const cap = dataCapacity(ver, level) * 8;
     for (let i = 0; i < 4 && bits.length < cap; i++) bits.push(0);
     while (bits.length % 8) bits.push(0);
@@ -231,19 +265,13 @@
   // The matrix for `text`: {version, size, modules}. Throws when the text is too long for version 20.
   function qrMatrix(text, opts) {
     const level = (opts && opts.ecc) === 'L' ? 'L' : 'M';
-    const bytes = [];
-    for (const ch of String(text)) {
-      const cp = ch.codePointAt(0);
-      if (cp < 128) bytes.push(cp);
-      else encodeURIComponent(ch).split('%').slice(1).forEach((h) => bytes.push(parseInt(h, 16)));
-    }
+    const segs = segmentsOf(text);
     let ver = 0;
     for (let v = 1; v <= 20; v++) {
-      const head = 4 + (v < 10 ? 8 : 16);
-      if (head + bytes.length * 8 <= dataCapacity(v, level) * 8) { ver = v; break; }
+      if (segs.reduce((n, seg) => n + segLength(seg, v), 0) <= dataCapacity(v, level) * 8) { ver = v; break; }
     }
     if (!ver) throw new Error('That is too much text for one QR code.');
-    const stream = encodeData(bytes, ver, level);
+    const stream = encodeData(segs, ver, level);
     const base = frame(ver);
     let best = null;
     for (let mask = 0; mask < 8; mask++) {

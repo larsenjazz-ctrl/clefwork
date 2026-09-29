@@ -925,6 +925,30 @@ select.rn-mark { min-width: 0; }
 .dg-fix { font: 700 12px var(--f-mono); color: var(--bad); }
 .dg-lane:has(.dg-fix) { height: 66px; }
 .dg-lane.has-two:has(.dg-fix) { height: 112px; }
+
+/* ---------- Clefwork Rhythm: the rhythm grid ---------- */
+.rgrid-box { background: var(--paper); border: 1px solid var(--line); border-radius: 10px; padding: 6px; overflow-x: auto; }
+.rgrid-box:has(.rgrid:focus-visible) { box-shadow: 0 0 0 3px var(--accent-soft); border-color: var(--accent); }
+.rgrid-box .warn-note { margin: 4px; }
+.rgrid { display: block; width: 100%; height: auto; margin: 0 auto; color: var(--staff-ink); user-select: none; -webkit-user-select: none; touch-action: pan-y; }
+.rgrid:not(.is-readonly) { cursor: pointer; }
+.rgrid.is-wide { touch-action: pan-x pan-y; }
+.rgrid:focus { outline: none; }
+.rgrid .clabel { font: 700 13px var(--f-body); }
+.rgrid .g-row.is-playing { fill: rgba(242, 180, 65, 0.3); }
+.rgrid .g-row.is-right { fill: rgba(19, 122, 75, 0.06); }
+.rgrid .g-row.is-wrong { fill: rgba(191, 49, 57, 0.07); }
+.rgrid .g-span { fill: rgba(47, 63, 191, 0.07); }
+.rgrid .g-span.is-sel { fill: rgba(47, 63, 191, 0.17); }
+.rgrid .g-cur { fill: rgba(47, 63, 191, 0.1); stroke: #2f3fbf; stroke-width: 2; pointer-events: none; }
+.rgrid .g-grip { fill: #2f3fbf; stroke: #fff; stroke-width: 1.5; }
+.rgrid:not(.is-readonly) .g-ent { cursor: ew-resize; }
+.rgrid .g-ent.is-sel { color: #2f3fbf; }
+.rgrid .g-ent.is-right { color: #137a4b; }
+.rgrid .g-ent.is-wrong, .rgrid .g-ent.is-missed { color: #bf3139; }
+.rgrid .g-ent.is-dim { opacity: 0.4; }
+.g-status { margin: 8px 2px 0; font-size: 13.5px; color: var(--ink-2); min-height: 1.4em; }
+.key-list .rgrid { min-width: 0 !important; }
 :root{--logo-mark:url(data:image/png;base64,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)}@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--logo-mark:url(data:image/png;base64,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)}}:root[data-theme="dark"]{--logo-mark:url(data:image/png;base64,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)}
 </style>
 <div class="shell">
@@ -1709,6 +1733,7 @@ select.rn-mark { min-width: 0; }
     if (q.type === 'rhythm') return MQ.gradeRhythm(q, response);
     if (q.type === 'melody') return MQ.gradeMelody(q, response);
     if (q.type === 'degree') return MQ.gradeDegrees(q, response);
+    if (q.type === 'rgrid') return MQ.gradeGrid(q, response);
     if (q.type === 'figured' || q.type === 'figprog') return MQ.gradeFigured(q, response, cfg);
     if (q.type === 'progression') return MQ.gradeProgression(q, response, cfg);
     if (q.symbolAnswers) {
@@ -1737,6 +1762,7 @@ select.rn-mark { min-width: 0; }
       : q.type === 'rhythm' ? MQ.hasRhythmAnswer(q, response)
       : q.type === 'melody' ? MQ.hasMelodyAnswer(q, response)
       : q.type === 'degree' ? MQ.hasDegreeAnswer(q, response)
+      : q.type === 'rgrid' ? MQ.hasGridAnswer(q, response)
       : q.type === 'figured' || q.type === 'figprog' ? MQ.hasFiguredAnswer(q, response)
       : q.colSpecs ? !!response && response.some((col) => col && col.some(Boolean))
         : q.type === 'progression' ? !!response && ['r', 's'].some((k) => (response[k] || []).some((x) => x && x.trim()))
@@ -1751,6 +1777,7 @@ select.rn-mark { min-width: 0; }
     if (q.type === 'rhythm') return MQ.describeRhythm(q);
     if (q.type === 'melody') return MQ.describeMelody(q);
     if (q.type === 'degree') return MQ.describeDegrees(q);
+    if (q.type === 'rgrid') return MQ.describeGrid(q);
     if (q.symbolAnswers) return q.symbolAnswers.map((a) => a.shown).join('  ');
     if (q.symbolAnswer) return q.symbolAnswer.shown;
     if (q.dropdowns) return q.dropdowns.map((d) => d.options[d.answer]).join(' · ');
@@ -4112,6 +4139,7 @@ select.rn-mark { min-width: 0; }
   const PIANO_NOTE = 72, OBOE_NOTE = 65;           // C5 and F4: the parts sound a 5th apart
 
   function dur(e) {
+    if (e.u) return e.u;                          // a length of its own (a rhythm grid's note, when played)
     let u = VALUES[e.v] ? VALUES[e.v].units : 12;
     if (e.d) u = (u * 3) / 2;
     if (e.t) u = (u * 2) / 3;
@@ -4268,24 +4296,45 @@ select.rn-mark { min-width: 0; }
     e.measures = Math.max(1, Math.min(4, e.measures | 0 || 2));
     e.tempo = Math.max(40, Math.min(240, Math.round(e.tempo || 80)));
     e.parts = e.parts === 2 ? 2 : 1;
+    // The number of the first measure — a rhythm grid can show where an excerpt comes from (m. 46).
+    e.first = Math.max(1, Math.min(999, e.first | 0 || 1));
     if (!Array.isArray(e.layers)) e.layers = emptyLayers();
     while (e.layers.length < 2) e.layers.push([[], [], [], []]);
     e.layers.forEach((L) => { while (L.length < 4) L.push([]); });
     return e;
   }
-  const newExample = (from) => exampleSettings(from ? { meter: Object.assign({}, from.meter), measures: from.measures, tempo: from.tempo, parts: 1 } : {});
+  // A new example like the one before: its meter, length and tempo — and in a rhythm grid, carrying
+  // on the measure numbers from where it stopped.
+  const newExample = (from, grid) => exampleSettings(from
+    ? { meter: Object.assign({}, from.meter), measures: from.measures, tempo: from.tempo, parts: 1, first: grid ? Math.min(999, (from.first || 1) + from.measures) : 1 }
+    : {});
   // How a quiz is scored: every note is a point ('notes'), or the share of notes right is scaled
   // to a total the teacher sets ('percent', out of `outOf`).
+  // task: 'dictation' (students hear the rhythm and write it) or 'grid' (students show where each note
+  // starts and how long it lasts on a grid of boxes — see rhythmgrid.js).
   function rhythmSettings(block) {
     const b = block || {};
+    b.task = b.task === 'grid' ? 'grid' : 'dictation';
+    b.grid = gridSettings(b.grid);
     if (!Array.isArray(b.examples)) b.examples = [];
     b.examples.forEach(exampleSettings);
+    if (b.task === 'grid') b.examples.forEach((ex) => { ex.parts = 1; });
     if (b.playsEx == null) b.playsEx = 0;           // 0 = as many plays as students like
     if (b.playsAns == null) b.playsAns = 0;
     if (b.score !== 'percent') b.score = 'notes';
     b.outOf = Math.max(1, Math.min(1000, Math.round(b.outOf || 100)));
     b.auto = autoSettings(b.auto);
     return b;
+  }
+  // A rhythm grid: how long each box is (a sixteenth, eighth or quarter note, in units), what students
+  // get — the rhythm shown in notation (0), played (1), or both (2) — and whether rests are marked too.
+  const GRID_BOXES = [3, 6, 12];
+  function gridSettings(g) {
+    const o = g || {};
+    o.box = GRID_BOXES.includes(o.box) ? o.box : 3;
+    o.show = [0, 1, 2].includes(o.show) ? o.show : 0;
+    o.rests = o.rests ? 1 : 0;
+    return o;
   }
   // Automatic examples: how many, how long, the level (1–6, or 7 for the teacher's own rules), the
   // quarter-note tempo, and the custom rules.
@@ -4311,8 +4360,11 @@ select.rn-mark { min-width: 0; }
   }
   const partName = (l) => (l ? 'oboe part (stems down)' : 'piano part (stems up)');
   // Everything that stops an example being shared, in words.
-  function exampleProblems(ex) {
+  // grid (optional): the rhythm-grid settings, when the example has to fit the grid's boxes too.
+  function exampleProblems(ex, grid) {
     const e = exampleSettings(ex), info = meterInfo(e.meter), out = [];
+    if (grid && MQ.gridProblems) MQ.gridProblems(e, grid).forEach((t) => out.push(t));
+    if (out.length) return out;
     for (let l = 0; l < e.parts; l++) {
       for (let m = 0; m < e.measures; m++) {
         const s = measureState(e.layers[l][m], info);
@@ -4329,7 +4381,7 @@ select.rn-mark { min-width: 0; }
   function rhythmProblems(block) {
     const b = rhythmSettings(block), out = [];
     if (b.auto.on) return out;                      // generated examples are always complete
-    b.examples.forEach((ex, i) => exampleProblems(ex).forEach((text) => out.push({ ex: i, text: `Example ${i + 1}: ${text}` })));
+    b.examples.forEach((ex, i) => exampleProblems(ex, b.task === 'grid' ? b.grid : null).forEach((text) => out.push({ ex: i, text: `Example ${i + 1}: ${text}` })));
     return out;
   }
 
@@ -4342,10 +4394,12 @@ select.rn-mark { min-width: 0; }
   function rhythmQuestions(cfg) {
     const b = rhythmSettings(cfg.rhythm);
     // Automatic examples come from the quiz's seed, so everyone with the code gets the same ones.
-    const list = b.auto.on && MQ.generateRhythms ? MQ.generateRhythms(cfg.seed, b.auto) : b.examples;
+    const grid = b.task === 'grid';
+    const list = b.auto.on && MQ.generateRhythms ? MQ.generateRhythms(cfg.seed, b.auto, grid ? b.grid : null) : b.examples;
     const n = b.auto.on ? list.length : Math.min(list.length, cfg.counts && cfg.counts.rhythm != null ? cfg.counts.rhythm : list.length);
     return list.slice(0, n).map((raw, i) => {
       const ex = exampleSettings(raw), info = meterInfo(ex.meter);
+      if (grid && MQ.gridQuestion) return MQ.gridQuestion(ex, info, i, b.grid);
       return {
         type: 'rhythm', clef: 'treble',
         text: `Example ${i + 1}: write the rhythm you hear.`,
@@ -4453,7 +4507,7 @@ select.rn-mark { min-width: 0; }
   }
 
   Object.assign(MQ, {
-    RHYTHM_VALUES: VALUES, RHYTHM_MAX: MAX_EXAMPLES, RHYTHM_METERS: METERS, RHYTHM_TEMPO_UNITS: TEMPO_UNITS, RHYTHM_TEMPO_NAMES: TEMPO_NAMES,
+    RHYTHM_VALUES: VALUES, RHYTHM_MAX: MAX_EXAMPLES, RHYTHM_GRID_BOXES: GRID_BOXES, rhythmGrid: gridSettings, rhythmCleanEvents: (m) => m.map(cleanEvent), RHYTHM_METERS: METERS, RHYTHM_TEMPO_UNITS: TEMPO_UNITS, RHYTHM_TEMPO_NAMES: TEMPO_NAMES,
     rhythmDur: dur, rhythmTotal: total, rhythmEvent: cleanEvent, rhythmMeter: meterInfo, rhythmGroupings: groupingsOf,
     rhythmAmount: amountText, rhythmCount: countText, tripletGroups, tripletStartOk, tripletWhy, measureState, rhythmEditProblem: editProblem, measureNote,
     rhythmExample: newExample, exampleSettings, rhythmSettings, exampleProblems, rhythmProblems, rhythmQuestions, rhythmBlank: blankAnswer,
@@ -4685,9 +4739,21 @@ select.rn-mark { min-width: 0; }
     return best.ms.map((m) => m.ev.map((e) => Object.assign({}, e)));
   }
 
-  // The examples of an automatic quiz, as the teacher would have written them.
-  function generateRhythms(seed, auto) {
-    const a = MQ.rhythmAuto(auto), rules = rulesOf(a), out = [];
+  // A rhythm grid's rules: no triplets, nothing shorter than a box, and only meters whose beats split
+  // into whole boxes (6/8 has no room for quarter-note boxes).
+  function gridRules(rules, box) {
+    const list = (rules.meters === ALL ? MQ.RHYTHM_METERS : rules.meters)
+      .filter((m) => MQ.rhythmMeter(m).beats.every((b) => b.len % box === 0));
+    return Object.assign({}, rules, {
+      meters: list.length ? list : meters('4/4'), triplets: false,
+      shortest: Math.min(rules.shortest, box === 3 ? 4 : box === 6 ? 3 : 2),
+    });
+  }
+
+  // The examples of an automatic quiz, as the teacher would have written them. grid: a rhythm grid's
+  // settings, when the examples are for one.
+  function generateRhythms(seed, auto, grid) {
+    const a = MQ.rhythmAuto(auto), rules = grid ? gridRules(rulesOf(a), grid.box) : rulesOf(a), out = [];
     for (let k = 0; k < a.count; k++) {
       const rng = MQ.mulberry32((Math.imul((seed >>> 0) + 1, 2654435761) ^ Math.imul(k + 1, 40503) ^ 0x5bd1e995) >>> 0);
       const meter = pickMeter(rng, rules);
@@ -5420,8 +5486,10 @@ select.rn-mark { min-width: 0; }
     DEGREE_MAX: MAX_MELODIES, degreeSettings, degreeOf, degreeQuestions, cleanDegrees, markDegrees, gradeDegrees, hasDegreeAnswer, describeDegrees,
   });
 })(typeof window !== 'undefined' ? window : globalThis);
-/* Clefwork — QR codes, so a printed quiz can be scanned back open. Byte mode, versions 1–20,
-   error correction L or M. Returns a square matrix of 0 (light) and 1 (dark) modules. */
+/* Clefwork — QR codes, so a printed quiz can be scanned back open. Versions 1–20, error correction
+   L or M. Returns a square matrix of 0 (light) and 1 (dark) modules. Text is written in byte mode,
+   except a long run at the end in capitals and digits — a quiz code — which goes in alphanumeric
+   mode, two characters to 11 bits instead of 16, so a quiz link makes a smaller, easier-to-scan code. */
 (function (root) {
   'use strict';
   const MQ = (root.MQ = root.MQ || {});
@@ -5474,12 +5542,44 @@ select.rn-mark { min-width: 0; }
   }
 
   // ---------- the bit stream ----------
-  function encodeData(bytes, ver, level) {
+  const ALNUM = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ $%*+-./:';
+  function utf8(str) {
+    const bytes = [];
+    for (const ch of str) {
+      const cp = ch.codePointAt(0);
+      if (cp < 128) bytes.push(cp);
+      else encodeURIComponent(ch).split('%').slice(1).forEach((h) => bytes.push(parseInt(h, 16)));
+    }
+    return bytes;
+  }
+  // The text as segments: bytes, then (when the text ends with at least 20 of them) the capitals,
+  // digits and alphanumeric symbols it ends with.
+  function segmentsOf(text) {
+    const s = String(text);
+    let k = s.length;
+    while (k > 0 && ALNUM.includes(s[k - 1])) k--;
+    if (s.length - k < 20) return [{ mode: 'byte', bytes: utf8(s) }];
+    return (k ? [{ mode: 'byte', bytes: utf8(s.slice(0, k)) }] : []).concat([{ mode: 'alnum', text: s.slice(k) }]);
+  }
+  const countBits = (seg, ver) => (seg.mode === 'byte' ? (ver < 10 ? 8 : 16) : ver < 10 ? 9 : 11);
+  const segLength = (seg, ver) => 4 + countBits(seg, ver)
+    + (seg.mode === 'byte' ? seg.bytes.length * 8 : Math.floor(seg.text.length / 2) * 11 + (seg.text.length % 2) * 6);
+  function encodeData(segs, ver, level) {
     const bits = [];
     const put = (val, len) => { for (let i = len - 1; i >= 0; i--) bits.push((val >> i) & 1); };
-    put(4, 4);                              // byte mode
-    put(bytes.length, ver < 10 ? 8 : 16);
-    bytes.forEach((b) => put(b, 8));
+    segs.forEach((seg) => {
+      if (seg.mode === 'byte') {
+        put(4, 4);
+        put(seg.bytes.length, countBits(seg, ver));
+        seg.bytes.forEach((b) => put(b, 8));
+      } else {
+        put(2, 4);
+        put(seg.text.length, countBits(seg, ver));
+        const v = [...seg.text].map((ch) => ALNUM.indexOf(ch));
+        for (let i = 0; i + 1 < v.length; i += 2) put(v[i] * 45 + v[i + 1], 11);
+        if (v.length % 2) put(v[v.length - 1], 6);
+      }
+    });
     const cap = dataCapacity(ver, level) * 8;
     for (let i = 0; i < 4 && bits.length < cap; i++) bits.push(0);
     while (bits.length % 8) bits.push(0);
@@ -5653,19 +5753,13 @@ select.rn-mark { min-width: 0; }
   // The matrix for `text`: {version, size, modules}. Throws when the text is too long for version 20.
   function qrMatrix(text, opts) {
     const level = (opts && opts.ecc) === 'L' ? 'L' : 'M';
-    const bytes = [];
-    for (const ch of String(text)) {
-      const cp = ch.codePointAt(0);
-      if (cp < 128) bytes.push(cp);
-      else encodeURIComponent(ch).split('%').slice(1).forEach((h) => bytes.push(parseInt(h, 16)));
-    }
+    const segs = segmentsOf(text);
     let ver = 0;
     for (let v = 1; v <= 20; v++) {
-      const head = 4 + (v < 10 ? 8 : 16);
-      if (head + bytes.length * 8 <= dataCapacity(v, level) * 8) { ver = v; break; }
+      if (segs.reduce((n, seg) => n + segLength(seg, v), 0) <= dataCapacity(v, level) * 8) { ver = v; break; }
     }
     if (!ver) throw new Error('That is too much text for one QR code.');
-    const stream = encodeData(bytes, ver, level);
+    const stream = encodeData(segs, ver, level);
     const base = frame(ver);
     let best = null;
     for (let mask = 0; mask < 8; mask++) {
@@ -5728,7 +5822,9 @@ select.rn-mark { min-width: 0; }
       width: o.width,
       height: o.height,
       // ---------- pages ----------
-      addPage() { page = { ops: [] }; pages.push(page); return api; },
+      addPage() { page = { ops: [], links: [] }; pages.push(page); return api; },
+      // A clickable area (top-left x, y, width, height) that opens a web address.
+      link(x, y, w, h, uri) { page.links.push({ x, y, w, h, uri }); return api; },
       get pageCount() { return pages.length; },
       op(s) { page.ops.push(s); return api; },
       // ---------- graphics ----------
@@ -5758,13 +5854,16 @@ select.rn-mark { min-width: 0; }
         const add = (body) => { objs.push(body); return objs.length; };          // 1-based object numbers
         const fontIds = FONTS.map((f) => add(`<< /Type /Font /Subtype /Type1 /BaseFont /${f.base} /Encoding /WinAnsiEncoding >>`));
         const resources = '<< /Font << ' + FONTS.map((f, i) => `/${f.id} ${fontIds[i]} 0 R`).join(' ') + ' >> >>';
-        const pagesNo = objs.length + pages.length * 2 + 1;                       // filled in below
+        // Each page: its links, its content, then the page itself.
+        const pagesNo = objs.length + pages.reduce((n, p) => n + 2 + p.links.length, 0) + 1;   // filled in below
         const kids = [];
         pages.forEach((p) => {
+          const annots = p.links.map((l) => add(`<< /Type /Annot /Subtype /Link /Rect [${num(l.x)} ${num(o.height - l.y - l.h)} ${num(l.x + l.w)} ${num(o.height - l.y)}] `
+            + `/Border [0 0 0] /A << /S /URI /URI ${pdfString(l.uri)} >> >>`));
           const stream = p.ops.join('\n');
           const content = add(`<< /Length ${stream.length} >>\nstream\n${stream}\nendstream`);
           const pageNo = add(`<< /Type /Page /Parent ${pagesNo} 0 R /MediaBox [0 0 ${num(o.width)} ${num(o.height)}] `
-            + `/Resources ${resources} /Contents ${content} 0 R >>`);
+            + `/Resources ${resources} /Contents ${content} 0 R${annots.length ? ` /Annots [${annots.map((a) => a + ' 0 R').join(' ')}]` : ''} >>`);
           kids.push(pageNo);
         });
         const pagesObj = add(`<< /Type /Pages /Kids [${kids.map((k) => k + ' 0 R').join(' ')}] /Count ${kids.length} >>`);
@@ -6206,6 +6305,7 @@ li.q .hint { font-size: 10pt; margin: 2pt 0 0; color: #333; }
 .pfoot { display: flex; align-items: flex-end; gap: 8pt; font-size: 8pt; color: #000; padding-top: 10pt; height: ${foot}in; }
 .pfoot svg { width: ${qr}in; height: ${qr}in; display: block; }
 .pfoot .fid { padding-bottom: 2pt; }
+.pfoot a { display: block; line-height: 0; }
 /* Staff drawing, independent of the app's colours. */
 svg.staff { color: #000; }
 svg.staff .sl { stroke: #000; stroke-width: 1.1; fill: none; }
@@ -6261,10 +6361,12 @@ svg.staff .nlabel { display: none; }
     }).join('');
     const meta = [info.course, info.teacher, info.date].filter((x) => x && String(x).trim())
       .map((x) => `<span>${esc(x)}</span>`).join('');
-    const qr = opts.qrSVG || '';
+    // The QR code opens the quiz online — scanned from paper, or clicked on screen.
+    const qr = opts.qrSVG ? (opts.qrLink ? `<a href="${esc(opts.qrLink)}" target="_blank" rel="noopener" title="Open this quiz online">${opts.qrSVG}</a>` : opts.qrSVG) : '';
+    const caption = opts.qrSVG && opts.qrLink ? '<b>Scan to take this quiz online</b><br>' : '';
     // A table footer is what browsers repeat at the bottom of every printed page.
     return `<div class="page"><table class="sheet"><tfoot><tr><td>`
-      + `<div class="pfoot">${qr}<span class="fid">Quiz ID ${esc(opts.quizId)}</span></div>`
+      + `<div class="pfoot">${qr}<span class="fid">${caption}Quiz ID ${esc(opts.quizId)}</span></div>`
       + `</td></tr></tfoot><tbody><tr><td><header class="head">`
       + `<h1>${esc(info.title || 'Music quiz')}</h1>`
       + (meta ? `<p class="meta">${meta}</p>` : '')
@@ -6305,6 +6407,11 @@ svg.staff .nlabel { display: none; }
           if (v) doc.rect(M + (c + 4) * mod, footTop + (r + 4) * mod, mod * 1.02, mod * 1.02);
         }));
         doc.fill();
+        // Clicking it in a PDF viewer opens the quiz too.
+        if (opts.qrLink) {
+          doc.link(M, footTop, qrPt, qrPt, opts.qrLink);
+          MQ.pdfText(doc, 'Scan to take this quiz online', M + qrPt + 8, H - M - 12, 8, 'F5');
+        }
       }
       MQ.pdfText(doc, 'Quiz ID ' + opts.quizId, M + (qr ? qrPt + 8 : 0), H - M - 2, 8, 'F4');
       doc.restore();
@@ -6526,9 +6633,10 @@ svg.staff .nlabel { display: none; }
   // half-points for w:sz, twentieths of a point for spacing and indents
   const run = (text, o) => {
     const p = o || {};
-    const props = `<w:rPr>${p.b ? '<w:b/>' : ''}${p.u ? '<w:u w:val="single"/>' : ''}`
+    // In the order Word's schema lists them: bold, colour, size, underline.
+    const props = `<w:rPr>${p.b ? '<w:b/>' : ''}${p.color ? `<w:color w:val="${p.color}"/>` : ''}`
       + `<w:sz w:val="${(p.pt || 12) * 2}"/><w:szCs w:val="${(p.pt || 12) * 2}"/>`
-      + `${p.color ? `<w:color w:val="${p.color}"/>` : ''}</w:rPr>`;
+      + `${p.u ? '<w:u w:val="single"/>' : ''}</w:rPr>`;
     return `<w:r>${props}<w:t xml:space="preserve">${xesc(text)}</w:t></w:r>`;
   };
   const para = (runs, o) => {
@@ -6539,10 +6647,11 @@ svg.staff .nlabel { display: none; }
       + `${p.keep ? '<w:keepNext/><w:keepLines/>' : ''}</w:pPr>`;
     return `<w:p>${pr}${[].concat(runs).join('')}</w:p>`;
   };
-  const drawing = (id, rid, wIn, hIn, name) =>
+  // link: the id of a hyperlink relationship, to make the picture clickable.
+  const drawing = (id, rid, wIn, hIn, name, link) =>
     `<w:r><w:drawing><wp:inline distT="0" distB="0" distL="0" distR="0">`
     + `<wp:extent cx="${Math.round(wIn * EMU)}" cy="${Math.round(hIn * EMU)}"/>`
-    + `<wp:docPr id="${id}" name="${xesc(name || 'Image ' + id)}"/><a:graphic><a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/picture">`
+    + `<wp:docPr id="${id}" name="${xesc(name || 'Image ' + id)}">${link ? `<a:hlinkClick r:id="${link}"/>` : ''}</wp:docPr><a:graphic><a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/picture">`
     + `<pic:pic><pic:nvPicPr><pic:cNvPr id="${id}" name="${xesc(name || 'Image ' + id)}"/><pic:cNvPicPr/></pic:nvPicPr>`
     + `<pic:blipFill><a:blip r:embed="${rid}"/><a:stretch><a:fillRect/></a:stretch></pic:blipFill>`
     + `<pic:spPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="${Math.round(wIn * EMU)}" cy="${Math.round(hIn * EMU)}"/></a:xfrm>`
@@ -6588,8 +6697,11 @@ svg.staff .nlabel { display: none; }
       + `<w:pgMar w:top="${marginTw}" w:right="${marginTw}" w:bottom="${marginTw}" w:left="${marginTw}" w:header="480" w:footer="480" w:gutter="0"/>`
       + `</w:sectPr>`;
     const document = XML + `<w:document ${W_NS}><w:body>${body.join('')}${sect}</w:body></w:document>`;
+    // The QR code — and the words beside it — open the quiz online.
+    const link = qr && opts.qrLink ? 'rIdQuizLink' : null;
     const footerRuns = [];
-    if (qr) footerRuns.push(drawing(9000, qr.rid, qr.wIn, qr.wIn, 'Quiz QR code'), run('  ', { pt: 8 }));
+    if (qr) footerRuns.push(drawing(9000, qr.rid, qr.wIn, qr.wIn, 'Quiz QR code — opens the quiz online', link), run('  ', { pt: 8 }));
+    if (link) footerRuns.push(`<w:hyperlink r:id="${link}">${run('Scan to take this quiz online', { pt: 8, b: true, u: true, color: '1F3FBF' })}</w:hyperlink>`, run('   ', { pt: 8 }));
     footerRuns.push(run('Quiz ID ' + opts.quizId, { pt: 8 }));
     const footer = XML + `<w:ftr ${W_NS}>${para(footerRuns, { after: 0 })}</w:ftr>`;
     const rels = (list) => XML + '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'
@@ -6598,7 +6710,8 @@ svg.staff .nlabel { display: none; }
     const docRels = rels([
       '<Relationship Id="rIdFooter" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/footer" Target="footer1.xml"/>',
     ].concat(media.map(imgRel)));
-    const footerRels = rels(media.map(imgRel));
+    const footerRels = rels(media.map(imgRel).concat(link
+      ? [`<Relationship Id="${link}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink" Target="${xesc(opts.qrLink)}" TargetMode="External"/>`] : []));
     const types = XML + '<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">'
       + '<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>'
       + '<Default Extension="xml" ContentType="application/xml"/>'
@@ -6774,14 +6887,18 @@ svg.staff .nlabel { display: none; }
     return out;
   }
   // An example: measures, time signature (denominator, numerator, grouping), tempo, parts, rhythm.
-  function writeExample(w, raw) {
+  // A rhythm grid's example (`grid`) also has the number of its first measure.
+  function writeExample(w, raw, grid) {
     const ex = MQ.exampleSettings(raw);
-    w.u(ex.measures - 1, 2).u(METER_DENOMS.indexOf(ex.meter.d), 2).u(ex.meter.n, 4).u(ex.meter.g || 0, 2)
+    w.u(ex.measures - 1, 2);
+    if (grid) w.u(ex.first - 1, 10);
+    w.u(METER_DENOMS.indexOf(ex.meter.d), 2).u(ex.meter.n, 4).u(ex.meter.g || 0, 2)
       .u(ex.tempo - 30, 8).u(ex.parts - 1, 1);
     for (let l = 0; l < ex.parts; l++) for (let m = 0; m < ex.measures; m++) writeEvents(w, ex.layers[l][m]);
   }
-  function readExample(r) {
+  function readExample(r, grid) {
     const ex = { measures: r.u(2) + 1 };
+    if (grid) ex.first = r.u(10) + 1;
     const d = METER_DENOMS[r.u(2)] || 4;
     ex.meter = { d, n: r.u(4), g: r.u(2) };
     ex.tempo = r.u(8) + 30;
@@ -6957,7 +7074,9 @@ svg.staff .nlabel { display: none; }
     // Extension 4: the same, plus how the quiz is scored (every note a point, or a percent of a
     // total) and whether the examples are written out or made automatically from the seed.
     // Extension 5: Clefwork Melody — after the (empty) rhythm block, the melody block.
-    // (Extension 6 is a rhythm grid, from Clefwork Rhythm.)
+    // Extension 6: a rhythm grid — the rhythm block as extension 4 writes it, with each example's first
+    // measure number, then the grid: the size of its boxes, whether the rhythm is shown, played or
+    // both, and whether rests are marked. No melody block.
     // Extension 7: Scale degrees — the extension-5 blocks (usually empty), then how many melodies,
     // the melody generator's version, the melodies' length, level, keys and clefs, and whether
     // students may hear them.
@@ -6967,12 +7086,14 @@ svg.staff .nlabel { display: none; }
     const rh = MQ.rhythmSettings(cfg.rhythm);
     const examples = rh.examples.slice(0, MQ.RHYTHM_MAX);
     const rhythm = rh.auto.on || examples.length > 0;
+    const grid = rhythm && rh.task === 'grid';
     const mb = MQ.melodySettings(cfg.melody);
-    const melody = mb.auto.on || mb.examples.length > 0;
-    const degrees = Math.min(MQ.DEGREE_MAX, (cfg.counts && cfg.counts.degree) || 0);
+    // A rhythm grid (Clefwork Rhythm) has its own extension, with no melody or degree blocks.
+    const melody = !grid && (mb.auto.on || mb.examples.length > 0);
+    const degrees = grid ? 0 : Math.min(MQ.DEGREE_MAX, (cfg.counts && cfg.counts.degree) || 0);
     if (regions.length || an.img || limit != null || rhythm || melody || degrees) {
       const q10 = (v) => Math.max(0, Math.min(1023, Math.round(v * 1023)));
-      const ext = degrees ? 7 : melody ? 5 : rhythm ? 4 : limit != null ? 2 : 1;
+      const ext = grid ? 6 : degrees ? 7 : melody ? 5 : rhythm ? 4 : limit != null ? 2 : 1;
       w.u(ext, 8).u(an.override, 2).u(an.img ? 1 : 0, 1);
       if (an.img) w.u(an.img.hash >>> 0, 32);
       w.strN(an.notes, 200, 8).u(regions.length, 6);
@@ -6995,10 +7116,11 @@ svg.staff .nlabel { display: none; }
           if (a.gen >= 2) w.u(c.rests, 2);            // generator version 2: how many rests, in custom rules
         } else {
           w.u(examples.length, 4);
-          examples.forEach((ex) => writeExample(w, ex));
+          examples.forEach((ex) => writeExample(w, ex, grid));
         }
       }
       if (ext === 5 || ext >= 7) writeMelodyBlock(w, mb);
+      if (ext === 6) w.u(MQ.RHYTHM_GRID_BOXES.indexOf(rh.grid.box), 2).u(rh.grid.show, 2).u(rh.grid.rests ? 1 : 0, 1);
       if (ext >= 7) {
         const d = MQ.degreeSettings(cfg.deg);
         w.u(degrees, 5).u(d.gen, 3).u(d.measures - 1, 3).u(d.level - 1, 3).u(d.keyMode, 2).u(d.keyMax, 3).u(d.clefs, 2).u(d.hear, 1);
@@ -7161,6 +7283,7 @@ svg.staff .nlabel { display: none; }
           if (ext >= 3) {
             if (r.u(1)) cfg.retakes = r.u(5);
             const rh = { playsEx: r.u(4), playsAns: r.u(4), examples: [] };
+            const grid = ext === 6;
             if (ext >= 4) {
               rh.score = r.u(1) ? 'percent' : 'notes';
               rh.outOf = r.u(10);
@@ -7175,7 +7298,11 @@ svg.staff .nlabel { display: none; }
             }
             if (!rh.auto) {
               const n = r.u(4);
-              for (let i = 0; i < n; i++) rh.examples.push(readExample(r));
+              for (let i = 0; i < n; i++) rh.examples.push(readExample(r, grid));
+            }
+            if (grid) {
+              rh.task = 'grid';
+              rh.grid = { box: MQ.RHYTHM_GRID_BOXES[r.u(2)] || 3, show: r.u(2), rests: r.u(1) };
             }
             cfg.rhythm = MQ.rhythmSettings(rh);
             cfg.counts.rhythm = rh.auto ? rh.auto.count : rh.examples.length;
@@ -7233,6 +7360,18 @@ svg.staff .nlabel { display: none; }
       const list = MQ.cleanDegrees(q, resp).slice(0, 127);
       w.u(list.length, 7);
       list.forEach((v) => w.u(v, 3));
+      return;
+    }
+    if (q.type === 'rgrid') {
+      // Each measure's entries: first box, boxes covered, value, dot, rest.
+      const R = q.rh, spec = MQ.gridSpec(R.meter, R.grid.box);
+      const grid = MQ.cleanGrid(resp, R.measures, spec ? spec.cells : MQ.GRID_MAX_CELLS);
+      w.u(R.measures - 1, 2);
+      grid.forEach((list) => {
+        w.u(Math.min(31, list.length), 5);
+        list.slice(0, 31).forEach((e) => w.u(e.c, 5).u(e.n - 1, 5).u(e.v, 3).u(e.d, 1).u(e.r, 1));
+      });
+      w.u(Math.min(31, (plays && plays.ex) || 0), 5).u(Math.min(31, (plays && plays.ans) || 0), 5);
       return;
     }
     if (q.type === 'melody') {
@@ -7323,6 +7462,15 @@ svg.staff .nlabel { display: none; }
       const n = r.u(7), list = [];
       for (let j = 0; j < n; j++) list.push(r.u(3));
       return { kind: 'degree', value: list };
+    }
+    if (type === 'rgrid') {
+      const n = r.u(2) + 1, grid = [];
+      for (let m = 0; m < n; m++) {
+        const k = r.u(5), list = [];
+        for (let j = 0; j < k; j++) list.push({ c: r.u(5), n: r.u(5) + 1, v: Math.min(4, r.u(3)), d: r.u(1), r: r.u(1) });
+        grid.push(list);
+      }
+      return { kind: 'grid', value: grid, plays: { ex: r.u(5), ans: r.u(5) } };
     }
     if (type === 'melody') {
       const n = r.u(3) + 1, L = [];
@@ -7429,7 +7577,7 @@ svg.staff .nlabel { display: none; }
       w.u(sc.mode === 'percent' ? 1 : 0, 1).u(Math.max(1, Math.min(1000, Math.round(sc.outOf || 100))), 10).u(sc.split ? 1 : 0, 1);
       const n9 = (v) => Math.max(0, Math.min(511, v || 0));
       report.items.forEach((it) => {
-        if (it.type === 'rhythm' || it.type === 'melody') w.u(n9(it.notes), 9).u(n9(it.wrong), 9);
+        if (it.type === 'rhythm' || it.type === 'melody' || it.type === 'rgrid') w.u(n9(it.notes), 9).u(n9(it.wrong), 9);
         if (it.type === 'melody') w.u(n9(it.pw), 9).u(n9(it.rw), 9);
       });
     }
@@ -7470,7 +7618,7 @@ svg.staff .nlabel { display: none; }
       if (ver >= 11 && r.u(1)) {
         rep.scoring = { mode: r.u(1) ? 'percent' : 'notes', outOf: r.u(10), split: ver >= 12 ? r.u(1) : 0 };
         rep.items.forEach((it) => {
-          if (it.type === 'rhythm' || (it.type === 'melody' && ver >= 12)) { it.notes = r.u(9); it.wrong = r.u(9); }
+          if (it.type === 'rhythm' || it.type === 'rgrid' || (it.type === 'melody' && ver >= 12)) { it.notes = r.u(9); it.wrong = r.u(9); }
           if (it.type === 'melody' && ver >= 12) { it.pw = r.u(9); it.rw = r.u(9); }
         });
       }
@@ -8266,7 +8414,7 @@ svg.staff .nlabel { display: none; }
     render() {
       const b = build(this.model, {
         caret: this.o.readOnly ? null : this.caret, sel: this.sel, active: this.active, marks: this.o.marks,
-        playing: this.playing, editing: !this.o.readOnly,
+        playing: this.playing, editing: !this.o.readOnly, first: this.o.first || 0, showTime: this.o.showTime !== false,
       });
       this.geo = b.geo;
       this.svg.setAttribute('viewBox', `0 0 ${r1(b.W)} ${b.H}`);
@@ -8434,6 +8582,486 @@ svg.staff .nlabel { display: none; }
   MQ.rhythmDraw = { RX, RY, STEM, BEAM, BEAM_STEP, PAD_L, PAD_R, r1, headSVG, lineSVG, rectSVG, dotSVG, flagsSVG, restSVG, spacing, beamPlan, NAMES, copyLayers };
   Object.assign(MQ, { RhythmStaff, rhythmArt, rhythmIcon: icon, rhythmMarkup: build });
 })(window);
+/* Clefwork Rhythm — the rhythm grid. Students see (or hear) a rhythm and show on a grid where each
+   note starts and how long it lasts: one row a measure, the beats across the top, each beat split
+   into boxes of a sixteenth, eighth or quarter note. They write the note's value in the box where it
+   starts, then drag its arrow across the boxes it lasts — a half note on sixteenth-note boxes starts
+   in one box and reaches across eight.
+   A student's grid is, for each measure, a list of entries {c: first box, n: boxes, v, d, r} — value,
+   dot and rest as in rhythm.js. Rests may be left blank, or marked and graded as the teacher chooses. */
+(function (root) {
+  'use strict';
+  const MQ = (root.MQ = root.MQ || {});
+  const NS = 'http://www.w3.org/2000/svg';
+  const BOX_NAMES = { 3: 'sixteenth', 6: 'eighth', 12: 'quarter' };
+  const BEAT_NAMES = { q: 'quarter notes', h: 'half notes', 'q.': 'dotted quarter notes', e: 'eighth notes' };
+  const VALUE_NAMES = ['whole', 'half', 'quarter', 'eighth', 'sixteenth'];
+  const MAX_CELLS = 24;                           // 6/4, 12/8 and 3/2 in sixteenths
+
+  // ---------- the grid ----------
+  // The boxes of one measure, and where each beat starts — or null when the beats don't split into
+  // whole boxes (a dotted-quarter beat can't hold quarter-note boxes).
+  function gridSpec(meter, box) {
+    const info = MQ.rhythmMeter(meter);
+    if (info.beats.some((b) => b.len % box)) return null;
+    return { info, box, cells: info.len / box, beats: info.beats.map((b, k) => ({ from: b.at / box, n: b.len / box, k })) };
+  }
+  const boxName = (box) => BOX_NAMES[box] || 'sixteenth';
+  const noteName = (e) => `${e.d ? 'dotted ' : ''}${VALUE_NAMES[e.v]} ${e.r ? 'rest' : 'note'}`;
+  const an = (word) => (/^[aeiou]/.test(word) ? 'an ' : 'a ') + word;
+
+  // What stops an example from being a rhythm grid, in words.
+  function gridProblems(ex, grid) {
+    const box = MQ.rhythmGrid(Object.assign({}, grid)).box;
+    const spec = gridSpec(ex.meter, box);
+    if (!spec) {
+      const info = MQ.rhythmMeter(ex.meter);
+      return [`${info.label} has beats of ${BEAT_NAMES[info.tempo]}${info.grouping ? ` (${info.grouping})` : ''}, which don’t split into ${boxName(box)}-note boxes. Choose smaller boxes or another time signature.`];
+    }
+    const out = [];
+    for (let m = 0; m < ex.measures; m++) {
+      const events = (ex.layers[0] && ex.layers[0][m]) || [];
+      const trip = events.find((e) => e.t);
+      const odd = events.find((e) => !e.t && MQ.rhythmDur(e) % box);
+      const bar = `m. ${(ex.first || 1) + m}`;
+      if (trip) out.push(`${bar} has a triplet — triplets don’t fit a grid of boxes.`);
+      else if (odd) out.push(`${bar}: ${an(noteName(odd))} ${MQ.rhythmDur(odd) < box ? 'is shorter than a box' : 'doesn’t fill whole boxes'} (each box is ${an(boxName(box))} note).`);
+    }
+    return out;
+  }
+
+  // ---------- questions ----------
+  const bars = (first, n) => (n > 1 ? `m. ${first}–${first + n - 1}` : `m. ${first}`);
+  function gridQuestion(ex, info, i, grid) {
+    const g = MQ.rhythmGrid(Object.assign({}, grid));
+    const heard = g.show > 0, seen = g.show !== 1;
+    return {
+      type: 'rgrid', clef: 'treble',
+      text: `Example ${i + 1}: ${seen ? '' : 'listen, then '}show where each note starts and how long it lasts.`,
+      hint: `Write the note value in the box where it starts, and draw an arrow across the boxes it lasts.${g.rests ? ' Mark the rests too.' : ' Leave rests blank.'} `
+        + `${bars(ex.first, ex.measures)}, ${info.label}${info.grouping ? ` (${info.grouping})` : ''}. Each box is ${an(boxName(g.box))} note.`
+        + (heard ? ` Tempo: ${MQ.rhythmTempoText(info, ex.tempo)}.` : ''),
+      rh: {
+        n: i, meter: Object.assign({}, ex.meter), measures: ex.measures, tempo: ex.tempo, parts: 1, first: ex.first,
+        layers: [ex.layers[0].slice(0, ex.measures).map((m) => MQ.rhythmCleanEvents(m))],
+        grid: { box: g.box, show: g.show, rests: g.rests },
+      },
+      sig: 'rg' + i, tags: [],
+    };
+  }
+
+  // ---------- answers ----------
+  // Tidies a student's grid: whole numbers, inside the measure, in order, never overlapping.
+  function cleanGrid(resp, measures, cells) {
+    const out = [];
+    for (let m = 0; m < measures; m++) {
+      const list = ((resp && resp[m]) || []).map((e) => ({
+        c: e.c | 0, n: Math.max(1, e.n | 0), v: Math.max(0, Math.min(4, e.v | 0)), d: e.d ? 1 : 0, r: e.r ? 1 : 0,
+      })).filter((e) => e.c >= 0 && e.c < cells).sort((a, b) => a.c - b.c);
+      const keep = [];
+      list.forEach((e) => {
+        const prev = keep[keep.length - 1];
+        if (prev && e.c < prev.c + prev.n) return;
+        keep.push(e);
+      });
+      keep.forEach((e, k) => { e.n = Math.min(e.n, (keep[k + 1] ? keep[k + 1].c : cells) - e.c); });
+      out.push(keep);
+    }
+    return out;
+  }
+  // The answer's notes (and rests, when they're marked): where each starts and how many boxes it lasts.
+  function itemsOf(events, box, rests) {
+    const out = [];
+    let t = 0;
+    (events || []).forEach((e, i) => {
+      const d = MQ.rhythmDur(e);
+      if (!e.r || rests) out.push({ c: t / box, n: d / box, v: e.v, d: e.d ? 1 : 0, r: e.r ? 1 : 0, i });
+      t += d;
+    });
+    return out;
+  }
+  // A note of the answer is right when the student's entry starts in the same box, has the same value
+  // (and dot), and covers the same number of boxes. A note missing or wrong is a wrong note, and so is
+  // every extra entry. Rests count only when the teacher asks for them to be marked.
+  // {notes, wrong, measures: [{want, got, ok}], mine} — want marks the answer's notes and rests, got the
+  // student's entries: true right, false wrong, null not graded.
+  function compareGrid(q, resp) {
+    const R = q.rh, g = R.grid, spec = gridSpec(R.meter, g.box);
+    const mine = cleanGrid(resp, R.measures, spec ? spec.cells : 0);
+    let notes = 0, wrong = 0;
+    const measures = R.layers[0].slice(0, R.measures).map((events, m) => {
+      const want = events.map(() => null), got = mine[m].map(() => null);
+      let bad = 0;
+      itemsOf(events, g.box, g.rests).forEach((a) => {
+        notes++;
+        const k = mine[m].findIndex((x) => x.c === a.c && x.r === a.r);
+        const x = mine[m][k];
+        const ok = !!x && x.v === a.v && x.d === a.d && x.n === a.n;
+        want[a.i] = ok;
+        if (x) got[k] = ok;
+        if (!ok) bad++;
+      });
+      mine[m].forEach((x, k) => { if (got[k] == null && (!x.r || g.rests)) { got[k] = false; bad++; } });
+      wrong += bad;
+      return { want, got, ok: !bad };
+    });
+    return { notes, wrong, measures, mine };
+  }
+  function gradeGrid(q, resp) {
+    const c = compareGrid(q, resp);
+    if (!c.notes) return c.wrong ? 0 : 1;
+    return Math.max(0, c.notes - c.wrong) / c.notes;
+  }
+  const hasGridAnswer = (q, resp) => !!resp && resp.some((m) => m && m.length);
+  // The answer as text: the rhythm, and the size of the boxes.
+  const describeGrid = (q) => `${MQ.rhythmMeter(q.rh.meter).label}  ${MQ.rhythmText(q.rh.layers, q.rh.meter)}  (${boxName(q.rh.grid.box)}-note boxes)`;
+  // The answer as grid entries, to draw.
+  const answerEntries = (q) => q.rh.layers[0].slice(0, q.rh.measures).map((events) => itemsOf(events, q.rh.grid.box, true).map((x) => ({ c: x.c, n: x.n, v: x.v, d: x.d, r: x.r, i: x.i })));
+  // A student's grid as something to play: each note lasts the boxes its arrow covers.
+  function gridLayers(entries, measures, box) {
+    const L = [];
+    for (let m = 0; m < measures; m++) {
+      const ev = [];
+      let t = 0;
+      ((entries && entries[m]) || []).forEach((e) => {
+        if (e.c * box > t) ev.push({ v: 2, d: 0, t: 0, r: 1, u: e.c * box - t });
+        ev.push({ v: e.v, d: e.d, t: 0, r: e.r, u: e.n * box });
+        t = (e.c + e.n) * box;
+      });
+      L.push(ev);
+    }
+    return [L];
+  }
+
+  // ---------- the picture ----------
+  const LW = 64, HH = 28, RH = 48;
+  const cellW = (cells) => (cells <= 4 ? 64 : cells <= 6 ? 54 : cells <= 9 ? 46 : cells <= 12 ? 40 : cells <= 16 ? 35 : 29);
+  // A note or rest, as it would be written — the head at (0, 0), drawn at 80% of the staff's size.
+  function glyph(e) {
+    const D = MQ.rhythmDraw;
+    let s = '';
+    if (e.r) {
+      const pos = { rest: -9, wholeTop: -12, halfBottom: -7 };
+      if (e.v === 0) s += D.lineSVG(-9, -12, 9, -12, 1.2);
+      if (e.v === 1) s += D.lineSVG(-9, -7, 9, -7, 1.2);
+      s += D.restSVG(e.v, 0, pos);
+      if (e.d) s += D.dotSVG(9, -9);
+    } else {
+      s += D.headSVG(e.v, 0, 0);
+      if (e.v >= 1) s += D.lineSVG(5.7, -1.5, 5.7, -30, 1.3);
+      if (e.v >= 3) s += D.flagsSVG(5.1, -30, true, e.v - 2);
+      if (e.d) s += D.dotSVG(e.v === 0 ? 12 : 11, -2.5);
+    }
+    return s;
+  }
+  // model: {meter, measures, first, box, entries}. opts: print, cur {m, c, n}, sel {m, k}, marks
+  // {side: 'got'|'want', measures}, playing, editing.
+  function build(model, opts) {
+    const o = Object.assign({ print: false, cur: null, sel: null, marks: null, playing: -1, editing: false, dimRests: false }, opts);
+    const D = MQ.rhythmDraw, r1 = D.r1;
+    const spec = gridSpec(model.meter, model.box) || gridSpec(model.meter, 3);
+    const cells = spec.cells, CW = cellW(cells);
+    const W = 2 + LW + cells * CW, H = 2 + HH + model.measures * RH;
+    const x0 = 1 + LW, y0 = 1 + HH;
+    const X = (c) => x0 + c * CW, Y = (m) => y0 + m * RH;
+    const beatAt = new Set(spec.beats.map((b) => b.from));
+    let s = '';
+    // ---------- the table ----------
+    s += `<rect x="0" y="0" width="${W}" height="${H}" fill="#ffffff"/>`;
+    s += `<rect x="1" y="1" width="${W - 2}" height="${HH}" fill="#c9ccd2"/>`;
+    const marks = o.marks && o.marks.measures;
+    if (!o.print) {
+      for (let m = 0; m < model.measures; m++) {
+        const tint = marks && o.marks.side === 'got' ? (marks[m].ok ? ' is-right' : ' is-wrong') : '';
+        s += `<rect class="g-row halo${o.playing === m ? ' is-playing' : ''}${tint}" data-m="${m}" fill="transparent" x="${x0}" y="${Y(m)}" width="${cells * CW}" height="${RH}"/>`;
+      }
+    }
+    // Boxes a note lasts through are tinted; the box or boxes chosen for the next note are outlined.
+    const entries = model.entries || [];
+    if (!o.print) {
+      entries.forEach((list, m) => (list || []).forEach((e, k) => {
+        const sel = o.sel && o.sel.m === m && o.sel.k === k;
+        // Rests that aren't graded stay untinted.
+        const flags = marks && marks[m] ? (o.marks.side === 'got' ? marks[m].got : marks[m].want) : null;
+        if (e.r && !sel && (o.dimRests || (flags && (o.marks.side === 'got' ? flags[k] : flags[e.i]) == null))) return;
+        s += `<rect class="g-span halo${sel ? ' is-sel' : ''}" fill="transparent" x="${X(e.c) + 1}" y="${Y(m) + 1}" width="${e.n * CW - 2}" height="${RH - 2}"/>`;
+      }));
+      if (o.editing && o.cur && !o.sel) s += `<rect class="g-cur halo" fill="transparent" x="${X(o.cur.c) + 2}" y="${Y(o.cur.m) + 2}" width="${o.cur.n * CW - 4}" height="${RH - 4}" rx="4"/>`;
+    }
+    // Lines: thin between boxes, thicker between beats, measures and around the edge.
+    for (let m = 1; m < model.measures; m++) s += D.lineSVG(1, Y(m), W - 1, Y(m), 1.1);
+    for (let c = 1; c < cells; c++) {
+      const beat = beatAt.has(c);
+      s += D.lineSVG(X(c), beat ? 1 : y0, X(c), H - 1, beat ? 1.6 : 0.6);
+    }
+    s += D.lineSVG(x0, 1, x0, H - 1, 1.6);
+    s += D.lineSVG(1, y0, W - 1, y0, 1.6);
+    s += `<rect x="1" y="1" width="${W - 2}" height="${H - 2}" fill="none" stroke="currentColor" stroke-width="2"/>`;
+    // ---------- labels ----------
+    spec.beats.forEach((b) => {
+      const label = b.n * CW >= 58 ? `Beat ${b.k + 1}` : String(b.k + 1);
+      s += `<text class="clabel g-beat" x="${X(b.from) + 7}" y="${1 + HH / 2 + 5}" font-size="13" fill="currentColor">${label}</text>`;
+    });
+    for (let m = 0; m < model.measures; m++) {
+      s += `<text class="clabel g-mlabel" x="10" y="${Y(m) + RH / 2 + 5}" font-size="13" fill="currentColor">m. ${(model.first || 1) + m}</text>`;
+    }
+    // ---------- the notes ----------
+    const geo = { x0, y0, CW, RH, cells, measures: model.measures, W, H };
+    entries.forEach((list, m) => (list || []).forEach((e, k) => {
+      const flags = marks && marks[m] ? (o.marks.side === 'got' ? marks[m].got : marks[m].want) : null;
+      const f = flags ? (o.marks.side === 'got' ? flags[k] : flags[e.i]) : null;
+      const mark = f == null ? ((flags || o.dimRests) && e.r ? ' is-dim' : '') : f ? (o.marks.side === 'got' ? ' is-right' : '') : o.marks.side === 'got' ? ' is-wrong' : ' is-missed';
+      const sel = !o.print && o.sel && o.sel.m === m && o.sel.k === k;
+      const hx = X(e.c) + Math.min(13, CW / 2 - 2), hy = Y(m) + 34;
+      let g = `<g transform="translate(${r1(hx)} ${hy}) scale(0.8)">${glyph(e)}</g>`;
+      const end = X(e.c + e.n) - 6, from = hx + 16;
+      if (e.n > 1 && end - from > 6) {
+        const y = hy - 8;
+        g += D.lineSVG(from, y, end, y, 1.6) + `<path d="M${r1(end - 7)} ${y - 4.5}L${r1(end)} ${y}L${r1(end - 7)} ${y + 4.5}" fill="none" stroke="currentColor" stroke-width="1.6"/>`;
+      }
+      if (sel && !model.readOnly) g += `<circle class="g-grip halo" cx="${r1(X(e.c + e.n) - 3)}" cy="${Y(m) + RH / 2}" r="4.5"/>`;
+      s += `<g class="g-ent${sel ? ' is-sel' : ''}${mark}" data-m="${m}" data-k="${k}">${g}</g>`;
+    }));
+    return { W, H, inner: s, geo, spec };
+  }
+  // For paper and Word: the grid as its own SVG, `wIn` inches wide at most.
+  function gridArt(model, opts) {
+    const b = build(model, Object.assign({ print: true }, opts));
+    const wIn = Math.min((opts && opts.wIn) || 7, b.W / 86);
+    // Sized by its own width on the printed page, not the staff height the other pictures use.
+    const markup = `<svg xmlns="${NS}" class="rgrid" viewBox="0 0 ${b.W} ${b.H}" width="${b.W}" height="${b.H}" style="color:#000;font-family:Georgia,'Times New Roman',serif;width:${Math.round(wIn * 100) / 100}in;height:auto;max-width:100%">${b.inner}</svg>`;
+    const svg = new DOMParser().parseFromString(markup, 'image/svg+xml').documentElement;
+    return { svg, markup, wIn, hIn: (wIn * b.H) / b.W };
+  }
+
+  // ---------- the interactive grid ----------
+  // opts: {meter, measures, first, box, entries, readOnly, marks, answer (entries with the answer's
+  // note numbers, to show it marked), dimRests (rests that aren't graded, drawn faint), onChange(entries), onMove()}
+  class RhythmGrid {
+    constructor(host, opts) {
+      this.o = Object.assign({ readOnly: false, marks: null, onChange: null, onMove: null }, opts);
+      // Sixteenth-note boxes fit every meter; a teacher's draft may ask for boxes that don't.
+      const box = gridSpec(this.o.meter, this.o.box) ? this.o.box : 3;
+      this.spec = gridSpec(this.o.meter, box);
+      this.model = { meter: this.o.meter, measures: this.o.measures, first: this.o.first || 1, box, readOnly: !!this.o.readOnly };
+      this.model.entries = cleanGrid(this.o.entries, this.model.measures, this.spec.cells);
+      if (this.o.answer) this.model.entries = this.o.answer;      // the answer, drawn with its marks
+      this.cur = { m: 0, c: 0, n: 1 };
+      this.sel = null;
+      this.playing = -1;
+      this.drag = null;
+      // Start where the answer stops: the first empty box.
+      if (!this.o.readOnly) this.toFirstFree();
+      const svg = (this.svg = document.createElementNS(NS, 'svg'));
+      svg.setAttribute('class', 'rgrid' + (this.o.readOnly ? ' is-readonly' : ''));
+      this.svg = svg;
+      svg.setAttribute('role', this.o.readOnly ? 'img' : 'application');
+      if (!this.o.readOnly) svg.setAttribute('tabindex', '0');
+      host.append(svg);
+      if (!this.o.readOnly) this.bind();
+      this.render();
+      // Too wide for its box (a phone): the grid scrolls sideways, so a swipe scrolls it rather than
+      // stretching a note — the Longer and Shorter buttons do that.
+      if (typeof ResizeObserver !== 'undefined') new ResizeObserver(() => this.fit()).observe(host);
+    }
+    fit() {
+      const host = this.svg.parentNode;
+      if (host) this.svg.classList.toggle('is-wide', host.clientWidth > 0 && host.clientWidth - 12 < parseFloat(this.svg.style.minWidth || 0));
+    }
+    entries() { return this.model.entries.map((L) => L.map((e) => ({ c: e.c, n: e.n, v: e.v, d: e.d, r: e.r }))); }
+    toFirstFree() {
+      for (let m = 0; m < this.model.measures; m++) {
+        for (let c = 0; c < this.spec.cells; c++) if (this.entryAt(m, c) < 0) { this.cur = { m, c, n: 1 }; return; }
+      }
+    }
+    render() {
+      const b = build(this.model, {
+        cur: this.cur, sel: this.sel, marks: this.o.marks, playing: this.playing, editing: !this.o.readOnly, dimRests: !!this.o.dimRests,
+      });
+      this.geo = b.geo;
+      this.svg.setAttribute('viewBox', `0 0 ${b.W} ${b.H}`);
+      this.svg.style.minWidth = Math.round(b.W * 0.66) + 'px';
+      this.svg.style.maxWidth = Math.round(b.W * 1.45) + 'px';
+      this.svg.innerHTML = b.inner;
+      this.svg.setAttribute('aria-label', this.describe());
+    }
+    describe() {
+      const info = this.spec.info, M = this.model;
+      const rows = M.entries.map((L, m) => `m. ${M.first + m}: ${L.length ? L.map((e) => `${noteName(e)} in box ${e.c + 1}${e.n > 1 ? `, lasting ${e.n} boxes` : ''}`).join('; ') : 'empty'}`).join('. ');
+      const how = this.o.readOnly ? '' : ` ${this.where()} Choose a note value to write it there; Shift with the arrow keys makes the selected note last longer or shorter.`;
+      return `Rhythm grid: ${M.measures} measure${M.measures > 1 ? 's' : ''} of ${info.label}, ${this.spec.cells} ${boxName(M.box)}-note boxes a measure. ${rows}.${how}`;
+    }
+    // Where the cursor is, in words.
+    where() {
+      const M = this.model;
+      if (this.sel) {
+        const e = M.entries[this.sel.m][this.sel.k];
+        return `Selected: the ${noteName(e)} in m. ${M.first + this.sel.m}, box ${e.c + 1}, lasting ${e.n} box${e.n > 1 ? 'es' : ''}.`;
+      }
+      const c = this.cur, beat = this.spec.beats.filter((b) => b.from <= c.c).pop();
+      return `m. ${M.first + c.m}, box ${c.c + 1}${c.n > 1 ? `–${c.c + c.n}` : ''} (beat ${beat.k + 1}).`;
+    }
+    changed() {
+      this.render();
+      if (this.o.onChange) this.o.onChange(this.entries());
+      if (this.o.onMove) this.o.onMove();
+    }
+    moved() { this.render(); if (this.o.onMove) this.o.onMove(); }
+    focus() { try { this.svg.focus({ preventScroll: true }); } catch (e) { /* not focusable */ } }
+    entryAt(m, c) { return this.model.entries[m].findIndex((e) => c >= e.c && c < e.c + e.n); }
+    // How many boxes an entry may cover: up to the next entry, or the end of the measure.
+    room(m, k) {
+      const L = this.model.entries[m], e = L[k];
+      return (L[k + 1] ? L[k + 1].c : this.spec.cells) - e.c;
+    }
+    // Empty boxes from c onward, up to the next entry.
+    free(m, c) {
+      let n = 0;
+      while (c + n < this.spec.cells && this.entryAt(m, c + n) < 0) n++;
+      return n;
+    }
+
+    // ---------- editing ----------
+    // Writes a note or rest in the chosen box (lasting the boxes chosen with it), or changes the
+    // selected one's value and keeps its length.
+    place(sym) {
+      const e = { v: sym.v, d: sym.d ? 1 : 0, r: sym.r ? 1 : 0 };
+      if (this.sel) {
+        Object.assign(this.model.entries[this.sel.m][this.sel.k], e);
+      } else {
+        const { m, c, n } = this.cur;
+        const L = this.model.entries[m];
+        const k = L.filter((x) => x.c < c).length;
+        L.splice(k, 0, Object.assign({ c, n: Math.max(1, Math.min(n, this.free(m, c))) }, e));
+        this.sel = { m, k };
+      }
+      this.changed();
+    }
+    // The selected note lasts one box more or less (or the boxes chosen for the next note grow).
+    resize(delta) {
+      if (this.sel) {
+        const e = this.model.entries[this.sel.m][this.sel.k];
+        const n = Math.max(1, Math.min(this.room(this.sel.m, this.sel.k), e.n + delta));
+        if (n === e.n) return false;
+        e.n = n;
+        this.changed();
+        return true;
+      }
+      const n = Math.max(1, Math.min(this.free(this.cur.m, this.cur.c), this.cur.n + delta));
+      if (n === this.cur.n) return false;
+      this.cur.n = n;
+      this.moved();
+      return true;
+    }
+    // Onto box c of measure m: a note there is selected, an empty box becomes the cursor.
+    goTo(m, c) {
+      const k = this.entryAt(m, c);
+      if (k >= 0) { this.sel = { m, k }; this.cur = { m, c: this.model.entries[m][k].c, n: 1 }; } else { this.sel = null; this.cur = { m, c, n: 1 }; }
+      this.moved();
+    }
+    move(dir) {
+      const cells = this.spec.cells, M = this.model;
+      const at = this.sel ? M.entries[this.sel.m][this.sel.k] : this.cur;
+      let m = this.sel ? this.sel.m : this.cur.m;
+      let c = dir > 0 ? at.c + at.n : at.c - 1;
+      if (c >= cells) { if (m + 1 >= M.measures) return; m++; c = 0; }
+      if (c < 0) { if (m === 0) return; m--; c = cells - 1; }
+      this.goTo(m, c);
+    }
+    moveRow(dir) {
+      const m = Math.max(0, Math.min(this.model.measures - 1, (this.sel ? this.sel.m : this.cur.m) + dir));
+      const c = this.sel ? this.model.entries[this.sel.m][this.sel.k].c : this.cur.c;
+      this.goTo(m, c);
+    }
+    remove() {
+      if (!this.sel) return false;
+      const { m, k } = this.sel, e = this.model.entries[m][k];
+      this.model.entries[m].splice(k, 1);
+      this.sel = null;
+      this.cur = { m, c: e.c, n: 1 };
+      this.changed();
+      return true;
+    }
+    clearRow() {
+      const m = this.sel ? this.sel.m : this.cur.m;
+      if (!this.model.entries[m].length) return false;
+      this.model.entries[m] = [];
+      this.sel = null;
+      this.cur = { m, c: 0, n: 1 };
+      this.changed();
+      return true;
+    }
+    deselect() { if (this.sel) { this.sel = null; this.moved(); } }
+    setPlaying(m) {
+      this.playing = m;
+      this.svg.querySelectorAll('.g-row').forEach((el) => el.classList.toggle('is-playing', +el.dataset.m === m));
+    }
+    // ---------- pointer: click a box, drag across boxes, drag a note's arrow ----------
+    pt(cx, cy) {
+      const k = this.svg.getScreenCTM();
+      if (!k) return { x: -1, y: -1 };
+      const p = new DOMPoint(cx, cy).matrixTransform(k.inverse());
+      return { x: p.x, y: p.y };
+    }
+    boxAt(p, m) {
+      const g = this.geo;
+      const c = Math.max(0, Math.min(g.cells - 1, Math.floor((p.x - g.x0) / g.CW)));
+      if (m != null) return { m, c };
+      const row = Math.floor((p.y - g.y0) / g.RH);
+      if (row < 0 || row >= g.measures || p.x < g.x0) return null;
+      return { m: row, c };
+    }
+    bind() {
+      const svg = this.svg;
+      svg.addEventListener('pointerdown', (e) => {
+        if (e.button > 0) return;
+        const hit = this.boxAt(this.pt(e.clientX, e.clientY));
+        if (!hit) return;
+        e.preventDefault();
+        this.focus();
+        const k = this.entryAt(hit.m, hit.c);
+        if (k >= 0) {
+          this.sel = { m: hit.m, k };
+          this.drag = { size: true, m: hit.m, k, from: this.model.entries[hit.m][k].n, moved: false };
+        } else {
+          this.sel = null;
+          this.cur = { m: hit.m, c: hit.c, n: 1 };
+          this.drag = { size: false, m: hit.m, a: hit.c };
+        }
+        try { svg.setPointerCapture(e.pointerId); } catch (err) { /* older browsers */ }
+        this.moved();
+      });
+      svg.addEventListener('pointermove', (e) => {
+        const d = this.drag;
+        if (!d) return;
+        const { c } = this.boxAt(this.pt(e.clientX, e.clientY), d.m);
+        if (d.size) {
+          const en = this.model.entries[d.m][d.k];
+          const n = Math.max(1, Math.min(this.room(d.m, d.k), c - en.c + 1));
+          if (n !== en.n) { en.n = n; d.moved = true; this.render(); }
+        } else {
+          let a = d.a, b = c;
+          if (b >= a) b = a + Math.min(b - a + 1, this.free(d.m, a)) - 1;
+          else { let lo = a; while (lo > b && this.entryAt(d.m, lo - 1) < 0) lo--; b = a; a = lo; }
+          if (a !== this.cur.c || b - a + 1 !== this.cur.n) { this.cur = { m: d.m, c: a, n: b - a + 1 }; this.render(); }
+        }
+      });
+      const end = () => {
+        const d = this.drag;
+        this.drag = null;
+        if (d && d.size && d.moved) this.changed();
+        else if (d) this.moved();
+      };
+      svg.addEventListener('pointerup', end);
+      svg.addEventListener('pointercancel', end);
+    }
+  }
+
+  Object.assign(MQ, {
+    RhythmGrid, gridSpec, gridProblems, gridQuestion, cleanGrid, compareGrid, gradeGrid, hasGridAnswer, describeGrid,
+    gridAnswerEntries: answerEntries, gridLayers, gridArt, gridBoxName: boxName, GRID_MAX_CELLS: MAX_CELLS,
+  });
+})(typeof window !== 'undefined' ? window : globalThis);
 /* Clefwork Melody — the staff students and teachers write melodies on: five lines, a treble or bass
    clef, the key signature, and up to eight measures, four to a line. Notes have pitches: ledger
    lines, accidentals (shown only where the key signature and earlier notes in the measure don't
@@ -9239,7 +9867,11 @@ svg.staff .nlabel { display: none; }
   const onlyAnalysis = (cfg) => !!(listCount(cfg, 'analysis') && sumCounts(cfg) === listCount(cfg, 'analysis'));
   const onlyRhythm = (cfg) => !!(listCount(cfg, 'rhythm') && sumCounts(cfg) === listCount(cfg, 'rhythm'));
   const onlyMelody = (cfg) => !!(listCount(cfg, 'melody') && sumCounts(cfg) === listCount(cfg, 'melody'));
-  const clefsText = (cfg) => onlyMelody(cfg) ? 'heard, then written on the staff' : onlyRhythm(cfg) ? 'heard, then written on a one-line staff' : onlyAnalysis(cfg) ? 'answered beside a picture of the score' : onlyKeys(cfg) ? 'grand staff, note names & piano' : [cfg.clefs & 1 ? 'treble' : null, cfg.clefs & 2 ? 'bass' : null].filter(Boolean).join(' & ') + ' clef' + (usesGrand(cfg) ? ' + grand staff' : '');
+  // Clefwork Rhythm quizzes are rhythmic dictation or rhythm grids.
+  const gridQuiz = (cfg) => MQ.rhythmSettings(cfg.rhythm).task === 'grid';
+  // A rhythm grid's rhythm is read, heard, or both.
+  const gridHow = (cfg) => ['read', 'heard', 'read and heard'][MQ.rhythmSettings(cfg.rhythm).grid.show];
+  const clefsText = (cfg) => onlyMelody(cfg) ? 'heard, then written on the staff' : onlyRhythm(cfg) ? (gridQuiz(cfg) ? `${gridHow(cfg)}, then shown on a grid` : 'heard, then written on a one-line staff') : onlyAnalysis(cfg) ? 'answered beside a picture of the score' : onlyKeys(cfg) ? 'grand staff, note names & piano' : [cfg.clefs & 1 ? 'treble' : null, cfg.clefs & 2 ? 'bass' : null].filter(Boolean).join(' & ') + ' clef' + (usesGrand(cfg) ? ' + grand staff' : '');
   const clonePlaced = (pl) => (pl ? pl.map((c) => (c || []).map((p) => ({ ...p }))) : null);
   // The student version (practice + take a quiz, no quiz codes shown) is the same app with this flag set.
   const STUDENT = !!window.CLEFWORK_STUDENT;
@@ -10069,6 +10701,7 @@ svg.staff .nlabel { display: none; }
     if (q.type === 'degree') return degreeCard(q, cfg, o);
     if (q.type === 'melody') return melodyCard(q, cfg, o);
     if (q.type === 'rhythm') return rhythmCard(q, cfg, o);
+    if (q.type === 'rgrid') return gridCard(q, cfg, o);
     if (q.type === 'keys') return keysCard(q, cfg, o);
     if (q.type === 'analysis') return analysisCard(q, cfg, o);
     if (q.type === 'figured' || q.type === 'figprog') return figuredCard(q, cfg, o);
@@ -10480,7 +11113,7 @@ svg.staff .nlabel { display: none; }
           ? h('p', { class: 'warn-note' }, `Not ready to share yet. ${probs[0].text}${probs.length > 1 ? ` (${probs.length - 1} more to fix)` : ''}`)
           : h('p', { class: 'fine rh-ready-ok' }, '✓ Every measure is complete.'));
       }
-      R.keyList.replaceChildren(...S.qs.map((q) => q.type === 'melody' ? melodyKeyItem(q) : q.type === 'rhythm' ? rhythmKeyItem(q) : h('li', null, h('span', { class: 'key-q' }, q.text, q.type === 'analysis' ? null : h('span', { class: 'key-clef' }, ' · ' + MQ.clefLabel(q.clef))), h('span', { class: 'key-a' }, q.type === 'analysis' ? accText(MQ.describeAnswer(q, cfg)) : MQ.describeAnswer(q, cfg)))));
+      R.keyList.replaceChildren(...S.qs.map((q) => q.type === 'melody' ? melodyKeyItem(q) : q.type === 'rhythm' ? rhythmKeyItem(q) : q.type === 'rgrid' ? gridKeyItem(q) : h('li', null, h('span', { class: 'key-q' }, q.text, q.type === 'analysis' ? null : h('span', { class: 'key-clef' }, ' · ' + MQ.clefLabel(q.clef))), h('span', { class: 'key-a' }, q.type === 'analysis' ? accText(MQ.describeAnswer(q, cfg)) : MQ.describeAnswer(q, cfg)))));
       if (R.linkSize) {
         const kb = S.aimg ? Math.max(1, Math.round((S.aimg.data.length + S.code.length) / 1024)) : 0;
         R.linkSize.replaceChildren(!S.code ? '' : kb > 150
@@ -10860,7 +11493,11 @@ svg.staff .nlabel { display: none; }
     }
     return xlsxLoading;
   }
-  const typeCount = (cfg, id) => (MQ.BUILT_IN.some((t) => t.id === id) ? cfg.counts[id] || 0 : listCount(cfg, id));
+  // Rhythm examples count as rhythm grids when that's the quiz's task.
+  const typeCount = (cfg, id) => (id === 'rgrid' ? (gridQuiz(cfg) ? listCount(cfg, 'rhythm') : 0)
+    : id === 'rhythm' && gridQuiz(cfg) ? 0
+    : id === 'degree' ? Math.min(MQ.DEGREE_MAX, cfg.counts.degree || 0)
+    : MQ.BUILT_IN.some((t) => t.id === id) ? cfg.counts[id] || 0 : listCount(cfg, id));
   const EXPORT_HEADERS = ['Title', 'Teacher', 'Date created', 'Question types'].concat(MQ.TYPES.map((t) => t.label), ['Total questions', 'Quiz code']);
   const ymd = (ms) => { const d = new Date(ms); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; };
   function exportRow(code, created) {
@@ -11017,7 +11654,9 @@ svg.staff .nlabel { display: none; }
       saveAttempt();
       return true;
     } catch (e) {
-      toast(e.message || 'That code didn’t work.', 'bad');
+      // Opened from a link, the take page explains instead (see takeLinkError).
+      if (opts && opts.link) S.linkError = { code: code.replace(/[^0-9A-Za-z]/g, '').toUpperCase(), img: opts.img || '', message: e.message || 'That code didn’t work.' };
+      else toast(e.message || 'That code didn’t work.', 'bad');
       return false;
     }
   }
@@ -11174,12 +11813,32 @@ svg.staff .nlabel { display: none; }
   function timeLeft(t) { return t.cfg.timeLimit ? t.cfg.timeLimit * 60 - t.secs.reduce((a, b) => a + b, 0) : null; }
 
   function renderTake(main) {
+    if (S.linkError && S.slot === 'take') return takeLinkError(main);
     const t = S.take;
     if (S.slot === 'take') main.append(startOverBar(t));
     if (!t) return takeLoad(main);
     if (!t.started) return takeIntro(main);
     if (t.done) return takeDone(main);
     return t.reviewing ? takeReview(main) : takeQuestion(main);
+  }
+  // A quiz link (or a scanned QR code) that didn't open: say why, rather than showing whatever quiz
+  // this device had open before.
+  function takeLinkError(main) {
+    const E = S.linkError;
+    const newer = /newer version/i.test(E.message);
+    const leave = () => { S.linkError = null; go(tv()); };
+    const retry = () => {
+      location.href = location.pathname + location.search + '#take=' + E.code + (E.img ? '&img=' + E.img : '');
+      location.reload();
+    };
+    main.append(h('div', { class: 'narrow' }, h('section', { class: 'card stage' },
+      h('div', { class: 'eyebrow' }, 'Quiz link'),
+      h('h1', { class: 'display' }, 'This quiz didn’t open'),
+      h('p', { class: 'lede' }, E.message),
+      newer ? h('p', null, 'The quiz uses something this page doesn’t have yet. If your teacher has just updated Clefwork, the site can take a few minutes to catch up — wait a little, then try again.') : null,
+      h('div', { class: 'btn-row' },
+        h('button', { type: 'button', class: 'btn btn-primary', onclick: retry }, 'Try again'),
+        h('button', { type: 'button', class: 'btn btn-quiet', onclick: leave }, S.take ? `Back to ${S.take.cfg.title || 'your last quiz'}` : 'Type a quiz code instead')))));
   }
   function takeLoad(main) {
     const ta = h('textarea', { id: 'take-code', rows: 3, placeholder: 'e.g. J4AH2-2GRWV-9SQQ8-…', spellcheck: 'false', autocomplete: 'off' });
@@ -11210,7 +11869,7 @@ svg.staff .nlabel { display: none; }
     if (cfg.counts.keys && MQ.keysCombos(cfg.keys).length) types.push(`Keys & notes (${cfg.counts.keys})`);
     if (cfg.counts.degree) types.push(`Scale degrees (${cfg.counts.degree} melod${cfg.counts.degree === 1 ? 'y' : 'ies'})`);
     if (listCount(cfg, 'progression')) types.push(`Chord progressions (${listCount(cfg, 'progression')})`);
-    if (listCount(cfg, 'rhythm')) types.push(`Rhythmic dictation (${listCount(cfg, 'rhythm')} example${listCount(cfg, 'rhythm') > 1 ? 's' : ''})`);
+    if (listCount(cfg, 'rhythm')) types.push(`${gridQuiz(cfg) ? 'Rhythm grid' : 'Rhythmic dictation'} (${listCount(cfg, 'rhythm')} example${listCount(cfg, 'rhythm') > 1 ? 's' : ''})`);
     if (listCount(cfg, 'melody')) types.push(`Melodic dictation (${listCount(cfg, 'melody')} melod${listCount(cfg, 'melody') > 1 ? 'ies' : 'y'})`);
     if (listCount(cfg, 'analysis')) {
       const asks = MQ.analysisQuestions(cfg).map((q) => q.an.ask);
@@ -11229,7 +11888,7 @@ svg.staff .nlabel { display: none; }
         onlyMelody(cfg)
           ? h('div', null, h('dt', null, 'Uses'), h('dd', null, 'Listening, the staff'))
           : onlyRhythm(cfg)
-          ? h('div', null, h('dt', null, 'Uses'), h('dd', null, 'Listening, one-line staff'))
+          ? h('div', null, h('dt', null, 'Uses'), h('dd', null, !gridQuiz(cfg) ? 'Listening, one-line staff' : ['Reading rhythm, a grid', 'Listening, a grid', 'Reading & listening, a grid'][MQ.rhythmSettings(cfg.rhythm).grid.show]))
           : onlyAnalysis(cfg)
           ? h('div', null, h('dt', null, 'Uses'), h('dd', null, 'A picture of the score'))
           : onlyKeys(cfg)
@@ -11282,7 +11941,7 @@ svg.staff .nlabel { display: none; }
     if (S.take.qs[0] && S.take.qs[0].type === 'analysis') return takeAnalysis(main);
     const t = S.take, i = t.idx, q = t.qs[i];
     const locked = t.checked[i];
-    const heard = q.type === 'rhythm' || q.type === 'melody';
+    const heard = q.type === 'rhythm' || q.type === 'melody' || (q.type === 'rgrid' && q.rh.grid.show > 0);
     if (heard && !t.plays) t.plays = t.qs.map(() => ({ ex: 0, ans: 0 }));
     const card = questionCard(q, t.cfg, {
       response: t.resp[i], locked, reveal: locked,
@@ -11339,13 +11998,14 @@ svg.staff .nlabel { display: none; }
     if (!t || t.done) return;
     stopTicker();
     // Rhythm quizzes are scored note by note, so they always give partial credit.
-    const rhythm = t.qs.some((q) => q.type === 'rhythm' || q.type === 'melody');
+    const rhythm = t.qs.some((q) => q.type === 'rhythm' || q.type === 'melody' || q.type === 'rgrid');
     const partial = t.cfg.flags.partial || rhythm;
     const items = t.qs.map((q, i) => {
       const frac = MQ.gradeQuestion(q, t.resp[i], t.cfg);
       const credit = frac === 1 ? 7 : partial ? Math.min(6, Math.round(frac * 7)) : 0;
       const it = { type: q.type, clef: q.clef, credit, answered: MQ.hasAnswer(q, t.resp[i]), sec: t.secs[i] };
       if (q.type === 'rhythm') { const c = MQ.compareRhythm(q, t.resp[i]); it.notes = c.notes; it.wrong = c.wrong; }
+      if (q.type === 'rgrid') { const c = MQ.compareGrid(q, t.resp[i]); it.notes = c.notes; it.wrong = c.wrong; }
       if (q.type === 'melody') { const c = MQ.compareMelody(q, t.resp[i]); Object.assign(it, { notes: c.notes, wrong: c.wrong, pw: c.pw, rw: c.rw }); }
       return it;
     });
@@ -11481,7 +12141,7 @@ svg.staff .nlabel { display: none; }
       tbody.append(h('tr', null,
         h('td', { class: 'num' }, String(i + 1)),
         h('td', null, q ? q.text : typeOf(it.type).label),
-        h('td', null, it.type === 'analysis' ? 'Score' : it.type === 'rhythm' ? 'Rhythm' : MQ.CLEFS[it.clef].label),
+        h('td', null, it.type === 'analysis' ? 'Score' : it.type === 'rhythm' ? 'Rhythm' : it.type === 'rgrid' ? 'Grid' : MQ.CLEFS[it.clef].label),
         key ? h('td', { class: 'ans' + (q && (q.mel || q.rh) ? ' is-long' : '') }, q ? MQ.describeAnswer(q, quiz.cfg) : '') : null,
         h('td', null, resultCell(it)),
         h('td', { class: 'num' }, it.sec >= 63 ? '63+ s' : it.sec + ' s')));
@@ -11723,15 +12383,15 @@ svg.staff .nlabel { display: none; }
           it.wrong = Math.min(it.notes, Math.max(it.pw, it.rw));
           it.credit = it.wrong ? Math.min(6, Math.round(((it.notes - it.wrong) / Math.max(1, it.notes)) * 7)) : 7;
         }
-        if (q.type === 'rhythm') {
-          it.notes = MQ.compareRhythm(q, null).notes;
+        if (q.type === 'rhythm' || q.type === 'rgrid') {
+          it.notes = q.type === 'rgrid' ? MQ.compareGrid(q, null).notes : MQ.compareRhythm(q, null).notes;
           it.wrong = !it.answered ? it.notes : Math.min(it.notes, Math.round(it.notes * (1 - skill) * rng() * 1.6));
           it.credit = it.wrong ? Math.min(6, Math.round(((it.notes - it.wrong) / Math.max(1, it.notes)) * 7)) : 7;
         }
         return it;
       });
       const rh = dictation(cfg);
-      const scoring = qs.some((q) => q.type === 'rhythm' || q.type === 'melody') ? { mode: rh.score, outOf: rh.outOf, split: rh.split ? 1 : 0 } : null;
+      const scoring = qs.some((q) => q.type === 'rhythm' || q.type === 'melody' || q.type === 'rgrid') ? { mode: rh.score, outOf: rh.outOf, split: rh.split ? 1 : 0 } : null;
       return MQ.encodeReport({ name, submittedAt: Date.now() - (k + 1) * 3600e3, totalSec: items.reduce((s, it) => s + it.sec, 0), partial: cfg.flags.partial || !!scoring, items, scoring }, cfg, code);
     });
   }
@@ -12434,7 +13094,8 @@ svg.staff .nlabel { display: none; }
   let rhUid = 0;
 
   // The staff students and teachers write on, with the note buttons and what each measure still needs.
-  // model: {meter, measures, parts, layers}. opts: readOnly, marks, onChange(layers).
+  // model: {meter, measures, parts, layers}. opts: readOnly, marks, onChange(layers), first (the number
+  // of the measure before the first, for a rhythm grid's excerpt), noTriplets (a rhythm grid has none).
   function rhythmEditor(model, opts) {
     const o = opts || {};
     const uid = ++rhUid;
@@ -12445,7 +13106,7 @@ svg.staff .nlabel { display: none; }
     let partBtns = [];
     const syncParts = () => partBtns.forEach((b, l) => b.setAttribute('aria-checked', String(staff.active === l)));
     const staff = new MQ.RhythmStaff(box, {
-      meter: model.meter, measures: model.measures, parts, layers: model.layers, readOnly: !!o.readOnly, marks: o.marks || null,
+      meter: model.meter, measures: model.measures, parts, layers: model.layers, readOnly: !!o.readOnly, marks: o.marks || null, first: o.first || 0,
       onChange: (layers) => { drawStatus(); if (o.onChange) o.onChange(layers); },
       onMove: () => syncParts(),
     });
@@ -12479,6 +13140,7 @@ svg.staff .nlabel { display: none; }
     const dotBtn = modeBtn('dot', 'Dot', 'dot', 'Dotted notes: turn on, then choose a value (.)');
     const tripBtn = modeBtn('trip', 'Triplet', 'triplet', 'Triplets: turn on, then choose a value (T)');
     const restBtn = modeBtn('rest', 'Rest', 'rest', 'Rests instead of notes (R)');
+    if (o.noTriplets) { entry.trip = false; tripBtn.hidden = true; }
     function paint() {
       dotBtn.setAttribute('aria-pressed', String(!!entry.dot));
       tripBtn.setAttribute('aria-pressed', String(!!entry.trip));
@@ -12516,7 +13178,7 @@ svg.staff .nlabel { display: none; }
       let done = true;
       if (k in KEYS_V) add(KEYS_V[k]);
       else if (k === '.' || k === 'd' || e.code === 'Period' || e.code === 'NumpadDecimal') flip('dot');
-      else if (k === 't' || k === '3') flip('trip');
+      else if ((k === 't' || k === '3') && !o.noTriplets) flip('trip');
       else if (k === 'r' || k === '0') flip('rest');
       else if (k === 'ArrowLeft') staff.move(-1);
       else if (k === 'ArrowRight') staff.move(1);
@@ -12700,6 +13362,7 @@ svg.staff .nlabel { display: none; }
   // What students should know before a rhythm quiz: sound on, and how often they can listen.
   function rhythmIntro(cfg, qs) {
     const b = dictation(cfg);
+    if (!listCount(cfg, 'melody') && b.task === 'grid') return gridIntro(b, qs);
     const times = (n) => (n === 1 ? 'once' : n === 2 ? 'twice' : `${n} times`);
     const ex = b.playsEx ? `You can play each example ${times(b.playsEx)}` : 'You can play each example as often as you like';
     const ans = b.playsAns ? `, and hear your own answer ${times(b.playsAns)}` : ', and hear your own answer as often as you like';
@@ -12707,6 +13370,17 @@ svg.staff .nlabel { display: none; }
     const score = b.score === 'percent' ? ` The quiz is out of ${b.outOf} points — the share of its ${notes} notes you get right.`
       : ` Every note is worth a point — ${notes} in all — and each wrong or extra note costs one.`;
     return `Turn your sound on — headphones help. ${ex}${ans}.${score}`;
+  }
+
+  // What students should know before a rhythm-grid quiz.
+  function gridIntro(b, qs) {
+    const G = b.grid, notes = rhythmNotes(qs), what = G.rests ? 'note and rest' : 'note';
+    const times = (n) => (n === 1 ? 'once' : n === 2 ? 'twice' : `${n} times`);
+    const how = `For every ${what}, click the box where it starts and choose its value, then drag its arrow across the boxes it lasts.`;
+    const listen = G.show === 0 ? '' : `Turn your sound on. ${b.playsEx ? `You can play each example ${times(b.playsEx)}` : 'You can play each example as often as you like'}${b.playsAns ? `, and hear your grid ${times(b.playsAns)}` : ', and hear your grid as often as you like'}. `;
+    const score = b.score === 'percent' ? ` The quiz is out of ${b.outOf} points — the share of its ${notes} ${G.rests ? 'notes and rests' : 'notes'} you get right.`
+      : ` Every ${what} is worth a point — ${notes} in all — and each wrong or extra one costs one.`;
+    return `${listen}${how}${score}`;
   }
 
   // ---------- Clefwork Rhythm: the builder ----------
@@ -12735,7 +13409,8 @@ svg.staff .nlabel { display: none; }
   }
   function rhythmSections(cfg, changed, R) {
     const rh = cfg.rhythm = MQ.rhythmSettings(cfg.rhythm);
-    if (!rh.examples.length) rh.examples.push(MQ.rhythmExample());
+    const grid = rh.task === 'grid';
+    if (!rh.examples.length) rh.examples.push(MQ.rhythmExample(null, grid));
     cfg.counts.rhythm = rh.auto.on ? rh.auto.count : rh.examples.length;
     S.rhEx = Math.max(0, Math.min(rh.examples.length - 1, S.rhEx || 0));
     R.total = h('span', { class: 'mix-total' });
@@ -12745,27 +13420,60 @@ svg.staff .nlabel { display: none; }
       changed();
       go('build');
     });
-    const later = [scoringSection(rh, changed, R), listeningSection(rh, changed)];
+    // ---------- dictation or a grid ----------
+    const TASKS = [
+      { v: 'dictation', name: 'Rhythmic dictation', blurb: 'Students hear each rhythm and write it on a one-line staff.' },
+      { v: 'grid', name: 'Rhythm grid', blurb: 'Students show on a grid of beats and boxes where each note starts and how long it lasts — reading the rhythm, hearing it, or both.' },
+    ];
+    const taskPick = h('div', { class: 'rh-levels rh-tasks', role: 'radiogroup', 'aria-label': 'Quiz type' }, TASKS.map((t) => h('button', {
+      type: 'button', role: 'radio', class: 'rh-level', 'aria-checked': String(rh.task === t.v),
+      onclick: () => {
+        if (rh.task === t.v) return;
+        rh.task = t.v;
+        MQ.rhythmSettings(rh);
+        // The default title follows the quiz type.
+        if (cfg.title === 'Rhythmic Dictation' && t.v === 'grid') cfg.title = 'Rhythm Grid';
+        else if (cfg.title === 'Rhythm Grid' && t.v === 'dictation') cfg.title = 'Rhythmic Dictation';
+        cfg.counts.rhythm = rh.auto.on ? rh.auto.count : rh.examples.length;
+        changed();
+        go('build');
+      },
+    }, h('strong', null, t.name), h('span', null, t.blurb))));
+    const first = [sec('rh-task', 'Quiz type', 'What students do with each rhythm.', taskPick)];
+    if (grid) {
+      const G = rh.grid;
+      const again = () => { changed(); go('build'); };
+      first.push(sec('rg-grid', 'The grid', 'One row for each measure, with the beats across the top and each beat split into boxes. Students write each note’s value in the box where it starts and drag its arrow across the boxes it lasts.',
+        grp('Each box is', seg('rg-box', [{ v: 3, label: 'A sixteenth note' }, { v: 6, label: 'An eighth note' }, { v: 12, label: 'A quarter note' }], G.box, (v) => { G.box = v; again(); }),
+          'A half note covers 8 sixteenth-note boxes, 4 eighth-note boxes or 2 quarter-note boxes. Nothing in the rhythm can be shorter than a box.'),
+        grp('The rhythm is', seg('rg-show', [{ v: 0, label: 'Shown' }, { v: 1, label: 'Played' }, { v: 2, label: 'Shown and played' }], G.show, (v) => { G.show = v; again(); }),
+          'Shown: printed above the grid, as on a worksheet. Played: students listen, as in dictation. Shown and played: both.'),
+        grp('Rests', seg('rg-rests', [{ v: 0, label: 'Leave them blank' }, { v: 1, label: 'Mark them too' }], G.rests, (v) => { G.rests = v; again(); }),
+          'Marked rests are graded like notes. Otherwise rests stay blank, and any a student marks are ignored.')));
+    }
+    const later = [scoringSection(rh, changed, R, null, grid
+      ? 'Graded note by note. A note is right when it starts in the right box, has the right value, and its arrow covers the right number of boxes. A note missed or wrong is a wrong note, and so is every extra one. Rests count too when students mark them.' : null)];
+    if (!grid || rh.grid.show > 0) later.push(listeningSection(rh, changed));
     if (rh.auto.on) {
-      return [sec('rh-examples', 'Examples', 'Clefwork writes the rhythms from the level you choose. Everyone with the quiz code gets the same ones.',
-        mode, autoPanel(cfg, changed), h('div', { class: 'mix-foot' }, R.total))].concat(later);
+      return first.concat([sec('rh-examples', 'Examples', 'Clefwork writes the rhythms from the level you choose. Everyone with the quiz code gets the same ones.',
+        mode, autoPanel(cfg, changed), h('div', { class: 'mix-foot' }, R.total))], later);
     }
     const tabs = h('div', { class: 'rh-tabs', role: 'tablist', 'aria-label': 'Examples' });
     const body = h('div', { class: 'rh-ex' });
     const edited = () => { cfg.counts.rhythm = rh.examples.length; changed(); drawTabs(); };
     function drawTabs() {
       tabs.replaceChildren(...rh.examples.map((ex, i) => {
-        const ok = !MQ.exampleProblems(ex).length;
+        const ok = !MQ.exampleProblems(ex, grid ? rh.grid : null).length;
         return h('button', {
           type: 'button', role: 'tab', class: 'rh-tab', 'aria-selected': String(i === S.rhEx),
           title: ok ? 'Ready' : 'Not finished yet', onclick: () => { S.rhEx = i; drawTabs(); drawExample(); },
         }, h('span', null, `Example ${i + 1}`), h('span', { class: 'rh-tab-state ' + (ok ? 'is-ok' : 'is-open'), 'aria-label': ok ? 'ready' : 'not finished' }, ok ? '✓' : '•'));
       }), rh.examples.length < MQ.RHYTHM_MAX ? h('button', {
         type: 'button', class: 'rh-tab rh-add', onclick: () => {
-          rh.examples.push(MQ.rhythmExample(rh.examples[S.rhEx]));
+          rh.examples.push(MQ.rhythmExample(rh.examples[S.rhEx], grid));
           S.rhEx = rh.examples.length - 1;
           edited(); drawExample();
-          toast(`Example ${S.rhEx + 1} added — same time signature and tempo`);
+          toast(grid ? `Example ${S.rhEx + 1} added — same time signature, carrying on the measure numbers` : `Example ${S.rhEx + 1} added — same time signature and tempo`);
         },
       }, '+ Add example') : null);
     }
@@ -12775,6 +13483,10 @@ svg.staff .nlabel { display: none; }
       const redo = () => { edited(); drawExample(); };
       // ---------- settings ----------
       const measures = seg('rh-measures', [1, 2, 3, 4].map((v) => ({ v, label: String(v) })), ex.measures, (v) => { ex.measures = v; redo(); });
+      // A rhythm grid can number its measures from anywhere — an excerpt from m. 46.
+      const firstIn = h('input', { type: 'number', id: 'rg-first', min: 1, max: 999, inputmode: 'numeric' });
+      firstIn.value = ex.first;
+      firstIn.addEventListener('change', () => { ex.first = Math.max(1, Math.min(999, Math.round(+firstIn.value || 1))); firstIn.value = ex.first; redo(); });
       const meter = meterPicker(ex.meter, (m) => {
         // Keep the same speed of eighth notes when the beat changes (♩ = 90 in 4/4 is ♩. = 60 in 6/8).
         const before = MQ.RHYTHM_TEMPO_UNITS[info.tempo];
@@ -12799,9 +13511,20 @@ svg.staff .nlabel { display: none; }
       tempoIn.addEventListener('change', () => setTempo(tempoIn.value, null));
       tempoRange.addEventListener('input', () => setTempo(tempoRange.value, tempoRange));
       const tempo = h('div', { class: 'rh-tempo' }, h('span', { class: 'rh-tempo-sign', 'aria-hidden': 'true' }, TEMPO_SIGNS[info.tempo] + ' ='), tempoIn, tempoRange);
-      const twoParts = toggle('rh-parts', 'Two parts', 'Adds a part with stems down, played by the oboe. It can have its own rhythm.', ex.parts > 1, (v) => { ex.parts = v ? 2 : 1; redo(); });
+      const twoParts = grid ? null : toggle('rh-parts', 'Two parts', 'Adds a part with stems down, played by the oboe. It can have its own rhythm.', ex.parts > 1, (v) => { ex.parts = v ? 2 : 1; redo(); });
       // ---------- the rhythm ----------
-      const ed = rhythmEditor(ex, { onChange: (L) => { L.forEach((layer, l) => (ex.layers[l] = layer)); edited(); } });
+      // A rhythm grid: the answer on its grid, redrawn as the rhythm is written.
+      const gridView = grid ? h('div', { class: 'rgrid-box' }) : null;
+      const drawGrid = () => {
+        if (!gridView) return;
+        const probs = MQ.gridProblems(ex, rh.grid);
+        if (probs.length) { gridView.replaceChildren(h('p', { class: 'warn-note' }, probs[0])); return; }
+        const q = MQ.gridQuestion(ex, MQ.rhythmMeter(ex.meter), S.rhEx, rh.grid);
+        gridView.replaceChildren();
+        new MQ.RhythmGrid(gridView, { meter: ex.meter, measures: ex.measures, first: ex.first, box: rh.grid.box, readOnly: true, answer: MQ.gridAnswerEntries(q), dimRests: !rh.grid.rests });
+      };
+      const ed = rhythmEditor(ex, { noTriplets: grid, first: grid ? ex.first - 1 : 0, onChange: (L) => { L.forEach((layer, l) => (ex.layers[l] = layer)); edited(); drawGrid(); } });
+      drawGrid();
       // ---------- duplicate, delete, clear ----------
       const delBtn = h('button', { type: 'button', class: 'btn btn-quiet sm an-del', disabled: rh.examples.length < 2 || null, onclick: () => {
         if (delBtn.dataset.sure !== '1') {
@@ -12825,19 +13548,23 @@ svg.staff .nlabel { display: none; }
         h('div', { class: 'rh-ex-head' }, h('h3', null, `Example ${S.rhEx + 1}`), h('div', { class: 'rh-ex-actions' }, dupBtn, delBtn)),
         grp('Time signature', meter),
         grouping,
-        h('div', { class: 'row2' },
+        grid ? h('div', { class: 'row2' },
           grp('Measures', measures, 'One to four.'),
-          grp('Tempo', tempo, `Beats per minute, counting ${MQ.RHYTHM_TEMPO_NAMES[info.tempo]}s.`)),
+          grp('First measure number', firstIn, 'Where the excerpt starts — m. 46 labels the rows 46, 47 …')) : null,
+        h('div', { class: 'row2' },
+          grid ? null : grp('Measures', measures, 'One to four.'),
+          grp('Tempo', tempo, `Beats per minute, counting ${MQ.RHYTHM_TEMPO_NAMES[info.tempo]}s.${grid && !rh.grid.show ? ' Used when you play it here.' : ''}`)),
         twoParts,
         h('div', { class: 'rh-block' }, h('span', { class: 'mini-label' }, ex.parts > 1 ? 'The rhythm — stems up for the piano, stems down for the oboe' : 'The rhythm'), ed.el),
+        gridView ? h('div', { class: 'rh-block' }, h('span', { class: 'mini-label' }, 'The answer on the grid'), gridView) : null,
         listenPanel({ ex, sources: [{ label: 'Play the rhythm', primary: true, layers: () => ex.layers }], staffs: () => [ed.staff] })].filter(Boolean));
     }
     drawTabs();
     drawExample();
-    return [
-      sec('rh-examples', 'Examples', 'Write each rhythm students will hear. Every measure has to be full before the quiz can be shared — rests count.',
+    return first.concat([
+      sec('rh-examples', 'Examples', grid ? 'Write each rhythm for the grid. Every measure has to be full before the quiz can be shared — rests count.' : 'Write each rhythm students will hear. Every measure has to be full before the quiz can be shared — rests count.',
         mode, tabs, body, h('div', { class: 'mix-foot' }, R.total)),
-    ].concat(later);
+    ], later);
   }
   // How often students may listen — shared by Clefwork Rhythm and Melody (block: cfg.rhythm or cfg.melody).
   function listeningSection(block, changed) {
@@ -12849,7 +13576,7 @@ svg.staff .nlabel { display: none; }
   }
   // How the quiz is scored: a point for every note, or a percent of a total the teacher sets.
   // `extra`: more controls to add (Clefwork Melody's).
-  function scoringSection(block, changed, R, extra) {
+  function scoringSection(block, changed, R, extra, desc) {
     const rh = block;
     const outIn = h('input', { type: 'number', id: 'rh-outof', min: 1, max: 1000, inputmode: 'numeric' });
     outIn.value = rh.outOf;
@@ -12857,7 +13584,7 @@ svg.staff .nlabel { display: none; }
     const outWrap = fld('Total points', outIn, 'The share of notes a student gets right, scaled to this total.');
     outWrap.hidden = rh.score !== 'percent';
     R.scoreInfo = h('p', { class: 'fine rh-score-info' });
-    return sec('rh-score', 'Scoring', 'Graded note by note. A note the student misses or writes the wrong length is a wrong note, and so is every extra note they write. Rests only fill time, so two eighth rests match a quarter rest.',
+    return sec('rh-score', 'Scoring', desc || 'Graded note by note. A note the student misses or writes the wrong length is a wrong note, and so is every extra note they write. Rests only fill time, so two eighth rests match a quarter rest.',
       grp('Score the quiz', seg('rh-score', [{ v: 'notes', label: 'A point for every note' }, { v: 'percent', label: 'A percent of a total I choose' }], rh.score, (v) => {
         rh.score = v;
         outWrap.hidden = v !== 'percent';
@@ -12866,7 +13593,7 @@ svg.staff .nlabel { display: none; }
       outWrap, ...(extra || []), R.scoreInfo);
   }
   // Notes in the quiz's examples — what a note-scored quiz is out of.
-  const rhythmNotes = (qs) => qs.reduce((n, q) => n + (q.type === 'rhythm' ? MQ.compareRhythm(q, null).notes : q.type === 'melody' ? MQ.compareMelody(q, null).notes : 0), 0);
+  const rhythmNotes = (qs) => qs.reduce((n, q) => n + (q.type === 'rhythm' ? MQ.compareRhythm(q, null).notes : q.type === 'melody' ? MQ.compareMelody(q, null).notes : q.type === 'rgrid' ? MQ.compareGrid(q, null).notes : 0), 0);
   // The listening and scoring settings of a rhythm or melody quiz.
   const dictation = (cfg) => (listCount(cfg, 'melody') ? MQ.melodySettings(cfg.melody) : MQ.rhythmSettings(cfg.rhythm));
   function rhythmScoreText(cfg, qs) {
@@ -12880,6 +13607,7 @@ svg.staff .nlabel { display: none; }
   // ---------- Clefwork Rhythm: examples made automatically ----------
   function autoPanel(cfg, changed) {
     const a = cfg.rhythm.auto, c = a.custom;
+    const grid = cfg.rhythm.task === 'grid';
     const preview = h('div', { class: 'rh-auto-list' });
     // Any change moves the quiz onto the newest generator (an untouched draft keeps its examples).
     const redo = () => { a.gen = MQ.RHYTHM_GEN; cfg.counts.rhythm = a.count; changed(); drawPreview(); };
@@ -12928,7 +13656,7 @@ svg.staff .nlabel { display: none; }
       h('div', { class: 'row2' },
         grp('How many examples', count, 'Up to 20.'),
         grp('Measures in each', seg('rh-auto-measures', [1, 2, 3, 4].map((v) => ({ v, label: String(v) })), a.measures, (v) => { a.measures = v; redo(); }))),
-      grp('Level', levels),
+      grp('Level', levels, grid ? `For a grid, triplets are left out, no note is shorter than a box (${MQ.gridBoxName(cfg.rhythm.grid.box)} note), and only time signatures whose beats split into whole boxes are used.` : null),
       custom,
       grp('Tempo', tempoIn, 'In other meters the eighth notes keep this speed: ♩ = 80 is ♩. = 53 in 6/8.'),
       h('div', { class: 'rh-auto-top' }, h('span', { class: 'mini-label' }, 'The examples'), fresh),
@@ -12992,6 +13720,180 @@ svg.staff .nlabel { display: none; }
       const blank = { meter: R.meter, measures: Math.min(per, R.measures - a), parts: R.parts, layers: [[[], [], [], []], [[], [], [], []]] };
       rows.push(MQ.rhythmArt(blank, { first: a, showTime: a === 0, measureW: 300, heightIn: (opts && opts.height) || 1.25 }));
     }
+    return rows;
+  }
+
+  // ---------- Clefwork Rhythm: the rhythm grid ----------
+  const barsText = (first, n) => (n > 1 ? `m. ${first}–${first + n - 1}` : `m. ${first}`);
+  // The grid students fill in, with the note buttons. model: {meter, measures, first, box, entries}.
+  // opts: readOnly, marks, answer, dimRests, onChange(entries).
+  function gridEditor(model, opts) {
+    const o = opts || {};
+    const box = h('div', { class: 'rgrid-box' });
+    const status = h('p', { class: 'g-status', 'aria-live': 'polite' });
+    let grid = null;
+    const drawStatus = () => {
+      if (!grid || o.readOnly) return;
+      status.textContent = grid.where() + (grid.sel
+        ? ' Drag its arrow — or press Shift and → or ← — to show how long it lasts, or choose another value to change it.'
+        : ' Choose the value of the note that starts here.')
+        + (grid.svg.classList.contains('is-wide') && grid.sel ? ' (On a small screen, use Longer and Shorter.)' : '');
+    };
+    grid = new MQ.RhythmGrid(box, {
+      meter: model.meter, measures: model.measures, first: model.first, box: model.box, entries: model.entries,
+      readOnly: !!o.readOnly, marks: o.marks || null, answer: o.answer || null, dimRests: !!o.dimRests,
+      onChange: (E) => { if (o.onChange) o.onChange(E); }, onMove: drawStatus,
+    });
+    if (o.readOnly) return { el: h('div', { class: 'rh-editor' }, box), grid };
+    const entry = S.rhEntry;
+    const place = (k) => {
+      if (entry.dot && k === 4) { toast('Turn off Dot to write a sixteenth — a dotted sixteenth would need a thirty-second note to finish the beat.'); return; }
+      grid.place({ v: k, d: entry.dot ? 1 : 0, r: entry.rest ? 1 : 0 });
+      grid.focus();
+    };
+    const valueBtns = MQ.RHYTHM_VALUES.map((v, k) => h('button', {
+      type: 'button', class: 'rh-tool', title: `${v.name[0].toUpperCase() + v.name.slice(1)} (${v.id.toUpperCase()})`,
+      // Nothing shorter than a box fits the grid.
+      disabled: v.units < model.box || null, onclick: () => place(k),
+    }, svgEl(MQ.rhythmIcon(v.name)), h('span', null, v.name === 'sixteenth' ? '16th' : v.name[0].toUpperCase() + v.name.slice(1))));
+    const modeBtn = (key, label, iconKind, title) => h('button', { type: 'button', class: 'rh-tool rh-mode', 'aria-pressed': String(!!entry[key]), title, onclick: () => flip(key) }, svgEl(MQ.rhythmIcon(iconKind)), h('span', null, label));
+    const dotBtn = modeBtn('dot', 'Dot', 'dot', 'Dotted notes: turn on, then choose a value (.)');
+    const restBtn = modeBtn('rest', 'Rest', 'rest', 'Rests instead of notes (R)');
+    function paint() {
+      dotBtn.setAttribute('aria-pressed', String(!!entry.dot));
+      restBtn.setAttribute('aria-pressed', String(!!entry.rest));
+      valueBtns[4].disabled = !!entry.dot || model.box > 3 || null;
+    }
+    function flip(key) { entry[key] = !entry[key]; paint(); }
+    const del = () => { if (!grid.remove()) toast('Click a note first, then delete it.'); grid.focus(); };
+    const arrow = (d) => `<svg class="rh-icon" viewBox="0 0 24 26" aria-hidden="true"><path d="${d}" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+    const sizeBtn = (label, title, d, delta) => h('button', { type: 'button', class: 'rh-tool', title, onclick: () => { if (!grid.resize(delta)) toast(delta > 0 ? 'It can’t reach any further — the next note or the bar line is in the way.' : 'A note covers at least one box.'); grid.focus(); } }, svgEl(arrow(d)), h('span', null, label));
+    const palette = h('div', { class: 'rh-palette', role: 'toolbar', 'aria-label': 'Note values' },
+      ...valueBtns, h('span', { class: 'rh-sep', 'aria-hidden': 'true' }), dotBtn, restBtn,
+      h('span', { class: 'rh-sep', 'aria-hidden': 'true' }),
+      sizeBtn('Shorter', 'Covers one box fewer (Shift + ←)', 'M15 7l-6 6 6 6', -1),
+      sizeBtn('Longer', 'Covers one box more (Shift + →)', 'M9 7l6 6-6 6', 1),
+      h('span', { class: 'rh-sep', 'aria-hidden': 'true' }),
+      h('button', { type: 'button', class: 'rh-tool', title: 'Delete the selected note (Backspace)', onclick: del },
+        svgEl('<svg class="rh-icon" viewBox="0 0 24 26" aria-hidden="true"><path d="M9 6h11v14H9l-6-7z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M12 10l5 6M17 10l-5 6" stroke="currentColor" stroke-width="1.6"/></svg>'), h('span', null, 'Delete')),
+      h('button', { type: 'button', class: 'rh-tool', title: 'Empty the measure you’re in', onclick: () => { if (!grid.clearRow()) toast('That measure is already empty.'); grid.focus(); } },
+        svgEl('<svg class="rh-icon" viewBox="0 0 24 26" aria-hidden="true"><path d="M5 8h14M9 8V5h6v3M7 8l1 13h8l1-13" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>'), h('span', null, 'Clear row')));
+    paint();
+    const KEYS_V = { w: 0, 1: 0, h: 1, 2: 1, q: 2, 4: 2, e: 3, 8: 3, s: 4, 6: 4 };
+    grid.svg.addEventListener('keydown', (e) => {
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
+      const k = e.key.length === 1 ? e.key.toLowerCase() : e.key;
+      let done = true;
+      if (k in KEYS_V) { if (!valueBtns[KEYS_V[k]].disabled || (KEYS_V[k] === 4 && entry.dot)) place(KEYS_V[k]); else toast(`Each box is ${MQ.gridBoxName(model.box) === 'eighth' ? 'an' : 'a'} ${MQ.gridBoxName(model.box)} note — nothing shorter fits.`); }
+      else if (k === '.' || k === 'd' || e.code === 'Period' || e.code === 'NumpadDecimal') flip('dot');
+      else if (k === 'r' || k === '0') flip('rest');
+      else if (k === 'ArrowRight' && e.shiftKey) grid.resize(1);
+      else if (k === 'ArrowLeft' && e.shiftKey) grid.resize(-1);
+      else if (k === 'ArrowRight') grid.move(1);
+      else if (k === 'ArrowLeft') grid.move(-1);
+      else if (k === 'ArrowDown') grid.moveRow(1);
+      else if (k === 'ArrowUp') grid.moveRow(-1);
+      else if (k === 'Backspace' || k === 'Delete') del();
+      else if (k === 'Escape') grid.deselect();
+      else done = false;
+      if (done) e.preventDefault();
+    });
+    drawStatus();
+    return {
+      el: h('div', { class: 'rh-editor rg-editor' }, box, palette, status,
+        h('p', { class: 'rh-keys' }, 'Click the box where a note starts (or drag across the boxes it lasts), then choose its value. Drag a note’s arrow to show how long it lasts. Keys: W H Q E S write notes, period (or D) for Dot, R for Rest, arrows move, Shift + → ← make a note longer or shorter, Backspace deletes.')),
+      grid,
+    };
+  }
+  // A rhythm written out, its measures numbered from its first.
+  function notationRow(R) {
+    const box = h('div', { class: 'rstaff-box rg-notation' });
+    const staff = new MQ.RhythmStaff(box, { meter: R.meter, measures: R.measures, parts: 1, layers: R.layers, readOnly: true, first: (R.first || 1) - 1 });
+    return { el: box, staff };
+  }
+  function gridFacts(R, info) {
+    const G = R.grid;
+    return h('dl', { class: 'facts rh-facts' },
+      h('div', null, h('dt', null, 'Time'), h('dd', null, info.label + (info.grouping ? ` (${info.grouping})` : ''))),
+      h('div', null, h('dt', null, 'Measures'), h('dd', null, barsText(R.first || 1, R.measures))),
+      h('div', null, h('dt', null, 'Each box'), h('dd', null, `${MQ.gridBoxName(G.box)[0].toUpperCase() + MQ.gridBoxName(G.box).slice(1)} note`)),
+      G.show > 0 ? h('div', null, h('dt', null, 'Tempo'), h('dd', null, tempoLabel(info, R.tempo))) : null,
+      h('div', null, h('dt', null, 'Rests'), h('dd', null, G.rests ? 'Mark them too' : 'Leave blank')));
+  }
+  // One rhythm-grid question: read (or hear) the rhythm, then fill in the grid.
+  function gridCard(q, cfg, o) {
+    const R = q.rh, G = R.grid, info = MQ.rhythmMeter(R.meter);
+    const reveal = !!o.reveal && !o.keyMode;
+    const grader = !!o.locked && !o.plays;
+    const heard = G.show > 0, seen = G.show !== 1;
+    const wrap = h('div', { class: 'qcard rh-card rg-card' + (o.compact ? ' is-compact' : '') });
+    wrap.append(h('div', { class: 'q-eyebrow' }, typeOf(q.type).label, h('span', { class: 'q-clef' }, `${info.label} · ${barsText(R.first || 1, R.measures)}`)));
+    wrap.append(h(o.compact ? 'h3' : 'h2', { class: 'q-text' }, q.text));
+    if (!o.locked && !o.keyMode) {
+      wrap.append(h('p', { class: 'q-hint' }, `${seen ? (heard ? 'Read the rhythm — you can play it too.' : 'Read the rhythm.') : 'Listen as often as you’re allowed.'} For each note, click the box where it starts and choose its value, then drag its arrow across the boxes it lasts.${G.rests ? ' Mark the rests the same way.' : ' Leave the rests blank.'}`));
+    }
+    wrap.append(gridFacts(R, info));
+    const resp = o.response || null;
+    const cmp = reveal ? MQ.compareGrid(q, resp) : null;
+    let ed = null, answerGrid = null;
+    const music = seen || o.keyMode || reveal ? notationRow(R) : null;
+    if (music && (seen || reveal)) wrap.append(h('div', { class: 'rh-block' }, h('span', { class: 'mini-label' }, seen ? 'The rhythm' : 'The rhythm that was played'), music.el));
+    if (heard) {
+      const limit = MQ.rhythmSettings(cfg.rhythm);
+      const left = (k) => {
+        const lim = o.plays && !o.locked ? (k === 'ex' ? limit.playsEx : limit.playsAns) || 0 : 0;
+        return lim ? Math.max(0, lim - (o.plays[k] || 0)) : Infinity;
+      };
+      const use = (k) => () => { if (o.plays && !o.locked) { o.plays[k] = (o.plays[k] || 0) + 1; if (o.onPlays) o.onPlays(); } };
+      const sources = [{ label: 'Play the example', primary: true, layers: () => R.layers, left: () => left('ex'), use: use('ex') }];
+      if (!o.keyMode) sources.push({ label: grader ? 'Play their answer' : 'Hear my answer', layers: () => MQ.gridLayers(ed ? ed.grid.entries() : resp, R.measures, G.box), needsNotes: true, left: () => left('ans'), use: use('ans') });
+      wrap.append(listenPanel({ ex: R, sources, staffs: () => [music && seen ? music.staff : null, ed && ed.grid, answerGrid].filter(Boolean) }));
+    }
+    if (!o.keyMode) {
+      ed = gridEditor({ meter: R.meter, measures: R.measures, first: R.first, box: G.box, entries: resp }, {
+        readOnly: !!o.locked, marks: cmp ? { side: 'got', measures: cmp.measures } : null,
+        onChange: (E) => { if (o.onResponse) o.onResponse(E); },
+      });
+      wrap.append(h('div', { class: 'rh-block' }, h('span', { class: 'mini-label' }, grader ? 'Student’s grid' : o.locked ? 'Your grid' : 'Your answer — fill in the grid'), ed.el));
+    }
+    if (reveal || o.keyMode) {
+      const box = h('div', { class: 'rgrid-box' });
+      answerGrid = new MQ.RhythmGrid(box, {
+        meter: R.meter, measures: R.measures, first: R.first, box: G.box, readOnly: true, answer: MQ.gridAnswerEntries(q),
+        marks: cmp ? { side: 'want', measures: cmp.measures } : null, dimRests: !G.rests,
+      });
+      wrap.append(h('div', { class: 'rh-block' }, h('span', { class: 'mini-label' }, cmp && cmp.wrong ? 'The answer — notes that were missed or wrong are in red' : 'The answer'), box));
+    }
+    if (o.playsUsed && heard) {
+      const t = (k) => `${o.playsUsed[k]} time${o.playsUsed[k] === 1 ? '' : 's'}`;
+      wrap.append(h('p', { class: 'fine rh-plays' }, `Played the example ${t('ex')} and their answer ${t('ans')}.`));
+    }
+    if (cmp) {
+      const right = Math.max(0, cmp.notes - cmp.wrong), what = G.rests ? 'notes and rests' : 'notes';
+      wrap.append(!cmp.wrong ? h('p', { class: 'result is-good', role: 'status' }, h('strong', null, 'Correct.'), ` All ${cmp.notes} ${what} are in the right boxes.`)
+        : h('p', { class: 'result is-bad', role: 'status' }, h('strong', null, `${cmp.wrong} wrong`), ` — ${right} of ${cmp.notes} points. `,
+          'Red notes start in the wrong box, have the wrong value, last the wrong number of boxes, or are extra; in the answer, red notes were missed or wrong.'));
+    }
+    return wrap;
+  }
+  // An answer-key entry: the example's rhythm on its grid.
+  function gridKeyItem(q) {
+    const R = q.rh, info = MQ.rhythmMeter(R.meter);
+    const box = h('div', { class: 'rgrid-box rh-key-staff' });
+    new MQ.RhythmGrid(box, { meter: R.meter, measures: R.measures, first: R.first, box: R.grid.box, readOnly: true, answer: MQ.gridAnswerEntries(q), dimRests: !R.grid.rests });
+    return h('li', null, h('span', { class: 'key-q' }, `Example ${R.n + 1}`, h('span', { class: 'key-clef' }, ` · ${info.label} · ${barsText(R.first || 1, R.measures)} · ${MQ.gridBoxName(R.grid.box)}-note boxes`)), box);
+  }
+  // On paper, as on a worksheet: the rhythm (unless students only hear it), then an empty grid.
+  function gridPrintArt(q, opts) {
+    const R = q.rh, rows = [];
+    if (R.grid.show !== 1) {
+      const art = MQ.rhythmArt({ meter: R.meter, measures: R.measures, parts: 1, layers: R.layers }, { first: (R.first || 1) - 1, heightIn: (opts && opts.height) || 1.25 });
+      // No wider than the page (or a Word document's margins).
+      const f = Math.min(1, 6 / art.wIn);
+      art.wIn *= f; art.hIn *= f;
+      rows.push(art);
+    }
+    rows.push(MQ.gridArt({ meter: R.meter, measures: R.measures, first: R.first, box: R.grid.box, entries: [] }, { wIn: 6 }));
     return rows;
   }
 
@@ -13406,6 +14308,7 @@ svg.staff .nlabel { display: none; }
     if (q.type === 'melody') return melodyPrintArt(q, opts);
     if (q.type === 'degree') return degreePrintArt(q, opts);
     if (q.type === 'rhythm') return rhythmPrintArt(q, opts);
+    if (q.type === 'rgrid') return gridPrintArt(q, opts);
     if (q.type !== 'keys') return [exportStaffSVG(q, opts)];
     const k = q.keys;
     const staffOf = (notes) => exportStaffSVG({ type: 'keys', clef: 'grand', grand: true, columns: [{ given: notes, cap: notes.length ? 0 : 1 }] }, opts);
@@ -13448,6 +14351,8 @@ svg.staff .nlabel { display: none; }
   const printOpts = (extra) => Object.assign({
     paper: S.print.paper, staffHeight: S.print.staffH, qrSize: S.print.qr,
     quizId: S.code ? MQ.quizId(S.code) : 0,
+    // Where the QR code leads: the quiz, ready to take online.
+    qrLink: S.code ? quizLink(S.code) : '',
   }, extra || {});
   const printPayload = () => (S.code ? (quizLink(S.code) || 'Clefwork quiz ' + MQ.normalize(S.code)) : 'Clefwork');
 
@@ -13537,6 +14442,16 @@ svg.staff .nlabel { display: none; }
       if (MQ.validDate(v)) changed(); else savePrint();
     });
     const courseIn = textIn('pr-course', S.print.course, 60, 'e.g. Music Theory I', (v) => { S.print.course = v; changed(); });
+    // The whole quiz travels in the QR code's link, so a long quiz makes a finer code. Phones read
+    // printed squares of about 0.4 mm or more most easily.
+    const qrNote = h('span');
+    const qrHelp = () => {
+      let need = 1;
+      try { const m = MQ.qrMatrix(printPayload(), { ecc: 'L' }); need = [0.5, 0.75, 1].find((x) => x >= ((m.size + 8) * 0.4) / 25.4) || 1; } catch (e) { /* too long: the largest */ }
+      qrNote.textContent = 'In the footer: students scan it to open the quiz online and take it there.'
+        + (S.print.qr < need ? ` This quiz’s code is detailed — at ${need === 1 ? '1' : '¾'} in phones read it more easily.` : '');
+    };
+    qrHelp();
     const printBtn = h('button', { type: 'button', class: 'btn btn-primary', onclick: () => doPDF(printBtn) }, 'Save as PDF');
     const wordBtn = h('button', { type: 'button', class: 'btn', onclick: () => doWord(wordBtn) }, 'Export Word (.docx)');
     form.append(
@@ -13551,7 +14466,7 @@ svg.staff .nlabel { display: none; }
       paperSeg,
       h('div', { class: 'row2' },
         grp('Staff height', seg('pr-staff', [{ v: 1, label: '1 in' }, { v: 1.25, label: '1¼ in' }, { v: 1.5, label: '1½ in' }], S.print.staffH, (v) => { S.print.staffH = v; changed(); }), 'Never smaller than an inch.'),
-        grp('QR code', seg('pr-qr', [{ v: 0.5, label: '½ in' }, { v: 0.75, label: '¾ in' }, { v: 1, label: '1 in' }], S.print.qr, (v) => { S.print.qr = v; changed(); }), 'Printed in the footer with the quiz ID.')),
+        grp('QR code', seg('pr-qr', [{ v: 0.5, label: '½ in' }, { v: 0.75, label: '¾ in' }, { v: 1, label: '1 in' }], S.print.qr, (v) => { S.print.qr = v; qrHelp(); changed(); }), qrNote)),
       h('div', { class: 'btn-row' }, printBtn, wordBtn),
       status);
 
@@ -13716,8 +14631,8 @@ svg.staff .nlabel { display: none; }
       if (name) name.textContent = 'Clefwork Rhythm';
       document.title = 'Clefwork Rhythm';
       document.querySelector('.flow').replaceChildren(
-        h('li', null, h('b', null, '1'), ' Write rhythms of one to four measures, in one part or two'),
-        h('li', null, h('b', null, '2'), ' Students listen and write what they hear on a one-line staff'),
+        h('li', null, h('b', null, '1'), ' Write rhythms, or let Clefwork make them'),
+        h('li', null, h('b', null, '2'), ' Students write what they hear on a one-line staff, or show each note’s start and length on a grid'),
         h('li', null, h('b', null, '3'), ' Students send back a report code — no accounts, no server'));
     }
     if (MELODY) {
@@ -13768,7 +14683,7 @@ svg.staff .nlabel { display: none; }
         h('li', null, h('b', null, '2'), ' Copy your results link'),
         h('li', null, h('b', null, '3'), ' Paste it into the Canvas assignment as a Website URL'));
     }
-    document.querySelectorAll('.nav button').forEach((b) => b.addEventListener('click', () => go(b.dataset.view)));
+    document.querySelectorAll('.nav button').forEach((b) => b.addEventListener('click', () => { S.linkError = null; go(b.dataset.view); }));
     let view = 'build';
     const hash = decodeURIComponent(location.hash.slice(1));
     const m = hash.match(/^(take|grade)=([\s\S]+)$/);
@@ -13778,7 +14693,7 @@ svg.staff .nlabel { display: none; }
       const extra = {};
       more.forEach((kv) => { const i = kv.indexOf('='); if (i > 0) extra[kv.slice(0, i)] = kv.slice(i + 1); });
       const clean = codePart.replace(/[^0-9A-Za-z]/g, '').toUpperCase();
-      if (!(S.take && S.take.code === clean)) openQuiz(codePart, { img: extra.img });
+      if (!(S.take && S.take.code === clean)) openQuiz(codePart, { img: extra.img, link: true });
       else if (extra.img && S.take.cfg.analysis && S.take.cfg.analysis.img) {
         // The same quiz, already under way: keep the link's picture in case this device lost it.
         const want = S.take.cfg.analysis.img.hash;

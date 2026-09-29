@@ -116,6 +116,7 @@ li.q .hint { font-size: 10pt; margin: 2pt 0 0; color: #333; }
 .pfoot { display: flex; align-items: flex-end; gap: 8pt; font-size: 8pt; color: #000; padding-top: 10pt; height: ${foot}in; }
 .pfoot svg { width: ${qr}in; height: ${qr}in; display: block; }
 .pfoot .fid { padding-bottom: 2pt; }
+.pfoot a { display: block; line-height: 0; }
 /* Staff drawing, independent of the app's colours. */
 svg.staff { color: #000; }
 svg.staff .sl { stroke: #000; stroke-width: 1.1; fill: none; }
@@ -171,10 +172,12 @@ svg.staff .nlabel { display: none; }
     }).join('');
     const meta = [info.course, info.teacher, info.date].filter((x) => x && String(x).trim())
       .map((x) => `<span>${esc(x)}</span>`).join('');
-    const qr = opts.qrSVG || '';
+    // The QR code opens the quiz online — scanned from paper, or clicked on screen.
+    const qr = opts.qrSVG ? (opts.qrLink ? `<a href="${esc(opts.qrLink)}" target="_blank" rel="noopener" title="Open this quiz online">${opts.qrSVG}</a>` : opts.qrSVG) : '';
+    const caption = opts.qrSVG && opts.qrLink ? '<b>Scan to take this quiz online</b><br>' : '';
     // A table footer is what browsers repeat at the bottom of every printed page.
     return `<div class="page"><table class="sheet"><tfoot><tr><td>`
-      + `<div class="pfoot">${qr}<span class="fid">Quiz ID ${esc(opts.quizId)}</span></div>`
+      + `<div class="pfoot">${qr}<span class="fid">${caption}Quiz ID ${esc(opts.quizId)}</span></div>`
       + `</td></tr></tfoot><tbody><tr><td><header class="head">`
       + `<h1>${esc(info.title || 'Music quiz')}</h1>`
       + (meta ? `<p class="meta">${meta}</p>` : '')
@@ -215,6 +218,11 @@ svg.staff .nlabel { display: none; }
           if (v) doc.rect(M + (c + 4) * mod, footTop + (r + 4) * mod, mod * 1.02, mod * 1.02);
         }));
         doc.fill();
+        // Clicking it in a PDF viewer opens the quiz too.
+        if (opts.qrLink) {
+          doc.link(M, footTop, qrPt, qrPt, opts.qrLink);
+          MQ.pdfText(doc, 'Scan to take this quiz online', M + qrPt + 8, H - M - 12, 8, 'F5');
+        }
       }
       MQ.pdfText(doc, 'Quiz ID ' + opts.quizId, M + (qr ? qrPt + 8 : 0), H - M - 2, 8, 'F4');
       doc.restore();

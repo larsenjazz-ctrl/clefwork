@@ -102,7 +102,11 @@
   const onlyAnalysis = (cfg) => !!(listCount(cfg, 'analysis') && sumCounts(cfg) === listCount(cfg, 'analysis'));
   const onlyRhythm = (cfg) => !!(listCount(cfg, 'rhythm') && sumCounts(cfg) === listCount(cfg, 'rhythm'));
   const onlyMelody = (cfg) => !!(listCount(cfg, 'melody') && sumCounts(cfg) === listCount(cfg, 'melody'));
-  const clefsText = (cfg) => onlyMelody(cfg) ? 'heard, then written on the staff' : onlyRhythm(cfg) ? 'heard, then written on a one-line staff' : onlyAnalysis(cfg) ? 'answered beside a picture of the score' : onlyKeys(cfg) ? 'grand staff, note names & piano' : [cfg.clefs & 1 ? 'treble' : null, cfg.clefs & 2 ? 'bass' : null].filter(Boolean).join(' & ') + ' clef' + (usesGrand(cfg) ? ' + grand staff' : '');
+  // Clefwork Rhythm quizzes are rhythmic dictation or rhythm grids.
+  const gridQuiz = (cfg) => MQ.rhythmSettings(cfg.rhythm).task === 'grid';
+  // A rhythm grid's rhythm is read, heard, or both.
+  const gridHow = (cfg) => ['read', 'heard', 'read and heard'][MQ.rhythmSettings(cfg.rhythm).grid.show];
+  const clefsText = (cfg) => onlyMelody(cfg) ? 'heard, then written on the staff' : onlyRhythm(cfg) ? (gridQuiz(cfg) ? `${gridHow(cfg)}, then shown on a grid` : 'heard, then written on a one-line staff') : onlyAnalysis(cfg) ? 'answered beside a picture of the score' : onlyKeys(cfg) ? 'grand staff, note names & piano' : [cfg.clefs & 1 ? 'treble' : null, cfg.clefs & 2 ? 'bass' : null].filter(Boolean).join(' & ') + ' clef' + (usesGrand(cfg) ? ' + grand staff' : '');
   const clonePlaced = (pl) => (pl ? pl.map((c) => (c || []).map((p) => ({ ...p }))) : null);
   // The student version (practice + take a quiz, no quiz codes shown) is the same app with this flag set.
   const STUDENT = !!window.CLEFWORK_STUDENT;
@@ -932,6 +936,7 @@
     if (q.type === 'degree') return degreeCard(q, cfg, o);
     if (q.type === 'melody') return melodyCard(q, cfg, o);
     if (q.type === 'rhythm') return rhythmCard(q, cfg, o);
+    if (q.type === 'rgrid') return gridCard(q, cfg, o);
     if (q.type === 'keys') return keysCard(q, cfg, o);
     if (q.type === 'analysis') return analysisCard(q, cfg, o);
     if (q.type === 'figured' || q.type === 'figprog') return figuredCard(q, cfg, o);
@@ -1343,7 +1348,7 @@
           ? h('p', { class: 'warn-note' }, `Not ready to share yet. ${probs[0].text}${probs.length > 1 ? ` (${probs.length - 1} more to fix)` : ''}`)
           : h('p', { class: 'fine rh-ready-ok' }, '✓ Every measure is complete.'));
       }
-      R.keyList.replaceChildren(...S.qs.map((q) => q.type === 'melody' ? melodyKeyItem(q) : q.type === 'rhythm' ? rhythmKeyItem(q) : h('li', null, h('span', { class: 'key-q' }, q.text, q.type === 'analysis' ? null : h('span', { class: 'key-clef' }, ' · ' + MQ.clefLabel(q.clef))), h('span', { class: 'key-a' }, q.type === 'analysis' ? accText(MQ.describeAnswer(q, cfg)) : MQ.describeAnswer(q, cfg)))));
+      R.keyList.replaceChildren(...S.qs.map((q) => q.type === 'melody' ? melodyKeyItem(q) : q.type === 'rhythm' ? rhythmKeyItem(q) : q.type === 'rgrid' ? gridKeyItem(q) : h('li', null, h('span', { class: 'key-q' }, q.text, q.type === 'analysis' ? null : h('span', { class: 'key-clef' }, ' · ' + MQ.clefLabel(q.clef))), h('span', { class: 'key-a' }, q.type === 'analysis' ? accText(MQ.describeAnswer(q, cfg)) : MQ.describeAnswer(q, cfg)))));
       if (R.linkSize) {
         const kb = S.aimg ? Math.max(1, Math.round((S.aimg.data.length + S.code.length) / 1024)) : 0;
         R.linkSize.replaceChildren(!S.code ? '' : kb > 150
@@ -1723,7 +1728,11 @@
     }
     return xlsxLoading;
   }
-  const typeCount = (cfg, id) => (MQ.BUILT_IN.some((t) => t.id === id) ? cfg.counts[id] || 0 : listCount(cfg, id));
+  // Rhythm examples count as rhythm grids when that's the quiz's task.
+  const typeCount = (cfg, id) => (id === 'rgrid' ? (gridQuiz(cfg) ? listCount(cfg, 'rhythm') : 0)
+    : id === 'rhythm' && gridQuiz(cfg) ? 0
+    : id === 'degree' ? Math.min(MQ.DEGREE_MAX, cfg.counts.degree || 0)
+    : MQ.BUILT_IN.some((t) => t.id === id) ? cfg.counts[id] || 0 : listCount(cfg, id));
   const EXPORT_HEADERS = ['Title', 'Teacher', 'Date created', 'Question types'].concat(MQ.TYPES.map((t) => t.label), ['Total questions', 'Quiz code']);
   const ymd = (ms) => { const d = new Date(ms); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; };
   function exportRow(code, created) {
@@ -1880,7 +1889,9 @@
       saveAttempt();
       return true;
     } catch (e) {
-      toast(e.message || 'That code didn’t work.', 'bad');
+      // Opened from a link, the take page explains instead (see takeLinkError).
+      if (opts && opts.link) S.linkError = { code: code.replace(/[^0-9A-Za-z]/g, '').toUpperCase(), img: opts.img || '', message: e.message || 'That code didn’t work.' };
+      else toast(e.message || 'That code didn’t work.', 'bad');
       return false;
     }
   }
@@ -2037,12 +2048,32 @@
   function timeLeft(t) { return t.cfg.timeLimit ? t.cfg.timeLimit * 60 - t.secs.reduce((a, b) => a + b, 0) : null; }
 
   function renderTake(main) {
+    if (S.linkError && S.slot === 'take') return takeLinkError(main);
     const t = S.take;
     if (S.slot === 'take') main.append(startOverBar(t));
     if (!t) return takeLoad(main);
     if (!t.started) return takeIntro(main);
     if (t.done) return takeDone(main);
     return t.reviewing ? takeReview(main) : takeQuestion(main);
+  }
+  // A quiz link (or a scanned QR code) that didn't open: say why, rather than showing whatever quiz
+  // this device had open before.
+  function takeLinkError(main) {
+    const E = S.linkError;
+    const newer = /newer version/i.test(E.message);
+    const leave = () => { S.linkError = null; go(tv()); };
+    const retry = () => {
+      location.href = location.pathname + location.search + '#take=' + E.code + (E.img ? '&img=' + E.img : '');
+      location.reload();
+    };
+    main.append(h('div', { class: 'narrow' }, h('section', { class: 'card stage' },
+      h('div', { class: 'eyebrow' }, 'Quiz link'),
+      h('h1', { class: 'display' }, 'This quiz didn’t open'),
+      h('p', { class: 'lede' }, E.message),
+      newer ? h('p', null, 'The quiz uses something this page doesn’t have yet. If your teacher has just updated Clefwork, the site can take a few minutes to catch up — wait a little, then try again.') : null,
+      h('div', { class: 'btn-row' },
+        h('button', { type: 'button', class: 'btn btn-primary', onclick: retry }, 'Try again'),
+        h('button', { type: 'button', class: 'btn btn-quiet', onclick: leave }, S.take ? `Back to ${S.take.cfg.title || 'your last quiz'}` : 'Type a quiz code instead')))));
   }
   function takeLoad(main) {
     const ta = h('textarea', { id: 'take-code', rows: 3, placeholder: 'e.g. J4AH2-2GRWV-9SQQ8-…', spellcheck: 'false', autocomplete: 'off' });
@@ -2073,7 +2104,7 @@
     if (cfg.counts.keys && MQ.keysCombos(cfg.keys).length) types.push(`Keys & notes (${cfg.counts.keys})`);
     if (cfg.counts.degree) types.push(`Scale degrees (${cfg.counts.degree} melod${cfg.counts.degree === 1 ? 'y' : 'ies'})`);
     if (listCount(cfg, 'progression')) types.push(`Chord progressions (${listCount(cfg, 'progression')})`);
-    if (listCount(cfg, 'rhythm')) types.push(`Rhythmic dictation (${listCount(cfg, 'rhythm')} example${listCount(cfg, 'rhythm') > 1 ? 's' : ''})`);
+    if (listCount(cfg, 'rhythm')) types.push(`${gridQuiz(cfg) ? 'Rhythm grid' : 'Rhythmic dictation'} (${listCount(cfg, 'rhythm')} example${listCount(cfg, 'rhythm') > 1 ? 's' : ''})`);
     if (listCount(cfg, 'melody')) types.push(`Melodic dictation (${listCount(cfg, 'melody')} melod${listCount(cfg, 'melody') > 1 ? 'ies' : 'y'})`);
     if (listCount(cfg, 'analysis')) {
       const asks = MQ.analysisQuestions(cfg).map((q) => q.an.ask);
@@ -2092,7 +2123,7 @@
         onlyMelody(cfg)
           ? h('div', null, h('dt', null, 'Uses'), h('dd', null, 'Listening, the staff'))
           : onlyRhythm(cfg)
-          ? h('div', null, h('dt', null, 'Uses'), h('dd', null, 'Listening, one-line staff'))
+          ? h('div', null, h('dt', null, 'Uses'), h('dd', null, !gridQuiz(cfg) ? 'Listening, one-line staff' : ['Reading rhythm, a grid', 'Listening, a grid', 'Reading & listening, a grid'][MQ.rhythmSettings(cfg.rhythm).grid.show]))
           : onlyAnalysis(cfg)
           ? h('div', null, h('dt', null, 'Uses'), h('dd', null, 'A picture of the score'))
           : onlyKeys(cfg)
@@ -2145,7 +2176,7 @@
     if (S.take.qs[0] && S.take.qs[0].type === 'analysis') return takeAnalysis(main);
     const t = S.take, i = t.idx, q = t.qs[i];
     const locked = t.checked[i];
-    const heard = q.type === 'rhythm' || q.type === 'melody';
+    const heard = q.type === 'rhythm' || q.type === 'melody' || (q.type === 'rgrid' && q.rh.grid.show > 0);
     if (heard && !t.plays) t.plays = t.qs.map(() => ({ ex: 0, ans: 0 }));
     const card = questionCard(q, t.cfg, {
       response: t.resp[i], locked, reveal: locked,
@@ -2202,13 +2233,14 @@
     if (!t || t.done) return;
     stopTicker();
     // Rhythm quizzes are scored note by note, so they always give partial credit.
-    const rhythm = t.qs.some((q) => q.type === 'rhythm' || q.type === 'melody');
+    const rhythm = t.qs.some((q) => q.type === 'rhythm' || q.type === 'melody' || q.type === 'rgrid');
     const partial = t.cfg.flags.partial || rhythm;
     const items = t.qs.map((q, i) => {
       const frac = MQ.gradeQuestion(q, t.resp[i], t.cfg);
       const credit = frac === 1 ? 7 : partial ? Math.min(6, Math.round(frac * 7)) : 0;
       const it = { type: q.type, clef: q.clef, credit, answered: MQ.hasAnswer(q, t.resp[i]), sec: t.secs[i] };
       if (q.type === 'rhythm') { const c = MQ.compareRhythm(q, t.resp[i]); it.notes = c.notes; it.wrong = c.wrong; }
+      if (q.type === 'rgrid') { const c = MQ.compareGrid(q, t.resp[i]); it.notes = c.notes; it.wrong = c.wrong; }
       if (q.type === 'melody') { const c = MQ.compareMelody(q, t.resp[i]); Object.assign(it, { notes: c.notes, wrong: c.wrong, pw: c.pw, rw: c.rw }); }
       return it;
     });
@@ -2344,7 +2376,7 @@
       tbody.append(h('tr', null,
         h('td', { class: 'num' }, String(i + 1)),
         h('td', null, q ? q.text : typeOf(it.type).label),
-        h('td', null, it.type === 'analysis' ? 'Score' : it.type === 'rhythm' ? 'Rhythm' : MQ.CLEFS[it.clef].label),
+        h('td', null, it.type === 'analysis' ? 'Score' : it.type === 'rhythm' ? 'Rhythm' : it.type === 'rgrid' ? 'Grid' : MQ.CLEFS[it.clef].label),
         key ? h('td', { class: 'ans' + (q && (q.mel || q.rh) ? ' is-long' : '') }, q ? MQ.describeAnswer(q, quiz.cfg) : '') : null,
         h('td', null, resultCell(it)),
         h('td', { class: 'num' }, it.sec >= 63 ? '63+ s' : it.sec + ' s')));
@@ -2586,15 +2618,15 @@
           it.wrong = Math.min(it.notes, Math.max(it.pw, it.rw));
           it.credit = it.wrong ? Math.min(6, Math.round(((it.notes - it.wrong) / Math.max(1, it.notes)) * 7)) : 7;
         }
-        if (q.type === 'rhythm') {
-          it.notes = MQ.compareRhythm(q, null).notes;
+        if (q.type === 'rhythm' || q.type === 'rgrid') {
+          it.notes = q.type === 'rgrid' ? MQ.compareGrid(q, null).notes : MQ.compareRhythm(q, null).notes;
           it.wrong = !it.answered ? it.notes : Math.min(it.notes, Math.round(it.notes * (1 - skill) * rng() * 1.6));
           it.credit = it.wrong ? Math.min(6, Math.round(((it.notes - it.wrong) / Math.max(1, it.notes)) * 7)) : 7;
         }
         return it;
       });
       const rh = dictation(cfg);
-      const scoring = qs.some((q) => q.type === 'rhythm' || q.type === 'melody') ? { mode: rh.score, outOf: rh.outOf, split: rh.split ? 1 : 0 } : null;
+      const scoring = qs.some((q) => q.type === 'rhythm' || q.type === 'melody' || q.type === 'rgrid') ? { mode: rh.score, outOf: rh.outOf, split: rh.split ? 1 : 0 } : null;
       return MQ.encodeReport({ name, submittedAt: Date.now() - (k + 1) * 3600e3, totalSec: items.reduce((s, it) => s + it.sec, 0), partial: cfg.flags.partial || !!scoring, items, scoring }, cfg, code);
     });
   }
@@ -3297,7 +3329,8 @@
   let rhUid = 0;
 
   // The staff students and teachers write on, with the note buttons and what each measure still needs.
-  // model: {meter, measures, parts, layers}. opts: readOnly, marks, onChange(layers).
+  // model: {meter, measures, parts, layers}. opts: readOnly, marks, onChange(layers), first (the number
+  // of the measure before the first, for a rhythm grid's excerpt), noTriplets (a rhythm grid has none).
   function rhythmEditor(model, opts) {
     const o = opts || {};
     const uid = ++rhUid;
@@ -3308,7 +3341,7 @@
     let partBtns = [];
     const syncParts = () => partBtns.forEach((b, l) => b.setAttribute('aria-checked', String(staff.active === l)));
     const staff = new MQ.RhythmStaff(box, {
-      meter: model.meter, measures: model.measures, parts, layers: model.layers, readOnly: !!o.readOnly, marks: o.marks || null,
+      meter: model.meter, measures: model.measures, parts, layers: model.layers, readOnly: !!o.readOnly, marks: o.marks || null, first: o.first || 0,
       onChange: (layers) => { drawStatus(); if (o.onChange) o.onChange(layers); },
       onMove: () => syncParts(),
     });
@@ -3342,6 +3375,7 @@
     const dotBtn = modeBtn('dot', 'Dot', 'dot', 'Dotted notes: turn on, then choose a value (.)');
     const tripBtn = modeBtn('trip', 'Triplet', 'triplet', 'Triplets: turn on, then choose a value (T)');
     const restBtn = modeBtn('rest', 'Rest', 'rest', 'Rests instead of notes (R)');
+    if (o.noTriplets) { entry.trip = false; tripBtn.hidden = true; }
     function paint() {
       dotBtn.setAttribute('aria-pressed', String(!!entry.dot));
       tripBtn.setAttribute('aria-pressed', String(!!entry.trip));
@@ -3379,7 +3413,7 @@
       let done = true;
       if (k in KEYS_V) add(KEYS_V[k]);
       else if (k === '.' || k === 'd' || e.code === 'Period' || e.code === 'NumpadDecimal') flip('dot');
-      else if (k === 't' || k === '3') flip('trip');
+      else if ((k === 't' || k === '3') && !o.noTriplets) flip('trip');
       else if (k === 'r' || k === '0') flip('rest');
       else if (k === 'ArrowLeft') staff.move(-1);
       else if (k === 'ArrowRight') staff.move(1);
@@ -3563,6 +3597,7 @@
   // What students should know before a rhythm quiz: sound on, and how often they can listen.
   function rhythmIntro(cfg, qs) {
     const b = dictation(cfg);
+    if (!listCount(cfg, 'melody') && b.task === 'grid') return gridIntro(b, qs);
     const times = (n) => (n === 1 ? 'once' : n === 2 ? 'twice' : `${n} times`);
     const ex = b.playsEx ? `You can play each example ${times(b.playsEx)}` : 'You can play each example as often as you like';
     const ans = b.playsAns ? `, and hear your own answer ${times(b.playsAns)}` : ', and hear your own answer as often as you like';
@@ -3570,6 +3605,17 @@
     const score = b.score === 'percent' ? ` The quiz is out of ${b.outOf} points — the share of its ${notes} notes you get right.`
       : ` Every note is worth a point — ${notes} in all — and each wrong or extra note costs one.`;
     return `Turn your sound on — headphones help. ${ex}${ans}.${score}`;
+  }
+
+  // What students should know before a rhythm-grid quiz.
+  function gridIntro(b, qs) {
+    const G = b.grid, notes = rhythmNotes(qs), what = G.rests ? 'note and rest' : 'note';
+    const times = (n) => (n === 1 ? 'once' : n === 2 ? 'twice' : `${n} times`);
+    const how = `For every ${what}, click the box where it starts and choose its value, then drag its arrow across the boxes it lasts.`;
+    const listen = G.show === 0 ? '' : `Turn your sound on. ${b.playsEx ? `You can play each example ${times(b.playsEx)}` : 'You can play each example as often as you like'}${b.playsAns ? `, and hear your grid ${times(b.playsAns)}` : ', and hear your grid as often as you like'}. `;
+    const score = b.score === 'percent' ? ` The quiz is out of ${b.outOf} points — the share of its ${notes} ${G.rests ? 'notes and rests' : 'notes'} you get right.`
+      : ` Every ${what} is worth a point — ${notes} in all — and each wrong or extra one costs one.`;
+    return `${listen}${how}${score}`;
   }
 
   // ---------- Clefwork Rhythm: the builder ----------
@@ -3598,7 +3644,8 @@
   }
   function rhythmSections(cfg, changed, R) {
     const rh = cfg.rhythm = MQ.rhythmSettings(cfg.rhythm);
-    if (!rh.examples.length) rh.examples.push(MQ.rhythmExample());
+    const grid = rh.task === 'grid';
+    if (!rh.examples.length) rh.examples.push(MQ.rhythmExample(null, grid));
     cfg.counts.rhythm = rh.auto.on ? rh.auto.count : rh.examples.length;
     S.rhEx = Math.max(0, Math.min(rh.examples.length - 1, S.rhEx || 0));
     R.total = h('span', { class: 'mix-total' });
@@ -3608,27 +3655,60 @@
       changed();
       go('build');
     });
-    const later = [scoringSection(rh, changed, R), listeningSection(rh, changed)];
+    // ---------- dictation or a grid ----------
+    const TASKS = [
+      { v: 'dictation', name: 'Rhythmic dictation', blurb: 'Students hear each rhythm and write it on a one-line staff.' },
+      { v: 'grid', name: 'Rhythm grid', blurb: 'Students show on a grid of beats and boxes where each note starts and how long it lasts — reading the rhythm, hearing it, or both.' },
+    ];
+    const taskPick = h('div', { class: 'rh-levels rh-tasks', role: 'radiogroup', 'aria-label': 'Quiz type' }, TASKS.map((t) => h('button', {
+      type: 'button', role: 'radio', class: 'rh-level', 'aria-checked': String(rh.task === t.v),
+      onclick: () => {
+        if (rh.task === t.v) return;
+        rh.task = t.v;
+        MQ.rhythmSettings(rh);
+        // The default title follows the quiz type.
+        if (cfg.title === 'Rhythmic Dictation' && t.v === 'grid') cfg.title = 'Rhythm Grid';
+        else if (cfg.title === 'Rhythm Grid' && t.v === 'dictation') cfg.title = 'Rhythmic Dictation';
+        cfg.counts.rhythm = rh.auto.on ? rh.auto.count : rh.examples.length;
+        changed();
+        go('build');
+      },
+    }, h('strong', null, t.name), h('span', null, t.blurb))));
+    const first = [sec('rh-task', 'Quiz type', 'What students do with each rhythm.', taskPick)];
+    if (grid) {
+      const G = rh.grid;
+      const again = () => { changed(); go('build'); };
+      first.push(sec('rg-grid', 'The grid', 'One row for each measure, with the beats across the top and each beat split into boxes. Students write each note’s value in the box where it starts and drag its arrow across the boxes it lasts.',
+        grp('Each box is', seg('rg-box', [{ v: 3, label: 'A sixteenth note' }, { v: 6, label: 'An eighth note' }, { v: 12, label: 'A quarter note' }], G.box, (v) => { G.box = v; again(); }),
+          'A half note covers 8 sixteenth-note boxes, 4 eighth-note boxes or 2 quarter-note boxes. Nothing in the rhythm can be shorter than a box.'),
+        grp('The rhythm is', seg('rg-show', [{ v: 0, label: 'Shown' }, { v: 1, label: 'Played' }, { v: 2, label: 'Shown and played' }], G.show, (v) => { G.show = v; again(); }),
+          'Shown: printed above the grid, as on a worksheet. Played: students listen, as in dictation. Shown and played: both.'),
+        grp('Rests', seg('rg-rests', [{ v: 0, label: 'Leave them blank' }, { v: 1, label: 'Mark them too' }], G.rests, (v) => { G.rests = v; again(); }),
+          'Marked rests are graded like notes. Otherwise rests stay blank, and any a student marks are ignored.')));
+    }
+    const later = [scoringSection(rh, changed, R, null, grid
+      ? 'Graded note by note. A note is right when it starts in the right box, has the right value, and its arrow covers the right number of boxes. A note missed or wrong is a wrong note, and so is every extra one. Rests count too when students mark them.' : null)];
+    if (!grid || rh.grid.show > 0) later.push(listeningSection(rh, changed));
     if (rh.auto.on) {
-      return [sec('rh-examples', 'Examples', 'Clefwork writes the rhythms from the level you choose. Everyone with the quiz code gets the same ones.',
-        mode, autoPanel(cfg, changed), h('div', { class: 'mix-foot' }, R.total))].concat(later);
+      return first.concat([sec('rh-examples', 'Examples', 'Clefwork writes the rhythms from the level you choose. Everyone with the quiz code gets the same ones.',
+        mode, autoPanel(cfg, changed), h('div', { class: 'mix-foot' }, R.total))], later);
     }
     const tabs = h('div', { class: 'rh-tabs', role: 'tablist', 'aria-label': 'Examples' });
     const body = h('div', { class: 'rh-ex' });
     const edited = () => { cfg.counts.rhythm = rh.examples.length; changed(); drawTabs(); };
     function drawTabs() {
       tabs.replaceChildren(...rh.examples.map((ex, i) => {
-        const ok = !MQ.exampleProblems(ex).length;
+        const ok = !MQ.exampleProblems(ex, grid ? rh.grid : null).length;
         return h('button', {
           type: 'button', role: 'tab', class: 'rh-tab', 'aria-selected': String(i === S.rhEx),
           title: ok ? 'Ready' : 'Not finished yet', onclick: () => { S.rhEx = i; drawTabs(); drawExample(); },
         }, h('span', null, `Example ${i + 1}`), h('span', { class: 'rh-tab-state ' + (ok ? 'is-ok' : 'is-open'), 'aria-label': ok ? 'ready' : 'not finished' }, ok ? '✓' : '•'));
       }), rh.examples.length < MQ.RHYTHM_MAX ? h('button', {
         type: 'button', class: 'rh-tab rh-add', onclick: () => {
-          rh.examples.push(MQ.rhythmExample(rh.examples[S.rhEx]));
+          rh.examples.push(MQ.rhythmExample(rh.examples[S.rhEx], grid));
           S.rhEx = rh.examples.length - 1;
           edited(); drawExample();
-          toast(`Example ${S.rhEx + 1} added — same time signature and tempo`);
+          toast(grid ? `Example ${S.rhEx + 1} added — same time signature, carrying on the measure numbers` : `Example ${S.rhEx + 1} added — same time signature and tempo`);
         },
       }, '+ Add example') : null);
     }
@@ -3638,6 +3718,10 @@
       const redo = () => { edited(); drawExample(); };
       // ---------- settings ----------
       const measures = seg('rh-measures', [1, 2, 3, 4].map((v) => ({ v, label: String(v) })), ex.measures, (v) => { ex.measures = v; redo(); });
+      // A rhythm grid can number its measures from anywhere — an excerpt from m. 46.
+      const firstIn = h('input', { type: 'number', id: 'rg-first', min: 1, max: 999, inputmode: 'numeric' });
+      firstIn.value = ex.first;
+      firstIn.addEventListener('change', () => { ex.first = Math.max(1, Math.min(999, Math.round(+firstIn.value || 1))); firstIn.value = ex.first; redo(); });
       const meter = meterPicker(ex.meter, (m) => {
         // Keep the same speed of eighth notes when the beat changes (♩ = 90 in 4/4 is ♩. = 60 in 6/8).
         const before = MQ.RHYTHM_TEMPO_UNITS[info.tempo];
@@ -3662,9 +3746,20 @@
       tempoIn.addEventListener('change', () => setTempo(tempoIn.value, null));
       tempoRange.addEventListener('input', () => setTempo(tempoRange.value, tempoRange));
       const tempo = h('div', { class: 'rh-tempo' }, h('span', { class: 'rh-tempo-sign', 'aria-hidden': 'true' }, TEMPO_SIGNS[info.tempo] + ' ='), tempoIn, tempoRange);
-      const twoParts = toggle('rh-parts', 'Two parts', 'Adds a part with stems down, played by the oboe. It can have its own rhythm.', ex.parts > 1, (v) => { ex.parts = v ? 2 : 1; redo(); });
+      const twoParts = grid ? null : toggle('rh-parts', 'Two parts', 'Adds a part with stems down, played by the oboe. It can have its own rhythm.', ex.parts > 1, (v) => { ex.parts = v ? 2 : 1; redo(); });
       // ---------- the rhythm ----------
-      const ed = rhythmEditor(ex, { onChange: (L) => { L.forEach((layer, l) => (ex.layers[l] = layer)); edited(); } });
+      // A rhythm grid: the answer on its grid, redrawn as the rhythm is written.
+      const gridView = grid ? h('div', { class: 'rgrid-box' }) : null;
+      const drawGrid = () => {
+        if (!gridView) return;
+        const probs = MQ.gridProblems(ex, rh.grid);
+        if (probs.length) { gridView.replaceChildren(h('p', { class: 'warn-note' }, probs[0])); return; }
+        const q = MQ.gridQuestion(ex, MQ.rhythmMeter(ex.meter), S.rhEx, rh.grid);
+        gridView.replaceChildren();
+        new MQ.RhythmGrid(gridView, { meter: ex.meter, measures: ex.measures, first: ex.first, box: rh.grid.box, readOnly: true, answer: MQ.gridAnswerEntries(q), dimRests: !rh.grid.rests });
+      };
+      const ed = rhythmEditor(ex, { noTriplets: grid, first: grid ? ex.first - 1 : 0, onChange: (L) => { L.forEach((layer, l) => (ex.layers[l] = layer)); edited(); drawGrid(); } });
+      drawGrid();
       // ---------- duplicate, delete, clear ----------
       const delBtn = h('button', { type: 'button', class: 'btn btn-quiet sm an-del', disabled: rh.examples.length < 2 || null, onclick: () => {
         if (delBtn.dataset.sure !== '1') {
@@ -3688,19 +3783,23 @@
         h('div', { class: 'rh-ex-head' }, h('h3', null, `Example ${S.rhEx + 1}`), h('div', { class: 'rh-ex-actions' }, dupBtn, delBtn)),
         grp('Time signature', meter),
         grouping,
-        h('div', { class: 'row2' },
+        grid ? h('div', { class: 'row2' },
           grp('Measures', measures, 'One to four.'),
-          grp('Tempo', tempo, `Beats per minute, counting ${MQ.RHYTHM_TEMPO_NAMES[info.tempo]}s.`)),
+          grp('First measure number', firstIn, 'Where the excerpt starts — m. 46 labels the rows 46, 47 …')) : null,
+        h('div', { class: 'row2' },
+          grid ? null : grp('Measures', measures, 'One to four.'),
+          grp('Tempo', tempo, `Beats per minute, counting ${MQ.RHYTHM_TEMPO_NAMES[info.tempo]}s.${grid && !rh.grid.show ? ' Used when you play it here.' : ''}`)),
         twoParts,
         h('div', { class: 'rh-block' }, h('span', { class: 'mini-label' }, ex.parts > 1 ? 'The rhythm — stems up for the piano, stems down for the oboe' : 'The rhythm'), ed.el),
+        gridView ? h('div', { class: 'rh-block' }, h('span', { class: 'mini-label' }, 'The answer on the grid'), gridView) : null,
         listenPanel({ ex, sources: [{ label: 'Play the rhythm', primary: true, layers: () => ex.layers }], staffs: () => [ed.staff] })].filter(Boolean));
     }
     drawTabs();
     drawExample();
-    return [
-      sec('rh-examples', 'Examples', 'Write each rhythm students will hear. Every measure has to be full before the quiz can be shared — rests count.',
+    return first.concat([
+      sec('rh-examples', 'Examples', grid ? 'Write each rhythm for the grid. Every measure has to be full before the quiz can be shared — rests count.' : 'Write each rhythm students will hear. Every measure has to be full before the quiz can be shared — rests count.',
         mode, tabs, body, h('div', { class: 'mix-foot' }, R.total)),
-    ].concat(later);
+    ], later);
   }
   // How often students may listen — shared by Clefwork Rhythm and Melody (block: cfg.rhythm or cfg.melody).
   function listeningSection(block, changed) {
@@ -3712,7 +3811,7 @@
   }
   // How the quiz is scored: a point for every note, or a percent of a total the teacher sets.
   // `extra`: more controls to add (Clefwork Melody's).
-  function scoringSection(block, changed, R, extra) {
+  function scoringSection(block, changed, R, extra, desc) {
     const rh = block;
     const outIn = h('input', { type: 'number', id: 'rh-outof', min: 1, max: 1000, inputmode: 'numeric' });
     outIn.value = rh.outOf;
@@ -3720,7 +3819,7 @@
     const outWrap = fld('Total points', outIn, 'The share of notes a student gets right, scaled to this total.');
     outWrap.hidden = rh.score !== 'percent';
     R.scoreInfo = h('p', { class: 'fine rh-score-info' });
-    return sec('rh-score', 'Scoring', 'Graded note by note. A note the student misses or writes the wrong length is a wrong note, and so is every extra note they write. Rests only fill time, so two eighth rests match a quarter rest.',
+    return sec('rh-score', 'Scoring', desc || 'Graded note by note. A note the student misses or writes the wrong length is a wrong note, and so is every extra note they write. Rests only fill time, so two eighth rests match a quarter rest.',
       grp('Score the quiz', seg('rh-score', [{ v: 'notes', label: 'A point for every note' }, { v: 'percent', label: 'A percent of a total I choose' }], rh.score, (v) => {
         rh.score = v;
         outWrap.hidden = v !== 'percent';
@@ -3729,7 +3828,7 @@
       outWrap, ...(extra || []), R.scoreInfo);
   }
   // Notes in the quiz's examples — what a note-scored quiz is out of.
-  const rhythmNotes = (qs) => qs.reduce((n, q) => n + (q.type === 'rhythm' ? MQ.compareRhythm(q, null).notes : q.type === 'melody' ? MQ.compareMelody(q, null).notes : 0), 0);
+  const rhythmNotes = (qs) => qs.reduce((n, q) => n + (q.type === 'rhythm' ? MQ.compareRhythm(q, null).notes : q.type === 'melody' ? MQ.compareMelody(q, null).notes : q.type === 'rgrid' ? MQ.compareGrid(q, null).notes : 0), 0);
   // The listening and scoring settings of a rhythm or melody quiz.
   const dictation = (cfg) => (listCount(cfg, 'melody') ? MQ.melodySettings(cfg.melody) : MQ.rhythmSettings(cfg.rhythm));
   function rhythmScoreText(cfg, qs) {
@@ -3743,6 +3842,7 @@
   // ---------- Clefwork Rhythm: examples made automatically ----------
   function autoPanel(cfg, changed) {
     const a = cfg.rhythm.auto, c = a.custom;
+    const grid = cfg.rhythm.task === 'grid';
     const preview = h('div', { class: 'rh-auto-list' });
     // Any change moves the quiz onto the newest generator (an untouched draft keeps its examples).
     const redo = () => { a.gen = MQ.RHYTHM_GEN; cfg.counts.rhythm = a.count; changed(); drawPreview(); };
@@ -3791,7 +3891,7 @@
       h('div', { class: 'row2' },
         grp('How many examples', count, 'Up to 20.'),
         grp('Measures in each', seg('rh-auto-measures', [1, 2, 3, 4].map((v) => ({ v, label: String(v) })), a.measures, (v) => { a.measures = v; redo(); }))),
-      grp('Level', levels),
+      grp('Level', levels, grid ? `For a grid, triplets are left out, no note is shorter than a box (${MQ.gridBoxName(cfg.rhythm.grid.box)} note), and only time signatures whose beats split into whole boxes are used.` : null),
       custom,
       grp('Tempo', tempoIn, 'In other meters the eighth notes keep this speed: ♩ = 80 is ♩. = 53 in 6/8.'),
       h('div', { class: 'rh-auto-top' }, h('span', { class: 'mini-label' }, 'The examples'), fresh),
@@ -3855,6 +3955,180 @@
       const blank = { meter: R.meter, measures: Math.min(per, R.measures - a), parts: R.parts, layers: [[[], [], [], []], [[], [], [], []]] };
       rows.push(MQ.rhythmArt(blank, { first: a, showTime: a === 0, measureW: 300, heightIn: (opts && opts.height) || 1.25 }));
     }
+    return rows;
+  }
+
+  // ---------- Clefwork Rhythm: the rhythm grid ----------
+  const barsText = (first, n) => (n > 1 ? `m. ${first}–${first + n - 1}` : `m. ${first}`);
+  // The grid students fill in, with the note buttons. model: {meter, measures, first, box, entries}.
+  // opts: readOnly, marks, answer, dimRests, onChange(entries).
+  function gridEditor(model, opts) {
+    const o = opts || {};
+    const box = h('div', { class: 'rgrid-box' });
+    const status = h('p', { class: 'g-status', 'aria-live': 'polite' });
+    let grid = null;
+    const drawStatus = () => {
+      if (!grid || o.readOnly) return;
+      status.textContent = grid.where() + (grid.sel
+        ? ' Drag its arrow — or press Shift and → or ← — to show how long it lasts, or choose another value to change it.'
+        : ' Choose the value of the note that starts here.')
+        + (grid.svg.classList.contains('is-wide') && grid.sel ? ' (On a small screen, use Longer and Shorter.)' : '');
+    };
+    grid = new MQ.RhythmGrid(box, {
+      meter: model.meter, measures: model.measures, first: model.first, box: model.box, entries: model.entries,
+      readOnly: !!o.readOnly, marks: o.marks || null, answer: o.answer || null, dimRests: !!o.dimRests,
+      onChange: (E) => { if (o.onChange) o.onChange(E); }, onMove: drawStatus,
+    });
+    if (o.readOnly) return { el: h('div', { class: 'rh-editor' }, box), grid };
+    const entry = S.rhEntry;
+    const place = (k) => {
+      if (entry.dot && k === 4) { toast('Turn off Dot to write a sixteenth — a dotted sixteenth would need a thirty-second note to finish the beat.'); return; }
+      grid.place({ v: k, d: entry.dot ? 1 : 0, r: entry.rest ? 1 : 0 });
+      grid.focus();
+    };
+    const valueBtns = MQ.RHYTHM_VALUES.map((v, k) => h('button', {
+      type: 'button', class: 'rh-tool', title: `${v.name[0].toUpperCase() + v.name.slice(1)} (${v.id.toUpperCase()})`,
+      // Nothing shorter than a box fits the grid.
+      disabled: v.units < model.box || null, onclick: () => place(k),
+    }, svgEl(MQ.rhythmIcon(v.name)), h('span', null, v.name === 'sixteenth' ? '16th' : v.name[0].toUpperCase() + v.name.slice(1))));
+    const modeBtn = (key, label, iconKind, title) => h('button', { type: 'button', class: 'rh-tool rh-mode', 'aria-pressed': String(!!entry[key]), title, onclick: () => flip(key) }, svgEl(MQ.rhythmIcon(iconKind)), h('span', null, label));
+    const dotBtn = modeBtn('dot', 'Dot', 'dot', 'Dotted notes: turn on, then choose a value (.)');
+    const restBtn = modeBtn('rest', 'Rest', 'rest', 'Rests instead of notes (R)');
+    function paint() {
+      dotBtn.setAttribute('aria-pressed', String(!!entry.dot));
+      restBtn.setAttribute('aria-pressed', String(!!entry.rest));
+      valueBtns[4].disabled = !!entry.dot || model.box > 3 || null;
+    }
+    function flip(key) { entry[key] = !entry[key]; paint(); }
+    const del = () => { if (!grid.remove()) toast('Click a note first, then delete it.'); grid.focus(); };
+    const arrow = (d) => `<svg class="rh-icon" viewBox="0 0 24 26" aria-hidden="true"><path d="${d}" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+    const sizeBtn = (label, title, d, delta) => h('button', { type: 'button', class: 'rh-tool', title, onclick: () => { if (!grid.resize(delta)) toast(delta > 0 ? 'It can’t reach any further — the next note or the bar line is in the way.' : 'A note covers at least one box.'); grid.focus(); } }, svgEl(arrow(d)), h('span', null, label));
+    const palette = h('div', { class: 'rh-palette', role: 'toolbar', 'aria-label': 'Note values' },
+      ...valueBtns, h('span', { class: 'rh-sep', 'aria-hidden': 'true' }), dotBtn, restBtn,
+      h('span', { class: 'rh-sep', 'aria-hidden': 'true' }),
+      sizeBtn('Shorter', 'Covers one box fewer (Shift + ←)', 'M15 7l-6 6 6 6', -1),
+      sizeBtn('Longer', 'Covers one box more (Shift + →)', 'M9 7l6 6-6 6', 1),
+      h('span', { class: 'rh-sep', 'aria-hidden': 'true' }),
+      h('button', { type: 'button', class: 'rh-tool', title: 'Delete the selected note (Backspace)', onclick: del },
+        svgEl('<svg class="rh-icon" viewBox="0 0 24 26" aria-hidden="true"><path d="M9 6h11v14H9l-6-7z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M12 10l5 6M17 10l-5 6" stroke="currentColor" stroke-width="1.6"/></svg>'), h('span', null, 'Delete')),
+      h('button', { type: 'button', class: 'rh-tool', title: 'Empty the measure you’re in', onclick: () => { if (!grid.clearRow()) toast('That measure is already empty.'); grid.focus(); } },
+        svgEl('<svg class="rh-icon" viewBox="0 0 24 26" aria-hidden="true"><path d="M5 8h14M9 8V5h6v3M7 8l1 13h8l1-13" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>'), h('span', null, 'Clear row')));
+    paint();
+    const KEYS_V = { w: 0, 1: 0, h: 1, 2: 1, q: 2, 4: 2, e: 3, 8: 3, s: 4, 6: 4 };
+    grid.svg.addEventListener('keydown', (e) => {
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
+      const k = e.key.length === 1 ? e.key.toLowerCase() : e.key;
+      let done = true;
+      if (k in KEYS_V) { if (!valueBtns[KEYS_V[k]].disabled || (KEYS_V[k] === 4 && entry.dot)) place(KEYS_V[k]); else toast(`Each box is ${MQ.gridBoxName(model.box) === 'eighth' ? 'an' : 'a'} ${MQ.gridBoxName(model.box)} note — nothing shorter fits.`); }
+      else if (k === '.' || k === 'd' || e.code === 'Period' || e.code === 'NumpadDecimal') flip('dot');
+      else if (k === 'r' || k === '0') flip('rest');
+      else if (k === 'ArrowRight' && e.shiftKey) grid.resize(1);
+      else if (k === 'ArrowLeft' && e.shiftKey) grid.resize(-1);
+      else if (k === 'ArrowRight') grid.move(1);
+      else if (k === 'ArrowLeft') grid.move(-1);
+      else if (k === 'ArrowDown') grid.moveRow(1);
+      else if (k === 'ArrowUp') grid.moveRow(-1);
+      else if (k === 'Backspace' || k === 'Delete') del();
+      else if (k === 'Escape') grid.deselect();
+      else done = false;
+      if (done) e.preventDefault();
+    });
+    drawStatus();
+    return {
+      el: h('div', { class: 'rh-editor rg-editor' }, box, palette, status,
+        h('p', { class: 'rh-keys' }, 'Click the box where a note starts (or drag across the boxes it lasts), then choose its value. Drag a note’s arrow to show how long it lasts. Keys: W H Q E S write notes, period (or D) for Dot, R for Rest, arrows move, Shift + → ← make a note longer or shorter, Backspace deletes.')),
+      grid,
+    };
+  }
+  // A rhythm written out, its measures numbered from its first.
+  function notationRow(R) {
+    const box = h('div', { class: 'rstaff-box rg-notation' });
+    const staff = new MQ.RhythmStaff(box, { meter: R.meter, measures: R.measures, parts: 1, layers: R.layers, readOnly: true, first: (R.first || 1) - 1 });
+    return { el: box, staff };
+  }
+  function gridFacts(R, info) {
+    const G = R.grid;
+    return h('dl', { class: 'facts rh-facts' },
+      h('div', null, h('dt', null, 'Time'), h('dd', null, info.label + (info.grouping ? ` (${info.grouping})` : ''))),
+      h('div', null, h('dt', null, 'Measures'), h('dd', null, barsText(R.first || 1, R.measures))),
+      h('div', null, h('dt', null, 'Each box'), h('dd', null, `${MQ.gridBoxName(G.box)[0].toUpperCase() + MQ.gridBoxName(G.box).slice(1)} note`)),
+      G.show > 0 ? h('div', null, h('dt', null, 'Tempo'), h('dd', null, tempoLabel(info, R.tempo))) : null,
+      h('div', null, h('dt', null, 'Rests'), h('dd', null, G.rests ? 'Mark them too' : 'Leave blank')));
+  }
+  // One rhythm-grid question: read (or hear) the rhythm, then fill in the grid.
+  function gridCard(q, cfg, o) {
+    const R = q.rh, G = R.grid, info = MQ.rhythmMeter(R.meter);
+    const reveal = !!o.reveal && !o.keyMode;
+    const grader = !!o.locked && !o.plays;
+    const heard = G.show > 0, seen = G.show !== 1;
+    const wrap = h('div', { class: 'qcard rh-card rg-card' + (o.compact ? ' is-compact' : '') });
+    wrap.append(h('div', { class: 'q-eyebrow' }, typeOf(q.type).label, h('span', { class: 'q-clef' }, `${info.label} · ${barsText(R.first || 1, R.measures)}`)));
+    wrap.append(h(o.compact ? 'h3' : 'h2', { class: 'q-text' }, q.text));
+    if (!o.locked && !o.keyMode) {
+      wrap.append(h('p', { class: 'q-hint' }, `${seen ? (heard ? 'Read the rhythm — you can play it too.' : 'Read the rhythm.') : 'Listen as often as you’re allowed.'} For each note, click the box where it starts and choose its value, then drag its arrow across the boxes it lasts.${G.rests ? ' Mark the rests the same way.' : ' Leave the rests blank.'}`));
+    }
+    wrap.append(gridFacts(R, info));
+    const resp = o.response || null;
+    const cmp = reveal ? MQ.compareGrid(q, resp) : null;
+    let ed = null, answerGrid = null;
+    const music = seen || o.keyMode || reveal ? notationRow(R) : null;
+    if (music && (seen || reveal)) wrap.append(h('div', { class: 'rh-block' }, h('span', { class: 'mini-label' }, seen ? 'The rhythm' : 'The rhythm that was played'), music.el));
+    if (heard) {
+      const limit = MQ.rhythmSettings(cfg.rhythm);
+      const left = (k) => {
+        const lim = o.plays && !o.locked ? (k === 'ex' ? limit.playsEx : limit.playsAns) || 0 : 0;
+        return lim ? Math.max(0, lim - (o.plays[k] || 0)) : Infinity;
+      };
+      const use = (k) => () => { if (o.plays && !o.locked) { o.plays[k] = (o.plays[k] || 0) + 1; if (o.onPlays) o.onPlays(); } };
+      const sources = [{ label: 'Play the example', primary: true, layers: () => R.layers, left: () => left('ex'), use: use('ex') }];
+      if (!o.keyMode) sources.push({ label: grader ? 'Play their answer' : 'Hear my answer', layers: () => MQ.gridLayers(ed ? ed.grid.entries() : resp, R.measures, G.box), needsNotes: true, left: () => left('ans'), use: use('ans') });
+      wrap.append(listenPanel({ ex: R, sources, staffs: () => [music && seen ? music.staff : null, ed && ed.grid, answerGrid].filter(Boolean) }));
+    }
+    if (!o.keyMode) {
+      ed = gridEditor({ meter: R.meter, measures: R.measures, first: R.first, box: G.box, entries: resp }, {
+        readOnly: !!o.locked, marks: cmp ? { side: 'got', measures: cmp.measures } : null,
+        onChange: (E) => { if (o.onResponse) o.onResponse(E); },
+      });
+      wrap.append(h('div', { class: 'rh-block' }, h('span', { class: 'mini-label' }, grader ? 'Student’s grid' : o.locked ? 'Your grid' : 'Your answer — fill in the grid'), ed.el));
+    }
+    if (reveal || o.keyMode) {
+      const box = h('div', { class: 'rgrid-box' });
+      answerGrid = new MQ.RhythmGrid(box, {
+        meter: R.meter, measures: R.measures, first: R.first, box: G.box, readOnly: true, answer: MQ.gridAnswerEntries(q),
+        marks: cmp ? { side: 'want', measures: cmp.measures } : null, dimRests: !G.rests,
+      });
+      wrap.append(h('div', { class: 'rh-block' }, h('span', { class: 'mini-label' }, cmp && cmp.wrong ? 'The answer — notes that were missed or wrong are in red' : 'The answer'), box));
+    }
+    if (o.playsUsed && heard) {
+      const t = (k) => `${o.playsUsed[k]} time${o.playsUsed[k] === 1 ? '' : 's'}`;
+      wrap.append(h('p', { class: 'fine rh-plays' }, `Played the example ${t('ex')} and their answer ${t('ans')}.`));
+    }
+    if (cmp) {
+      const right = Math.max(0, cmp.notes - cmp.wrong), what = G.rests ? 'notes and rests' : 'notes';
+      wrap.append(!cmp.wrong ? h('p', { class: 'result is-good', role: 'status' }, h('strong', null, 'Correct.'), ` All ${cmp.notes} ${what} are in the right boxes.`)
+        : h('p', { class: 'result is-bad', role: 'status' }, h('strong', null, `${cmp.wrong} wrong`), ` — ${right} of ${cmp.notes} points. `,
+          'Red notes start in the wrong box, have the wrong value, last the wrong number of boxes, or are extra; in the answer, red notes were missed or wrong.'));
+    }
+    return wrap;
+  }
+  // An answer-key entry: the example's rhythm on its grid.
+  function gridKeyItem(q) {
+    const R = q.rh, info = MQ.rhythmMeter(R.meter);
+    const box = h('div', { class: 'rgrid-box rh-key-staff' });
+    new MQ.RhythmGrid(box, { meter: R.meter, measures: R.measures, first: R.first, box: R.grid.box, readOnly: true, answer: MQ.gridAnswerEntries(q), dimRests: !R.grid.rests });
+    return h('li', null, h('span', { class: 'key-q' }, `Example ${R.n + 1}`, h('span', { class: 'key-clef' }, ` · ${info.label} · ${barsText(R.first || 1, R.measures)} · ${MQ.gridBoxName(R.grid.box)}-note boxes`)), box);
+  }
+  // On paper, as on a worksheet: the rhythm (unless students only hear it), then an empty grid.
+  function gridPrintArt(q, opts) {
+    const R = q.rh, rows = [];
+    if (R.grid.show !== 1) {
+      const art = MQ.rhythmArt({ meter: R.meter, measures: R.measures, parts: 1, layers: R.layers }, { first: (R.first || 1) - 1, heightIn: (opts && opts.height) || 1.25 });
+      // No wider than the page (or a Word document's margins).
+      const f = Math.min(1, 6 / art.wIn);
+      art.wIn *= f; art.hIn *= f;
+      rows.push(art);
+    }
+    rows.push(MQ.gridArt({ meter: R.meter, measures: R.measures, first: R.first, box: R.grid.box, entries: [] }, { wIn: 6 }));
     return rows;
   }
 
@@ -4269,6 +4543,7 @@
     if (q.type === 'melody') return melodyPrintArt(q, opts);
     if (q.type === 'degree') return degreePrintArt(q, opts);
     if (q.type === 'rhythm') return rhythmPrintArt(q, opts);
+    if (q.type === 'rgrid') return gridPrintArt(q, opts);
     if (q.type !== 'keys') return [exportStaffSVG(q, opts)];
     const k = q.keys;
     const staffOf = (notes) => exportStaffSVG({ type: 'keys', clef: 'grand', grand: true, columns: [{ given: notes, cap: notes.length ? 0 : 1 }] }, opts);
@@ -4311,6 +4586,8 @@
   const printOpts = (extra) => Object.assign({
     paper: S.print.paper, staffHeight: S.print.staffH, qrSize: S.print.qr,
     quizId: S.code ? MQ.quizId(S.code) : 0,
+    // Where the QR code leads: the quiz, ready to take online.
+    qrLink: S.code ? quizLink(S.code) : '',
   }, extra || {});
   const printPayload = () => (S.code ? (quizLink(S.code) || 'Clefwork quiz ' + MQ.normalize(S.code)) : 'Clefwork');
 
@@ -4400,6 +4677,16 @@
       if (MQ.validDate(v)) changed(); else savePrint();
     });
     const courseIn = textIn('pr-course', S.print.course, 60, 'e.g. Music Theory I', (v) => { S.print.course = v; changed(); });
+    // The whole quiz travels in the QR code's link, so a long quiz makes a finer code. Phones read
+    // printed squares of about 0.4 mm or more most easily.
+    const qrNote = h('span');
+    const qrHelp = () => {
+      let need = 1;
+      try { const m = MQ.qrMatrix(printPayload(), { ecc: 'L' }); need = [0.5, 0.75, 1].find((x) => x >= ((m.size + 8) * 0.4) / 25.4) || 1; } catch (e) { /* too long: the largest */ }
+      qrNote.textContent = 'In the footer: students scan it to open the quiz online and take it there.'
+        + (S.print.qr < need ? ` This quiz’s code is detailed — at ${need === 1 ? '1' : '¾'} in phones read it more easily.` : '');
+    };
+    qrHelp();
     const printBtn = h('button', { type: 'button', class: 'btn btn-primary', onclick: () => doPDF(printBtn) }, 'Save as PDF');
     const wordBtn = h('button', { type: 'button', class: 'btn', onclick: () => doWord(wordBtn) }, 'Export Word (.docx)');
     form.append(
@@ -4414,7 +4701,7 @@
       paperSeg,
       h('div', { class: 'row2' },
         grp('Staff height', seg('pr-staff', [{ v: 1, label: '1 in' }, { v: 1.25, label: '1¼ in' }, { v: 1.5, label: '1½ in' }], S.print.staffH, (v) => { S.print.staffH = v; changed(); }), 'Never smaller than an inch.'),
-        grp('QR code', seg('pr-qr', [{ v: 0.5, label: '½ in' }, { v: 0.75, label: '¾ in' }, { v: 1, label: '1 in' }], S.print.qr, (v) => { S.print.qr = v; changed(); }), 'Printed in the footer with the quiz ID.')),
+        grp('QR code', seg('pr-qr', [{ v: 0.5, label: '½ in' }, { v: 0.75, label: '¾ in' }, { v: 1, label: '1 in' }], S.print.qr, (v) => { S.print.qr = v; qrHelp(); changed(); }), qrNote)),
       h('div', { class: 'btn-row' }, printBtn, wordBtn),
       status);
 
@@ -4579,8 +4866,8 @@
       if (name) name.textContent = 'Clefwork Rhythm';
       document.title = 'Clefwork Rhythm';
       document.querySelector('.flow').replaceChildren(
-        h('li', null, h('b', null, '1'), ' Write rhythms of one to four measures, in one part or two'),
-        h('li', null, h('b', null, '2'), ' Students listen and write what they hear on a one-line staff'),
+        h('li', null, h('b', null, '1'), ' Write rhythms, or let Clefwork make them'),
+        h('li', null, h('b', null, '2'), ' Students write what they hear on a one-line staff, or show each note’s start and length on a grid'),
         h('li', null, h('b', null, '3'), ' Students send back a report code — no accounts, no server'));
     }
     if (MELODY) {
@@ -4631,7 +4918,7 @@
         h('li', null, h('b', null, '2'), ' Copy your results link'),
         h('li', null, h('b', null, '3'), ' Paste it into the Canvas assignment as a Website URL'));
     }
-    document.querySelectorAll('.nav button').forEach((b) => b.addEventListener('click', () => go(b.dataset.view)));
+    document.querySelectorAll('.nav button').forEach((b) => b.addEventListener('click', () => { S.linkError = null; go(b.dataset.view); }));
     let view = 'build';
     const hash = decodeURIComponent(location.hash.slice(1));
     const m = hash.match(/^(take|grade)=([\s\S]+)$/);
@@ -4641,7 +4928,7 @@
       const extra = {};
       more.forEach((kv) => { const i = kv.indexOf('='); if (i > 0) extra[kv.slice(0, i)] = kv.slice(i + 1); });
       const clean = codePart.replace(/[^0-9A-Za-z]/g, '').toUpperCase();
-      if (!(S.take && S.take.code === clean)) openQuiz(codePart, { img: extra.img });
+      if (!(S.take && S.take.code === clean)) openQuiz(codePart, { img: extra.img, link: true });
       else if (extra.img && S.take.cfg.analysis && S.take.cfg.analysis.img) {
         // The same quiz, already under way: keep the link's picture in case this device lost it.
         const want = S.take.cfg.analysis.img.hash;

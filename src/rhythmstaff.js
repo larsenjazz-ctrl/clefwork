@@ -320,7 +320,7 @@
     render() {
       const b = build(this.model, {
         caret: this.o.readOnly ? null : this.caret, sel: this.sel, active: this.active, marks: this.o.marks,
-        playing: this.playing, editing: !this.o.readOnly,
+        playing: this.playing, editing: !this.o.readOnly, first: this.o.first || 0, showTime: this.o.showTime !== false,
       });
       this.geo = b.geo;
       this.svg.setAttribute('viewBox', `0 0 ${r1(b.W)} ${b.H}`);

@@ -7,7 +7,7 @@ Music theory quizzes that run entirely in the browser — no server, no accounts
 - **Student app:** [student.html](https://larsenjazz-ctrl.github.io/clefwork/student.html) — practise with instant feedback, or take a teacher's quiz and send back a report code.
 - **Clefwork Keys:** [keys.html](https://larsenjazz-ctrl.github.io/clefwork/keys.html) — a separate app for reading notes: the grand staff, note names with octaves, and the piano keyboard.
 - **Clefwork Analysis:** [analysis.html](https://larsenjazz-ctrl.github.io/clefwork/analysis.html) — harmonic analysis on real music: upload a picture of a score, box the chords, and students write Roman numerals or chord symbols beside the music.
-- **Clefwork Rhythm:** [rhythm.html](https://larsenjazz-ctrl.github.io/clefwork/rhythm.html) — rhythmic dictation: students hear a rhythm in one or two parts and write it on a one-line staff.
+- **Clefwork Rhythm:** [rhythm.html](https://larsenjazz-ctrl.github.io/clefwork/rhythm.html) — rhythmic dictation: students hear a rhythm in one or two parts and write it on a one-line staff; or a rhythm grid: students show where each note starts and how long it lasts on a grid of beats and boxes.
 - **Clefwork Melody:** [melody.html](https://larsenjazz-ctrl.github.io/clefwork/melody.html) — melodic dictation: students hear a melody of up to eight measures and write its pitches and rhythm on the staff.
 - **Canvas pages:** [take.html](https://larsenjazz-ctrl.github.io/clefwork/take.html) takes one quiz and ends with a results link to hand in; [results.html](https://larsenjazz-ctrl.github.io/clefwork/results.html) shows one student's results from that link.
 
@@ -63,6 +63,16 @@ A separate app, built on the same engine, for rhythmic dictation. The teacher wr
 - **Results.** Report codes (version 11 and later) carry every note the student wrote, how often they played the example and their answer, and each example's notes and wrong notes. The grade checker and results pages show the score, the wrong notes, the student's rhythm with each note marked right or wrong, and the right rhythm beneath it with the missed notes marked — both playable — and the play counts.
 - **Printing.** The Print tab prints each example's tempo and a blank one-line staff with its time signature, two measures to a line, for dictation on paper.
 
+#### Rhythm grids
+
+The second quiz type in Clefwork Rhythm (chosen under **Quiz type**). Students get a table with a row for each measure and the beats across the top, each beat split into boxes, as on a worksheet. For each note they click the box where it starts and choose its value, then drag its arrow across the boxes it lasts — with sixteenth-note boxes, a half note starts in one box and reaches across eight.
+
+- **The grid.** Each box is a sixteenth, eighth or quarter note, as the teacher chooses. The rhythm is *shown* in notation above the grid (as on a worksheet), *played* (with the same listening controls and play limits as dictation), or *shown and played*. Rests are left blank, or marked and graded like notes.
+- **Examples.** Written by the teacher — one to four measures, one part, no triplets, nothing shorter than a box — with the number of the first measure, so an excerpt's rows read m. 46, 47 … (a new example carries on the numbering). The builder draws the answer on its grid as the rhythm is written, and says what doesn't fit (a dotted-quarter beat can't be split into quarter-note boxes). Or made automatically at the same levels, one to four measures, leaving out triplets, notes shorter than a box, and meters whose beats don't split into boxes.
+- **Writing the answer.** Click a box, or drag across several, then choose a value (W H Q E S, with Dot and Rest); drag a note's arrow, or use Shift + → ← or the Longer and Shorter buttons, to set how many boxes it covers. Arrow keys move between boxes and measures, and a note's value can be changed in place. On a narrow screen the grid scrolls sideways.
+- **Scoring.** A note is right when it starts in the right box, has the right value (and dot), and covers the right number of boxes; a note missed or wrong, and every extra one, is a wrong note. Scored by notes or as a percent of a total, as dictation is.
+- **Results and printing.** Report codes (version 14) carry each student's grid; the grade checker shows it marked, with the answer beneath. The Print tab prints the rhythm and an empty grid, like the worksheet it's modeled on.
+
 ### Clefwork Melody
 
 Melodic dictation, built on Clefwork Rhythm: the same levels, meters, listening controls, play limits and scoring, with pitches on a five-line staff.
@@ -87,7 +97,7 @@ Melodic dictation, built on Clefwork Rhythm: the same levels, meters, listening 
 
 Every Clefwork page ends a quiz with a **Retake quiz** button: the same quiz code, so the same questions, and a fresh start. Retakes are unlimited unless the teacher sets a limit under **Quiz rules** (none, or 1–10 retakes). The limit travels in the quiz code; quizzes without one keep exactly the codes they had.
 
-A student's device counts their attempts and stops offering retakes once the limit is used. Because there's no server, a student could start again on another device — so every report code also records its attempt number, and the grade checker and results pages show it ("Attempt 2"), with a warning when an attempt goes past the quiz's limit. Report codes became version 9 with this (version 10 added rhythm answers, 11 their note scores, 12 melodies).
+A student's device counts their attempts and stops offering retakes once the limit is used. Because there's no server, a student could start again on another device — so every report code also records its attempt number, and the grade checker and results pages show it ("Attempt 2"), with a warning when an attempt goes past the quiz's limit. Report codes became version 9 with this (version 10 added rhythm answers, 11 their note scores, 12 melodies, 14 rhythm grids).
 
 ### Canvas
 
@@ -97,7 +107,7 @@ Canvas can't receive the grade by itself: that needs an LTI tool running on a se
 
 ### Printing
 
-The **Print** tab makes a paper copy of the current quiz: a header with the quiz title, teacher, course and date (mm/dd/yyyy, today's by default) and a blank for the student's name, then every question with a blank line beside its number for the point value, the printed example, and room to answer. Staves print at an inch or more — a grand staff 65% taller again, so there is room to write in both clefs — question text at 12pt, margins at 0.75 in (19 mm on A4), on Letter, Legal or A4. Every page carries a footer with the quiz ID and a QR code that opens the quiz. The preview zooms to fit a whole page, with a slider for a closer look. "Save as PDF" writes the PDF itself — the staves are drawn as line work, so they stay sharp at any size — and "Export Word" writes a .docx with the staves as pictures.
+The **Print** tab makes a paper copy of the current quiz: a header with the quiz title, teacher, course and date (mm/dd/yyyy, today's by default) and a blank for the student's name, then every question with a blank line beside its number for the point value, the printed example, and room to answer. Staves print at an inch or more — a grand staff 65% taller again, so there is room to write in both clefs — question text at 12pt, margins at 0.75 in (19 mm on A4), on Letter, Legal or A4. Every page carries a footer with the quiz ID and a QR code, captioned “Scan to take this quiz online”, that opens the quiz ready to take on the student page — scanned from paper, or clicked in the preview, the PDF or the Word document. The whole quiz travels in the link, so its code is written compactly (the quiz code in the QR code's alphanumeric mode), and the Print tab suggests a larger size when a long quiz makes a fine code. A quiz link that can't be opened says why, rather than showing the last quiz taken on that device. The preview zooms to fit a whole page, with a slider for a closer look. "Save as PDF" writes the PDF itself — the staves are drawn as line work, so they stay sharp at any size — and "Export Word" writes a .docx with the staves as pictures.
 
 ## Building
 

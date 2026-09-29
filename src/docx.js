@@ -134,9 +134,10 @@
   // half-points for w:sz, twentieths of a point for spacing and indents
   const run = (text, o) => {
     const p = o || {};
-    const props = `<w:rPr>${p.b ? '<w:b/>' : ''}${p.u ? '<w:u w:val="single"/>' : ''}`
+    // In the order Word's schema lists them: bold, colour, size, underline.
+    const props = `<w:rPr>${p.b ? '<w:b/>' : ''}${p.color ? `<w:color w:val="${p.color}"/>` : ''}`
       + `<w:sz w:val="${(p.pt || 12) * 2}"/><w:szCs w:val="${(p.pt || 12) * 2}"/>`
-      + `${p.color ? `<w:color w:val="${p.color}"/>` : ''}</w:rPr>`;
+      + `${p.u ? '<w:u w:val="single"/>' : ''}</w:rPr>`;
     return `<w:r>${props}<w:t xml:space="preserve">${xesc(text)}</w:t></w:r>`;
   };
   const para = (runs, o) => {
@@ -147,10 +148,11 @@
       + `${p.keep ? '<w:keepNext/><w:keepLines/>' : ''}</w:pPr>`;
     return `<w:p>${pr}${[].concat(runs).join('')}</w:p>`;
   };
-  const drawing = (id, rid, wIn, hIn, name) =>
+  // link: the id of a hyperlink relationship, to make the picture clickable.
+  const drawing = (id, rid, wIn, hIn, name, link) =>
     `<w:r><w:drawing><wp:inline distT="0" distB="0" distL="0" distR="0">`
     + `<wp:extent cx="${Math.round(wIn * EMU)}" cy="${Math.round(hIn * EMU)}"/>`
-    + `<wp:docPr id="${id}" name="${xesc(name || 'Image ' + id)}"/><a:graphic><a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/picture">`
+    + `<wp:docPr id="${id}" name="${xesc(name || 'Image ' + id)}">${link ? `<a:hlinkClick r:id="${link}"/>` : ''}</wp:docPr><a:graphic><a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/picture">`
     + `<pic:pic><pic:nvPicPr><pic:cNvPr id="${id}" name="${xesc(name || 'Image ' + id)}"/><pic:cNvPicPr/></pic:nvPicPr>`
     + `<pic:blipFill><a:blip r:embed="${rid}"/><a:stretch><a:fillRect/></a:stretch></pic:blipFill>`
     + `<pic:spPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="${Math.round(wIn * EMU)}" cy="${Math.round(hIn * EMU)}"/></a:xfrm>`
@@ -196,8 +198,11 @@
       + `<w:pgMar w:top="${marginTw}" w:right="${marginTw}" w:bottom="${marginTw}" w:left="${marginTw}" w:header="480" w:footer="480" w:gutter="0"/>`
       + `</w:sectPr>`;
     const document = XML + `<w:document ${W_NS}><w:body>${body.join('')}${sect}</w:body></w:document>`;
+    // The QR code — and the words beside it — open the quiz online.
+    const link = qr && opts.qrLink ? 'rIdQuizLink' : null;
     const footerRuns = [];
-    if (qr) footerRuns.push(drawing(9000, qr.rid, qr.wIn, qr.wIn, 'Quiz QR code'), run('  ', { pt: 8 }));
+    if (qr) footerRuns.push(drawing(9000, qr.rid, qr.wIn, qr.wIn, 'Quiz QR code — opens the quiz online', link), run('  ', { pt: 8 }));
+    if (link) footerRuns.push(`<w:hyperlink r:id="${link}">${run('Scan to take this quiz online', { pt: 8, b: true, u: true, color: '1F3FBF' })}</w:hyperlink>`, run('   ', { pt: 8 }));
     footerRuns.push(run('Quiz ID ' + opts.quizId, { pt: 8 }));
     const footer = XML + `<w:ftr ${W_NS}>${para(footerRuns, { after: 0 })}</w:ftr>`;
     const rels = (list) => XML + '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'
@@ -206,7 +211,8 @@
     const docRels = rels([
       '<Relationship Id="rIdFooter" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/footer" Target="footer1.xml"/>',
     ].concat(media.map(imgRel)));
-    const footerRels = rels(media.map(imgRel));
+    const footerRels = rels(media.map(imgRel).concat(link
+      ? [`<Relationship Id="${link}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink" Target="${xesc(opts.qrLink)}" TargetMode="External"/>`] : []));
     const types = XML + '<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">'
       + '<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>'
       + '<Default Extension="xml" ContentType="application/xml"/>'

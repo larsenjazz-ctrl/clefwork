@@ -152,14 +152,18 @@
     return out;
   }
   // An example: measures, time signature (denominator, numerator, grouping), tempo, parts, rhythm.
-  function writeExample(w, raw) {
+  // A rhythm grid's example (`grid`) also has the number of its first measure.
+  function writeExample(w, raw, grid) {
     const ex = MQ.exampleSettings(raw);
-    w.u(ex.measures - 1, 2).u(METER_DENOMS.indexOf(ex.meter.d), 2).u(ex.meter.n, 4).u(ex.meter.g || 0, 2)
+    w.u(ex.measures - 1, 2);
+    if (grid) w.u(ex.first - 1, 10);
+    w.u(METER_DENOMS.indexOf(ex.meter.d), 2).u(ex.meter.n, 4).u(ex.meter.g || 0, 2)
       .u(ex.tempo - 30, 8).u(ex.parts - 1, 1);
     for (let l = 0; l < ex.parts; l++) for (let m = 0; m < ex.measures; m++) writeEvents(w, ex.layers[l][m]);
   }
-  function readExample(r) {
+  function readExample(r, grid) {
     const ex = { measures: r.u(2) + 1 };
+    if (grid) ex.first = r.u(10) + 1;
     const d = METER_DENOMS[r.u(2)] || 4;
     ex.meter = { d, n: r.u(4), g: r.u(2) };
     ex.tempo = r.u(8) + 30;
@@ -335,7 +339,9 @@
     // Extension 4: the same, plus how the quiz is scored (every note a point, or a percent of a
     // total) and whether the examples are written out or made automatically from the seed.
     // Extension 5: Clefwork Melody — after the (empty) rhythm block, the melody block.
-    // (Extension 6 is a rhythm grid, from Clefwork Rhythm.)
+    // Extension 6: a rhythm grid — the rhythm block as extension 4 writes it, with each example's first
+    // measure number, then the grid: the size of its boxes, whether the rhythm is shown, played or
+    // both, and whether rests are marked. No melody block.
     // Extension 7: Scale degrees — the extension-5 blocks (usually empty), then how many melodies,
     // the melody generator's version, the melodies' length, level, keys and clefs, and whether
     // students may hear them.
@@ -345,12 +351,14 @@
     const rh = MQ.rhythmSettings(cfg.rhythm);
     const examples = rh.examples.slice(0, MQ.RHYTHM_MAX);
     const rhythm = rh.auto.on || examples.length > 0;
+    const grid = rhythm && rh.task === 'grid';
     const mb = MQ.melodySettings(cfg.melody);
-    const melody = mb.auto.on || mb.examples.length > 0;
-    const degrees = Math.min(MQ.DEGREE_MAX, (cfg.counts && cfg.counts.degree) || 0);
+    // A rhythm grid (Clefwork Rhythm) has its own extension, with no melody or degree blocks.
+    const melody = !grid && (mb.auto.on || mb.examples.length > 0);
+    const degrees = grid ? 0 : Math.min(MQ.DEGREE_MAX, (cfg.counts && cfg.counts.degree) || 0);
     if (regions.length || an.img || limit != null || rhythm || melody || degrees) {
       const q10 = (v) => Math.max(0, Math.min(1023, Math.round(v * 1023)));
-      const ext = degrees ? 7 : melody ? 5 : rhythm ? 4 : limit != null ? 2 : 1;
+      const ext = grid ? 6 : degrees ? 7 : melody ? 5 : rhythm ? 4 : limit != null ? 2 : 1;
       w.u(ext, 8).u(an.override, 2).u(an.img ? 1 : 0, 1);
       if (an.img) w.u(an.img.hash >>> 0, 32);
       w.strN(an.notes, 200, 8).u(regions.length, 6);
@@ -373,10 +381,11 @@
           if (a.gen >= 2) w.u(c.rests, 2);            // generator version 2: how many rests, in custom rules
         } else {
           w.u(examples.length, 4);
-          examples.forEach((ex) => writeExample(w, ex));
+          examples.forEach((ex) => writeExample(w, ex, grid));
         }
       }
       if (ext === 5 || ext >= 7) writeMelodyBlock(w, mb);
+      if (ext === 6) w.u(MQ.RHYTHM_GRID_BOXES.indexOf(rh.grid.box), 2).u(rh.grid.show, 2).u(rh.grid.rests ? 1 : 0, 1);
       if (ext >= 7) {
         const d = MQ.degreeSettings(cfg.deg);
         w.u(degrees, 5).u(d.gen, 3).u(d.measures - 1, 3).u(d.level - 1, 3).u(d.keyMode, 2).u(d.keyMax, 3).u(d.clefs, 2).u(d.hear, 1);
@@ -539,6 +548,7 @@
           if (ext >= 3) {
             if (r.u(1)) cfg.retakes = r.u(5);
             const rh = { playsEx: r.u(4), playsAns: r.u(4), examples: [] };
+            const grid = ext === 6;
             if (ext >= 4) {
               rh.score = r.u(1) ? 'percent' : 'notes';
               rh.outOf = r.u(10);
@@ -553,7 +563,11 @@
             }
             if (!rh.auto) {
               const n = r.u(4);
-              for (let i = 0; i < n; i++) rh.examples.push(readExample(r));
+              for (let i = 0; i < n; i++) rh.examples.push(readExample(r, grid));
+            }
+            if (grid) {
+              rh.task = 'grid';
+              rh.grid = { box: MQ.RHYTHM_GRID_BOXES[r.u(2)] || 3, show: r.u(2), rests: r.u(1) };
             }
             cfg.rhythm = MQ.rhythmSettings(rh);
             cfg.counts.rhythm = rh.auto ? rh.auto.count : rh.examples.length;
@@ -611,6 +625,18 @@
       const list = MQ.cleanDegrees(q, resp).slice(0, 127);
       w.u(list.length, 7);
       list.forEach((v) => w.u(v, 3));
+      return;
+    }
+    if (q.type === 'rgrid') {
+      // Each measure's entries: first box, boxes covered, value, dot, rest.
+      const R = q.rh, spec = MQ.gridSpec(R.meter, R.grid.box);
+      const grid = MQ.cleanGrid(resp, R.measures, spec ? spec.cells : MQ.GRID_MAX_CELLS);
+      w.u(R.measures - 1, 2);
+      grid.forEach((list) => {
+        w.u(Math.min(31, list.length), 5);
+        list.slice(0, 31).forEach((e) => w.u(e.c, 5).u(e.n - 1, 5).u(e.v, 3).u(e.d, 1).u(e.r, 1));
+      });
+      w.u(Math.min(31, (plays && plays.ex) || 0), 5).u(Math.min(31, (plays && plays.ans) || 0), 5);
       return;
     }
     if (q.type === 'melody') {
@@ -701,6 +727,15 @@
       const n = r.u(7), list = [];
       for (let j = 0; j < n; j++) list.push(r.u(3));
       return { kind: 'degree', value: list };
+    }
+    if (type === 'rgrid') {
+      const n = r.u(2) + 1, grid = [];
+      for (let m = 0; m < n; m++) {
+        const k = r.u(5), list = [];
+        for (let j = 0; j < k; j++) list.push({ c: r.u(5), n: r.u(5) + 1, v: Math.min(4, r.u(3)), d: r.u(1), r: r.u(1) });
+        grid.push(list);
+      }
+      return { kind: 'grid', value: grid, plays: { ex: r.u(5), ans: r.u(5) } };
     }
     if (type === 'melody') {
       const n = r.u(3) + 1, L = [];
@@ -807,7 +842,7 @@
       w.u(sc.mode === 'percent' ? 1 : 0, 1).u(Math.max(1, Math.min(1000, Math.round(sc.outOf || 100))), 10).u(sc.split ? 1 : 0, 1);
       const n9 = (v) => Math.max(0, Math.min(511, v || 0));
       report.items.forEach((it) => {
-        if (it.type === 'rhythm' || it.type === 'melody') w.u(n9(it.notes), 9).u(n9(it.wrong), 9);
+        if (it.type === 'rhythm' || it.type === 'melody' || it.type === 'rgrid') w.u(n9(it.notes), 9).u(n9(it.wrong), 9);
         if (it.type === 'melody') w.u(n9(it.pw), 9).u(n9(it.rw), 9);
       });
     }
@@ -848,7 +883,7 @@
       if (ver >= 11 && r.u(1)) {
         rep.scoring = { mode: r.u(1) ? 'percent' : 'notes', outOf: r.u(10), split: ver >= 12 ? r.u(1) : 0 };
         rep.items.forEach((it) => {
-          if (it.type === 'rhythm' || (it.type === 'melody' && ver >= 12)) { it.notes = r.u(9); it.wrong = r.u(9); }
+          if (it.type === 'rhythm' || it.type === 'rgrid' || (it.type === 'melody' && ver >= 12)) { it.notes = r.u(9); it.wrong = r.u(9); }
           if (it.type === 'melody' && ver >= 12) { it.pw = r.u(9); it.rw = r.u(9); }
         });
       }

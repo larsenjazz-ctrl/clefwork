@@ -758,6 +758,7 @@
     if (q.type === 'rhythm') return MQ.gradeRhythm(q, response);
     if (q.type === 'melody') return MQ.gradeMelody(q, response);
     if (q.type === 'degree') return MQ.gradeDegrees(q, response);
+    if (q.type === 'rgrid') return MQ.gradeGrid(q, response);
     if (q.type === 'figured' || q.type === 'figprog') return MQ.gradeFigured(q, response, cfg);
     if (q.type === 'progression') return MQ.gradeProgression(q, response, cfg);
     if (q.symbolAnswers) {
@@ -786,6 +787,7 @@
       : q.type === 'rhythm' ? MQ.hasRhythmAnswer(q, response)
       : q.type === 'melody' ? MQ.hasMelodyAnswer(q, response)
       : q.type === 'degree' ? MQ.hasDegreeAnswer(q, response)
+      : q.type === 'rgrid' ? MQ.hasGridAnswer(q, response)
       : q.type === 'figured' || q.type === 'figprog' ? MQ.hasFiguredAnswer(q, response)
       : q.colSpecs ? !!response && response.some((col) => col && col.some(Boolean))
         : q.type === 'progression' ? !!response && ['r', 's'].some((k) => (response[k] || []).some((x) => x && x.trim()))
@@ -800,6 +802,7 @@
     if (q.type === 'rhythm') return MQ.describeRhythm(q);
     if (q.type === 'melody') return MQ.describeMelody(q);
     if (q.type === 'degree') return MQ.describeDegrees(q);
+    if (q.type === 'rgrid') return MQ.describeGrid(q);
     if (q.symbolAnswers) return q.symbolAnswers.map((a) => a.shown).join('  ');
     if (q.symbolAnswer) return q.symbolAnswer.shown;
     if (q.dropdowns) return q.dropdowns.map((d) => d.options[d.answer]).join(' · ');

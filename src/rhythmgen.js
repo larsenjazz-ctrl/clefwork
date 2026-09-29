@@ -223,9 +223,21 @@
     return best.ms.map((m) => m.ev.map((e) => Object.assign({}, e)));
   }
 
-  // The examples of an automatic quiz, as the teacher would have written them.
-  function generateRhythms(seed, auto) {
-    const a = MQ.rhythmAuto(auto), rules = rulesOf(a), out = [];
+  // A rhythm grid's rules: no triplets, nothing shorter than a box, and only meters whose beats split
+  // into whole boxes (6/8 has no room for quarter-note boxes).
+  function gridRules(rules, box) {
+    const list = (rules.meters === ALL ? MQ.RHYTHM_METERS : rules.meters)
+      .filter((m) => MQ.rhythmMeter(m).beats.every((b) => b.len % box === 0));
+    return Object.assign({}, rules, {
+      meters: list.length ? list : meters('4/4'), triplets: false,
+      shortest: Math.min(rules.shortest, box === 3 ? 4 : box === 6 ? 3 : 2),
+    });
+  }
+
+  // The examples of an automatic quiz, as the teacher would have written them. grid: a rhythm grid's
+  // settings, when the examples are for one.
+  function generateRhythms(seed, auto, grid) {
+    const a = MQ.rhythmAuto(auto), rules = grid ? gridRules(rulesOf(a), grid.box) : rulesOf(a), out = [];
     for (let k = 0; k < a.count; k++) {
       const rng = MQ.mulberry32((Math.imul((seed >>> 0) + 1, 2654435761) ^ Math.imul(k + 1, 40503) ^ 0x5bd1e995) >>> 0);
       const meter = pickMeter(rng, rules);

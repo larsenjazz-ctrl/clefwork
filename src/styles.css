@@ -916,3 +916,27 @@ select.rn-mark { min-width: 0; }
 .dg-fix { font: 700 12px var(--f-mono); color: var(--bad); }
 .dg-lane:has(.dg-fix) { height: 66px; }
 .dg-lane.has-two:has(.dg-fix) { height: 112px; }
+
+/* ---------- Clefwork Rhythm: the rhythm grid ---------- */
+.rgrid-box { background: var(--paper); border: 1px solid var(--line); border-radius: 10px; padding: 6px; overflow-x: auto; }
+.rgrid-box:has(.rgrid:focus-visible) { box-shadow: 0 0 0 3px var(--accent-soft); border-color: var(--accent); }
+.rgrid-box .warn-note { margin: 4px; }
+.rgrid { display: block; width: 100%; height: auto; margin: 0 auto; color: var(--staff-ink); user-select: none; -webkit-user-select: none; touch-action: pan-y; }
+.rgrid:not(.is-readonly) { cursor: pointer; }
+.rgrid.is-wide { touch-action: pan-x pan-y; }
+.rgrid:focus { outline: none; }
+.rgrid .clabel { font: 700 13px var(--f-body); }
+.rgrid .g-row.is-playing { fill: rgba(242, 180, 65, 0.3); }
+.rgrid .g-row.is-right { fill: rgba(19, 122, 75, 0.06); }
+.rgrid .g-row.is-wrong { fill: rgba(191, 49, 57, 0.07); }
+.rgrid .g-span { fill: rgba(47, 63, 191, 0.07); }
+.rgrid .g-span.is-sel { fill: rgba(47, 63, 191, 0.17); }
+.rgrid .g-cur { fill: rgba(47, 63, 191, 0.1); stroke: #2f3fbf; stroke-width: 2; pointer-events: none; }
+.rgrid .g-grip { fill: #2f3fbf; stroke: #fff; stroke-width: 1.5; }
+.rgrid:not(.is-readonly) .g-ent { cursor: ew-resize; }
+.rgrid .g-ent.is-sel { color: #2f3fbf; }
+.rgrid .g-ent.is-right { color: #137a4b; }
+.rgrid .g-ent.is-wrong, .rgrid .g-ent.is-missed { color: #bf3139; }
+.rgrid .g-ent.is-dim { opacity: 0.4; }
+.g-status { margin: 8px 2px 0; font-size: 13.5px; color: var(--ink-2); min-height: 1.4em; }
+.key-list .rgrid { min-width: 0 !important; }

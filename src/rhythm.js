@@ -18,6 +18,7 @@
   const PIANO_NOTE = 72, OBOE_NOTE = 65;           // C5 and F4: the parts sound a 5th apart
 
   function dur(e) {
+    if (e.u) return e.u;                          // a length of its own (a rhythm grid's note, when played)
     let u = VALUES[e.v] ? VALUES[e.v].units : 12;
     if (e.d) u = (u * 3) / 2;
     if (e.t) u = (u * 2) / 3;
@@ -174,24 +175,45 @@
     e.measures = Math.max(1, Math.min(4, e.measures | 0 || 2));
     e.tempo = Math.max(40, Math.min(240, Math.round(e.tempo || 80)));
     e.parts = e.parts === 2 ? 2 : 1;
+    // The number of the first measure — a rhythm grid can show where an excerpt comes from (m. 46).
+    e.first = Math.max(1, Math.min(999, e.first | 0 || 1));
     if (!Array.isArray(e.layers)) e.layers = emptyLayers();
     while (e.layers.length < 2) e.layers.push([[], [], [], []]);
     e.layers.forEach((L) => { while (L.length < 4) L.push([]); });
     return e;
   }
-  const newExample = (from) => exampleSettings(from ? { meter: Object.assign({}, from.meter), measures: from.measures, tempo: from.tempo, parts: 1 } : {});
+  // A new example like the one before: its meter, length and tempo — and in a rhythm grid, carrying
+  // on the measure numbers from where it stopped.
+  const newExample = (from, grid) => exampleSettings(from
+    ? { meter: Object.assign({}, from.meter), measures: from.measures, tempo: from.tempo, parts: 1, first: grid ? Math.min(999, (from.first || 1) + from.measures) : 1 }
+    : {});
   // How a quiz is scored: every note is a point ('notes'), or the share of notes right is scaled
   // to a total the teacher sets ('percent', out of `outOf`).
+  // task: 'dictation' (students hear the rhythm and write it) or 'grid' (students show where each note
+  // starts and how long it lasts on a grid of boxes — see rhythmgrid.js).
   function rhythmSettings(block) {
     const b = block || {};
+    b.task = b.task === 'grid' ? 'grid' : 'dictation';
+    b.grid = gridSettings(b.grid);
     if (!Array.isArray(b.examples)) b.examples = [];
     b.examples.forEach(exampleSettings);
+    if (b.task === 'grid') b.examples.forEach((ex) => { ex.parts = 1; });
     if (b.playsEx == null) b.playsEx = 0;           // 0 = as many plays as students like
     if (b.playsAns == null) b.playsAns = 0;
     if (b.score !== 'percent') b.score = 'notes';
     b.outOf = Math.max(1, Math.min(1000, Math.round(b.outOf || 100)));
     b.auto = autoSettings(b.auto);
     return b;
+  }
+  // A rhythm grid: how long each box is (a sixteenth, eighth or quarter note, in units), what students
+  // get — the rhythm shown in notation (0), played (1), or both (2) — and whether rests are marked too.
+  const GRID_BOXES = [3, 6, 12];
+  function gridSettings(g) {
+    const o = g || {};
+    o.box = GRID_BOXES.includes(o.box) ? o.box : 3;
+    o.show = [0, 1, 2].includes(o.show) ? o.show : 0;
+    o.rests = o.rests ? 1 : 0;
+    return o;
   }
   // Automatic examples: how many, how long, the level (1–6, or 7 for the teacher's own rules), the
   // quarter-note tempo, and the custom rules.
@@ -217,8 +239,11 @@
   }
   const partName = (l) => (l ? 'oboe part (stems down)' : 'piano part (stems up)');
   // Everything that stops an example being shared, in words.
-  function exampleProblems(ex) {
+  // grid (optional): the rhythm-grid settings, when the example has to fit the grid's boxes too.
+  function exampleProblems(ex, grid) {
     const e = exampleSettings(ex), info = meterInfo(e.meter), out = [];
+    if (grid && MQ.gridProblems) MQ.gridProblems(e, grid).forEach((t) => out.push(t));
+    if (out.length) return out;
     for (let l = 0; l < e.parts; l++) {
       for (let m = 0; m < e.measures; m++) {
         const s = measureState(e.layers[l][m], info);
@@ -235,7 +260,7 @@
   function rhythmProblems(block) {
     const b = rhythmSettings(block), out = [];
     if (b.auto.on) return out;                      // generated examples are always complete
-    b.examples.forEach((ex, i) => exampleProblems(ex).forEach((text) => out.push({ ex: i, text: `Example ${i + 1}: ${text}` })));
+    b.examples.forEach((ex, i) => exampleProblems(ex, b.task === 'grid' ? b.grid : null).forEach((text) => out.push({ ex: i, text: `Example ${i + 1}: ${text}` })));
     return out;
   }
 
@@ -248,10 +273,12 @@
   function rhythmQuestions(cfg) {
     const b = rhythmSettings(cfg.rhythm);
     // Automatic examples come from the quiz's seed, so everyone with the code gets the same ones.
-    const list = b.auto.on && MQ.generateRhythms ? MQ.generateRhythms(cfg.seed, b.auto) : b.examples;
+    const grid = b.task === 'grid';
+    const list = b.auto.on && MQ.generateRhythms ? MQ.generateRhythms(cfg.seed, b.auto, grid ? b.grid : null) : b.examples;
     const n = b.auto.on ? list.length : Math.min(list.length, cfg.counts && cfg.counts.rhythm != null ? cfg.counts.rhythm : list.length);
     return list.slice(0, n).map((raw, i) => {
       const ex = exampleSettings(raw), info = meterInfo(ex.meter);
+      if (grid && MQ.gridQuestion) return MQ.gridQuestion(ex, info, i, b.grid);
       return {
         type: 'rhythm', clef: 'treble',
         text: `Example ${i + 1}: write the rhythm you hear.`,
@@ -359,7 +386,7 @@
   }
 
   Object.assign(MQ, {
-    RHYTHM_VALUES: VALUES, RHYTHM_MAX: MAX_EXAMPLES, RHYTHM_METERS: METERS, RHYTHM_TEMPO_UNITS: TEMPO_UNITS, RHYTHM_TEMPO_NAMES: TEMPO_NAMES,
+    RHYTHM_VALUES: VALUES, RHYTHM_MAX: MAX_EXAMPLES, RHYTHM_GRID_BOXES: GRID_BOXES, rhythmGrid: gridSettings, rhythmCleanEvents: (m) => m.map(cleanEvent), RHYTHM_METERS: METERS, RHYTHM_TEMPO_UNITS: TEMPO_UNITS, RHYTHM_TEMPO_NAMES: TEMPO_NAMES,
     rhythmDur: dur, rhythmTotal: total, rhythmEvent: cleanEvent, rhythmMeter: meterInfo, rhythmGroupings: groupingsOf,
     rhythmAmount: amountText, rhythmCount: countText, tripletGroups, tripletStartOk, tripletWhy, measureState, rhythmEditProblem: editProblem, measureNote,
     rhythmExample: newExample, exampleSettings, rhythmSettings, exampleProblems, rhythmProblems, rhythmQuestions, rhythmBlank: blankAnswer,

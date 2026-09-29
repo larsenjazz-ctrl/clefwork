@@ -39,7 +39,9 @@
       width: o.width,
       height: o.height,
       // ---------- pages ----------
-      addPage() { page = { ops: [] }; pages.push(page); return api; },
+      addPage() { page = { ops: [], links: [] }; pages.push(page); return api; },
+      // A clickable area (top-left x, y, width, height) that opens a web address.
+      link(x, y, w, h, uri) { page.links.push({ x, y, w, h, uri }); return api; },
       get pageCount() { return pages.length; },
       op(s) { page.ops.push(s); return api; },
       // ---------- graphics ----------
@@ -69,13 +71,16 @@
         const add = (body) => { objs.push(body); return objs.length; };          // 1-based object numbers
         const fontIds = FONTS.map((f) => add(`<< /Type /Font /Subtype /Type1 /BaseFont /${f.base} /Encoding /WinAnsiEncoding >>`));
         const resources = '<< /Font << ' + FONTS.map((f, i) => `/${f.id} ${fontIds[i]} 0 R`).join(' ') + ' >> >>';
-        const pagesNo = objs.length + pages.length * 2 + 1;                       // filled in below
+        // Each page: its links, its content, then the page itself.
+        const pagesNo = objs.length + pages.reduce((n, p) => n + 2 + p.links.length, 0) + 1;   // filled in below
         const kids = [];
         pages.forEach((p) => {
+          const annots = p.links.map((l) => add(`<< /Type /Annot /Subtype /Link /Rect [${num(l.x)} ${num(o.height - l.y - l.h)} ${num(l.x + l.w)} ${num(o.height - l.y)}] `
+            + `/Border [0 0 0] /A << /S /URI /URI ${pdfString(l.uri)} >> >>`));
           const stream = p.ops.join('\n');
           const content = add(`<< /Length ${stream.length} >>\nstream\n${stream}\nendstream`);
           const pageNo = add(`<< /Type /Page /Parent ${pagesNo} 0 R /MediaBox [0 0 ${num(o.width)} ${num(o.height)}] `
-            + `/Resources ${resources} /Contents ${content} 0 R >>`);
+            + `/Resources ${resources} /Contents ${content} 0 R${annots.length ? ` /Annots [${annots.map((a) => a + ' 0 R').join(' ')}]` : ''} >>`);
           kids.push(pageNo);
         });
         const pagesObj = add(`<< /Type /Pages /Kids [${kids.map((k) => k + ' 0 R').join(' ')}] /Count ${kids.length} >>`);
