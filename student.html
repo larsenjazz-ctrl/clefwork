@@ -7124,8 +7124,8 @@ svg.staff .nlabel { display: none; }
     // A rhythm grid (Clefwork Rhythm) has its own extension, with no melody or degree blocks.
     const melody = !grid && (mb.auto.on || mb.examples.length > 0);
     const degrees = grid ? 0 : Math.min(MQ.DEGREE_MAX, (cfg.counts && cfg.counts.degree) || 0);
-    const dg = MQ.degreeSettings(cfg.deg);
-    const dgMore = dg.share < 100 || dg.score !== 'question';
+    const dg = degrees ? MQ.degreeSettings(cfg.deg) : null;
+    const dgMore = !!dg && (dg.share < 100 || dg.score !== 'question');
     if (regions.length || an.img || limit != null || rhythm || melody || degrees) {
       const q10 = (v) => Math.max(0, Math.min(1023, Math.round(v * 1023)));
       const ext = grid ? 6 : degrees ? (dgMore ? 8 : 7) : melody ? 5 : rhythm ? 4 : limit != null ? 2 : 1;
