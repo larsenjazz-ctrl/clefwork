@@ -31,7 +31,8 @@
   // ---------- the picture ----------
   // model: {meter, measures, layers: [[measure…]], key {fifths, mode}, clef}. opts as for the rhythm
   // staff (caret, sel, marks, playing, editing, print, measureW, first, showTime), plus perLine and
-  // cursor (a pitch to show at the caret: where the next note goes).
+  // cursor (a pitch to show at the caret: where the next note goes), and open (end on a plain bar line,
+  // for a line of a longer melody).
   function build(model, opts) {
     const o = Object.assign({ print: false, first: 0, showTime: true, measureW: null, caret: null, sel: null, marks: null, playing: -1, editing: false, perLine: 4, cursor: null }, opts);
     const info = MQ.rhythmMeter(model.meter);
@@ -121,7 +122,7 @@
       ms.forEach((m, j) => {
         const g = geo.measures[m];
         s += `<text class="r-mnum" x="${r1(g.x0 + 4)}" y="${sy + 14}" font-size="9.5" fill="currentColor">${o.first + m + 1}</text>`;
-        const last = m === model.measures - 1;
+        const last = m === model.measures - 1 && !o.open;     // open: more music follows this picture
         if (!last) s += lineSVG(g.x1, sy + TOP, g.x1, sy + BOT, 1);
         else s += lineSVG(g.x1 - 7, sy + TOP, g.x1 - 7, sy + BOT, 1) + rectSVG(g.x1 - 4, sy + TOP, 3.6, 40);
         if (!last && j === ms.length - 1) { /* the line ends at its bar line */ }

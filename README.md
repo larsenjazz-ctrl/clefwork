@@ -21,6 +21,10 @@ Question types: place a note, name a note, intervals (simple and compound), chor
 
 Two tabs build chords from the teacher's complexity settings (sizes, qualities, altered notes, chords from a key or chromatic, slash chords) and voice them with a named technique: stacked thirds, chorale, block voicing, drop 2, drop 2 & 4, 5 plane / 9 plane, pop horn voicings, inner sevenths, or a voicing the teacher writes out. Each technique has its own counter and its own choices — staff, open or closed, three or four notes, inner 2nds. Students either write the notes for a printed chord symbol, or write the chord symbol for a printed voicing.
 
+### Scale degrees
+
+The **Scale Degrees** tab in the quiz builder prints melodies of one to eight measures, made by Clefwork Melody's generator, with their key signatures. Students choose the scale degree (1–7) under every note, and each note is an equal share of the question. The teacher picks the length, the melody level, major, minor or both, how many sharps or flats, the clefs, and whether students may play the melody and the tonic chord. The melodies have no chromatic notes; in minor keys a raised 6th or 7th is still 6 or 7. Printed copies show the melody with room to write the numbers under the notes.
+
 ### Clefwork Keys
 
 A separate app, built on the same engine, for one skill: knowing a note in three forms. Each question shows a note one way — **on the grand staff**, **as a name with its octave** (F♯4; middle C is C4), or **as a highlighted piano key** — and asks for it another way: **write it on the grand staff**, **type the name**, or **play it on the piano**. The teacher picks which ways to show and which ways to answer, and the quiz mixes every pairing that isn't simply copying. The piano plays each note as a key is pressed, a name is typed, or a note is written.

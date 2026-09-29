@@ -335,6 +335,10 @@
     // Extension 4: the same, plus how the quiz is scored (every note a point, or a percent of a
     // total) and whether the examples are written out or made automatically from the seed.
     // Extension 5: Clefwork Melody — after the (empty) rhythm block, the melody block.
+    // (Extension 6 is a rhythm grid, from Clefwork Rhythm.)
+    // Extension 7: Scale degrees — the extension-5 blocks (usually empty), then how many melodies,
+    // the melody generator's version, the melodies' length, level, keys and clefs, and whether
+    // students may hear them.
     const an = MQ.analysisSettings(cfg.analysis);
     const regions = an.regions.slice(0, MQ.ANALYSIS_MAX);
     const limit = retakeLimit(cfg);
@@ -343,9 +347,10 @@
     const rhythm = rh.auto.on || examples.length > 0;
     const mb = MQ.melodySettings(cfg.melody);
     const melody = mb.auto.on || mb.examples.length > 0;
-    if (regions.length || an.img || limit != null || rhythm || melody) {
+    const degrees = Math.min(MQ.DEGREE_MAX, (cfg.counts && cfg.counts.degree) || 0);
+    if (regions.length || an.img || limit != null || rhythm || melody || degrees) {
       const q10 = (v) => Math.max(0, Math.min(1023, Math.round(v * 1023)));
-      const ext = melody ? 5 : rhythm ? 4 : limit != null ? 2 : 1;
+      const ext = degrees ? 7 : melody ? 5 : rhythm ? 4 : limit != null ? 2 : 1;
       w.u(ext, 8).u(an.override, 2).u(an.img ? 1 : 0, 1);
       if (an.img) w.u(an.img.hash >>> 0, 32);
       w.strN(an.notes, 200, 8).u(regions.length, 6);
@@ -371,7 +376,11 @@
           examples.forEach((ex) => writeExample(w, ex));
         }
       }
-      if (ext === 5) writeMelodyBlock(w, mb);
+      if (ext === 5 || ext >= 7) writeMelodyBlock(w, mb);
+      if (ext >= 7) {
+        const d = MQ.degreeSettings(cfg.deg);
+        w.u(degrees, 5).u(d.gen, 3).u(d.measures - 1, 3).u(d.level - 1, 3).u(d.keyMode, 2).u(d.keyMax, 3).u(d.clefs, 2).u(d.hear, 1);
+      }
     }
     return pack(KIND_QUIZ, w.b);
   }
@@ -549,9 +558,13 @@
             cfg.rhythm = MQ.rhythmSettings(rh);
             cfg.counts.rhythm = rh.auto ? rh.auto.count : rh.examples.length;
           }
-          if (ext >= 5) {
+          if (ext === 5 || ext >= 7) {
             cfg.melody = readMelodyBlock(r);
             cfg.counts.melody = cfg.melody.auto.on ? cfg.melody.auto.count : cfg.melody.examples.length;
+          }
+          if (ext >= 7) {
+            cfg.counts.degree = r.u(5);
+            cfg.deg = MQ.degreeSettings({ gen: r.u(3), measures: r.u(3) + 1, level: r.u(3) + 1, keyMode: r.u(2), keyMax: r.u(3), clefs: r.u(2), hear: r.u(1) });
           }
         }
         const sum = (b) => MQ.TECHNIQUES.reduce((n, t) => n + ((b.tech && b.tech[t.id]) || 0), 0);
@@ -593,6 +606,13 @@
   const KEY_ANSWERS = ['staff', 'name', 'piano'];
   // `plays` (rhythm questions): how often the student played the example and their own answer.
   function writeAnswer(w, q, resp, plays) {
+    if (q.type === 'degree') {
+      // Scale degrees: how many notes, then each note's number (0 blank, 1–7).
+      const list = MQ.cleanDegrees(q, resp).slice(0, 127);
+      w.u(list.length, 7);
+      list.forEach((v) => w.u(v, 3));
+      return;
+    }
     if (q.type === 'melody') {
       w.u(q.mel.measures - 1, 3);
       for (let m = 0; m < q.mel.measures; m++) writeMelEvents(w, resp && resp[0] && resp[0][m]);
@@ -677,6 +697,11 @@
     return { kind: 'staff', value: cols };
   }
   function readAnswer(r, type, ver) {
+    if (type === 'degree') {
+      const n = r.u(7), list = [];
+      for (let j = 0; j < n; j++) list.push(r.u(3));
+      return { kind: 'degree', value: list };
+    }
     if (type === 'melody') {
       const n = r.u(3) + 1, L = [];
       for (let m = 0; m < n; m++) L.push(readMelEvents(r));
@@ -756,12 +781,16 @@
     const qid = quizId(quizCode);
     const w = new Writer();
     // Version 10 added rhythm answers, with how often each example and answer was played.
-    w.u(13, 4).u(qid, 16).str(report.name, 40)
+    // Version 14: types past the sixteenth (rhythm grids) write 15 and three more bits.
+    w.u(14, 4).u(qid, 16).str(report.name, 40)
       .u(Math.max(0, Math.round((report.submittedAt - EPOCH) / 60000)), 24)
       .u(Math.min(65535, Math.round(report.totalSec)), 16)
       .u(report.partial ? 1 : 0, 1).u(report.items.length, 7);
     report.items.forEach((it) => {
-      w.u(MQ.typeIndex(it.type), 4).u(['treble', 'bass', 'grand'].indexOf(it.clef) & 3, 2);
+      const ti = MQ.typeIndex(it.type);
+      w.u(Math.min(15, ti), 4);
+      if (ti >= 15) w.u(ti - 15, 3);
+      w.u(['treble', 'bass', 'grand'].indexOf(it.clef) & 3, 2);
       if (report.partial) w.u(it.credit, 3); else w.u(it.credit === 7 ? 1 : 0, 1);
       w.u(it.answered ? 1 : 0, 1).u(Math.min(63, Math.round(it.sec)), 6);
     });
@@ -795,7 +824,7 @@
     const restBits = body.slice(20);
     try {
       const ver = r.u(4);
-      if (ver < 1 || ver > 13) throw new CodeError('This report was made with a newer version of Clefwork.');
+      if (ver < 1 || ver > 14) throw new CodeError('This report was made with a newer version of Clefwork.');
       const rep = { code: group(clean), quizId: r.u(16), name: r.str() };
       rep.submittedAt = EPOCH + r.u(24) * 60000;
       rep.totalSec = r.u(16);
@@ -803,7 +832,9 @@
       const n = r.u(7);
       rep.items = [];
       for (let i = 0; i < n; i++) {
-        const type = MQ.TYPES[r.u(ver >= 3 ? 4 : 3)];
+        let ti = r.u(ver >= 3 ? 4 : 3);
+        if (ver >= 14 && ti === 15) ti += r.u(3);
+        const type = MQ.TYPES[ti];
         // Version 1 reports used one bit for the clef; voicings were always the grand staff then.
         const clef = ver >= 2 ? ['treble', 'bass', 'grand'][r.u(2)] || 'treble'
           : r.u(1) ? (type && type.id === 'voicing' ? 'grand' : 'bass') : type && type.id === 'voicing' ? 'grand' : 'treble';

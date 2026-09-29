@@ -910,6 +910,24 @@ select.rn-mark { min-width: 0; }
 .frame-note a { font-weight: 700; color: var(--accent); }
 .take-bar-tab { margin-left: auto; text-decoration: none; }
 .is-fitted .toast { position: absolute; bottom: auto; }
+
+/* Scale degrees: the melody a line at a time, and a lane of number menus under its notes. */
+.dg-hear { margin: 4px 0 8px; }
+.dg-lines { display: flex; flex-direction: column; gap: 10px; }
+.dg-line { width: 100%; }
+.dg-pic { background: #fff; border-radius: 8px 8px 0 0; color: #000; }
+.dg-pic svg { display: block; width: 100%; height: auto; }
+.dg-lane { position: relative; height: 48px; background: var(--surface-2); border-radius: 0 0 8px 8px; }
+.dg-lane.has-two { height: 92px; }
+.dg-box { position: absolute; top: 6px; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 1px; }
+.dg-box.is-low { top: 50px; }
+.dg-box select { width: 42px; min-height: 36px; padding: 2px 4px; text-align: center; text-align-last: center; font: 700 16px var(--f-mono); border-radius: 7px; }
+.dg-box.is-right select { border-color: var(--good); background: var(--good-soft); color: var(--good); }
+.dg-box.is-wrong select { border-color: var(--bad); background: var(--bad-soft); color: var(--bad); }
+.dg-box select:disabled { opacity: 1; color: var(--ink); }
+.dg-fix { font: 700 12px var(--f-mono); color: var(--bad); }
+.dg-lane:has(.dg-fix) { height: 66px; }
+.dg-lane.has-two:has(.dg-fix) { height: 112px; }
 :root{--logo-mark:url(data:image/png;base64,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)}@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--logo-mark:url(data:image/png;base64,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)}}:root[data-theme="dark"]{--logo-mark:url(data:image/png;base64,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)}
 </style>
 <div class="shell">
@@ -1037,6 +1055,10 @@ select.rn-mark { min-width: 0; }
     { id: 'rhythm', label: 'Rhythm Dictation', blurb: 'Listen to a rhythm of one to four measures — one part or two — and write it on a one-line staff.', est: 120, custom: true },
     // The last type a report code's 4-bit type number can hold.
     { id: 'melody', label: 'Melodic Dictation', blurb: 'Listen to a melody of one to eight measures and write it on the staff, pitches and rhythm.', est: 180, custom: true },
+    // Report codes from version 14 on write 15 and three more bits for the types from here.
+    // Rhythm grid questions come from the rhythm block (cfg.rhythm.task = 'grid'), counted as rhythm examples.
+    { id: 'rgrid', label: 'Rhythm Grid', blurb: 'Read or hear a rhythm, then show on a grid of beats and boxes where each note starts and how long it lasts.', est: 100, custom: true },
+    { id: 'degree', label: 'Scale Degrees', blurb: 'Read a melody of one to eight measures in a major or minor key and label every note with its scale degree, 1 to 7.', est: 60, custom: true },
   ];
   const BUILT_IN = TYPES.filter((t) => !t.custom);
   const MAX_CUSTOM = 20, MAX_CUSTOM_NOTES = 6, MAX_VOICING_NOTES = 8;
@@ -1092,7 +1114,7 @@ select.rn-mark { min-width: 0; }
       // Per-tab notes setting: 0 use the quiz setting, 1 print the helper note, 2 students write every note.
       helpOv: { interval: 0, chord: 0, custom: 2, voicing: 2, vprog: 2 },
       figpAsk: 1, // figured bass progression: 1 analyse, 2 spell, 3 both
-      counts: { place: 4, identify: 3, interval: 3, chord: 2, scale: 1, keysig: 2, custom: 0, voicing: 0, vprog: 0, progression: 0, figured: 0, figprog: 0, keys: 0, analysis: 0, rhythm: 0, melody: 0 },
+      counts: { place: 4, identify: 3, interval: 3, chord: 2, scale: 1, keysig: 2, custom: 0, voicing: 0, vprog: 0, progression: 0, figured: 0, figprog: 0, keys: 0, analysis: 0, rhythm: 0, melody: 0, degree: 0 },
       ledger: 1,
       accMode: 3,
       intervals: maskOf(INTERVALS, ['M2', 'm3', 'M3', 'P4', 'P5', 'P8']),
@@ -1136,6 +1158,8 @@ select.rn-mark { min-width: 0; }
       rhythm: { examples: [], playsEx: 0, playsAns: 0 },
       // Clefwork Melody: its melodies, or the settings that make them, and how it's heard and scored (see melody.js).
       melody: { examples: [], playsEx: 0, playsAns: 0 },
+      // Scale degrees: the melodies' length, level, keys and clefs (see degrees.js).
+      deg: { measures: 2, level: 1, keyMode: 1, keyMax: 3, clefs: 1 },
       custom: [],
       customGrade: 0,
       voicings: [],
@@ -1144,7 +1168,7 @@ select.rn-mark { min-width: 0; }
       flags: { shuffle: true, partial: true, feedback: false, labels: false, enharmonic: false, strictOctave: false, noHelpers: false },
     };
   }
-  const zeroCounts = () => ({ place: 0, identify: 0, interval: 0, chord: 0, scale: 0, keysig: 0, custom: 0, voicing: 0, vprog: 0, progression: 0, figured: 0, figprog: 0, keys: 0, analysis: 0, rhythm: 0, melody: 0 });
+  const zeroCounts = () => ({ place: 0, identify: 0, interval: 0, chord: 0, scale: 0, keysig: 0, custom: 0, voicing: 0, vprog: 0, progression: 0, figured: 0, figprog: 0, keys: 0, analysis: 0, rhythm: 0, melody: 0, degree: 0 });
   const withCfg = (c, patch) => Object.assign(JSON.parse(JSON.stringify(c)), patch);
 
   const PRESETS = [
@@ -1596,7 +1620,7 @@ select.rn-mark { min-width: 0; }
     // Variety: no interval, chord type, root, key or scale more than twice in a short quiz
     // (three times past 20 questions). When the settings are narrow, the roots vary the most.
     const total = BUILT_IN.reduce((n, t) => n + (cfg.counts[t.id] || 0), 0)
-      + ['custom', 'voicing', 'vprog', 'progression', 'keys', 'analysis', 'rhythm', 'melody'].reduce((n, k) => n + (cfg.counts[k] || 0), 0);
+      + ['custom', 'voicing', 'vprog', 'progression', 'keys', 'analysis', 'rhythm', 'melody', 'degree'].reduce((n, k) => n + (cfg.counts[k] || 0), 0);
     const cap = total > 20 ? 3 : 2;
     const used = {};
     function pickVaried(make) {
@@ -1653,6 +1677,7 @@ select.rn-mark { min-width: 0; }
     if (MQ.analysisQuestions && cfg.counts.analysis) MQ.analysisQuestions(cfg).forEach((q) => qs.push(q));
     if (MQ.rhythmQuestions && cfg.counts.rhythm) MQ.rhythmQuestions(cfg).forEach((q) => qs.push(q));
     if (MQ.melodyQuestions && cfg.counts.melody) MQ.melodyQuestions(cfg).forEach((q) => qs.push(q));
+    if (MQ.degreeQuestions && cfg.counts.degree) MQ.degreeQuestions(cfg).forEach((q) => qs.push(q));
     if (cfg.flags.shuffle) shuffle(qs, rng);
     return qs;
   }
@@ -1686,6 +1711,7 @@ select.rn-mark { min-width: 0; }
     if (q.type === 'analysis') return MQ.gradeAnalysis(q, response, cfg);
     if (q.type === 'rhythm') return MQ.gradeRhythm(q, response);
     if (q.type === 'melody') return MQ.gradeMelody(q, response);
+    if (q.type === 'degree') return MQ.gradeDegrees(q, response);
     if (q.type === 'figured' || q.type === 'figprog') return MQ.gradeFigured(q, response, cfg);
     if (q.type === 'progression') return MQ.gradeProgression(q, response, cfg);
     if (q.symbolAnswers) {
@@ -1713,6 +1739,7 @@ select.rn-mark { min-width: 0; }
       : q.type === 'analysis' ? MQ.hasAnalysisAnswer(q, response)
       : q.type === 'rhythm' ? MQ.hasRhythmAnswer(q, response)
       : q.type === 'melody' ? MQ.hasMelodyAnswer(q, response)
+      : q.type === 'degree' ? MQ.hasDegreeAnswer(q, response)
       : q.type === 'figured' || q.type === 'figprog' ? MQ.hasFiguredAnswer(q, response)
       : q.colSpecs ? !!response && response.some((col) => col && col.some(Boolean))
         : q.type === 'progression' ? !!response && ['r', 's'].some((k) => (response[k] || []).some((x) => x && x.trim()))
@@ -1726,6 +1753,7 @@ select.rn-mark { min-width: 0; }
     if (q.type === 'analysis') return MQ.describeAnalysis(q);
     if (q.type === 'rhythm') return MQ.describeRhythm(q);
     if (q.type === 'melody') return MQ.describeMelody(q);
+    if (q.type === 'degree') return MQ.describeDegrees(q);
     if (q.symbolAnswers) return q.symbolAnswers.map((a) => a.shown).join('  ');
     if (q.symbolAnswer) return q.symbolAnswer.shown;
     if (q.dropdowns) return q.dropdowns.map((d) => d.options[d.answer]).join(' · ');
@@ -5322,6 +5350,79 @@ select.rn-mark { min-width: 0; }
 
   Object.assign(MQ, { MELODY_LEVELS: LEVELS, MELODY_GEN: GEN, generateMelodies, melodyLevel: levelOf });
 })(typeof window !== 'undefined' ? window : globalThis);
+/* Clefwork — Scale Degrees. A melody of one to eight measures, made by Clefwork Melody's generator,
+   is printed on the staff with its key signature; students label each note with its scale degree,
+   1 to 7. A note's degree comes from its letter name counted up from the tonic, so a minor key's
+   raised sixth and seventh (the melodic and harmonic minor's) are still 6 and 7. The melodies use
+   no chromatic notes. Each melody is one question, and each note is an equal share of its credit.
+   cfg.deg holds the settings; cfg.counts.degree is how many melodies to ask. */
+(function (root) {
+  'use strict';
+  const MQ = (root.MQ = root.MQ || {});
+  const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
+  const MAX_MELODIES = 20;
+
+  // measures: 1–8 per melody; level: Clefwork Melody's levels 1–6 (how far it leaps, how busy the
+  // rhythm is); keyMode: 1 major, 2 minor, 3 both; keyMax: up to this many sharps or flats; clefs:
+  // 1 treble, 2 bass, 3 both; hear: students may play the melody and the key (1) or only read it (0);
+  // gen: the melody generator's version, so a quiz code keeps its melodies.
+  function degreeSettings(d) {
+    const s = d || {};
+    s.measures = clamp(s.measures | 0 || 2, 1, 8);
+    s.level = clamp(s.level | 0 || 1, 1, 6);
+    s.keyMode = clamp(s.keyMode | 0 || 1, 1, 3);
+    s.keyMax = clamp(s.keyMax == null ? 3 : s.keyMax | 0, 0, 7);
+    s.clefs = clamp(s.clefs | 0 || 1, 1, 3);
+    s.hear = s.hear == null ? 1 : s.hear ? 1 : 0;
+    s.gen = clamp(s.gen | 0 || MQ.MELODY_GEN || 1, 1, 7);
+    return s;
+  }
+
+  // The scale degree of a pitch in a key: its letter counted up from the tonic's letter.
+  const degreeOf = (K, p) => ((((p.step - K.tonic.step) % 7) + 7) % 7) + 1;
+
+  function degreeQuestions(cfg) {
+    const n = clamp((cfg.counts && cfg.counts.degree) | 0, 0, MAX_MELODIES);
+    if (!n || !MQ.generateMelodies) return [];
+    const s = degreeSettings(cfg.deg);
+    const auto = { on: true, gen: s.gen, count: n, measures: s.measures, level: s.level, tempo: 72, keyMode: s.keyMode, keyMax: s.keyMax, chromatic: 0, clefs: s.clefs };
+    // Its own seed, so these aren't the same melodies a dictation block on the same seed would make.
+    const list = MQ.generateMelodies(((cfg.seed >>> 0) ^ 0x5ca1ede9) >>> 0, auto);
+    return list.map((raw, k) => {
+      const ex = MQ.melodyExample(raw), K = MQ.melodyKey(ex.key);
+      const layers = [ex.layers[0].slice(0, ex.measures).map((m) => m.map(MQ.rhythmEvent))];
+      const notes = [];
+      layers[0].forEach((bar, m) => bar.forEach((e, i) => { if (!e.r && e.p) notes.push({ m, i, deg: degreeOf(K, e.p) }); }));
+      const keyName = MQ.melodyKeyName(ex.key);
+      return {
+        type: 'degree', clef: ex.clef,
+        text: 'Write the scale degree of each note of this melody.',
+        hint: `In ${keyName}, the tonic (${K.name}) is 1.` + (ex.key.mode === 'minor' ? ' A raised 6th or 7th is still 6 or 7.' : ''),
+        deg: { meter: Object.assign({}, ex.meter), measures: ex.measures, tempo: ex.tempo, key: Object.assign({}, ex.key), clef: ex.clef, parts: 1, layers, notes },
+        sig: 'dg' + k, tags: [],
+      };
+    });
+  }
+
+  // A response is one number per note, in order: 1–7, or 0 / null for blank.
+  const cleanDegrees = (q, resp) => q.deg.notes.map((_, j) => { const v = resp && resp[j]; return v >= 1 && v <= 7 ? v | 0 : 0; });
+  const markDegrees = (q, resp) => { const r = cleanDegrees(q, resp); return q.deg.notes.map((n, j) => r[j] === n.deg); };
+  function gradeDegrees(q, resp) {
+    const n = q.deg.notes.length;
+    return n ? markDegrees(q, resp).filter(Boolean).length / n : 1;
+  }
+  const hasDegreeAnswer = (q, resp) => cleanDegrees(q, resp).some((v) => v > 0);
+  // "G major  | 1 2 3 1 | 5 4 3 2 |"
+  function describeDegrees(q) {
+    const D = q.deg, bars = D.layers[0].map(() => []);
+    D.notes.forEach((n) => bars[n.m].push(n.deg));
+    return `${MQ.melodyKeyName(D.key)}  | ${bars.map((b) => b.join(' ') || '—').join(' | ')} |`;
+  }
+
+  Object.assign(MQ, {
+    DEGREE_MAX: MAX_MELODIES, degreeSettings, degreeOf, degreeQuestions, cleanDegrees, markDegrees, gradeDegrees, hasDegreeAnswer, describeDegrees,
+  });
+})(typeof window !== 'undefined' ? window : globalThis);
 /* Clefwork — QR codes, so a printed quiz can be scanned back open. Byte mode, versions 1–20,
    error correction L or M. Returns a square matrix of 0 (light) and 1 (dark) modules. */
 (function (root) {
@@ -6859,6 +6960,10 @@ svg.staff .nlabel { display: none; }
     // Extension 4: the same, plus how the quiz is scored (every note a point, or a percent of a
     // total) and whether the examples are written out or made automatically from the seed.
     // Extension 5: Clefwork Melody — after the (empty) rhythm block, the melody block.
+    // (Extension 6 is a rhythm grid, from Clefwork Rhythm.)
+    // Extension 7: Scale degrees — the extension-5 blocks (usually empty), then how many melodies,
+    // the melody generator's version, the melodies' length, level, keys and clefs, and whether
+    // students may hear them.
     const an = MQ.analysisSettings(cfg.analysis);
     const regions = an.regions.slice(0, MQ.ANALYSIS_MAX);
     const limit = retakeLimit(cfg);
@@ -6867,9 +6972,10 @@ svg.staff .nlabel { display: none; }
     const rhythm = rh.auto.on || examples.length > 0;
     const mb = MQ.melodySettings(cfg.melody);
     const melody = mb.auto.on || mb.examples.length > 0;
-    if (regions.length || an.img || limit != null || rhythm || melody) {
+    const degrees = Math.min(MQ.DEGREE_MAX, (cfg.counts && cfg.counts.degree) || 0);
+    if (regions.length || an.img || limit != null || rhythm || melody || degrees) {
       const q10 = (v) => Math.max(0, Math.min(1023, Math.round(v * 1023)));
-      const ext = melody ? 5 : rhythm ? 4 : limit != null ? 2 : 1;
+      const ext = degrees ? 7 : melody ? 5 : rhythm ? 4 : limit != null ? 2 : 1;
       w.u(ext, 8).u(an.override, 2).u(an.img ? 1 : 0, 1);
       if (an.img) w.u(an.img.hash >>> 0, 32);
       w.strN(an.notes, 200, 8).u(regions.length, 6);
@@ -6895,7 +7001,11 @@ svg.staff .nlabel { display: none; }
           examples.forEach((ex) => writeExample(w, ex));
         }
       }
-      if (ext === 5) writeMelodyBlock(w, mb);
+      if (ext === 5 || ext >= 7) writeMelodyBlock(w, mb);
+      if (ext >= 7) {
+        const d = MQ.degreeSettings(cfg.deg);
+        w.u(degrees, 5).u(d.gen, 3).u(d.measures - 1, 3).u(d.level - 1, 3).u(d.keyMode, 2).u(d.keyMax, 3).u(d.clefs, 2).u(d.hear, 1);
+      }
     }
     return pack(KIND_QUIZ, w.b);
   }
@@ -7073,9 +7183,13 @@ svg.staff .nlabel { display: none; }
             cfg.rhythm = MQ.rhythmSettings(rh);
             cfg.counts.rhythm = rh.auto ? rh.auto.count : rh.examples.length;
           }
-          if (ext >= 5) {
+          if (ext === 5 || ext >= 7) {
             cfg.melody = readMelodyBlock(r);
             cfg.counts.melody = cfg.melody.auto.on ? cfg.melody.auto.count : cfg.melody.examples.length;
+          }
+          if (ext >= 7) {
+            cfg.counts.degree = r.u(5);
+            cfg.deg = MQ.degreeSettings({ gen: r.u(3), measures: r.u(3) + 1, level: r.u(3) + 1, keyMode: r.u(2), keyMax: r.u(3), clefs: r.u(2), hear: r.u(1) });
           }
         }
         const sum = (b) => MQ.TECHNIQUES.reduce((n, t) => n + ((b.tech && b.tech[t.id]) || 0), 0);
@@ -7117,6 +7231,13 @@ svg.staff .nlabel { display: none; }
   const KEY_ANSWERS = ['staff', 'name', 'piano'];
   // `plays` (rhythm questions): how often the student played the example and their own answer.
   function writeAnswer(w, q, resp, plays) {
+    if (q.type === 'degree') {
+      // Scale degrees: how many notes, then each note's number (0 blank, 1–7).
+      const list = MQ.cleanDegrees(q, resp).slice(0, 127);
+      w.u(list.length, 7);
+      list.forEach((v) => w.u(v, 3));
+      return;
+    }
     if (q.type === 'melody') {
       w.u(q.mel.measures - 1, 3);
       for (let m = 0; m < q.mel.measures; m++) writeMelEvents(w, resp && resp[0] && resp[0][m]);
@@ -7201,6 +7322,11 @@ svg.staff .nlabel { display: none; }
     return { kind: 'staff', value: cols };
   }
   function readAnswer(r, type, ver) {
+    if (type === 'degree') {
+      const n = r.u(7), list = [];
+      for (let j = 0; j < n; j++) list.push(r.u(3));
+      return { kind: 'degree', value: list };
+    }
     if (type === 'melody') {
       const n = r.u(3) + 1, L = [];
       for (let m = 0; m < n; m++) L.push(readMelEvents(r));
@@ -7280,12 +7406,16 @@ svg.staff .nlabel { display: none; }
     const qid = quizId(quizCode);
     const w = new Writer();
     // Version 10 added rhythm answers, with how often each example and answer was played.
-    w.u(13, 4).u(qid, 16).str(report.name, 40)
+    // Version 14: types past the sixteenth (rhythm grids) write 15 and three more bits.
+    w.u(14, 4).u(qid, 16).str(report.name, 40)
       .u(Math.max(0, Math.round((report.submittedAt - EPOCH) / 60000)), 24)
       .u(Math.min(65535, Math.round(report.totalSec)), 16)
       .u(report.partial ? 1 : 0, 1).u(report.items.length, 7);
     report.items.forEach((it) => {
-      w.u(MQ.typeIndex(it.type), 4).u(['treble', 'bass', 'grand'].indexOf(it.clef) & 3, 2);
+      const ti = MQ.typeIndex(it.type);
+      w.u(Math.min(15, ti), 4);
+      if (ti >= 15) w.u(ti - 15, 3);
+      w.u(['treble', 'bass', 'grand'].indexOf(it.clef) & 3, 2);
       if (report.partial) w.u(it.credit, 3); else w.u(it.credit === 7 ? 1 : 0, 1);
       w.u(it.answered ? 1 : 0, 1).u(Math.min(63, Math.round(it.sec)), 6);
     });
@@ -7319,7 +7449,7 @@ svg.staff .nlabel { display: none; }
     const restBits = body.slice(20);
     try {
       const ver = r.u(4);
-      if (ver < 1 || ver > 13) throw new CodeError('This report was made with a newer version of Clefwork.');
+      if (ver < 1 || ver > 14) throw new CodeError('This report was made with a newer version of Clefwork.');
       const rep = { code: group(clean), quizId: r.u(16), name: r.str() };
       rep.submittedAt = EPOCH + r.u(24) * 60000;
       rep.totalSec = r.u(16);
@@ -7327,7 +7457,9 @@ svg.staff .nlabel { display: none; }
       const n = r.u(7);
       rep.items = [];
       for (let i = 0; i < n; i++) {
-        const type = MQ.TYPES[r.u(ver >= 3 ? 4 : 3)];
+        let ti = r.u(ver >= 3 ? 4 : 3);
+        if (ver >= 14 && ti === 15) ti += r.u(3);
+        const type = MQ.TYPES[ti];
         // Version 1 reports used one bit for the clef; voicings were always the grand staff then.
         const clef = ver >= 2 ? ['treble', 'bass', 'grand'][r.u(2)] || 'treble'
           : r.u(1) ? (type && type.id === 'voicing' ? 'grand' : 'bass') : type && type.id === 'voicing' ? 'grand' : 'treble';
@@ -8338,7 +8470,8 @@ svg.staff .nlabel { display: none; }
   // ---------- the picture ----------
   // model: {meter, measures, layers: [[measure…]], key {fifths, mode}, clef}. opts as for the rhythm
   // staff (caret, sel, marks, playing, editing, print, measureW, first, showTime), plus perLine and
-  // cursor (a pitch to show at the caret: where the next note goes).
+  // cursor (a pitch to show at the caret: where the next note goes), and open (end on a plain bar line,
+  // for a line of a longer melody).
   function build(model, opts) {
     const o = Object.assign({ print: false, first: 0, showTime: true, measureW: null, caret: null, sel: null, marks: null, playing: -1, editing: false, perLine: 4, cursor: null }, opts);
     const info = MQ.rhythmMeter(model.meter);
@@ -8428,7 +8561,7 @@ svg.staff .nlabel { display: none; }
       ms.forEach((m, j) => {
         const g = geo.measures[m];
         s += `<text class="r-mnum" x="${r1(g.x0 + 4)}" y="${sy + 14}" font-size="9.5" fill="currentColor">${o.first + m + 1}</text>`;
-        const last = m === model.measures - 1;
+        const last = m === model.measures - 1 && !o.open;     // open: more music follows this picture
         if (!last) s += lineSVG(g.x1, sy + TOP, g.x1, sy + BOT, 1);
         else s += lineSVG(g.x1 - 7, sy + TOP, g.x1 - 7, sy + BOT, 1) + rectSVG(g.x1 - 4, sy + TOP, 3.6, 40);
         if (!last && j === ms.length - 1) { /* the line ends at its bar line */ }
@@ -9100,7 +9233,8 @@ svg.staff .nlabel { display: none; }
     return Math.min(n, list.length);
   };
   const sumCounts = (cfg) => MQ.BUILT_IN.reduce((s, t) => s + (cfg.counts[t.id] || 0), 0) + listCount(cfg, 'custom') + listCount(cfg, 'voicing') + listCount(cfg, 'vprog') + listCount(cfg, 'progression')
-    + listCount(cfg, 'keys') + listCount(cfg, 'analysis') + listCount(cfg, 'rhythm') + listCount(cfg, 'melody');
+    + listCount(cfg, 'keys') + listCount(cfg, 'analysis') + listCount(cfg, 'rhythm') + listCount(cfg, 'melody')
+    + Math.min(MQ.DEGREE_MAX, cfg.counts.degree || 0);
   const usesGrand = (cfg) => (listCount(cfg, 'voicing') > 0 || listCount(cfg, 'vprog') > 0)
     || (listCount(cfg, 'progression') > 0 && cfg.progs.some((e) => e.staff === 'grand'))
     || ((cfg.counts.chord || 0) > 0 && !!(cfg.chordStaff & 4) && !(cfg.v && cfg.v < 7));
@@ -9478,6 +9612,9 @@ svg.staff .nlabel { display: none; }
     } else if (frac > 0 && q.type === 'progression') {
       const need = MQ.progAnswerCount(q);
       lead = `Partly right — ${Math.round(frac * need)} of ${need} answers.`;
+    } else if (frac > 0 && q.type === 'degree') {
+      const need = q.deg.notes.length;
+      lead = `Partly right — ${Math.round(frac * need)} of ${need} notes.`;
     } else if (frac > 0 && !q.choices) {
       const need = [].concat(...q.answer).length;
       lead = `Partly right — ${Math.round(frac * need)} of ${need} notes.`;
@@ -9858,7 +9995,81 @@ svg.staff .nlabel { display: none; }
     return wrap;
   }
 
+  // ---------- scale degrees ----------
+  // The melody printed on the staff a line at a time, with a menu under every note for its degree.
+  const DEG_OPTS = [{ v: '', label: '–' }].concat([1, 2, 3, 4, 5, 6, 7].map((n) => ({ v: String(n), label: String(n) })));
+  let dgUid = 0;
+  function degreeCard(q, cfg, o) {
+    const D = q.deg, uid = ++dgUid, info = MQ.rhythmMeter(D.meter);
+    const reveal = !!o.reveal && !o.keyMode;
+    const resp = o.keyMode ? D.notes.map((n) => n.deg) : MQ.cleanDegrees(q, o.response);
+    const marks = reveal ? MQ.markDegrees(q, resp) : null;
+    const wrap = h('div', { class: 'qcard dg-card' + (o.compact ? ' is-compact' : '') });
+    wrap.append(h('div', { class: 'q-eyebrow' }, typeOf(q.type).label,
+      h('span', { class: 'q-clef' }, `${MQ.melodyKeyName(D.key)} · ${info.label} · ${MQ.clefLabel(D.clef)}`)));
+    wrap.append(h(o.compact ? 'h3' : 'h2', { class: 'q-text' }, q.text));
+    if (q.hint && !o.locked && !o.keyMode) wrap.append(h('p', { class: 'q-hint' }, q.hint, ' Choose a number under each note.'));
+    // Listening, when the quiz allows it: the tonic chord, and the melody at its tempo.
+    if (MQ.degreeSettings(cfg.deg).hear && !o.keyMode) {
+      const play = (pe) => { if (!MQ.Audio.sequence(pe.events, { total: pe.total })) toast('This browser can’t play sound.', 'bad'); };
+      wrap.append(h('div', { class: 'btn-row dg-hear' },
+        h('button', { type: 'button', class: 'btn sm', onclick: () => play(MQ.melodyKeyEvents(D, D.tempo)) }, '♪ Hear the key'),
+        h('button', { type: 'button', class: 'btn sm', onclick: () => play(MQ.rhythmPlayEvents({ meter: D.meter, measures: D.measures, tempo: D.tempo, parts: 1 }, D.layers)) }, '♪ Hear the melody'),
+        h('button', { type: 'button', class: 'btn btn-quiet sm', onclick: () => MQ.Audio.stop() }, 'Stop')));
+    }
+    // Two measures a line, as on paper, so the menus under quick notes have room.
+    const per = Math.min(D.measures, 2);
+    const lines = h('div', { class: 'dg-lines' });
+    const lanes = [];
+    let j = 0;
+    for (let a = 0; a < D.measures; a += per) {
+      const n = Math.min(per, D.measures - a);
+      const model = { meter: D.meter, measures: n, layers: [D.layers[0].slice(a, a + n)], key: D.key, clef: D.clef };
+      const b = MQ.melodyMarkup(model, { first: a, showTime: a === 0, perLine: n, print: true, open: a + n < D.measures });
+      const pic = h('div', { class: 'dg-pic' });
+      pic.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="mstaff dg-staff" viewBox="0 0 ${Math.round(b.W)} ${b.H}" role="img" aria-label="Measures ${a + 1} to ${a + n}">${b.inner}</svg>`;
+      const lane = h('div', { class: 'dg-lane' });
+      for (let m = 0; m < n; m++) {
+        D.layers[0][a + m].forEach((e, i) => {
+          if (e.r || !e.p) return;
+          const k = j++, x = b.geo.ev[0][m][i].x;
+          const sel = selectEl(`dg-${uid}-${k}`, DEG_OPTS, resp[k] ? String(resp[k]) : '', (v) => {
+            resp[k] = v ? +v : 0;
+            if (o.onResponse) o.onResponse(resp.slice());
+          });
+          sel.setAttribute('aria-label', `Measure ${a + m + 1}, note ${D.notes.filter((x2, t) => t < k && x2.m === a + m).length + 1}: scale degree`);
+          if (o.locked || o.keyMode) sel.disabled = true;
+          const cell = h('div', { class: 'dg-box', style: `left:${((x / b.W) * 100).toFixed(2)}%` }, sel);
+          if (marks) {
+            cell.classList.add(marks[k] ? 'is-right' : 'is-wrong');
+            if (!marks[k]) cell.append(h('span', { class: 'dg-fix', title: 'The right degree' }, String(D.notes[k].deg)));
+          }
+          lane.append(cell);
+        });
+      }
+      lanes.push(lane);
+      // A line can grow to half again its drawn size; a one-measure line stays in proportion.
+      lines.append(h('div', { class: 'dg-line', style: `max-width:${Math.round(b.W * 1.5)}px` }, pic, lane));
+    }
+    // A menu that would overlap the one before it drops to a second row.
+    const layout = () => lanes.forEach((lane) => {
+      let lastRight = -Infinity, rows = 1;
+      Array.from(lane.children).forEach((c) => {
+        c.classList.remove('is-low');
+        const r = c.getBoundingClientRect();
+        if (r.left < lastRight + 2) { c.classList.add('is-low'); rows = 2; } else lastRight = r.right;
+      });
+      lane.classList.toggle('has-two', rows > 1);
+    });
+    requestAnimationFrame(layout);
+    if (window.ResizeObserver) new ResizeObserver(() => layout()).observe(lines);
+    wrap.append(lines);
+    if (o.keyMode) wrap.append(h('p', { class: 'result is-key' }, h('strong', null, 'Answer: '), MQ.describeAnswer(q, cfg)));
+    else if (o.reveal) wrap.append(resultLine(q, cfg, resp));
+    return wrap;
+  }
   function questionCard(q, cfg, o) {
+    if (q.type === 'degree') return degreeCard(q, cfg, o);
     if (q.type === 'melody') return melodyCard(q, cfg, o);
     if (q.type === 'rhythm') return rhythmCard(q, cfg, o);
     if (q.type === 'keys') return keysCard(q, cfg, o);
@@ -10014,6 +10225,22 @@ svg.staff .nlabel { display: none; }
         staffPick('figured'),
         grp('Notes on the staff', seg('q-figask', [{ v: 1, label: 'Print the chord — students write the numeral' }, { v: 2, label: 'Print the numeral — students write the chord' }, { v: 3, label: 'A mix of both' }], cfg.figAsk, (v) => { cfg.figAsk = v; changed(); })),
       ],
+      degree: () => {
+        const d = cfg.deg = MQ.degreeSettings(cfg.deg);
+        const levelHelp = h('span', { class: 'help' }, MQ.MELODY_LEVELS[d.level - 1].blurb);
+        return [
+          h('p', { class: 'help' }, 'Clefwork writes each melody the way Clefwork Melody makes its dictation melodies, and prints it with its key signature. Students choose the scale degree, 1 to 7, under every note; each note is an equal share of the question. In minor keys a raised 6th or 7th is still 6 or 7. Each question is one melody.'),
+          grp('Measures in each melody', seg('q-degbars', [1, 2, 3, 4, 5, 6, 7, 8].map((v) => ({ v, label: String(v) })), d.measures, (v) => { d.measures = v; changed(); })),
+          h('div', { class: 'row2' },
+            grp('Key', seg('q-degkey', [{ v: 1, label: 'Major' }, { v: 2, label: 'Minor' }, { v: 3, label: 'Both' }], d.keyMode, (v) => { d.keyMode = v; changed(); })),
+            grp('Key signatures up to', seg('q-degmax', [0, 1, 2, 3, 4, 5, 6, 7].map((v) => ({ v, label: v === 0 ? 'None' : String(v) })), d.keyMax, (v) => { d.keyMax = v; changed(); }), 'Sharps or flats in the key.')),
+          h('div', { class: 'fld' }, h('span', { class: 'mini-label', id: 'q-deglevel-l' }, 'Melody level'),
+            (() => { const el = seg('q-deglevel', MQ.MELODY_LEVELS.map((L, i) => ({ v: i + 1, label: L.name })), d.level, (v) => { d.level = v; levelHelp.textContent = MQ.MELODY_LEVELS[v - 1].blurb; changed(); }); el.setAttribute('aria-labelledby', 'q-deglevel-l'); return el; })(),
+            levelHelp),
+          grp('Clefs', chips('q-degclefs', [{ label: 'Treble' }, { label: 'Bass' }], d.clefs, (m) => { d.clefs = m || 1; changed(); }, (x) => x.label)),
+          grp('Listening', seg('q-deghear', [{ v: 1, label: 'Students may hear the melody and the key' }, { v: 0, label: 'Reading only' }], d.hear, (v) => { d.hear = v; changed(); })),
+        ];
+      },
       figprog: () => [
         h('p', { class: 'help' }, 'A progression of figured-bass chords. Students write the Roman numeral and figure for each one. Roots move by the same rules as the Chord progressions tab.'),
         grp('Chords in each progression', seg('q-figlen', [3, 4, 5, 6, 7, 8].map((v) => ({ v, label: String(v) })), cfg.figLen, (v) => { cfg.figLen = v; changed(); })),
@@ -10036,6 +10263,7 @@ svg.staff .nlabel { display: none; }
       { id: 'voicing', label: 'Single Voiced Chords', tech: 'vc' }, { id: 'vprog', label: 'Voiced Progressions', tech: 'vp' },
       { id: 'progression', label: 'Chord Progressions', list: 'progs', pool: true },
       { id: 'figured', label: 'Figured Bass Chord' }, { id: 'figprog', label: 'Figured Bass Progression' },
+      { id: 'degree', label: 'Scale Degrees', max: MQ.DEGREE_MAX },
     ];
     // Custom Chords is hidden while it is being reworked.
     for (let i = TABS.length - 1; i >= 0; i--) if (TABS[i].id === 'custom') TABS.splice(i, 1);
@@ -10101,7 +10329,7 @@ svg.staff .nlabel { display: none; }
       const len = t.pool ? Math.min(30, MQ.progPool(cfg).length) : t.list ? cfg[t.list].length : 0;
       if (t.list) cfg.counts[t.id] = Math.min(cfg.counts[t.id] || 0, len);
       const n = cfg.counts[t.id] || 0;
-      t.ctr.sync(n, t.list ? len : 30);
+      t.ctr.sync(n, t.list ? len : t.max || 30);
       t.card.classList.toggle('is-on', n > 0);
       t.panel.classList.toggle('is-off', n === 0 && (!t.list || len > 0));
       t.btn.querySelector('.qt-status').textContent = t.pool
@@ -10983,6 +11211,7 @@ svg.staff .nlabel { display: none; }
     if (listCount(cfg, 'voicing')) types.push(`Single voiced chords (${listCount(cfg, 'voicing')})`);
     if (listCount(cfg, 'vprog')) types.push(`Voiced progressions (${listCount(cfg, 'vprog')})`);
     if (cfg.counts.keys && MQ.keysCombos(cfg.keys).length) types.push(`Keys & notes (${cfg.counts.keys})`);
+    if (cfg.counts.degree) types.push(`Scale degrees (${cfg.counts.degree} melod${cfg.counts.degree === 1 ? 'y' : 'ies'})`);
     if (listCount(cfg, 'progression')) types.push(`Chord progressions (${listCount(cfg, 'progression')})`);
     if (listCount(cfg, 'rhythm')) types.push(`Rhythmic dictation (${listCount(cfg, 'rhythm')} example${listCount(cfg, 'rhythm') > 1 ? 's' : ''})`);
     if (listCount(cfg, 'melody')) types.push(`Melodic dictation (${listCount(cfg, 'melody')} melod${listCount(cfg, 'melody') > 1 ? 'ies' : 'y'})`);
@@ -13104,6 +13333,17 @@ svg.staff .nlabel { display: none; }
     return h('li', null, h('span', { class: 'key-q' }, `Melody ${M.n + 1}`, h('span', { class: 'key-clef' }, ` · ${MQ.melodyKeyName(M.key)} · ${info.label} · ${tempoLabel(info, M.tempo)}`)), box);
   }
   // On paper: an empty staff with the clef, key signature and time signature, two measures to a line.
+  // Scale degrees on paper: the melody itself, two measures a line, with room under the notes to write.
+  function degreePrintArt(q, opts) {
+    const D = q.deg, rows = [];
+    const per = D.measures > 2 ? 2 : D.measures;
+    for (let a = 0; a < D.measures; a += per) {
+      const n = Math.min(per, D.measures - a);
+      rows.push(MQ.melodyArt({ meter: D.meter, measures: n, layers: [D.layers[0].slice(a, a + n)], key: D.key, clef: D.clef },
+        { first: a, showTime: a === 0, measureW: 300, perLine: n, open: a + n < D.measures, heightIn: (opts && opts.height) || 1.25, drawnClefs: opts && opts.drawnClefs }));
+    }
+    return rows;
+  }
   function melodyPrintArt(q, opts) {
     const M = q.mel, rows = [];
     const per = M.measures > 2 ? 2 : M.measures;
@@ -13167,6 +13407,7 @@ svg.staff .nlabel { display: none; }
   }
   function exportArt(q, opts) {
     if (q.type === 'melody') return melodyPrintArt(q, opts);
+    if (q.type === 'degree') return degreePrintArt(q, opts);
     if (q.type === 'rhythm') return rhythmPrintArt(q, opts);
     if (q.type !== 'keys') return [exportStaffSVG(q, opts)];
     const k = q.keys;

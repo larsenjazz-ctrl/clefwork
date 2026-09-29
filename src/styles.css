@@ -898,3 +898,21 @@ select.rn-mark { min-width: 0; }
 .frame-note a { font-weight: 700; color: var(--accent); }
 .take-bar-tab { margin-left: auto; text-decoration: none; }
 .is-fitted .toast { position: absolute; bottom: auto; }
+
+/* Scale degrees: the melody a line at a time, and a lane of number menus under its notes. */
+.dg-hear { margin: 4px 0 8px; }
+.dg-lines { display: flex; flex-direction: column; gap: 10px; }
+.dg-line { width: 100%; }
+.dg-pic { background: #fff; border-radius: 8px 8px 0 0; color: #000; }
+.dg-pic svg { display: block; width: 100%; height: auto; }
+.dg-lane { position: relative; height: 48px; background: var(--surface-2); border-radius: 0 0 8px 8px; }
+.dg-lane.has-two { height: 92px; }
+.dg-box { position: absolute; top: 6px; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 1px; }
+.dg-box.is-low { top: 50px; }
+.dg-box select { width: 42px; min-height: 36px; padding: 2px 4px; text-align: center; text-align-last: center; font: 700 16px var(--f-mono); border-radius: 7px; }
+.dg-box.is-right select { border-color: var(--good); background: var(--good-soft); color: var(--good); }
+.dg-box.is-wrong select { border-color: var(--bad); background: var(--bad-soft); color: var(--bad); }
+.dg-box select:disabled { opacity: 1; color: var(--ink); }
+.dg-fix { font: 700 12px var(--f-mono); color: var(--bad); }
+.dg-lane:has(.dg-fix) { height: 66px; }
+.dg-lane.has-two:has(.dg-fix) { height: 112px; }

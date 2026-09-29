@@ -93,7 +93,8 @@
     return Math.min(n, list.length);
   };
   const sumCounts = (cfg) => MQ.BUILT_IN.reduce((s, t) => s + (cfg.counts[t.id] || 0), 0) + listCount(cfg, 'custom') + listCount(cfg, 'voicing') + listCount(cfg, 'vprog') + listCount(cfg, 'progression')
-    + listCount(cfg, 'keys') + listCount(cfg, 'analysis') + listCount(cfg, 'rhythm') + listCount(cfg, 'melody');
+    + listCount(cfg, 'keys') + listCount(cfg, 'analysis') + listCount(cfg, 'rhythm') + listCount(cfg, 'melody')
+    + Math.min(MQ.DEGREE_MAX, cfg.counts.degree || 0);
   const usesGrand = (cfg) => (listCount(cfg, 'voicing') > 0 || listCount(cfg, 'vprog') > 0)
     || (listCount(cfg, 'progression') > 0 && cfg.progs.some((e) => e.staff === 'grand'))
     || ((cfg.counts.chord || 0) > 0 && !!(cfg.chordStaff & 4) && !(cfg.v && cfg.v < 7));
@@ -471,6 +472,9 @@
     } else if (frac > 0 && q.type === 'progression') {
       const need = MQ.progAnswerCount(q);
       lead = `Partly right — ${Math.round(frac * need)} of ${need} answers.`;
+    } else if (frac > 0 && q.type === 'degree') {
+      const need = q.deg.notes.length;
+      lead = `Partly right — ${Math.round(frac * need)} of ${need} notes.`;
     } else if (frac > 0 && !q.choices) {
       const need = [].concat(...q.answer).length;
       lead = `Partly right — ${Math.round(frac * need)} of ${need} notes.`;
@@ -851,7 +855,81 @@
     return wrap;
   }
 
+  // ---------- scale degrees ----------
+  // The melody printed on the staff a line at a time, with a menu under every note for its degree.
+  const DEG_OPTS = [{ v: '', label: '–' }].concat([1, 2, 3, 4, 5, 6, 7].map((n) => ({ v: String(n), label: String(n) })));
+  let dgUid = 0;
+  function degreeCard(q, cfg, o) {
+    const D = q.deg, uid = ++dgUid, info = MQ.rhythmMeter(D.meter);
+    const reveal = !!o.reveal && !o.keyMode;
+    const resp = o.keyMode ? D.notes.map((n) => n.deg) : MQ.cleanDegrees(q, o.response);
+    const marks = reveal ? MQ.markDegrees(q, resp) : null;
+    const wrap = h('div', { class: 'qcard dg-card' + (o.compact ? ' is-compact' : '') });
+    wrap.append(h('div', { class: 'q-eyebrow' }, typeOf(q.type).label,
+      h('span', { class: 'q-clef' }, `${MQ.melodyKeyName(D.key)} · ${info.label} · ${MQ.clefLabel(D.clef)}`)));
+    wrap.append(h(o.compact ? 'h3' : 'h2', { class: 'q-text' }, q.text));
+    if (q.hint && !o.locked && !o.keyMode) wrap.append(h('p', { class: 'q-hint' }, q.hint, ' Choose a number under each note.'));
+    // Listening, when the quiz allows it: the tonic chord, and the melody at its tempo.
+    if (MQ.degreeSettings(cfg.deg).hear && !o.keyMode) {
+      const play = (pe) => { if (!MQ.Audio.sequence(pe.events, { total: pe.total })) toast('This browser can’t play sound.', 'bad'); };
+      wrap.append(h('div', { class: 'btn-row dg-hear' },
+        h('button', { type: 'button', class: 'btn sm', onclick: () => play(MQ.melodyKeyEvents(D, D.tempo)) }, '♪ Hear the key'),
+        h('button', { type: 'button', class: 'btn sm', onclick: () => play(MQ.rhythmPlayEvents({ meter: D.meter, measures: D.measures, tempo: D.tempo, parts: 1 }, D.layers)) }, '♪ Hear the melody'),
+        h('button', { type: 'button', class: 'btn btn-quiet sm', onclick: () => MQ.Audio.stop() }, 'Stop')));
+    }
+    // Two measures a line, as on paper, so the menus under quick notes have room.
+    const per = Math.min(D.measures, 2);
+    const lines = h('div', { class: 'dg-lines' });
+    const lanes = [];
+    let j = 0;
+    for (let a = 0; a < D.measures; a += per) {
+      const n = Math.min(per, D.measures - a);
+      const model = { meter: D.meter, measures: n, layers: [D.layers[0].slice(a, a + n)], key: D.key, clef: D.clef };
+      const b = MQ.melodyMarkup(model, { first: a, showTime: a === 0, perLine: n, print: true, open: a + n < D.measures });
+      const pic = h('div', { class: 'dg-pic' });
+      pic.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="mstaff dg-staff" viewBox="0 0 ${Math.round(b.W)} ${b.H}" role="img" aria-label="Measures ${a + 1} to ${a + n}">${b.inner}</svg>`;
+      const lane = h('div', { class: 'dg-lane' });
+      for (let m = 0; m < n; m++) {
+        D.layers[0][a + m].forEach((e, i) => {
+          if (e.r || !e.p) return;
+          const k = j++, x = b.geo.ev[0][m][i].x;
+          const sel = selectEl(`dg-${uid}-${k}`, DEG_OPTS, resp[k] ? String(resp[k]) : '', (v) => {
+            resp[k] = v ? +v : 0;
+            if (o.onResponse) o.onResponse(resp.slice());
+          });
+          sel.setAttribute('aria-label', `Measure ${a + m + 1}, note ${D.notes.filter((x2, t) => t < k && x2.m === a + m).length + 1}: scale degree`);
+          if (o.locked || o.keyMode) sel.disabled = true;
+          const cell = h('div', { class: 'dg-box', style: `left:${((x / b.W) * 100).toFixed(2)}%` }, sel);
+          if (marks) {
+            cell.classList.add(marks[k] ? 'is-right' : 'is-wrong');
+            if (!marks[k]) cell.append(h('span', { class: 'dg-fix', title: 'The right degree' }, String(D.notes[k].deg)));
+          }
+          lane.append(cell);
+        });
+      }
+      lanes.push(lane);
+      // A line can grow to half again its drawn size; a one-measure line stays in proportion.
+      lines.append(h('div', { class: 'dg-line', style: `max-width:${Math.round(b.W * 1.5)}px` }, pic, lane));
+    }
+    // A menu that would overlap the one before it drops to a second row.
+    const layout = () => lanes.forEach((lane) => {
+      let lastRight = -Infinity, rows = 1;
+      Array.from(lane.children).forEach((c) => {
+        c.classList.remove('is-low');
+        const r = c.getBoundingClientRect();
+        if (r.left < lastRight + 2) { c.classList.add('is-low'); rows = 2; } else lastRight = r.right;
+      });
+      lane.classList.toggle('has-two', rows > 1);
+    });
+    requestAnimationFrame(layout);
+    if (window.ResizeObserver) new ResizeObserver(() => layout()).observe(lines);
+    wrap.append(lines);
+    if (o.keyMode) wrap.append(h('p', { class: 'result is-key' }, h('strong', null, 'Answer: '), MQ.describeAnswer(q, cfg)));
+    else if (o.reveal) wrap.append(resultLine(q, cfg, resp));
+    return wrap;
+  }
   function questionCard(q, cfg, o) {
+    if (q.type === 'degree') return degreeCard(q, cfg, o);
     if (q.type === 'melody') return melodyCard(q, cfg, o);
     if (q.type === 'rhythm') return rhythmCard(q, cfg, o);
     if (q.type === 'keys') return keysCard(q, cfg, o);
@@ -1007,6 +1085,22 @@
         staffPick('figured'),
         grp('Notes on the staff', seg('q-figask', [{ v: 1, label: 'Print the chord — students write the numeral' }, { v: 2, label: 'Print the numeral — students write the chord' }, { v: 3, label: 'A mix of both' }], cfg.figAsk, (v) => { cfg.figAsk = v; changed(); })),
       ],
+      degree: () => {
+        const d = cfg.deg = MQ.degreeSettings(cfg.deg);
+        const levelHelp = h('span', { class: 'help' }, MQ.MELODY_LEVELS[d.level - 1].blurb);
+        return [
+          h('p', { class: 'help' }, 'Clefwork writes each melody the way Clefwork Melody makes its dictation melodies, and prints it with its key signature. Students choose the scale degree, 1 to 7, under every note; each note is an equal share of the question. In minor keys a raised 6th or 7th is still 6 or 7. Each question is one melody.'),
+          grp('Measures in each melody', seg('q-degbars', [1, 2, 3, 4, 5, 6, 7, 8].map((v) => ({ v, label: String(v) })), d.measures, (v) => { d.measures = v; changed(); })),
+          h('div', { class: 'row2' },
+            grp('Key', seg('q-degkey', [{ v: 1, label: 'Major' }, { v: 2, label: 'Minor' }, { v: 3, label: 'Both' }], d.keyMode, (v) => { d.keyMode = v; changed(); })),
+            grp('Key signatures up to', seg('q-degmax', [0, 1, 2, 3, 4, 5, 6, 7].map((v) => ({ v, label: v === 0 ? 'None' : String(v) })), d.keyMax, (v) => { d.keyMax = v; changed(); }), 'Sharps or flats in the key.')),
+          h('div', { class: 'fld' }, h('span', { class: 'mini-label', id: 'q-deglevel-l' }, 'Melody level'),
+            (() => { const el = seg('q-deglevel', MQ.MELODY_LEVELS.map((L, i) => ({ v: i + 1, label: L.name })), d.level, (v) => { d.level = v; levelHelp.textContent = MQ.MELODY_LEVELS[v - 1].blurb; changed(); }); el.setAttribute('aria-labelledby', 'q-deglevel-l'); return el; })(),
+            levelHelp),
+          grp('Clefs', chips('q-degclefs', [{ label: 'Treble' }, { label: 'Bass' }], d.clefs, (m) => { d.clefs = m || 1; changed(); }, (x) => x.label)),
+          grp('Listening', seg('q-deghear', [{ v: 1, label: 'Students may hear the melody and the key' }, { v: 0, label: 'Reading only' }], d.hear, (v) => { d.hear = v; changed(); })),
+        ];
+      },
       figprog: () => [
         h('p', { class: 'help' }, 'A progression of figured-bass chords. Students write the Roman numeral and figure for each one. Roots move by the same rules as the Chord progressions tab.'),
         grp('Chords in each progression', seg('q-figlen', [3, 4, 5, 6, 7, 8].map((v) => ({ v, label: String(v) })), cfg.figLen, (v) => { cfg.figLen = v; changed(); })),
@@ -1029,6 +1123,7 @@
       { id: 'voicing', label: 'Single Voiced Chords', tech: 'vc' }, { id: 'vprog', label: 'Voiced Progressions', tech: 'vp' },
       { id: 'progression', label: 'Chord Progressions', list: 'progs', pool: true },
       { id: 'figured', label: 'Figured Bass Chord' }, { id: 'figprog', label: 'Figured Bass Progression' },
+      { id: 'degree', label: 'Scale Degrees', max: MQ.DEGREE_MAX },
     ];
     // Custom Chords is hidden while it is being reworked.
     for (let i = TABS.length - 1; i >= 0; i--) if (TABS[i].id === 'custom') TABS.splice(i, 1);
@@ -1094,7 +1189,7 @@
       const len = t.pool ? Math.min(30, MQ.progPool(cfg).length) : t.list ? cfg[t.list].length : 0;
       if (t.list) cfg.counts[t.id] = Math.min(cfg.counts[t.id] || 0, len);
       const n = cfg.counts[t.id] || 0;
-      t.ctr.sync(n, t.list ? len : 30);
+      t.ctr.sync(n, t.list ? len : t.max || 30);
       t.card.classList.toggle('is-on', n > 0);
       t.panel.classList.toggle('is-off', n === 0 && (!t.list || len > 0));
       t.btn.querySelector('.qt-status').textContent = t.pool
@@ -1976,6 +2071,7 @@
     if (listCount(cfg, 'voicing')) types.push(`Single voiced chords (${listCount(cfg, 'voicing')})`);
     if (listCount(cfg, 'vprog')) types.push(`Voiced progressions (${listCount(cfg, 'vprog')})`);
     if (cfg.counts.keys && MQ.keysCombos(cfg.keys).length) types.push(`Keys & notes (${cfg.counts.keys})`);
+    if (cfg.counts.degree) types.push(`Scale degrees (${cfg.counts.degree} melod${cfg.counts.degree === 1 ? 'y' : 'ies'})`);
     if (listCount(cfg, 'progression')) types.push(`Chord progressions (${listCount(cfg, 'progression')})`);
     if (listCount(cfg, 'rhythm')) types.push(`Rhythmic dictation (${listCount(cfg, 'rhythm')} example${listCount(cfg, 'rhythm') > 1 ? 's' : ''})`);
     if (listCount(cfg, 'melody')) types.push(`Melodic dictation (${listCount(cfg, 'melody')} melod${listCount(cfg, 'melody') > 1 ? 'ies' : 'y'})`);
@@ -4097,6 +4193,17 @@
     return h('li', null, h('span', { class: 'key-q' }, `Melody ${M.n + 1}`, h('span', { class: 'key-clef' }, ` · ${MQ.melodyKeyName(M.key)} · ${info.label} · ${tempoLabel(info, M.tempo)}`)), box);
   }
   // On paper: an empty staff with the clef, key signature and time signature, two measures to a line.
+  // Scale degrees on paper: the melody itself, two measures a line, with room under the notes to write.
+  function degreePrintArt(q, opts) {
+    const D = q.deg, rows = [];
+    const per = D.measures > 2 ? 2 : D.measures;
+    for (let a = 0; a < D.measures; a += per) {
+      const n = Math.min(per, D.measures - a);
+      rows.push(MQ.melodyArt({ meter: D.meter, measures: n, layers: [D.layers[0].slice(a, a + n)], key: D.key, clef: D.clef },
+        { first: a, showTime: a === 0, measureW: 300, perLine: n, open: a + n < D.measures, heightIn: (opts && opts.height) || 1.25, drawnClefs: opts && opts.drawnClefs }));
+    }
+    return rows;
+  }
   function melodyPrintArt(q, opts) {
     const M = q.mel, rows = [];
     const per = M.measures > 2 ? 2 : M.measures;
@@ -4160,6 +4267,7 @@
   }
   function exportArt(q, opts) {
     if (q.type === 'melody') return melodyPrintArt(q, opts);
+    if (q.type === 'degree') return degreePrintArt(q, opts);
     if (q.type === 'rhythm') return rhythmPrintArt(q, opts);
     if (q.type !== 'keys') return [exportStaffSVG(q, opts)];
     const k = q.keys;
