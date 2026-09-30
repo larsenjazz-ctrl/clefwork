@@ -13387,14 +13387,19 @@ svg.staff .nlabel { display: none; }
         body.replaceChildren(h('p', { class: 'warn-note' }, 'Canvas needs the hosted copy of Clefwork, which gives each quiz a web address. Open Clefwork from its website to set this up.'));
         return;
       }
-      const describe = `<p><strong>Take the quiz:</strong> <a href="${esc(link)}" target="_blank" rel="noopener">Open “${esc(title)}”</a></p>\n`
-        + `<ol>\n  <li>Type your first and last name, then answer every question.</li>\n`
+      const steps = `<ol>\n  <li>Type your first and last name, then answer every question.</li>\n`
         + `  <li>When you finish, press <strong>Copy results link</strong>.</li>\n`
         + `  <li>Come back to this assignment, choose <strong>Start Assignment</strong> (or <strong>Submit Assignment</strong>), pick <strong>Website URL</strong>, paste the link, and submit.</li>\n</ol>`;
-      // The quiz asks Canvas to resize the frame to fit it. The link underneath is for tablets and the
-      // Canvas app, where an embedded page can't always bring up the keyboard.
-      const embed = `<iframe src="${esc(link)}" title="${esc(title)}" width="100%" height="1000" style="border: 0; width: 100%;" allow="clipboard-write"></iframe>\n`
-        + `<p><a href="${esc(link)}" target="_blank" rel="noopener">Open “${esc(title)}” in its own tab</a> — best on tablets, phones and the Canvas app.</p>`;
+      const tabLink = `<a href="${esc(link)}" target="_blank" rel="noopener">open “${esc(title)}” in its own tab</a>`;
+      // The recommended description: the steps, the quiz embedded under them, and its link. The quiz asks
+      // Canvas to resize the frame to fit it; the link is for tablets and the Canvas app, where an
+      // embedded page can't always bring up the keyboard.
+      const embedded = `<p><strong>Take the quiz below.</strong> On a tablet, a phone or the Canvas app, ${tabLink} instead.</p>\n`
+        + steps + `\n`
+        + `<iframe src="${esc(link)}" title="${esc(title)}" width="100%" height="1000" style="border: 0; width: 100%;" allow="clipboard-write"></iframe>\n`
+        + `<p>Quiz not showing, or the keyboard won’t come up? ${tabLink}.</p>`;
+      // Link only: for schools that block embedded sites.
+      const describe = `<p><strong>Take the quiz:</strong> <a href="${esc(link)}" target="_blank" rel="noopener">Open “${esc(title)}”</a></p>\n` + steps;
       const ptsIn = h('input', { type: 'number', id: 'cv-points', min: 0, max: 1000, inputmode: 'numeric', value: pts || '' , placeholder: 'e.g. 10' });
       ptsIn.addEventListener('change', () => {
         cfg.canvasPts = Math.max(0, Math.min(1000, Math.round(+ptsIn.value || 0)));
@@ -13406,12 +13411,13 @@ svg.staff .nlabel { display: none; }
         h('ol', { class: 'cv-steps' },
           h('li', null, 'In Canvas, create an ', h('b', null, 'Assignment'), '. Under ', h('b', null, 'Submission type'), ' choose ', h('b', null, 'Online'), ' and tick only ', h('b', null, 'Website URL'), '.'),
           h('li', null, 'Set ', h('b', null, 'Points'), pts ? [' to ', h('b', null, String(pts)), '.'] : ' to whatever the quiz is worth, and enter that number below.'),
-          h('li', null, 'Open the assignment description’s ', h('b', null, 'HTML editor'), ' (the ', h('code', null, '</>'), ' button) and paste the description below. Save and publish.'),
+          h('li', null, 'Open the assignment description’s ', h('b', null, 'HTML editor'), ' (the ', h('code', null, '</>'), ' button) and paste the first box below — the quiz and its link in one. Save and publish.'),
           h('li', null, 'Students take the quiz, then submit their results link. In ', h('b', null, 'SpeedGrader'), ' each submission opens that student’s results — enter the score it shows.')),
         fld('Points in Canvas', ptsIn, pts ? `Results pages show each score out of ${pts}, ready to type into SpeedGrader.` : 'Optional. When set, results pages also show the score scaled to these points.'),
-        box('cv-desc', 'Assignment description (HTML)', describe, 'Paste into the HTML editor of the Canvas assignment.', 7),
-        box('cv-link', 'Quiz link', link, 'The same link on its own — for an announcement, a module item, or an external URL.'),
-        box('cv-embed', 'Embed on a Canvas page (optional)', embed, 'Shows the quiz inside a Canvas page. In a web browser the quiz grows to fit, so nothing is cut off. It comes with a link to open the quiz in its own tab — on tablets, and in the Canvas app, an embedded page can’t always bring up the keyboard. Some schools block embedded sites; the link always works.', 4),
+        box('cv-embed', 'Embed the quiz in Canvas, with the link to the quiz (recommended)', embedded,
+          'Students read the steps, take the quiz right in the assignment, and have the link for a tablet, a phone or the Canvas app — where an embedded page can’t always bring up the keyboard. In a web browser the quiz grows to fit, so nothing is cut off. Works on a Canvas page too.', 8),
+        box('cv-desc', 'Link only (if your school blocks embedded sites)', describe, 'The steps and a link that opens the quiz in its own tab.', 6),
+        box('cv-link', 'Quiz link', link, 'The link on its own — for an announcement, a module item, or an external URL.'),
         h('p', { class: 'fine' }, 'Canvas can’t receive the grade by itself — that would need a server connected to Canvas. SpeedGrader shows you the score to enter. Correct answers stay off the results page unless the quiz lets students check answers; on the computer you built the quiz on, the results page’s ', h('b', null, 'Open in grade checker'), ' link shows everything.'));
     };
     dlg.append(

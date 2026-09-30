@@ -114,7 +114,7 @@ A student's device counts their attempts and stops offering retakes once the lim
 
 ### Canvas
 
-"Set up in Canvas" on the teacher's share card gives everything needed to run a quiz through a Canvas assignment: the quiz link, a ready-made assignment description to paste into the HTML editor, an embed for a Canvas page, and an optional number of points the quiz is worth there. Students take the quiz on `take.html`, then submit their results link as a **Website URL**. SpeedGrader shows a snapshot of each student's results page — name, score, the score scaled to the Canvas points, and every answer — with a link to the live page.
+"Set up in Canvas" on the teacher's share card gives everything needed to run a quiz through a Canvas assignment. The first box, pasted into the assignment's HTML editor, is the whole description: the steps, the quiz embedded under them (it asks Canvas to resize its frame to fit), and a link to open it in its own tab for tablets, phones and the Canvas app. There is also a link-only description for schools that block embedded sites, the bare quiz link, and an optional number of points the quiz is worth in Canvas. Students take the quiz on `take.html`, then submit their results link as a **Website URL**. SpeedGrader shows a snapshot of each student's results page — name, score, the score scaled to the Canvas points, and every answer — with a link to the live page.
 
 Canvas can't receive the grade by itself: that needs an LTI tool running on a server, which this app deliberately doesn't have. The teacher types the score from SpeedGrader. Correct answers stay off shared results pages unless the quiz lets students check answers; on the computer the quiz was built on, the results page marks everything against the saved quiz.
 
