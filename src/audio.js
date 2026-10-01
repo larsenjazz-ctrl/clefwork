@@ -2,7 +2,8 @@
    The piano is a few slightly stretched harmonics through a closing low-pass filter, with a fast
    attack and a decay that is quicker for higher notes. The oboe (Clefwork Rhythm's second part) is
    a reedy, sustained tone with a little vibrato, and the metronome a short click. Rhythms are
-   scheduled all at once; each instrument has its own volume. */
+   scheduled all at once; each instrument has its own volume. Clefwork Terms plays dynamics: its notes
+   carry their own loudness and brightness, on a bus of their own that skips the compressor. */
 (function (root) {
   'use strict';
   const MQ = root.MQ;
@@ -11,7 +12,7 @@
   const OBOE = [0, 0.55, 0.9, 1, 0.7, 0.5, 0.42, 0.3, 0.22, 0.16, 0.11, 0.08, 0.05, 0.035];
   let ctx = null, master = null, voices = [], endTimer = null, onEnd = null, timers = [], oboeWave = null;
   const buses = {};
-  const VOLUME = { piano: 0.8, oboe: 0.8, click: 0.6 };
+  const VOLUME = { piano: 0.8, oboe: 0.8, click: 0.6, dyn: 0.9 };
 
   function ensure() {
     if (!ctx) {
@@ -28,11 +29,12 @@
     if (ctx.state === 'suspended') ctx.resume();
     return ctx;
   }
+  // The 'dyn' bus goes straight out: the compressor would squeeze ff and f together.
   function bus(name) {
     if (!buses[name]) {
       buses[name] = ctx.createGain();
       buses[name].gain.value = VOLUME[name];
-      buses[name].connect(master);
+      buses[name].connect(name === 'dyn' ? ctx.destination : master);
     }
     return buses[name];
   }
@@ -43,14 +45,15 @@
   }
   const freq = (m) => 440 * Math.pow(2, (m - 69) / 12);
 
-  function note(m, t, dur, vel, dest) {
-    const f = freq(m);
+  // bright (optional): how open the tone is, 1 as usual — a piano played louder sounds brighter.
+  function note(m, t, dur, vel, dest, bright) {
+    const f = freq(m), br = bright || 1;
     const out = ctx.createGain();
     const lp = ctx.createBiquadFilter();
     lp.type = 'lowpass';
     lp.Q.value = 0.4;
-    lp.frequency.setValueAtTime(Math.min(14000, f * 10), t);
-    lp.frequency.exponentialRampToValueAtTime(Math.max(400, f * 2.5), t + Math.max(0.3, dur));
+    lp.frequency.setValueAtTime(Math.min(14000, f * 10 * br), t);
+    lp.frequency.exponentialRampToValueAtTime(Math.max(400, f * 2.5 * br), t + Math.max(0.3, dur));
     const tau = 0.55 * Math.pow(0.5, (m - 60) / 30); // higher notes fade sooner
     out.gain.setValueAtTime(0.0001, t);
     out.gain.linearRampToValueAtTime(vel, t + 0.006);
@@ -127,8 +130,9 @@
     return true;
   }
   // A rhythm. events: [{at, dur, voice: 'piano' | 'oboe' | 'click', midi, accent}] with times in
-  // seconds from the start. opts: total (seconds), marks ([{at, fn}] called as the music reaches
-  // them), done (called when it ends or is stopped).
+  // seconds from the start; a piano note may also carry vel (its loudness), bright and bus ('dyn').
+  // opts: total (seconds), marks ([{at, fn}] called as the music reaches them), done (called when it
+  // ends or is stopped).
   function sequence(events, opts) {
     stop();
     if (!ensure()) return false;
@@ -138,7 +142,7 @@
       const t = t0 + e.at;
       if (e.voice === 'click') click(t, e.accent, bus('click'));
       else if (e.voice === 'oboe') oboe(e.midi || 65, t, e.dur, 0.2, bus('oboe'));
-      else note(e.midi || 72, t, e.dur, 0.3, bus('piano'));
+      else note(e.midi || 72, t, e.dur, e.vel != null ? e.vel : 0.3, bus(e.bus === 'dyn' ? 'dyn' : 'piano'), e.bright);
     });
     onEnd = o.done || null;
     const lead = (t0 - ctx.currentTime) * 1000;

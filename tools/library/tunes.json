@@ -1,0 +1,8688 @@
+[
+{
+"id": "tune-a-child-of-the-king-binghamton",
+"title": "Binghamton (“A Child of The King”)",
+"by": "John Bunnell Sumner, 1877",
+"year": "1877",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": -3,
+"mode": "major"
+},
+"meter": {
+"n": 3,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"rh G4q",
+"Bb4q. A4e Bb4q",
+"G4h G4q",
+"G4q. F#4e G4q",
+"Eb4h Eb4q",
+"F4q. F4e F4q",
+"F4q G4q Ab4q",
+"Ab4q G4q F4q",
+"G4h G4q",
+"Bb4q. A4e Bb4q",
+"G4q G4q G4q",
+"Ab4q. Ab4e Ab4q",
+"C5h C5e~ C5e",
+"Bb4q. Bb4e Bb4q",
+"G4h Eb4e F4e",
+"G4q G4q. F4e",
+"Eb4h Eb4e. G4s",
+"Bb4q. A4e Bb4q",
+"G4h G4q",
+"G4q. F#4e G4q",
+"Bb4h Bb4q",
+"Eb5q. D5e C5q",
+"Bb4e G4q. C5e Ab4e",
+"G4q G4q. F4e",
+"Eb4h rq"
+]
+}
+]
+},
+{
+"id": "tune-a-lamb-goes-uncomplaining-forth-an-wasserfluessen-babylon",
+"title": "An Wasserfluessen Babylon (“A Lamb Goes Uncomplaining Forth”)",
+"by": "Wolfgang Dachstein, 1525",
+"year": "1525",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project; setting: \"Evangelical Lutheran Hymn-Book\", 1931, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": -1,
+"mode": "major"
+},
+"meter": {
+"n": 4,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"C5h D5q C5q",
+"A4h C5h",
+"Bb4q Bb4q A4h",
+"G4h A4q Bb4q",
+"C5h Bb4q A4q",
+"G4h F4h",
+"C5h D5q C5q",
+"A4h C5h",
+"Bb4q Bb4q A4h",
+"G4h A4q Bb4q",
+"C5h Bb4q A4q",
+"G4h F4h",
+"F4h G4q A4q",
+"Bb4h G4h",
+"A4q G4q F4h",
+"F4h A4q Bb4q",
+"C5h D5h",
+"A4q B4q C5h",
+"rh A4h",
+"C5q D5q C5q A4q",
+"Bb4h A4h",
+"D5h D5q D5q",
+"G4h C5h",
+"Bb4h A4h",
+"G4w",
+"Bb4h A4q G4q",
+"F4h G4h",
+"E4q F4q D4h",
+"C4h C4h",
+"F4q G4q A4q Bb4q",
+"C5q. Bb4e A4q Bb4q",
+"G4h F4h"
+]
+}
+]
+},
+{
+"id": "tune-a-mighty-fortress-is-our-god-ein-feste-burg-isorhythmic",
+"title": "Ein Feste Burg Isorhythmic (“A Mighty Fortress Is Our God”)",
+"by": "Martin Luther, 1529",
+"year": "1529",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project; setting: \"Common Service Book\" (ULCA), 1917, alt, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": 2,
+"mode": "major"
+},
+"meter": {
+"n": 4,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"rh. D5q",
+"D5q D5q A4e B4e C#5q",
+"D5e C#5e B4q A4q D5q",
+"C#5q B4q A4q B4q",
+"G4e F#4e E4q D4q D5q",
+"D5q D5q A4e B4e C#5q",
+"D5e C#5e B4q A4q D5q",
+"C#5q B4q A4q B4q",
+"G4e F#4e E4q D4q D4q",
+"F#4q A4q B4q G#4q",
+"A4q D4q A4q A4q",
+"B4q C#5q D5q C#5q",
+"D5q C#5q B4q B4q",
+"A4q B4q B4q A4q",
+"B4q G4q F#4q D5q",
+"C#5q B4q A4q B4q",
+"G4e F#4e E4q D4q rq"
+]
+}
+]
+},
+{
+"id": "tune-abide-o-dearest-jesus-christus-der-ist-mein-leben",
+"title": "Christus Der Ist Mein Leben (“Abide, O Dearest Jesus”)",
+"by": "Melchior Vulpius, 1609",
+"year": "1609",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": -3,
+"mode": "major"
+},
+"meter": {
+"n": 4,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"rh. Eb4q",
+"G4q F4q G4q Ab4q",
+"Bb4h G4q C5q",
+"Bb4q. Ab4e G4q F4q",
+"G4h rq Bb4q",
+"C5q C5q D5q Eb5q",
+"C5h Bb4q G4q",
+"F4q Eb4q Eb4q D4q",
+"Eb4h. rq"
+]
+}
+]
+},
+{
+"id": "tune-abide-with-me-eventide",
+"title": "Eventide (“Abide With Me”)",
+"by": "William H. Monk, 1861",
+"year": "1861",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project; setting: William H. Monk, 1861, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": -3,
+"mode": "major"
+},
+"meter": {
+"n": 4,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"G4h G4q F4q",
+"Eb4h Bb4h",
+"C5q Bb4q Bb4q Ab4q",
+"G4w",
+"G4h Ab4q Bb4q",
+"C5h Bb4h",
+"Ab4q F4q G4q A4q",
+"Bb4w",
+"G4h G4q F4q",
+"Eb4h Bb4h",
+"Bb4q Ab4q Ab4q G4q",
+"F4w",
+"F4h G4q Ab4q",
+"G4q F4q Eb4q Ab4q",
+"G4h F4h",
+"Eb4w"
+]
+}
+]
+},
+{
+"id": "tune-all-depends-on-our-possessing-alles-ist-an-gottes-segen",
+"title": "Alles ist an Gottes Segen (“All Depends On Our Possessing”)",
+"by": "Johann Balthasar König, 1738",
+"year": "1738",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project; setting: \"Chorale Book for England\", 1863, alt, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": -1,
+"mode": "major"
+},
+"meter": {
+"n": 4,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"F4q F4q C5q C5q",
+"Bb4q C5q A4q F4q",
+"A4q A4q G4q G4q",
+"F4q G4q E4q C4q",
+"G4q G4q F4q E4q",
+"D4q D4q C4h",
+"G4q G4q C5q A4q",
+"Bb4q C5q A4q F4q",
+"A4q A4q G4q G4q",
+"F4q G4q E4q C4q",
+"F4q F4q Bb4q A4q",
+"G4q G4q F4h"
+]
+}
+]
+},
+{
+"id": "tune-all-hail-the-power-of-jesus-name-coronation",
+"title": "Coronation (“All Hail The Power Of Jesus' Name”)",
+"by": "Oliver Holden, 1793",
+"year": "1793",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": 1,
+"mode": "major"
+},
+"meter": {
+"n": 4,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"rh. D4q",
+"G4q G4q B4q B4q",
+"A4q G4q A4q B4q",
+"A4q G4q B4q A4q",
+"G4h. A4q",
+"B4q A4q G4q B4q",
+"D5e C5e B4e A4e B4q D5q",
+"D5h D5h",
+"E5h D5q C#5q",
+"D5h. B4q",
+"D5q B4q G4q B4q",
+"A4e G4e A4e B4e A4q G4q",
+"D5h C5h",
+"B4q. C5e A4q A4q",
+"G4h. rq"
+]
+}
+]
+},
+{
+"id": "tune-all-praise-to-thee-my-god-this-night-tallis-canon",
+"title": "Tallis Canon (“All Praise To Thee, My God, This Night”)",
+"by": "Thomas Tallis, circa 1567",
+"year": "1567",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project; setting: \"A Hymnal\" (Episcopal), 1916, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": 1,
+"mode": "major"
+},
+"meter": {
+"n": 4,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"rh. G4q",
+"G4q F#4q G4q G4q",
+"A4q A4q B4q G4q",
+"C5q C5q B4q B4q",
+"A4q A4q G4q D5q",
+"C5q A4q B4q B4q",
+"A4q A4q G4q D4q",
+"E4q F#4q G4q B4q",
+"A4q A4q G4q rq"
+]
+}
+]
+},
+{
+"id": "tune-all-praise-to-jesus-hallowed-name-gelobet-seist-du",
+"title": "Gelobet Seist Du (“All Praise to Jesus' Hallowed Name”)",
+"by": "ancient German found in Walter's Geistliche Gesangbüchlein, 1524",
+"year": "1524",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": 0,
+"mode": "major"
+},
+"meter": {
+"n": 4,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"rh. G4q",
+"G4q G4q A4q G4q",
+"C5q D5q C5h",
+"B4q D5q E5q D5q",
+"B4q A4q G4q G4q",
+"C5q B4q D5q A4q",
+"G4q E4q D4q D4q",
+"A4q A4q A4q D5q",
+"C5q A4q G4e A4e B4q",
+"A4q G4q G4q G4q",
+"G4q rh rq"
+]
+}
+]
+},
+{
+"id": "tune-all-who-believe-and-are-baptized-es-ist-das-heil-uns-kommen-her",
+"title": "Es ist das Heil uns Kommen her (“All Who Believe and Are Baptized”)",
+"by": "German circa 1400 from Etlich Christlich Lider, Wittenberg, 1524",
+"year": "1400",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": -3,
+"mode": "major"
+},
+"meter": {
+"n": 4,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"re rh. Bb4e",
+"Bb4q Bb4q Bb4q Db5q",
+"C5q Bb4q Ab4q. Bb4e",
+"G4q Eb4q G4q Ab4q",
+"Bb4q C5q Bb4q. Bb4e",
+"Bb4q Bb4q Bb4q Db5q",
+"C5q Bb4q Ab4q. Bb4e",
+"G4q Eb4q G4q Ab4q",
+"Bb4q C5q Bb4q. Bb4e",
+"Eb5q. Db5e C5q Bb4q",
+"Eb5q C5q Bb4q. Bb4e",
+"Eb5q. Bb4e Bb4q Eb4q",
+"G4q Bb4q G4q. Eb4e",
+"F4q Ab4q G4q F4q",
+"Eb4q F4q Eb4q. re"
+]
+}
+]
+},
+{
+"id": "tune-alleluia-alleluia-hearts-to-heaven-and-voices-raise-ode-to-joy",
+"title": "Ode To Joy (“Alleluia, Alleluia! Hearts to Heaven and Voices Raise”)",
+"by": "Ludwig van Beethoven; Adapted by Edward Hodges, 1824",
+"year": "1824",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": 1,
+"mode": "major"
+},
+"meter": {
+"n": 4,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"B4q B4q C5q D5q",
+"D5q C5q B4q A4q",
+"G4q G4q A4q B4q",
+"B4q. A4e A4h",
+"B4q B4q C5q D5q",
+"D5q C5q B4q A4q",
+"G4q G4q A4q B4q",
+"A4q. G4e G4h",
+"A4q A4q B4q G4q",
+"A4q B4e C5e B4q G4q",
+"A4q B4e C5e B4q A4q",
+"G4q A4q D4h",
+"B4q B4q C5q D5q",
+"D5q C5q B4q A4q",
+"G4q G4q A4q B4q",
+"A4q. G4e G4h"
+]
+}
+]
+},
+{
+"id": "tune-almighty-god-your-word-is-cast-st-anne",
+"title": "St Anne (“Almighty God Your Word Is Cast”)",
+"by": "William Croft, 1708",
+"year": "1708",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": 0,
+"mode": "major"
+},
+"meter": {
+"n": 4,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"rh. G4q",
+"E4q A4q G4q C5q",
+"C5q B4q C5q G4q",
+"C5q G4q A4q F#4q",
+"G4h. B4q",
+"C5q A4q D5q B4q",
+"C5q A4q B4q G4q",
+"A4q C5q D5q B4q",
+"C5h. rq"
+]
+}
+]
+},
+{
+"id": "tune-amazing-grace-new-britain",
+"title": "New Britain (“Amazing Grace”)",
+"by": "James P. Carrell and David L. Clayton, 1831",
+"year": "1831",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project; setting: Edwin Othello Excell, 1900, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": 1,
+"mode": "major"
+},
+"meter": {
+"n": 3,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"rh D4q",
+"G4h B4e G4e",
+"B4h A4q",
+"G4h E4q",
+"D4h D4q",
+"G4h B4e G4e",
+"B4h A4q",
+"D5h.~",
+"D5h B4q",
+"D5q. B4e D5e B4e",
+"G4h D4q",
+"E4q. G4e G4e E4e",
+"D4h D4q",
+"G4h B4e G4e",
+"B4h A4q",
+"G4h.~",
+"G4h rq"
+]
+}
+]
+},
+{
+"id": "tune-and-can-it-be-fillmore",
+"title": "Fillmore (“And Can It Be”)",
+"by": "Jeremiah Ingalls (1764-1828)",
+"year": "1764",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project; setting: \"The Methodist Hymnal\", 1905, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": -1,
+"mode": "major"
+},
+"meter": {
+"n": 3,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"rh F4q",
+"A4q. G4e F4q",
+"G4h A4q",
+"G4h F4q",
+"G4h A4q",
+"C5h C5q",
+"C5q D5q C5q",
+"A4h G4q",
+"F4h C5q",
+"D5h D5q",
+"D5q. E5e F5q",
+"C5h C5q",
+"A4h C5q",
+"D5h D5q",
+"D5q. E5e F5q",
+"C5h C5q",
+"A4q G4q F4q",
+"A4q. G4e F4q",
+"G4h A4q",
+"G4h F4q",
+"G4h A4q",
+"C5h C5q",
+"C5q D5q C5q",
+"A4h G4q",
+"F4h rq"
+]
+}
+]
+},
+{
+"id": "tune-angel-voices-ever-singing-angel-voices-monk",
+"title": "Angel Voices Monk (“Angel Voices, Ever Singing”)",
+"by": "Edwin G. Monk, 1861",
+"year": "1861",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": 0,
+"mode": "major"
+},
+"meter": {
+"n": 4,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"E4q G4q A4q G4q",
+"C5q A4q G4q E4q",
+"C4q D4q E4q F4q",
+"D4w",
+"E4q G4q C5q A4q",
+"D5q. C5e B4q G4q",
+"A4q E4q G4q F#4q",
+"G4w",
+"G4q G4q G4q A4q",
+"F4q F4q F4q G4q",
+"E4q G4q A4q C5q",
+"D5h. B4q",
+"C5w"
+]
+}
+]
+},
+{
+"id": "tune-angels-from-the-realms-of-glory-regent-square",
+"title": "Regent Square (“Angels From the Realms of Glory”)",
+"by": "Henry Smart, 1867",
+"year": "1867",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project; setting: \"Psalms and Hymns for Divine Worship\", 1867, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": 0,
+"mode": "major"
+},
+"meter": {
+"n": 4,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"rh G4q E4q",
+"C5q G4q E5q. D5e",
+"C5q G4q A4q A4q",
+"G4q C5q G4q F4q",
+"E4h G4q E4q",
+"C5q G4q E5q. D5e",
+"C5q B4q C5q B4q",
+"A4q B4e C5e B4q A4q",
+"G4h D5q. D5e",
+"B4q G4q E5q. D5e",
+"C5q A4q F5q E5q",
+"D5q C5q C5q B4q",
+"C5h rh"
+]
+}
+]
+},
+{
+"id": "tune-angels-we-have-heard-on-high-gloria",
+"title": "Gloria (“Angels We Have Heard On High”)",
+"by": "French carol melody",
+"year": "",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project; setting: Edward (or Edwin) S. Barnes, before 1916, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": -1,
+"mode": "major"
+},
+"meter": {
+"n": 4,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"A4q A4q A4q C5q",
+"C5q. Bb4e A4h",
+"A4q G4q A4q C5q",
+"A4q. G4e F4h",
+"A4q A4q A4q C5q",
+"C5q. Bb4e A4h",
+"A4q G4q A4q C5q",
+"A4q. G4e F4h",
+"C5h D5e C5e Bb4e A4e",
+"Bb4h C5e Bb4e A4e G4e",
+"A4h Bb4e A4e G4e F4e",
+"G4q. C4e C4h",
+"F4q G4q A4q Bb4q",
+"A4h G4q rq",
+"C5h D5e C5e Bb4e A4e",
+"Bb4h C5e Bb4e A4e G4e",
+"A4h Bb4e A4e G4e F4e",
+"G4q. C4e C4h",
+"F4q G4q A4q Bb4q",
+"A4h G4h",
+"F4w"
+]
+}
+]
+},
+{
+"id": "tune-as-with-gladness-men-of-old-dix",
+"title": "Dix (“As With Gladness Men of Old”)",
+"by": "Conrad Kocher, 1838. Abridged by William Henry Monk, 1861",
+"year": "1838",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": 1,
+"mode": "major"
+},
+"meter": {
+"n": 4,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"G4q F#4e G4e A4q G4q",
+"C5q C5q B4h",
+"E4q F#4q G4q E4q",
+"D4q D4q D4h",
+"G4q F#4e G4e A4q G4q",
+"C5q C5q B4h",
+"E4q F#4q G4q E4q",
+"D4q D4q D4h",
+"B4q A4q G4q B4q",
+"D5q. C5e B4h",
+"E4q F#4q G4q C5q",
+"B4q A4q G4h"
+]
+}
+]
+},
+{
+"id": "tune-awake-my-heart-with-gladness-auf-auf-mein-herz-mit-freuden",
+"title": "Auf Auf Mein Herz mit Freuden (“Awake, My Heart, With Gladness”)",
+"by": "Johann Crüger, 1648",
+"year": "1648",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project; setting: \"Mehrstimmiges ChoralBuch\", 1906, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": -3,
+"mode": "major"
+},
+"meter": {
+"n": 3,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"Bb4q G4q Bb4q",
+"Ab4h G4q",
+"F4h.",
+"Eb4h Bb4q",
+"C5q. D5e Eb5q",
+"D5q. C5e D5q",
+"C5h.",
+"Bb4q G4q Bb4q",
+"Ab4h G4q",
+"F4h.",
+"Eb4h Bb4q",
+"C5q. D5e Eb5q",
+"D5q. C5e D5q",
+"C5h.",
+"G4q Bb4q Eb4q",
+"D4q. Eb4e F4q",
+"Eb4h.",
+"Ab4q C5q F4q",
+"E4q. F4e G4q",
+"F4h F4q",
+"G4q. Ab4e Bb4q",
+"A4q. Bb4e C5q",
+"Bb4h Bb4q",
+"C5q. D5e Eb5q",
+"D5q. C5e D5q",
+"Eb5h."
+]
+}
+]
+},
+{
+"id": "tune-be-still-my-soul-finlandia",
+"title": "Finlandia (“Be Still My Soul”)",
+"by": "Jean Sibelius, 1899",
+"year": "1899",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project; setting: from Jean Sibelius, 1900, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": -1,
+"mode": "major"
+},
+"meter": {
+"n": 4,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"rq A4q G4q A4q",
+"Bb4h. A4q",
+"G4q A4q F4q. G4e",
+"G4q A4h.~",
+"A4q A4q G4q A4q",
+"Bb4h. A4q",
+"G4q A4q F4q. G4e",
+"A4w~",
+"A4q C5q C5q C5q",
+"D5h. A4q",
+"A4q C5q C5q. G4e",
+"G4q Bb4h.~",
+"Bb4q Bb4q A4q G4q",
+"A4h. F4q",
+"F4q G4q G4q. A4e",
+"A4w~",
+"A4q C5q C5q C5q",
+"D5h. A4q",
+"A4q C5q C5q. G4e",
+"G4q Bb4h.~",
+"Bb4q Bb4q A4q G4q",
+"A4h. F4q",
+"F4q G4q G4q. F4e",
+"F4w~",
+"F4q rh."
+]
+}
+]
+},
+{
+"id": "tune-be-thou-my-vision-slane",
+"title": "Slane (“Be Thou My Vision”)",
+"by": "Traditional Irish",
+"year": "",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project; setting: Mark Hamilton Dewey, 2007, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": -3,
+"mode": "major"
+},
+"meter": {
+"n": 3,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"Eb4q Eb4q F4e Eb4e",
+"C4q Bb3q Bb3e C4e",
+"Eb4q Eb4q F4q",
+"G4h.",
+"F4q F4q F4q",
+"F4q G4q Bb4q",
+"C5q Bb4q G4q",
+"Bb4h.",
+"C5q C5e D5e Eb5e D5e",
+"C5q Bb4q G4q",
+"Bb4q Eb4q D4q",
+"C4h Bb3q",
+"Eb4q G4q Bb4q",
+"C5e Bb4e G4q Eb4e G4e",
+"F4q Eb4q Eb4q",
+"Eb4h."
+]
+}
+]
+},
+{
+"id": "tune-beautiful-savior-crusaders-hymn",
+"title": "Crusaders Hymn (“Beautiful Savior”)",
+"by": "Silesian folk song, 1842",
+"year": "1842",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project; setting: Richard S. Willis, 1850, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": -3,
+"mode": "major"
+},
+"meter": {
+"n": 4,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"Eb4h Eb4q Eb4q",
+"F4q D4q Eb4h",
+"G4h G4q G4q",
+"Ab4q F4q G4h",
+"Bb4h Eb5q C5q",
+"Bb4h Ab4q G4q",
+"Ab4h G4h",
+"F4w",
+"Bb4h C5q Bb4q",
+"Bb4q G4q Ab4h",
+"Ab4h Bb4q Ab4q",
+"Ab4q F4q G4h",
+"G4h G4q G4q",
+"Bb4h. Ab4q",
+"G4h F4h",
+"Eb4w"
+]
+}
+]
+},
+{
+"id": "tune-behold-a-host-arrayed-in-white-den-store-hvide-flok-great-white-host",
+"title": "Den Store Hvide Flok-Great White Host (“Behold, A Host, Arrayed in White”)",
+"by": "traditional Norwegian, 17th cent",
+"year": "",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project; setting: Edvard Grieg, 1907, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": -3,
+"mode": "major"
+},
+"meter": {
+"n": 6,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"rq rw Eb4e G4e",
+"Bb4h Bb4q C5h Bb4q",
+"G4q. Eb4e G4e Bb4e F4h F4e G4e",
+"Ab4h F4q Eb4q. F4e G4e Ab4e",
+"Bb4h D4q Eb4h G4e Ab4e",
+"Bb4q. G4e C5e Bb4e Bb4h C5q",
+"Bb4q. F4e Ab4q G4h Eb4e F4e",
+"G4q. Ab4e G4q F4q. G4e F4q",
+"Eb4h.~ Eb4h Eb4e G4e",
+"Bb4h Bb4q C5h Bb4q",
+"G4q. Eb4e G4e Bb4e F4h F4e G4e",
+"Ab4h F4q Eb4q. F4e G4e Ab4e",
+"Bb4h D4q Eb4h G4e Ab4e",
+"Bb4q. G4e C5e Bb4e Bb4h C5q",
+"Bb4q. F4e Ab4q G4h Eb4e F4e",
+"G4q. Ab4e G4q F4q. G4e F4q",
+"Eb4h.~ Eb4h Eb4e G4e",
+"C5h C5q C5h Bb4q",
+"G4q. Eb4e G4e Bb4e F4h F4e G4e",
+"Ab4h F4q Eb4q. F4e G4e Ab4e",
+"Bb4h D4q Eb4h G4e Ab4e",
+"Bb4q. G4e C5q Bb4h C5q",
+"Bb4q. F4e Ab4q G4h Eb4e F4e",
+"G4q. Ab4e G4q F4q. G4e F4q",
+"Eb4h.~ Eb4h rq"
+]
+}
+]
+},
+{
+"id": "tune-beneath-the-cross-of-jesus-st-christopher",
+"title": "St Christopher (“Beneath The Cross Of Jesus”)",
+"by": "Frederick C. Maker, 1881",
+"year": "1881",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project; setting: \"Bristol Tune-Book\", 1891, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": -5,
+"mode": "major"
+},
+"meter": {
+"n": 4,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"rh. Ab4q",
+"Ab4q. Ab4e G4q Bb4q",
+"Ab4h F4q Db4q",
+"Eb4q. F4e Gb4q Gb4q",
+"F4h. F4q",
+"Db5q. Db5e Db5q C5q",
+"Bb4q Ab4q Gb4q F4q",
+"Eb4q. Eb4e E4q E4q",
+"F4h. F4q",
+"F4q. Eb4e Db4q Eb4q",
+"F4q Gb4q Ab4q Ab4q",
+"Bb4q. Bb4e Bb4q F4q",
+"Gb4h. Gb4e~ Gb4e",
+"C5q. Bb4e Ab4q Gb4q",
+"F4q F4q Ab4q Gb4e~ Gb4e",
+"F4q. Db4e F4q Eb4q",
+"Db4h. rq"
+]
+}
+]
+},
+{
+"id": "tune-blessed-assurance-blessed-assurance-assurance",
+"title": "Blessed Assurance-Assurance (“Blessed Assurance”)",
+"by": "Phoebe P. Knapp, 1873",
+"year": "1873",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": 2,
+"mode": "major"
+},
+"meter": {
+"n": 9,
+"d": 8
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"rh. F#4e E4e D4e",
+"A4q. A4q. G4e A4e B4e",
+"A4h. A4e F#4e A4e",
+"D5q. C#5q C#5e B4e A4e G#4e",
+"A4h. F#4e E4e D4e",
+"A4q. A4q. G4e A4e B4e",
+"A4h. D4e E4e F#4e",
+"G4q. E4q. D4e E4e C#4e",
+"D4h. A4e A4e A4e",
+"D5q. A4q. B4e B4e B4e",
+"A4h. A4e A4e A4e",
+"B4q. D5q. C#5e C#5e B4e",
+"C#5h. C#5e D5e E5e",
+"D5q. A4q. B4e A4e B4e",
+"A4h. D4e E4e F#4e",
+"G4q. E4q. D4e. E4s C#4e",
+"D4h. rq."
+]
+}
+]
+},
+{
+"id": "tune-blessed-jesus-at-thy-word-liebster-jesu-wir-sind-hier",
+"title": "Liebster Jesu wir Sind Hier (“Blessed Jesus at Thy Word”)",
+"by": "Johann Rudolph Ahle, 1664",
+"year": "1664",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project; setting: Fridrich Layriz, 1854, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": 1,
+"mode": "major"
+},
+"meter": {
+"n": 4,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"B4q G4q A4q D5q",
+"B4q G4q A4h",
+"G4q G4q G4q G4q",
+"A4q B4q A4h",
+"G4w",
+"B4q G4q A4q D5q",
+"B4q G4q A4h",
+"G4q G4q G4q G4q",
+"A4q B4q A4h",
+"G4w",
+"D4q D4q E4q F#4q",
+"G4q A4q F#4q D4q",
+"G4q G4q A4q B4q",
+"C5q B4q A4h",
+"G4w"
+]
+}
+]
+},
+{
+"id": "tune-blest-be-the-tie-that-binds-boylston",
+"title": "Boylston (“Blest Be The Tie That Binds”)",
+"by": "Lowell Mason, 1832",
+"year": "1832",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": 0,
+"mode": "major"
+},
+"meter": {
+"n": 3,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"rh G4q",
+"E4e F4e G4q A4q",
+"G4h C5q",
+"C5e B4e A4q A4q",
+"G4h G4q",
+"E4e F4e G4q G4q",
+"A4e B4e C5q B4q",
+"C5e A4e G4q G4q",
+"G4h rq"
+]
+}
+]
+},
+{
+"id": "tune-blest-be-the-tie-that-binds-dennis",
+"title": "Dennis (“Blest Be The Tie That Binds”)",
+"by": "Hans Georg Nägeli, circa 1828",
+"year": "1828",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project; setting: Donna Snell, circa 1975, alt, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": 1,
+"mode": "major"
+},
+"meter": {
+"n": 3,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"rh B4q",
+"B4q G4q B4q",
+"A4q F#4q A4q",
+"G4h G4q",
+"G4q E4q G4q",
+"G4q D4q G4q",
+"F#4h A4q",
+"A4q F#4q A4q",
+"G4q B4q D5q",
+"D5q A4q C5q",
+"B4q D5q E5q",
+"D5q B4q C5q",
+"B4q G4q A4q",
+"G4h rq"
+]
+}
+]
+},
+{
+"id": "tune-breathe-on-me-breath-of-god-aylesbury-wirksworth",
+"title": "Aylesbury-Wirksworth (“Breathe on Me, Breath of God”)",
+"by": "found in John Chetham's Psalmody, 1718",
+"year": "1718",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": -4,
+"mode": "major"
+},
+"meter": {
+"n": 4,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"F4h C5q Bb4q",
+"Ab4q G4q F4h",
+"C5h Eb5q Db5q",
+"C5q Bb4q C5h",
+"rq Ab4q G4q F4q",
+"C5q Ab4q Bb4q Ab4q",
+"G4q F4q C5q Bb4q",
+"Ab4h G4h",
+"F4w"
+]
+}
+]
+},
+{
+"id": "tune-built-on-the-rock-kirken-den-er-et-gammelt-hus",
+"title": "Kirken Den Er Et Gammelt Hus (“Built on the Rock”)",
+"by": "Ludvig M. Lindeman, 1840",
+"year": "1840",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project; setting: \"The Lutheran Hymnary\", 1913, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": -1,
+"mode": "major"
+},
+"meter": {
+"n": 3,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"D4q D4q A4q",
+"F4h D4q",
+"F4h G4q",
+"A4h.",
+"A4q B4q C5q",
+"A4q F4q G4q",
+"E4h.",
+"D4h.",
+"D4q D4q A4q",
+"F4h D4q",
+"F4h G4q",
+"A4h.",
+"A4q B4q C5q",
+"A4q F4q G4q",
+"E4h.",
+"D4h.",
+"D5q C5q B4q",
+"C5h A4q",
+"A4h G4q",
+"F4h.",
+"A4q D5q F5q",
+"E5h D5q",
+"C5h B4q",
+"A4h.",
+"A4q A4q G4q",
+"F4q G4q F4q",
+"E4h.",
+"D4h."
+]
+}
+]
+},
+{
+"id": "tune-christ-arose-christ-arose",
+"title": "Christ Arose",
+"by": "Robert Lowry, 1874",
+"year": "1874",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": 0,
+"mode": "major"
+},
+"meter": {
+"n": 4,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"G4h G4q A4q",
+"A4q G4q G4h",
+"G4h F4q A4q",
+"A4h G4h",
+"A4h B4q C5q",
+"C5q G4q G4h",
+"A4h G4q F#4q",
+"G4w",
+"C4q C4e. C4s E4q G4e. G4s",
+"C5h. C5e. D5s",
+"E5q C5q D5e. C5s B4e. A4s",
+"G4h. B4e. C5s",
+"D5q D5q D5e. C5s D5e. E5s",
+"C5q A4q G4q G4e. G4s",
+"A4q A4q A4e. D5s D5e. C5s",
+"B4q C5q D5q G4e. G4s",
+"E5h. D5e. C5s",
+"F5h. E5e. D5s",
+"C5q G4q E5q D5q",
+"C5w"
+]
+}
+]
+},
+{
+"id": "tune-christ-jesus-lay-in-deaths-strong-bands-christ-lag-in-todes-banden-torgau",
+"title": "Christ Lag in Todes Banden-Torgau (“Christ Jesus Lay In Death's Strong Bands”)",
+"by": "from Walter's Geistliche Gesangbüchlein, 1524",
+"year": "1524",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": 0,
+"mode": "major"
+},
+"meter": {
+"n": 4,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"rh A4h",
+"G4q A4q C5q D5q",
+"C5q B4q A4q. A4e",
+"F4q G4q A4q G4e F4e",
+"E4q D4q A4h",
+"G4q A4q C5q D5q",
+"C5q B4q A4q. A4e",
+"F4q G4q A4q G4e F4e",
+"E4q D4q D4q F4q",
+"G4q D4q F4q G4q",
+"A4q. A4e D5q C5q",
+"D5q E5q C5q B4q",
+"A4q. A4e C5q A4q",
+"C5q G4q F4e D4e E4q",
+"D4h A4q G4e F4e",
+"E4q D4q rh"
+]
+}
+]
+},
+{
+"id": "tune-christ-the-lord-is-risen-today-llanfair",
+"title": "Llanfair (“Christ The Lord Is Risen Today (Lyra)”)",
+"by": "Robert Williams, 1817",
+"year": "1817",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project; setting: John Roberts, 1837, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": -1,
+"mode": "major"
+},
+"meter": {
+"n": 4,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"F4q F4q A4q A4q",
+"C5q Bb4e A4e G4h",
+"C5q. Bb4e A4q Bb4e A4e",
+"G4h F4h",
+"F4q F4q A4q A4q",
+"C5q Bb4e A4e G4h",
+"C5q. Bb4e A4q Bb4e A4e",
+"G4h F4h",
+"A4q A4q C5q C5q",
+"D5e C5e Bb4e A4e G4h",
+"A4q. G4e A4q B4q",
+"C5h C5h",
+"F4q F4q A4q A4q",
+"C5q Bb4e A4e G4h",
+"C5q. Bb4e A4q Bb4e A4e",
+"G4h F4h"
+]
+}
+]
+},
+{
+"id": "tune-christ-the-lord-is-risen-today-orientis-partibus-redhead-45",
+"title": "Orientis Partibus-Redhead 45 (“Christ The Lord Is Risen Today (Lyra)”)",
+"by": "traditional French",
+"year": "",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": 1,
+"mode": "major"
+},
+"meter": {
+"n": 4,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"G4q. A4e B4q G4q",
+"A4q F#4q G4h",
+"D5q D5q E5q B4e C5e",
+"D5q D5q B4h",
+"B4q A4q C5q B4q",
+"A4q G4e A4e B4h",
+"D5q. C5e B4q G4q",
+"A4q F#4q G4h"
+]
+}
+]
+},
+{
+"id": "tune-come-down-o-love-divine-down-ampney",
+"title": "Down Ampney (“Come Down, O Love Divine”)",
+"by": "Ralph Vaughan Williams, 1906",
+"year": "1906",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project; setting: Ralph Vaughan Williams, 1906, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": 2,
+"mode": "major"
+},
+"meter": {
+"n": 4,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"D4h E4q F#4q",
+"A4h B4h",
+"A4w",
+"A4h B4q A4q",
+"D5q C#5q B4h",
+"A4h A4h",
+"B4q A4q G4q F#4q",
+"E4q D4q E4q F#4e G4e",
+"E4h D4h",
+"D5h C#5q B4q",
+"A4h B4h",
+"A4w",
+"C5h B4q A4q",
+"G4h F#4h",
+"E4h E4h",
+"A4q B4q A4q G4q",
+"F#4q D4q E4q F#4e G4e",
+"E4h D4h"
+]
+}
+]
+},
+{
+"id": "tune-come-god-creator-holy-ghost-komm-gott-schoepfer",
+"title": "Komm Gott Schoepfer (“Come, God Creator, Holy Ghost”)",
+"by": "ancient Latin found in Erfurt Enchiridion, 1524",
+"year": "1524",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": 0,
+"mode": "major"
+},
+"meter": {
+"n": 4,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"G4h A4q G4q",
+"F4q G4q C5q D5q",
+"C5h rq C5q",
+"G4q A4q C5q D5q",
+"E5q E5q D5h",
+"rq D5q E5q C5q",
+"A4q G4q B4q C5q",
+"D5h rq G4q",
+"C5q A4q F4q A4q~",
+"A4q G4q G4h~",
+"G4h G4h"
+]
+}
+]
+},
+{
+"id": "tune-come-holy-spirit-lord-our-god-komm-heiliger-geist-herre-gott",
+"title": "Komm Heiliger Geist Herre Gott (“Come Holy Spirit, Lord Our God”)",
+"by": "ancient Latin found in Erfurt Enchiridion, 1524",
+"year": "1524",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": 1,
+"mode": "major"
+},
+"meter": {
+"n": 4,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"D5h E5q D5q",
+"B4q D5q A4h",
+"B4q G4q B4q C#5q",
+"D5h rq D5q",
+"E5h D5q B4q",
+"D5q A4q G4q C5q",
+"B4q A4q G4e E4e F#4q",
+"G4h rq G4q",
+"A4q. B4e C5h",
+"B4q. C#5e D5h",
+"A4q F#4q G4q E4q",
+"D4q D4q rq D4q",
+"G4h A4h",
+"B4q D5h C5q",
+"B4q G4q A4h",
+"B4w",
+"D5h E5q D5q",
+"B4q D5q A4h",
+"B4q G4q B4q C#5q",
+"D5h rq D5q",
+"E5h D5q B4q",
+"D5q A4q G4q C5q",
+"B4q A4q G4e E4e F#4q",
+"G4h rq G4q",
+"A4q. B4e C5h",
+"B4q. C#5e D5h",
+"A4q F#4q G4q E4q",
+"D4q D4q rq D4q",
+"G4h A4h",
+"B4q D5h C5q",
+"B4h A4h",
+"E4q F#4q G4h",
+"rh A4h",
+"B4q A4q G4e. F#4s E4q",
+"D4h A4h",
+"B4q A4q G4e E4e F#4q",
+"G4w"
+]
+}
+]
+},
+{
+"id": "tune-come-thou-fount-nettleton",
+"title": "Nettleton (“Come Thou Fount Of Every Blessing”)",
+"by": "Asahel Nettleton, 1812",
+"year": "1812",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": -3,
+"mode": "major"
+},
+"meter": {
+"n": 3,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"rh G4e F4e",
+"Eb4q Eb4q G4e Bb4e",
+"F4q F4q G4e Bb4e",
+"C5q Bb4q G4e F4e",
+"Eb4h G4e F4e",
+"Eb4q Eb4q G4e Bb4e",
+"F4q F4q G4e Bb4e",
+"C5q Bb4q G4e F4e",
+"Eb4h Bb4e C5s D5s",
+"Eb5q D5q C5e Bb4e",
+"C5e Bb4e G4q Bb4e C5s D5s",
+"Eb5q D5q C5e Bb4e",
+"Eb5h G4e F4e",
+"Eb4q Eb4q G4e Bb4e",
+"F4q F4q G4e Bb4e",
+"C5q Bb4q G4e F4e",
+"Eb4h rq"
+]
+}
+]
+},
+{
+"id": "tune-come-ye-disconsolate-consolator-webbe",
+"title": "Consolator Webbe (“Come, Ye Disconsolate”)",
+"by": "Samuel Webbe, 1792",
+"year": "1792",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": 0,
+"mode": "major"
+},
+"meter": {
+"n": 4,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"G4h E4q C4q",
+"A4q. G4e G4h",
+"F4q. G4e A4q B4q",
+"C5h G4q rq",
+"E4h E4q E4q",
+"F4q. F4e A4h",
+"G4h F4q F4q",
+"G4h rh",
+"C5h B4q A4q",
+"G4q. F4e E4h",
+"C5h D5e C5e B4e A4e",
+"G4h E4q rq",
+"G4q E5q E5q C5q",
+"C5q A4h F4q",
+"E4h D4q. C4e",
+"C4w"
+]
+}
+]
+},
+{
+"id": "tune-comfort-comfort-ye-my-people-freu-dich-sehr-o-meine-seele",
+"title": "Freu dich sehr o meine Seele (“Comfort, Comfort Ye My People”)",
+"by": "from Trente Quatre Pseaumes de David, Geneva, 1551",
+"year": "1551",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": -1,
+"mode": "major"
+},
+"meter": {
+"n": 6,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"F4h G4q A4h G4q",
+"F4q E4q D4h C4h",
+"F4h G4q A4h Bb4q",
+"A4h G4h F4h",
+"F4h G4q A4h G4q",
+"F4q E4q D4h C4h",
+"F4h G4q A4h Bb4q",
+"A4h G4h F4h",
+"A4h A4q C5h Bb4q",
+"A4q G4q A4h rh",
+"C5h C5q D5h C5q",
+"Bb4q A4q G4h rh",
+"A4h C5q Bb4h A4q",
+"F4q G4q A4h F4h",
+"A4h A4q Bb4h A4q",
+"G4q F4q E4h F4h"
+]
+}
+]
+},
+{
+"id": "tune-crown-him-with-many-crowns-diademata",
+"title": "Diademata (“Crown Him With Many Crowns”)",
+"by": "George J. Elvey, 1868",
+"year": "1868",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project; setting: \"Appendix to Hymns Ancient and Modern\", 1869, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": 2,
+"mode": "major"
+},
+"meter": {
+"n": 4,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"D4q D4e D4e F#4q F#4q",
+"B4h. B4q",
+"A4q D4q G4q F#4q",
+"E4h. E4q",
+"F#4q A4q B4q A4q",
+"G#4q F#4e E4e A4q D5q",
+"C#5q D5q B4q B4q",
+"A4h. A4q",
+"A4q F#4q E4q D4q",
+"B4h. B4q",
+"B4q G#4q F#4q E4q",
+"C#5h. C#5q",
+"D5q. C#5e B4q A4q",
+"G4q E4q F#4q A4q",
+"G4q F#4q E4q E4q",
+"D4w"
+]
+}
+]
+},
+{
+"id": "tune-day-of-wrath-o-day-of-mourning-dies-irae-dykes",
+"title": "Dies Irae Dykes (“Day of Wrath, O Day of Mourning”)",
+"by": "John Bacchus Dykes, 1861",
+"year": "1861",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project; setting: \"Hymns Ancient and Modern\", 1869, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": -1,
+"mode": "major"
+},
+"meter": {
+"n": 4,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"F4q. E4e D4q E4q",
+"F4q G4q A4q D4q",
+"Bb4q Bb4q A4q D4q",
+"G4q F4q E4q F#4q",
+"G4q G4q G4q F4q",
+"E4q F4q E4q D4q",
+"F4q. Bb4e Bb4q. A4e",
+"G4q A4q Bb4q F4q",
+"F4q Bb4q Bb4q. A4e",
+"G4q A4q Bb4q F4q",
+"D5q D5q D5q. D4e",
+"E4q G4q F4h~",
+"F4q E4q D4h"
+]
+}
+]
+},
+{
+"id": "tune-despair-not-o-heart-med-sorgen-og-klagen-despair-not-o-heart-jam-moesta-iam-moesta",
+"title": "Med Sorgen Og Klagen-Despair Not O Heart-Jam Moesta-Iam Moesta (“Despair Not, O Heart”)",
+"by": "Traditional",
+"year": "",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": -1,
+"mode": "major"
+},
+"meter": {
+"n": 2,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"rq F4q",
+"Bb4q G4e G4e",
+"A4q G4e F4e",
+"G4h",
+"F4q F4q",
+"G4q A4e A4e",
+"C5q Bb4e A4e",
+"G4h",
+"A4q F4q",
+"A4q G4e G4e",
+"F4q E4e C4e",
+"D4h",
+"C4q C5q",
+"D5q Bb4e Bb4e",
+"C5q Bb4e A4e",
+"G4h",
+"F4q rq"
+]
+}
+]
+},
+{
+"id": "tune-every-morning-mercies-new-kelso",
+"title": "Kelso (“Every Morning Mercies New”)",
+"by": "Edward J. Hopkins, 1872",
+"year": "1872",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": -2,
+"mode": "major"
+},
+"meter": {
+"n": 4,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"Bb4q Bb4q Bb4q Eb5q",
+"D5q. C5e Bb4h",
+"Bb4q G4q F4q Bb4q",
+"D5q. C5e C5h",
+"Bb4q Bb4q Bb4q Eb5q",
+"D5q. C5e Bb4h",
+"G4q A4e Bb4e D5q. C5e",
+"Bb4q G4q F4h",
+"Eb5q Eb5q D5q Bb4q",
+"D5q. C5e Bb4h",
+"A4q. G4e F4q Bb4q",
+"G4q. A4e Bb4h"
+]
+}
+]
+},
+{
+"id": "tune-faith-of-our-fathers-st-catherine",
+"title": "St Catherine (“Faith of Our Fathers”)",
+"by": "Henri F. Hemy (1818-1888)",
+"year": "1818",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project; setting: James G. Walton, 1874, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": 1,
+"mode": "major"
+},
+"meter": {
+"n": 3,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"B4q A4q G4q",
+"G4q F#4q G4q",
+"A4q E4q F#4q",
+"G4h.",
+"G4q F#4q E4q",
+"D4h G4q",
+"G4q F#4q G4q",
+"A4h.",
+"B4q A4q G4q",
+"G4q F#4q G4q",
+"A4q E4q F#4q",
+"G4h.",
+"G4q F#4q E4q",
+"D4h B4q",
+"A4q B4q A4q",
+"G4h.",
+"C5q C5q C5q",
+"B4h B4q",
+"A4h A4q",
+"B4h.",
+"B4q A4q G4q",
+"E4h G4q",
+"A4h A4q",
+"G4h."
+]
+}
+]
+},
+{
+"id": "tune-far-far-away-on-judeas-plains-far-far-away-on-judeas-plains",
+"title": "Far Far Away on Judeas Plains (“Far, Far Away On Judea's Plains”)",
+"by": "John M. MacFarlane, 1869",
+"year": "1869",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": -1,
+"mode": "major"
+},
+"meter": {
+"n": 4,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"F4q F4e. G4s A4q A4e. Bb4s",
+"C5q C5e. Bb4s A4h",
+"G4q G4e. A4s Bb4q A4e C5e",
+"D5e C5e Bb4e A4e A4q G4q",
+"F4q F4e. G4s A4h",
+"C5q C5e. Bb4s A4h",
+"D5q D5e. D5s C5q F4e F4e",
+"Bb4q A4q G4h",
+"F4q C4q D4q E4q",
+"F4q G4q A4h",
+"C5q. C5e C5q. Bb4e",
+"A4q G4q F4h"
+]
+}
+]
+},
+{
+"id": "tune-fear-not-o-little-flock-kommt-her-zu-mir-spricht-gottes-sohn",
+"title": "Kommt her zu mir spricht Gottes Sohn (“Fear Not, O Little Flock”)",
+"by": "traditional German, 1490",
+"year": "1490",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": -1,
+"mode": "major"
+},
+"meter": {
+"n": 4,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"G4h G4q G4q",
+"D5h. C5q",
+"D5q Bb4q A4h",
+"rq G4q Bb4q A4q",
+"Bb4h. D5q",
+"C5q Bb4q A4h",
+"rq A4q C5h~",
+"C5q Bb4q A4q Bb4q",
+"G4h F4h",
+"rq F4q Bb4q A4q",
+"Bb4h. D5q",
+"C5q Bb4q A4h",
+"rq G4q Bb4q A4q",
+"Bb4h. D5q",
+"C5q Bb4q A4h",
+"rq G4q D5h~",
+"D5q C5q Bb4q C5q",
+"A4h G4h"
+]
+}
+]
+},
+{
+"id": "tune-from-nazareth-puer-nobis-nascitur",
+"title": "Puer Nobis Nascitur (“From Nazareth”)",
+"by": "Michael Praetorius, 1609",
+"year": "1609",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": 2,
+"mode": "major"
+},
+"meter": {
+"n": 3,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"rh D4q",
+"D4h E4q",
+"F#4h G4q",
+"F#4h E4q",
+"D4h D4q",
+"A4h A4q",
+"A4q B4q C#5q",
+"D5h D5q",
+"D5h A4q",
+"D5h D5q",
+"C#5h A4q",
+"B4h B4q",
+"A4h G4q",
+"A4h F#4q",
+"E4h F#4q",
+"D4h C#4q",
+"D4h rq"
+]
+}
+]
+},
+{
+"id": "tune-gentle-mary-laid-her-child-tempus-adest-floridum",
+"title": "Tempus Adest Floridum (“Gentle Mary Laid Her Child”)",
+"by": "13th Century spring carol; first published in the Swedish Piae Cantones, 1582",
+"year": "1582",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": 3,
+"mode": "major"
+},
+"meter": {
+"n": 4,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"A4q A4q A4q B4q",
+"A4q A4q E4h",
+"F#4q E4q F#4q G#4q",
+"A4h A4h",
+"A4q A4q A4q B4q",
+"A4q A4q E4h",
+"F#4q E4q F#4q G#4q",
+"A4h A4h",
+"E5q D5q C#5q B4q",
+"C#5q B4q A4h",
+"F#4q E4q F#4q G#4q",
+"A4h A4h",
+"E4q E4q F#4q G#4q",
+"A4q A4q B4h",
+"E5q D5q C#5q B4q",
+"A4h D5h",
+"A4w"
+]
+}
+]
+},
+{
+"id": "tune-glorious-things-of-thee-are-spoken-austria-haydn-austrian-hymn",
+"title": "Austria Haydn-Austrian Hymn (“Glorious Things of Thee are Spoken”)",
+"by": "Franz Joseph Haydn, 1797",
+"year": "1797",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": -1,
+"mode": "major"
+},
+"meter": {
+"n": 4,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"F4q. G4e A4q G4q",
+"Bb4q A4q G4e E4e F4q",
+"D5q C5q Bb4q A4q",
+"G4q A4e F4e C5h",
+"F4q. G4e A4q G4q",
+"Bb4q A4q G4e E4e F4q",
+"D5q C5q Bb4q A4q",
+"G4q A4e F4e C5h",
+"G4q A4q G4e E4e C4q",
+"Bb4q A4q G4e E4e C4q",
+"C5q Bb4q A4q. A4e",
+"B4q B4e C5e C5h",
+"F5q. E5e D5q C5q",
+"D5q. C5e C5e Bb4e A4q",
+"G4q A4e Bb4e C5e D5e Bb4e G4e",
+"F4q A4e G4e F4h"
+]
+}
+]
+},
+{
+"id": "tune-go-to-dark-gethsemane-gethsemane-petra",
+"title": "Gethsemane-Petra (“Go To Dark Gethsemane”)",
+"by": "Richard Redhead, 1853",
+"year": "1853",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": -3,
+"mode": "major"
+},
+"meter": {
+"n": 4,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"Eb4q Eb4q F4q G4q",
+"Ab4q. Ab4e G4h",
+"Eb4q Eb4q F4q G4q",
+"F4q F4q Eb4h",
+"Eb4q G4q Bb4q Bb4q",
+"C5q C5q Bb4h",
+"Eb4q G4q Bb4q Bb4q",
+"C5q C5q Bb4h",
+"Eb4q Eb4q F4q G4q",
+"Ab4q. Ab4e G4h",
+"Eb4q F4q G4q F4q",
+"Eb4q D4q Eb4h"
+]
+}
+]
+},
+{
+"id": "tune-god-himself-is-present-wunderbarer-konig-arnsberg-groeningen",
+"title": "Wunderbarer Konig-Arnsberg-Groeningen (“God Himself is Present”)",
+"by": "Joachim Neander, 1680",
+"year": "1680",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": 1,
+"mode": "major"
+},
+"meter": {
+"n": 4,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"B4q B4q B4q B4q",
+"A4h A4h",
+"G4q G4q G4q G4q",
+"F#4h F#4h",
+"E4q E4q D4q G4q",
+"A4q B4q A4h",
+"G4w",
+"B4q B4q B4q B4q",
+"A4h A4h",
+"G4q G4q G4q G4q",
+"F#4h F#4h",
+"E4q E4q D4q G4q",
+"A4q B4q A4h",
+"G4w",
+"B4h B4h",
+"C5w",
+"A4h A4h",
+"B4w",
+"D5q D5q C5q B4q",
+"A4h B4h",
+"D5q D5q C5q B4q",
+"A4h G4h"
+]
+}
+]
+},
+{
+"id": "tune-god-rest-ye-merry-gentlemen-god-rest-ye-merry-gentlemen",
+"title": "God Rest Ye Merry Gentlemen",
+"by": "Traditional English",
+"year": "",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project; setting: \"Carols Old And Carols New\", 1918, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": 1,
+"mode": "major"
+},
+"meter": {
+"n": 4,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"rh. E4q",
+"E4q B4q B4q A4q",
+"G4q F#4q E4q D4q",
+"E4q F#4q G4q A4q",
+"B4h. E4q",
+"E4q B4q B4q A4q",
+"G4q F#4q E4q D4q",
+"E4q F#4q G4q A4q",
+"B4h rq B4q",
+"C5q A4q B4q C5q",
+"D5q E5q B4q A4q",
+"G4q E4q F#4q G4q",
+"A4h G4q A4q",
+"B4h C5q B4q",
+"B4q A4q G4q F#4q",
+"E4h G4e F#4e E4q",
+"A4h G4q A4q",
+"B4q C5q D5q E5q",
+"B4q A4q G4q F#4q",
+"E4h. rq"
+]
+}
+]
+},
+{
+"id": "tune-god-that-madest-earth-and-heaven-ar-hyd-y-nos",
+"title": "Ar Hyd Y Nos (“God, That Madest Earth and Heaven”)",
+"by": "traditional Welsh",
+"year": "",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project; setting: \"The English Hymnal\", 1906, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": 1,
+"mode": "major"
+},
+"meter": {
+"n": 4,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"G4q. F#4e E4q G4q",
+"A4q. G4e F#4q D4q",
+"E4h F#4q. F#4e",
+"G4w",
+"G4q. F#4e E4q G4q",
+"A4q. G4e F#4q D4q",
+"E4h F#4q. F#4e",
+"G4w",
+"C5q B4q C5q D5q",
+"E5q D5q C5q B4q",
+"C5q B4q A4q G4q",
+"B4q. A4e G4q F#4q",
+"G4q. F#4e E4q G4q",
+"A4q. G4e F#4q D4q",
+"E4h F#4q. F#4e",
+"G4w"
+]
+}
+]
+},
+{
+"id": "tune-god-will-take-care-of-you-martin",
+"title": "Martin (“God Will Take Care of You”)",
+"by": "Walter Stillman Martin, 1905",
+"year": "1905",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project; setting: \"Alexander's Gospel Songs\", 1908, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": -2,
+"mode": "major"
+},
+"meter": {
+"n": 6,
+"d": 8
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"D4e Eb4e E4e F4e Bb4e C5e",
+"D5q C5e Bb4q.",
+"F4e A4e G4e Eb4q G4e",
+"F4q. D4q.",
+"D4e Eb4e E4e F4e Bb4e C5e",
+"D5q C5e Bb4q.",
+"F4e A4e G4e F4q C5e",
+"Bb4h.",
+"Bb4q. A4q G4e",
+"G4q F4e F4q.",
+"F4e A4e G4e Eb4q.",
+"Eb4e G4e F4e D4q.",
+"F4q. Bb4q Bb4e",
+"C5e Bb4e C5e D5q.",
+"C5e Bb4e G4e F4e Bb4e A4e",
+"Bb4h."
+]
+}
+]
+},
+{
+"id": "tune-guide-me-o-thou-great-jehovah-cwm-rhondda",
+"title": "Cwm Rhondda (“Guide Me, O Thou Great Jehovah”)",
+"by": "John Hughes, 1907",
+"year": "1907",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project; setting: \"The Methodist Hymnbook\" (UK), 1933, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": 1,
+"mode": "major"
+},
+"meter": {
+"n": 4,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"D4q E4q D4q. G4e",
+"G4e F#4e G4e A4e B4q A4q",
+"B4q G4q E4q C5q",
+"B4q A4q G4h",
+"D4q E4q D4q. G4e",
+"G4e F#4e G4e A4e B4q A4q",
+"B4q C5q D5q C5e A4e",
+"G4q F#4q G4h",
+"A4q. B4e C5q A4q",
+"B4q. C5e D5q B4q",
+"D5q. D5e D5e D5e D5e D5e",
+"D5w",
+"D5q. C5e B4e D5e C5e A4e",
+"G4q F#4q G4h"
+]
+}
+]
+},
+{
+"id": "tune-hallelujah-what-a-savior-hallelujah-what-a-savior",
+"title": "Hallelujah What a Savior (“Hallelujah, What a Savior!”)",
+"by": "Philip Paul Bliss, 1875",
+"year": "1875",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": 0,
+"mode": "major"
+},
+"meter": {
+"n": 4,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"G4q G4q G4q E4q",
+"C5q C5q B4h",
+"A4q A4q G4q C5q",
+"B4q A4q G4h",
+"G4q G4q G4q E4q",
+"C5q C5q C5q C5e. D5s",
+"E5h D5q C5e. A4s",
+"A4h G4h"
+]
+}
+]
+},
+{
+"id": "tune-happy-the-man-who-feareth-god-wo-gott-zum-haus-1524",
+"title": "Wo Gott Zum Haus 1524 (“Happy the Man Who Feareth God”)",
+"by": "from Walter's Geistliche Gesangbüchlein, 1524",
+"year": "1524",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": 2,
+"mode": "major"
+},
+"meter": {
+"n": 4,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"D4h A4q A4q",
+"F#4q A4q B4e D5q C#5e",
+"D5h rq D5q",
+"B4q A4q B4q A4q",
+"G4e F#4e E4q D4h",
+"rq A4q A4q G4q",
+"F#4q E4e B4q A4e G4q",
+"F#4h re B4e D5q~",
+"D5e C#5e B4q E5q D5e E5e~",
+"E5e D5s C#5s B4e B4e A4h"
+]
+}
+]
+},
+{
+"id": "tune-happy-the-man-who-feareth-god-wo-gott-zum-haus-1533",
+"title": "Wo Gott Zum Haus 1533 (“Happy the Man Who Feareth God”)",
+"by": "Klug's Geistliche Lieder, Wittenberg, 1533",
+"year": "1533",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": -3,
+"mode": "major"
+},
+"meter": {
+"n": 4,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"Eb4h Bb4q Bb4q",
+"G4q F4q G4q A4q",
+"Bb4q. Bb4e G4q Bb4q",
+"Ab4q Bb4q G4q F4q",
+"Eb4q. Bb4e C5q C5q",
+"G4q Bb4q Ab4q Ab4q",
+"G4q. Eb5e D5q C5q",
+"Bb4q C5q Ab4e G4e F4q",
+"Eb4w"
+]
+}
+]
+},
+{
+"id": "tune-hark-the-herald-angels-sing-mendelssohn",
+"title": "Mendelssohn (“Hark! The Herald Angels Sing”)",
+"by": "from 'Festgesang' Felix Mendelssohn, 1840",
+"year": "1840",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project; setting: William H. Cummings, 1857, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": -1,
+"mode": "major"
+},
+"meter": {
+"n": 4,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"C4q F4q F4q. E4e",
+"F4q A4q A4q G4q",
+"C5q C5q C5q. Bb4e",
+"A4q G4q A4h",
+"C4q F4q F4q. E4e",
+"F4q A4q A4q G4q",
+"C5q G4q G4q. E4e",
+"E4q D4q C4h",
+"C5q C5q C5q F4q",
+"Bb4q A4q A4q G4q",
+"C5q C5q C5q F4q",
+"Bb4q A4q A4q G4q",
+"D5q D5q D5q C5q",
+"Bb4q A4q Bb4h",
+"G4q A4e Bb4e C5q. F4e",
+"F4q G4q A4h",
+"D5q. D5e D5q C5q",
+"Bb4q A4q Bb4h",
+"G4q A4e Bb4e C5q. F4e",
+"F4q G4q F4h"
+]
+}
+]
+},
+{
+"id": "tune-hark-the-voice-of-jesus-calling-galilean",
+"title": "Galilean (“Hark, the Voice of Jesus Calling”)",
+"by": "Joseph Barnby, 1883",
+"year": "1883",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project; setting: \"In Excelsis\", 1911, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": 1,
+"mode": "major"
+},
+"meter": {
+"n": 4,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"B4q A4q B4q D5q",
+"C5q A4q G4q F#4q",
+"G4q E4q D4q B4q",
+"A4q G4q A4h",
+"B4q A4q B4q D5q",
+"C5q A4q G4q F#4q",
+"G4q E4q D4q B4q",
+"A4q. G4e G4h",
+"A4q. B4e B4q A4q",
+"A4q D5q C#5q B4q",
+"A4q. B4e A4q D5q",
+"D5q E5q D5h",
+"B4q A4q B4q D5q",
+"C5q A4q G4q F#4q",
+"G4q E4q D4q B4q",
+"A4q. G4e G4h"
+]
+}
+]
+},
+{
+"id": "tune-he-keeps-me-singing-he-keeps-me-singing-melody-of-love",
+"title": "He Keeps Me Singing-Melody of Love (“He Keeps Me Singing”)",
+"by": "Hans Engelmann, 1903",
+"year": "1903",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": -4,
+"mode": "major"
+},
+"meter": {
+"n": 4,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"C5e C5e B4e C5e Db5q C5q",
+"C5q Bb4q F4h",
+"G4e Ab4e A4e Bb4e Eb5q Db5q",
+"C5h Db5q rq",
+"Eb4e C5e B4e C5e Db5q C5q",
+"C5q Bb4q F4h",
+"G4e Eb5e Db5e G4e C5q Bb4q",
+"Ab4h. rq",
+"Eb4q F4q G4q Ab4q",
+"Db5h G4q rq",
+"Eb5q Bb4q Eb5q B4q",
+"C5h. rq",
+"Eb4q F4q G4q Ab4q",
+"Bb4h F4q rq",
+"G4e Eb5e Db5e G4e C5q Bb4q",
+"Ab4h. rq"
+]
+}
+]
+},
+{
+"id": "tune-he-leadeth-me-he-leadeth-me",
+"title": "He Leadeth Me",
+"by": "William B. Bradbury, 1864",
+"year": "1864",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": 2,
+"mode": "major"
+},
+"meter": {
+"n": 4,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"rh. A4q",
+"F#4q. E4e D4q A4q",
+"B4q G4q G4q B4q",
+"A4q. F#4e F#4q E4e D4e",
+"F#4q F#4q E4q A4q",
+"F#4q. E4e D4q A4q",
+"B4q G4q D5q C#5e B4e",
+"A4q F#4q F#4e E4e D4e E4e",
+"F#4q. E4e D4q A4q",
+"A4q D5q C#5q D5q",
+"D5q C#5e B4e A4q B4q",
+"A4q F#4q F#4e E4e D4e E4e",
+"F#4q F#4q E4q A4q",
+"A4q D5q C#5q E5q",
+"D5q C#5e B4e A4q B4q",
+"A4q F#4q F#4e E4e D4e E4e",
+"F#4q. E4e D4q rq"
+]
+}
+]
+},
+{
+"id": "tune-he-was-not-willing-he-was-not-willing",
+"title": "He Was Not Willing",
+"by": "Lucy R. Meyer, 1885",
+"year": "1885",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": -3,
+"mode": "major"
+},
+"meter": {
+"n": 6,
+"d": 8
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"G4e. G4s G4e G4e G4e G4e",
+"Ab4e. Ab4s Ab4e G4q Eb4e",
+"Bb4e. Bb4s Bb4e Bb4e Bb4e Bb4e",
+"C5e Bb4e G4e F4q.",
+"G4e. G4s G4e G4e G4e G4e",
+"Ab4e. Ab4s Ab4e G4q Eb4e",
+"Bb4e. Bb4s Bb4e C5e Bb4e G4e",
+"Eb4e G4e F4e Eb4q.",
+"G4e. G4s G4e G4e G4e G4e",
+"Ab4e. Ab4s Ab4e G4q Eb4e",
+"Bb4e. Bb4s Bb4e C5e Bb4e G4e",
+"Eb4e G4e F4e Eb4q.",
+"C5e. C5s C5e C5e C5e C5e",
+"G4e. G4s G4e G4q G4e",
+"Bb4e. Bb4s Bb4e Bb4e Bb4e Bb4e",
+"F4e. G4s A4e Bb4q."
+]
+}
+]
+},
+{
+"id": "tune-he-who-would-valiant-be-monks-gate",
+"title": "Monks Gate (“He Who Would Valiant Be”)",
+"by": "traditional English",
+"year": "",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project; setting: Ralph Vaughan Williams, 1904, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": 2,
+"mode": "major"
+},
+"meter": {
+"n": 4,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"rh D4q. E4e",
+"F#4q D4q F#4e G4e A4q",
+"B4h A4h",
+"A4q D4q C#4q D4q~",
+"D4h D4q. E4e",
+"F#4q D4q F#4e G4e A4q",
+"B4h A4h",
+"A4q D4q C#4q D4q~",
+"D4h A4h",
+"D5q B4q C#5q D5e C#5e",
+"B4h. A4q",
+"F#4e E4e D4q F#4q G4q",
+"A4h. D5q",
+"A4q. A4e B4e A4e G4e F#4e",
+"E4q B4q A4q D4q",
+"C#4q D4h rq"
+]
+}
+]
+},
+{
+"id": "tune-holy-ghost-with-light-divine-canterbury-song-13",
+"title": "Canterbury-Song 13 (“Holy Ghost, with Light Divine”)",
+"by": "Orlando Gibbons, 1623",
+"year": "1623",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project; setting: \"Common Service Book\" (ULCA), 1917, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": -3,
+"mode": "major"
+},
+"meter": {
+"n": 4,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"G4q Ab4q Bb4q C5q",
+"F4q F4q G4h",
+"Bb4q C5q D5q Eb5q",
+"C5q C5q Bb4h",
+"G4q Ab4q Bb4q C5q",
+"Ab4q G4q F4h",
+"Bb4q Ab4e G4e F4q Eb4q",
+"F4q F4q Eb4h"
+]
+}
+]
+},
+{
+"id": "tune-holy-god-we-praise-thy-name-te-deum-hursley",
+"title": "Te Deum-Hursley (“Holy God, We Praise Thy Name”)",
+"by": "from Katholisches Gesangbuch,",
+"year": "",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": -1,
+"mode": "major"
+},
+"meter": {
+"n": 3,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"F4h F4q",
+"F4q E4q F4q",
+"G4q A4q G4q",
+"F4h.",
+"A4h A4q",
+"A4q G4q A4q",
+"C5q Bb4q A4q",
+"A4q G4h",
+"F4h F4q",
+"F4q E4q F4q",
+"G4q A4q G4q",
+"F4h.",
+"A4h A4q",
+"A4q G4q A4q",
+"C5q Bb4q A4q",
+"A4q G4h",
+"G4h A4e C5e",
+"Bb4q A4q G4q",
+"A4h Bb4e D5e",
+"C5h.",
+"D5h D5q",
+"C5q Bb4q A4q",
+"Bb4q A4q G4q",
+"F4h."
+]
+}
+]
+},
+{
+"id": "tune-holy-holy-holy-nicaea",
+"title": "Nicaea (“Holy, Holy, Holy”)",
+"by": "John Bacchus Dykes, 1861",
+"year": "1861",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project; setting: \"Hymns Ancient and Modern\", 1869, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": 2,
+"mode": "major"
+},
+"meter": {
+"n": 4,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"D4q D4q F#4q F#4q",
+"A4h A4h",
+"B4q~ B4q B4q B4q",
+"A4h F#4h",
+"A4q. A4e A4q A4q",
+"D5q~ D5q C#5q A4q",
+"E4q A4q B4q. A4e",
+"A4w",
+"D4q D4q F#4q F#4q",
+"A4q~ A4q A4h",
+"B4q. B4e B4q B4q",
+"A4h A4h",
+"D5h A4q A4q",
+"B4h F#4h",
+"G4q E4q E4q. D4e",
+"D4w"
+]
+}
+]
+},
+{
+"id": "tune-hosanna-loud-hosanna-ellacombe",
+"title": "Ellacombe (“Hosanna, Loud Hosanna”)",
+"by": "from Gesangbuch der Herzogl. Hofkapelle, Wurttemberg, 1784",
+"year": "1784",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": -2,
+"mode": "major"
+},
+"meter": {
+"n": 4,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"rh. F4q",
+"Bb4q A4e G4e F4q Bb4q",
+"D4q Eb4q F4q F4q",
+"G4e A4e Bb4q C5q C5q",
+"D5h. F4q",
+"Bb4q A4e G4e F4q Bb4q",
+"D4q Eb4q F4q F4q",
+"G4e A4e Bb4q Bb4q A4q",
+"Bb4h. Bb4e C5e",
+"D5q C5q D5q Eb5q",
+"C5q A4e Bb4e C5q Bb4e C5e",
+"D5q C5q D5q Eb5q",
+"C5h. F4q",
+"Bb4q A4e G4e F4q Bb4q",
+"D4q Eb4q F4q F4q",
+"G4e A4e Bb4q Bb4q A4q",
+"Bb4h. rq"
+]
+}
+]
+},
+{
+"id": "tune-how-firm-a-foundation-foundation-protection",
+"title": "Foundation-Protection (“How Firm A Foundation”)",
+"by": "Joseph Funk, 1832",
+"year": "1832",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project; setting: \"Union Harmony\", 1837, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": -4,
+"mode": "major"
+},
+"meter": {
+"n": 2,
+"d": 2
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"rh Eb4q F4q",
+"Ab4h F4q Ab4q",
+"Eb4h Ab4q Bb4q",
+"C5h Bb4q C5q",
+"Eb4h Eb4h",
+"Ab4h F4q Ab4q",
+"Eb4h Ab4q Bb4q",
+"C5h Bb4q Bb4q",
+"Ab4h C5h",
+"Eb5h C5q Eb5q",
+"Ab4h Ab4q Bb4q",
+"C5h Bb4q C5q",
+"Eb4h Eb4h",
+"Ab4h F4q Ab4q",
+"Eb4h Ab4q Bb4q",
+"C5h Bb4q Bb4q",
+"Ab4h rh"
+]
+}
+]
+},
+{
+"id": "tune-i-am-jesus-little-lamb-weil-ich-jesu-schaflein-bin",
+"title": "Weil Ich Jesu Schaflein Bin (“I Am Jesus' Little Lamb”)",
+"by": "from Bruder Choral-Buch, 1784",
+"year": "1784",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": 0,
+"mode": "major"
+},
+"meter": {
+"n": 4,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"rh G4q C5q",
+"A4q A4q G4q F4q",
+"E4h G4q C5q",
+"A4q A4q G4q F4q",
+"E4h G4q C5q",
+"A4q A4q A4q D5e C5e",
+"B4e A4e G4q G4q C5q",
+"A4q A4q A4q D5e Cb5e",
+"B4e A4e G4q C5q G4q",
+"A4q G4q F4q E4q",
+"D4h G4q C5q",
+"A4q D5q C5q B4q",
+"C5h rh"
+]
+}
+]
+},
+{
+"id": "tune-i-come-o-savior-to-thy-table-ich-sterbe-taglich",
+"title": "Ich Sterbe Taglich (“I Come, O Savior, To Thy Table”)",
+"by": "from",
+"year": "",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": 0,
+"mode": "major"
+},
+"meter": {
+"n": 4,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"rq C5q B4q A4q",
+"G4q A4q F4q G4q",
+"E4e D4e C4h E4q",
+"D4q G4q F#4q C5q",
+"B4q A4q G4h",
+"rq C5q B4q A4q",
+"G4q A4q F4q G4q",
+"E4e D4e C4h E4q",
+"D4q G4q F#4q C5q",
+"B4q A4q G4h",
+"rq G4q C5q C5q",
+"A4q A4q D5q D5q",
+"B4h. C5q",
+"F4q E4q D4q C5q",
+"C5q B4q C5h"
+]
+}
+]
+},
+{
+"id": "tune-i-heard-the-bells-on-christmas-day-waltham-calkin",
+"title": "Waltham Calkin (“I Heard The Bells On Christmas Day”)",
+"by": "John B. Calkin, 1872",
+"year": "1872",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project; setting: \"The Book of Common Praise\", 1885, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": -3,
+"mode": "major"
+},
+"meter": {
+"n": 4,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"rh. Eb4q",
+"G4q. F#4e G4q G4q",
+"Ab4q. G4e Ab4q A4q",
+"Bb4q Eb5q D5q C5q",
+"C5q. Bb4e Bb4q Bb4q",
+"Bb4q. Ab4e G4q Ab4q",
+"G4q. F4e Eb4q F4q",
+"G4q Ab4q Bb4q C5q",
+"D4q. F4e Eb4q rq"
+]
+}
+]
+},
+{
+"id": "tune-i-know-that-my-redeemer-lives-duke-street",
+"title": "Duke Street (“I Know That My Redeemer Lives”)",
+"by": "John Hatton, 1793",
+"year": "1793",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": 2,
+"mode": "major"
+},
+"meter": {
+"n": 4,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"D4h F#4q G4q",
+"A4h B4q C#5q",
+"D5h C#5q B4q",
+"A4w",
+"A4h A4q A4q",
+"B4h A4h",
+"G4h F#4h",
+"E4w",
+"F#4h F#4q E4q",
+"D4q F#4q A4q D5q",
+"B4q A4q G4q F#4q",
+"E4w",
+"A4h B4q C#5q",
+"D5h. G4q",
+"F#4h E4h",
+"D4w"
+]
+}
+]
+},
+{
+"id": "tune-i-know-whom-i-have-believed-i-know-whom-i-have-believed",
+"title": "I Know Whom I Have Believed",
+"by": "James McGranahan, 1892",
+"year": "1892",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": -3,
+"mode": "major"
+},
+"meter": {
+"n": 4,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"rh. Eb4q",
+"G4q. G4e Ab4e G4e F4e Eb4e",
+"C5q Bb4q Bb4q G4q",
+"Bb4q. Bb4e C5e Bb4e Ab4e G4e",
+"F4h. Ab4q",
+"G4q. G4e Ab4e G4e F4e Eb4e",
+"C5q Bb4q Bb4q G4q",
+"Bb4q. Bb4e C5e Bb4e Ab4e F4e",
+"Eb4h. Eb4e Eb4e",
+"Eb5q Eb5q. Eb5e D5e C5e",
+"C5q Bb4q. Bb4e C5e Bb4e",
+"Bb4q Ab4q. Ab4e Bb4e Ab4e",
+"Ab4q G4h Eb4q",
+"Eb5q Eb5q. Eb5e D5e C5e",
+"C5q Bb4h Bb4e Bb4e",
+"D5q. C5e D5q Bb4q",
+"Eb5h. rq"
+]
+}
+]
+},
+{
+"id": "tune-i-place-my-trust-in-god-haly-trust",
+"title": "Haly Trust (“I Place My Trust In God”)",
+"by": "Loren J. Kropf, 2010",
+"year": "",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": -2,
+"mode": "major"
+},
+"meter": {
+"n": 2,
+"d": 2
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"rh. F4q",
+"G4q A4q Bb4q Bb4q",
+"Bb4q. G4e F4q F4e G4e",
+"Bb4q Bb4q D5q D5q",
+"Bb4q. G4e F4q F4q",
+"G4q G4q G4q D5q",
+"Bb4q. Bb4e Bb4q F4q",
+"G4q G4q A4q A4q",
+"C5q. C5e Bb4q F4e G4e",
+"Bb4q Bb4q Bb4q D5q",
+"Bb4q. G4e F4q F4e G4e",
+"Bb4q Bb4q D5q D5q",
+"C5q. D5e C5q D5e C5e",
+"Bb4q Bb4q Bb4q C5q",
+"C5q. D5e Eb5q Eb5q",
+"D5q D5q D5q Bb4q",
+"C5q A4q Bb4q rq"
+]
+}
+]
+},
+{
+"id": "tune-if-god-had-not-been-on-our-side-waer-gott-nicht-mit-ans-diese-zeit-1524",
+"title": "Waer Gott nicht mit ans Diese Zeit 1524 (“If God Had Not Been on Our Side”)",
+"by": "from Walter's Geistliche Gesangbüchlein, 1524",
+"year": "1524",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": 3,
+"mode": "major"
+},
+"meter": {
+"n": 4,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"F#4h A4q A4q",
+"B4q C#5q B4q A#4q",
+"B4h rq B4q",
+"A4q F#4q B4q C#5q",
+"B4e A4e B4q A4h",
+"F#4h A4q A4q",
+"B4q C#5q B4q A#4q",
+"B4h rq B4q",
+"A4q F#4q B4q C#5q",
+"B4e A4e B4q A4h",
+"rq B4q C#5q B4q",
+"G#4q A4q B4q A4q",
+"F#4h rq F#4q",
+"B4q A4q B4q C#5q",
+"A4q G#4q E4h",
+"rq F#4q A4q B4q",
+"C#5q A4q G#4e F#4e G#4q",
+"F#4w"
+]
+}
+]
+},
+{
+"id": "tune-if-god-had-not-been-on-our-side-waer-gott-nicht-mit-ans-diese-zeit-1537",
+"title": "Waer Gott nicht mit ans Diese Zeit 1537 (“If God Had Not Been on Our Side”)",
+"by": "from Walter's Hymnal, 1537",
+"year": "1537",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": 0,
+"mode": "major"
+},
+"meter": {
+"n": 4,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"D4h A4q A4q",
+"E4q G4q F4q E4q",
+"D4q re D4e A4q B4q",
+"C5q D5q C5q B4q",
+"A4w",
+"D4h A4q A4q",
+"E4q G4q F4q E4q",
+"D4q re D4e A4q B4q",
+"C5q D5q C5q B4q",
+"A4q re A4e D5q D5q",
+"C5q B4q C5q A4q",
+"G4q re G4e C5q B4q",
+"A4q G4q A4q F4q",
+"E4q re D4e F4q G4q",
+"A4q F4q E4h",
+"D4w"
+]
+}
+]
+},
+{
+"id": "tune-im-but-a-stranger-here-st-edmund-sullivan",
+"title": "St Edmund Sullivan (“I'm But A Stranger Here”)",
+"by": "Arthur Seymour Sullivan, 1872",
+"year": "1872",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project; setting: \"Church Praise, with Tunes\", 1885, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": 1,
+"mode": "major"
+},
+"meter": {
+"n": 4,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"G4h G4q G4q",
+"G4q F#4q A4h",
+"D4h D4q E4q",
+"D4w",
+"D4h B4q B4q",
+"B4q A4q D5h",
+"A4h F#4q E4q",
+"D4w",
+"A4h B4q A4q",
+"A4q G4q D4h",
+"C5h B4q A4q",
+"A4q G4q D4h",
+"B4h E5q D5q",
+"D5q C5q B4q A4q",
+"G4h A4q F#4q",
+"G4w"
+]
+}
+]
+},
+{
+"id": "tune-immortal-invisible-god-only-wise-st-denio",
+"title": "St Denio (“Immortal, Invisible, God Only Wise”)",
+"by": "Traditional",
+"year": "",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": 1,
+"mode": "major"
+},
+"meter": {
+"n": 3,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"rh G4q",
+"E4q C4q A4q",
+"F#4q D4q G4q",
+"B4q B4q A4q",
+"G4h G4q",
+"E4q C4q A4q",
+"F#4q D4q G4q",
+"B4q B4q A4q",
+"G4h G4q",
+"B4q B4q D5q",
+"B4q G4q G4q",
+"B4q B4q D5q",
+"A4h B4q",
+"G4q E4q A4q",
+"F#4q D4q G4q",
+"B4q B4q A4q",
+"G4h rq"
+]
+}
+]
+},
+{
+"id": "tune-in-peace-and-joy-i-now-depart-mit-fried-und-freud-ich-far-dahin",
+"title": "Mit Fried Und Freud ich Far Dahin (“In Peace and Joy I Now Depart”)",
+"by": "from Walter's Geistliche Gesangbüchlein, 1524",
+"year": "1524",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": 0,
+"mode": "major"
+},
+"meter": {
+"n": 4,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"D4h A4q A4q",
+"G4q D5q C5q B4q",
+"A4h C5h",
+"A4q C5q B4e A4e B4q",
+"A4q re A4e C5q. B4e",
+"C5q A4e G4q F4e E4q",
+"D4h A4q. G4e",
+"F4q D4q C4h",
+"A4q. G4e F4q C5q~",
+"C5e Bb4e A4q G4e F4e G4q",
+"A4q re G4e F4q D4q",
+"C4q F4q E4e D4e E4q",
+"D4w"
+]
+}
+]
+},
+{
+"id": "tune-in-these-our-days-so-perilous-verleih-uns-frieden-gnaediglich",
+"title": "Verleih uns Frieden Gnaediglich (“In These Our Days So Perilous”)",
+"by": "Martin Luther. Found in Klug's Geistliche Lieder, 1533",
+"year": "1533",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": -1,
+"mode": "major"
+},
+"meter": {
+"n": 4,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"G4h G4q G4q",
+"F4q G4q Bb4q A4q",
+"G4h Bb4h",
+"C5q C5q Bb4q C5q",
+"D5h D5h",
+"D5q D5q C5q D5q",
+"Bb4q C5q Bb4q A4q",
+"G4h G4q F4q",
+"G4q Bb4q C5q G4q",
+"F#4q G4q G4h",
+"C5h D5q C5q",
+"Bb4q G4q Bb4q A4e G4e",
+"Bb4h G4h",
+"G4w"
+]
+}
+]
+},
+{
+"id": "tune-isaiah-mighty-seer-in-days-of-old-jesaia-dem-propheten-das-geschah",
+"title": "Jesaia Dem Propheten das Geschah (“Isaiah, Mighty Seer, In Days of Old”)",
+"by": "Martin Luther, 1526 in the German Mass",
+"year": "1526",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project; setting: Erythraeus, 1608, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": -3,
+"mode": "major"
+},
+"meter": {
+"n": 4,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"Bb4h Bb4q G4q",
+"Eb4q G4q Bb4q Bb4q",
+"C5q C5q Bb4h",
+"Bb4h Bb4q Ab4q",
+"Bb4q Eb4q Ab4q G4q",
+"F4q F4q Eb4h",
+"Bb4h Bb4q Bb4q",
+"Eb5q Eb5q Eb5q Bb4q",
+"C5q Bb4q G4h",
+"G4h Ab4q Bb4q",
+"G4q Ab4q G4q Eb4q",
+"F4q F4q Eb4h",
+"Eb4h G4q F4q",
+"G4q A4q Bb4q Bb4q",
+"G4q A4q Bb4h",
+"Eb5h Eb5q D5q",
+"C5q Bb4q Bb4q Ab4q",
+"Bb4q Ab4q G4h",
+"F4h G4q Ab4q",
+"Bb4q Bb4q C5q Bb4q",
+"C5q D5q Eb5h",
+"Bb4h Bb4q Ab4q",
+"G4q Ab4q Bb4q Eb4q",
+"G4q F4q Eb4h",
+"G4h Ab4q Bb4q",
+"C5q Bb4q Bb4q C5q",
+"D5q C5q Bb4h",
+"Eb5h D5q C5q",
+"F5q F5q D5q Bb4q",
+"C5q D5q Eb5h",
+"Eb5h D5q C5q",
+"Bb4q C5q D5q Bb4q",
+"Ab4q Bb4q G4h",
+"Eb5h D5q C5q",
+"Bb4q C5q D5q Bb4q",
+"Ab4q Bb4q G4h",
+"Eb5h D5q C5q",
+"Bb4q C5q D5q Bb4q",
+"Ab4q Bb4q G4h",
+"C5h Bb4q Ab4q",
+"Bb4q Eb4q Ab4q G4q",
+"F4q F4q Eb4h",
+"Eb4h Bb4q Bb4q",
+"G4q Ab4q Bb4q C5q",
+"C5q Bb4q Bb4h",
+"Bb4h Ab4q G4q",
+"Ab4q F4q G4q F4q",
+"Eb4q D4q Eb4h"
+]
+}
+]
+},
+{
+"id": "tune-it-came-upon-a-midnight-clear-carol",
+"title": "Carol (“It Came Upon A Midnight Clear”)",
+"by": "Richard S. Willis, 1861",
+"year": "1861",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": -2,
+"mode": "major"
+},
+"meter": {
+"n": 6,
+"d": 8
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"re rh F4e",
+"D5q A4e C5e Bb4e G4e",
+"F4q G4e F4q F4e",
+"G4e A4e Bb4e Bb4e C5e D5e",
+"C5q.~ C5q F4e",
+"D5q A4e C5e Bb4e G4e",
+"F4q G4e F4q F4e",
+"G4q G4e A4e G4e F4e",
+"Bb4q.~ Bb4q D5e",
+"D5q D4e D4e E4e F#4e",
+"G4q A4e Bb4q D5e",
+"C5e Bb4e A4e G4e A4e G4e",
+"F4q.~ F4q F4e",
+"D5q A4e C5e Bb4e G4e",
+"F4q G4e F4q F4e",
+"G4q G4e A4e G4e F4e",
+"Bb4q.~ Bb4q re"
+]
+}
+]
+},
+{
+"id": "tune-it-is-well-with-my-soul-it-is-well-ville-du-havre",
+"title": "It Is Well-Ville Du Havre (“It Is Well With My Soul”)",
+"by": "Philip P. Bliss, 1876",
+"year": "1876",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": -5,
+"mode": "major"
+},
+"meter": {
+"n": 4,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"rh. Ab4q",
+"Ab4h Gb4q F4q",
+"F4h Eb4q F4q",
+"Gb4q Bb4q Ab4q Gb4q",
+"F4h. Ab4q",
+"Db5h C5q Bb4q",
+"Bb4h Ab4q G4q",
+"Ab4h. Ab4q",
+"Db5h Db5q C5q",
+"Bb4h Bb4q Bb4q",
+"Eb5h Eb5q Db5q",
+"C5h Bb4q Ab4q",
+"Db5h Db5q Db5q",
+"Db5h C5q. Db5e",
+"Db5h Ab4q Ab4q",
+"Ab4w~",
+"Ab4h Ab4q Ab4q",
+"Ab4w~",
+"Ab4h F4q Ab4q",
+"Bb4h Bb4q Db5q",
+"Db5h C5q. Db5e",
+"Db5h. rq"
+]
+}
+]
+},
+{
+"id": "tune-jerusalem-the-golden-ewing",
+"title": "Ewing (“Jerusalem the Golden”)",
+"by": "Alexander C. Ewing, 1853",
+"year": "1853",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project; setting: \"Hymns Ancient and Modern\", 1861, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": 0,
+"mode": "major"
+},
+"meter": {
+"n": 4,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"rh. C4q",
+"D4q C4q F4q E4q",
+"D4h C4q E4q",
+"G4q C5q B4q G#4q",
+"A4h. A4q",
+"G4q E4q E4q D4q",
+"C4h D4q E4q",
+"E4q E4q D4q C4q",
+"D4h. D4q",
+"F4q E4q A4q B4q",
+"C5h D5q G4q",
+"E5q. E5e D5q C5q",
+"B4h. A4q",
+"G4q E4q E4q D4q",
+"C4h D4q E4q",
+"E4q E4q D4q. C4e",
+"C4h. rq"
+]
+}
+]
+},
+{
+"id": "tune-jesus-came-the-heavens-adoring-sieh-hier-bin-ich-ehrenkoenig",
+"title": "Sieh hier bin ich Ehrenkoenig (“Jesus Came, the Heavens Adoring”)",
+"by": "from Geistreiches Gesangbuch Darmstadt, Germany, 1698",
+"year": "1698",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": 2,
+"mode": "major"
+},
+"meter": {
+"n": 4,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"F#4q F#4q B4q B4q",
+"A4q. G4e F#4q D4q",
+"A4q F#4q B4q A4q",
+"G4q G4q F#4h",
+"E4q E4q E4q C#4q",
+"D4q E4q F#4q F#4q",
+"F#4q G#4q A4q B4q",
+"A4q G4q F#4h",
+"C#5q C#5q D5q C#5e B4e",
+"A#4q B4q C#5q F#4q",
+"D5q C#5e B4e A#4q B4q",
+"B4q A#4q B4h"
+]
+}
+]
+},
+{
+"id": "tune-jesus-christ-our-blessed-savior-jesus-christus-unser-heiland-der-von-uns-1524",
+"title": "Jesus Christus Unser Heiland Der Von Uns 1524 (“Jesus Christ, Our Blessed Savior”)",
+"by": "from Walter's Geistliche Gesangbüchlein, 1524",
+"year": "1524",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": 0,
+"mode": "major"
+},
+"meter": {
+"n": 4,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"D4h A4h",
+"A4q. G4e A4q D4q",
+"F4h F4h",
+"F4h E4h",
+"D4h rh",
+"F4q F4q F4q F4q",
+"G4h G4h",
+"A4q. G4e F4q E4q",
+"D4w",
+"F4q F4q F4q F4q",
+"G4h G4h",
+"A4q. G4e F4h",
+"C5q D5q C5e B4e A4q",
+"F4h G4h",
+"A4q. G4e F4q E4q",
+"D4w"
+]
+}
+]
+},
+{
+"id": "tune-jesus-christ-our-blessed-savior-jesus-christus-unser-heiland-der-von-uns-1533",
+"title": "Jesus Christus Unser Heiland Der Von Uns 1533 (“Jesus Christ, Our Blessed Savior”)",
+"by": "from Klug's Geistliche Lieder, Wittenberg, 1533",
+"year": "1533",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": -1,
+"mode": "major"
+},
+"meter": {
+"n": 4,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"F4h C5h",
+"A4q F4q G4q A4q",
+"Bb4h A4h",
+"F4q C5q A4q D5q",
+"C5q Bb4q C5h",
+"A4w",
+"C5q C5q Bb4q A4q",
+"A4q G4q F4h",
+"C5h A4q F4q",
+"C5q Bb4q A4q G4q",
+"A4w"
+]
+}
+]
+},
+{
+"id": "tune-jesus-christ-who-came-to-save-jesus-christus-unser-heiland-der-den-tod-klug-1535",
+"title": "Jesus Christus Unser Heiland Der Den Tod Klug 1535 (“Jesus Christ Who Came to Save”)",
+"by": "from Klug's Geistliche Lieder, Wittenberg, 1533",
+"year": "1533",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": 0,
+"mode": "major"
+},
+"meter": {
+"n": 4,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"A4q A4q G4q A4q",
+"B4q A4q G4q F#4q",
+"E4q G4q A4q B4q",
+"A4q G#4q A4q D5q",
+"A4e B4e C5q B4q A4q",
+"B4q A4q A4q A4q",
+"B4q A4q G4q F#4q",
+"E4q G4q A4q B4q",
+"A4q G#4q A4h"
+]
+}
+]
+},
+{
+"id": "tune-jesus-grant-that-balm-and-healing-der-am-kreuz",
+"title": "Der Am Kreuz (“Jesus Grant That Balm and Healing”)",
+"by": "Johann Balthasar König, 1738",
+"year": "1738",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project; setting: \"Evangelical Lutheran Hymn-Book\", 1931, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": 0,
+"mode": "major"
+},
+"meter": {
+"n": 4,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"A4q E4q A4q B4q",
+"C5q B4e A4e G#4q E4q",
+"B4q C5q D5q C5q",
+"B4q B4q A4h",
+"A4q E4q A4q B4q",
+"C5q B4e A4e G#4q E4q",
+"B4q C5q D5q C5q",
+"B4q B4q A4h",
+"G4q G4q G4q E4q",
+"F4q G4q A4h",
+"G4q G4q F4q E4q",
+"D4q D4q C4h",
+"C5q C5q B4q B4q",
+"A4q B4q G#4q E4q",
+"B4q C5q D5q C5q",
+"B4q C5q B4h",
+"A4w"
+]
+}
+]
+},
+{
+"id": "tune-jesus-in-thy-dying-woes-words-on-the-cross-the-litany",
+"title": "Words On The Cross The Litany (“Jesus, In Thy Dying Woes”)",
+"by": "William H. Monk, 1889",
+"year": "1889",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project; setting: \"A Hymnal\" (Episcopal), 1916, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": -1,
+"mode": "major"
+},
+"meter": {
+"n": 4,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"F4q F4q G4q F4q",
+"E4q. D4e D4h",
+"D4q F4q E4q D4q",
+"G4q F4q E4h",
+"E4q A4q C5q A4q",
+"C5q Bb4q A4h",
+"A4q A4q A4q F4q",
+"E4h D4h"
+]
+}
+]
+},
+{
+"id": "tune-jesus-is-all-the-world-to-me-jesus-is-all-the-world-to-me",
+"title": "Jesus Is All the World To Me",
+"by": "Traditional",
+"year": "",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": -4,
+"mode": "major"
+},
+"meter": {
+"n": 6,
+"d": 8
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"C5e. Bb4s Ab4e Db5q C5e",
+"C5q Bb4e Ab4q Eb4e",
+"Ab4q Ab4e Bb4q Bb4e",
+"C5q.~ C5q Eb5e",
+"Eb5q Bb4e Bb4q Eb5e",
+"Eb5q C5e C5q C5e",
+"Bb4q Ab4e F4e G4e Ab4e",
+"Bb4q.~ Bb4q re",
+"Eb4e F4e Ab4e F4q C4e",
+"Eb4q F4e Eb4q.",
+"Eb4e F4e Ab4e F4q C4e",
+"Eb4q F4e Eb4q.",
+"Ab4e Ab4e Ab4e Ab4q.",
+"Ab4e Ab4e Ab4e Eb5q.",
+"Ab4q. Bb4q.",
+"Ab4q.~ Ab4q re"
+]
+}
+]
+},
+{
+"id": "tune-jesus-king-of-glory-st-alban",
+"title": "St Alban (“Jesus, King of Glory”)",
+"by": "Franz Joseph Haydn, 1774",
+"year": "1774",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project; setting: John Bacchus Dykes, 1868, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": 1,
+"mode": "major"
+},
+"meter": {
+"n": 4,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"B4q B4q A4q A4q",
+"G4h D4h",
+"D5q D5q E5q E5q",
+"A4w",
+"C5q C5q B4q B4q",
+"A4h E4h",
+"G4q G4q A4q A4q",
+"G4w",
+"D5q D5q C5q C5q",
+"B4h E4h",
+"C5q C5q E5q E5q",
+"G4h F#4h",
+"C5q C5q A4q A4q",
+"D5h B4h",
+"A4q A4q F#4q F#4q",
+"G4w",
+"B4q B4q A4q A4q",
+"G4h D4h",
+"D5q D5q E5q E5q",
+"A4w",
+"C5q C5q B4q B4q",
+"A4h E4h",
+"G4q G4q A4q A4q",
+"G4w"
+]
+}
+]
+},
+{
+"id": "tune-jesus-shall-reign-duke-street",
+"title": "Duke Street (“Jesus Shall Reign”)",
+"by": "John Hatton, 1793",
+"year": "1793",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project; setting: \"Christian Hymns\", 1908, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": -3,
+"mode": "major"
+},
+"meter": {
+"n": 2,
+"d": 2
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"Eb4h G4q Ab4q",
+"Bb4h C5q D5q",
+"Eb5h D5q C5q",
+"Bb4w",
+"Bb4h Bb4q Bb4q",
+"C5h Bb4h",
+"Ab4h G4h",
+"F4w",
+"G4h G4q F4q",
+"Eb4q G4q Bb4q Eb5q",
+"C5q Bb4q Ab4q G4q",
+"F4w",
+"Bb4h C5q D5q",
+"Eb5h. Ab4q",
+"G4h F4h",
+"Eb4w"
+]
+}
+]
+},
+{
+"id": "tune-jesus-tender-shepard-hear-me-evening-prayer",
+"title": "Evening Prayer (“Jesus, Tender Shepherd, Hear Me”)",
+"by": "John Stainer, 1898",
+"year": "1898",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": -1,
+"mode": "major"
+},
+"meter": {
+"n": 4,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"C5q C5q C5q Bb4q",
+"A4q A4q A4q G4q",
+"F4q G4q A4q A4q",
+"C5e Bb4e A4q G4h",
+"C5q C5q C5q Bb4q",
+"A4q A4q A4q G4q",
+"F4q G4q A4q A4q",
+"Bb4q E4q F4h"
+]
+}
+]
+},
+{
+"id": "tune-jesus-thy-boundless-love-to-me-yoakley",
+"title": "Yoakley (“Jesus, Thy Boundless Love To Me”)",
+"by": "William Yoakley, 1820",
+"year": "1820",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project; setting: \"The Lute of Zion\", 1853, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": 4,
+"mode": "major"
+},
+"meter": {
+"n": 3,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"rh E4e. F#4s",
+"G#4h G#4e. A4s",
+"B4q G#4q E4q",
+"F#4q. G#4e A4q",
+"A4q G#4q E4e. G#4s",
+"B4h C#5q",
+"B4h G#4q",
+"G#4h F#4q",
+"F#4h E4e. F#4s",
+"G#4h G#4e. A4s",
+"B4q G#4q E4q",
+"F#4q. G#4e A4q",
+"A4q G#4q E4e. G#4s",
+"B4h C#5q",
+"B4h G#4q",
+"G#4h F#4q",
+"F#4h G#4q",
+"A4h B4q",
+"C#5h B4q",
+"B4q G#4q E4q",
+"G#4q F#4q B4q",
+"E5q B4q B4e E5e",
+"E5q C#5q A4q",
+"G#4h F#4q",
+"E4h rq"
+]
+}
+]
+},
+{
+"id": "tune-joy-to-the-world-antioch",
+"title": "Antioch (“Joy to the World”)",
+"by": "pieced together from \"Messiah\" George F. Handel, 1741",
+"year": "1741",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project; setting: Lowell Mason, 1836, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": 2,
+"mode": "major"
+},
+"meter": {
+"n": 2,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"D5q C#5e. B4s",
+"A4q. G4e",
+"F#4q E4q",
+"D4q. A4e",
+"B4q. B4e",
+"C#5q. C#5e",
+"D5q. D5e",
+"D5e C#5e B4e A4e",
+"A4e. G4s F#4e D5e",
+"D5e C#5e B4e A4e",
+"A4e. G4s F#4e F#4e",
+"F#4e F#4e F#4e F#4s G4s",
+"A4q. G4s F#4s",
+"E4e E4e E4e E4s F#4s",
+"G4q. F#4s E4s",
+"D4e D5q B4e",
+"A4e. G4s F#4e G4e",
+"F#4q E4q",
+"D4h"
+]
+}
+]
+},
+{
+"id": "tune-lamp-of-our-feet-st-agnes",
+"title": "St Agnes (“Lamp of Our Feet”)",
+"by": "John B. Dykes, 1866",
+"year": "1866",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": 1,
+"mode": "major"
+},
+"meter": {
+"n": 3,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"B4q B4q B4q",
+"A4h B4q",
+"C5h F#4q",
+"G4h.",
+"D4q D4q D4q",
+"B4h A4q",
+"A4h.",
+"C5q C5q B4q",
+"A4h G4q",
+"F#4h E4q",
+"D4h.",
+"D4q E4q G4q",
+"B4h A4q",
+"G4h."
+]
+}
+]
+},
+{
+"id": "tune-let-all-mortal-flesh-keep-silence-picardy",
+"title": "Picardy (“Let All Mortal Flesh Keep Silence”)",
+"by": "traditional French",
+"year": "",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project; setting: \"The English Hymnal\", 1906, alt, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": -1,
+"mode": "major"
+},
+"meter": {
+"n": 4,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"D4q E4q F4q G4q",
+"A4h A4q G4q",
+"A4h A4h",
+"A4q A4q Bb4q C5q",
+"Bb4h A4q G4q",
+"A4w",
+"D4q E4q F4q G4q",
+"A4h A4q G4q",
+"A4h A4h",
+"A4q A4q Bb4q C5q",
+"Bb4h A4q G4q",
+"A4w",
+"A4q A4q D5q A4q",
+"G4h. F4q",
+"D4q F4q A4q F4q",
+"E4w",
+"A4q A4q D5q A4q",
+"G4h E4q F4q",
+"D4w"
+]
+}
+]
+},
+{
+"id": "tune-let-children-hear-the-mighty-deeds-lea",
+"title": "Lea (“Let Children Hear The Mighty Deeds”)",
+"by": "James Lea Summers, (1837-1881)",
+"year": "1837",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": 3,
+"mode": "major"
+},
+"meter": {
+"n": 4,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"rh. E4q",
+"C#5q A4q F#4q E4q",
+"A4q B4q C#5q E5q",
+"C#5q A4q F#4q F#4q",
+"E4h. B4e C#5e",
+"D5q D5q C#5q A4q",
+"F#4q B4q G#4q E5e D5e",
+"C#5q C#5q B4q G#4q",
+"A4h. rq"
+]
+}
+]
+},
+{
+"id": "tune-let-our-gladness-have-no-end-narodil-se-kristus-pan-salvator-natus",
+"title": "Narodil Se Kristus Pan-Salvator Natus (“Let Our Gladness Have No End”)",
+"by": "15th Century Bohemian",
+"year": "",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": 1,
+"mode": "major"
+},
+"meter": {
+"n": 4,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"G4q A4q B4q C5q",
+"D5q D5q D5h",
+"C5q D5q E5h",
+"D5h. rq",
+"D5q D5q C5q C5q",
+"B4q B4q A4h",
+"B4q C5q A4h",
+"G4h. rq",
+"B4q A4q B4q C5q",
+"D5h. C5q",
+"B4h rh",
+"B4q A4q B4q C5q",
+"D5h. C5q",
+"B4h rh",
+"rw",
+"G4h E5h",
+"D5q B4q A4h",
+"G4w"
+]
+}
+]
+},
+{
+"id": "tune-lift-high-the-cross-crucifier",
+"title": "Crucifier (“Lift High The Cross”)",
+"by": "Sydney H. Nicholson, 1916",
+"year": "1916",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project; setting: \"Hymns Ancient and Modern\", 1922, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": 0,
+"mode": "major"
+},
+"meter": {
+"n": 4,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"G4h C5q. G4e",
+"F4h. G4q",
+"E4q. F4e G4q A4q",
+"D4h. D4q",
+"E4q G4q C5h~",
+"C5q A4q G4h~",
+"G4q A4q F4e E4e D4q",
+"C4w",
+"G4h F#4q. E4e",
+"F#4h D4h",
+"E4q. F#4e G4q A4q",
+"B4h G4h",
+"C5h B4q A4q",
+"D5h D4h",
+"E4q. G4e G4q F#4q",
+"G4w"
+]
+}
+]
+},
+{
+"id": "tune-lift-up-your-heads-ye-mighty-gates-milwaukee-macht-hoch-die-tuer-lemke",
+"title": "Milwaukee-Macht Hoch die Tuer Lemke (“Lift Up Your Heads, Ye Mighty Gates”)",
+"by": "August Lemke, 1849",
+"year": "1849",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": 3,
+"mode": "major"
+},
+"meter": {
+"n": 3,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"rh E4q",
+"C#5h A4q",
+"A4q G#4q A4q",
+"B4h G#4q",
+"E4h E4q",
+"E4q F#4q G#4q",
+"A4h F#4q",
+"E4h D4q",
+"C#4h C#4q",
+"E4q A4q C#5q",
+"B4q G#4q E4q",
+"A4q F#4q D#4q",
+"E4h E4q",
+"A4h B4q",
+"C#5h A4q",
+"G#4h F#4q",
+"E4h A4q",
+"G#4h B4q",
+"A4h C#5q",
+"B4h D5q",
+"C#5h E4q",
+"D5q C#5q B4q",
+"A4q G#4q F#4q",
+"E4h E4q",
+"E4h E5q",
+"E5h C#5q",
+"D5h E5q",
+"C#5h E4q",
+"F#4q D5q B4q",
+"A4h G#4q",
+"A4h rq"
+]
+}
+]
+},
+{
+"id": "tune-lo-god-to-heavn-ascendeth-von-gott-will-ich-nicht-lazen",
+"title": "Von Gott will ich Nicht Lazen (“Lo, God To Heav'n Ascendeth”)",
+"by": "Johann Crüger, 1640",
+"year": "1640",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": -1,
+"mode": "major"
+},
+"meter": {
+"n": 4,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"rh. C5q",
+"D5q. C5e Bb4q A4q",
+"G4h G4q re A4e",
+"Bb4q A4q G4q. A4e",
+"F4h rq C5q",
+"D5q. C5e Bb4q A4q",
+"G4h G4q re A4e",
+"Bb4q A4q G4q. A4e",
+"F4h rq A4q",
+"A4q A4q G4q F4q",
+"E4h. A4q",
+"A4q. G4e A4q Bb4q",
+"C5h A4q re F4e",
+"A4q. G4e A4q Bb4q",
+"C5h A4q re A4e",
+"G4q F4q F4q E4q",
+"F4h. rq"
+]
+}
+]
+},
+{
+"id": "tune-lo-he-comes-on-clouds-descending-helmsley",
+"title": "Helmsley (“Lo! He Comes With Clouds Descending”)",
+"by": "attr. Thomas Olivers, 1765",
+"year": "1765",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project; setting: \"The English Hymnal\", 1906, alt, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": 1,
+"mode": "major"
+},
+"meter": {
+"n": 4,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"G4h B4q D5q",
+"G4q F#4q E4q D4q",
+"E4q. F#4e G4q F#4e E4e",
+"D4q. C4e B3h",
+"D4h. D4q",
+"G4h A4h",
+"B4q D5q C5q B4q",
+"B4h A4h",
+"G4h B4q D5q",
+"G4q F#4q E4q D4q",
+"E4q. F#4e G4q F#4e E4e",
+"D4q. C4e B3h",
+"D4h. D4q",
+"G4h A4h",
+"B4q D5q C5q B4q",
+"B4h A4h",
+"A4q. B4e A4q B4q",
+"C5h B4h",
+"G4q. A4e G4q C5q",
+"B4q A4q G4h",
+"B4q. C5e B4q D5q",
+"C5q B4q A4h",
+"G4h A4q B4q",
+"D4h C5h",
+"B4h A4h",
+"G4w"
+]
+}
+]
+},
+{
+"id": "tune-look-down-o-lord-from-heaven-behold-ach-gott-vom-himmel",
+"title": "Ach Gott vom Himmel (“Look Down, O Lord, From Heaven Behold”)",
+"by": "from Erfurt Enchiridion, 1524",
+"year": "1524",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project; setting: Karl August Haupt, 1869, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": -1,
+"mode": "major"
+},
+"meter": {
+"n": 4,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"rh. A4q",
+"Bb4q A4q G4q D5q",
+"D5q Bb4q A4q C5q",
+"Bb4q A4q G4q C5q",
+"Bb4q A4q G4q G4q",
+"Bb4q A4q G4q D5q",
+"D5q Bb4q A4q C5q",
+"Bb4q A4q G4q C5q",
+"Bb4q A4q G4q G4q",
+"A4q F4q E4q D4q",
+"F4q G4q A4q F4q",
+"G4q Bb4q A4q Bb4q",
+"G4q F#4q G4q G4q",
+"D5q Bb4q C5q D5q",
+"C5q Bb4q A4q rq"
+]
+}
+]
+},
+{
+"id": "tune-look-down-o-lord-from-heaven-behold-es-ist-das-heil-uns-kommen-her",
+"title": "Es ist das Heil uns kommen her (“Look Down, O Lord, From Heaven Behold”)",
+"by": "Traditional",
+"year": "",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": 2,
+"mode": "major"
+},
+"meter": {
+"n": 4,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"rh. A4q",
+"A4q A4q A4q C5q",
+"B4q A4q G4q A4q",
+"F#4q D4q F#4q G#4q",
+"A4q B4q A4q A4q",
+"A4q A4q A4q C5q",
+"B4q A4q G4q A4q",
+"F#4q D4q F#4q G#4q",
+"A4q B4q A4q A4q",
+"D5q C#5q B4q C#5q",
+"D5q B4q A4q A4q",
+"D5q A4q B4q F#4q",
+"A4q G4q F#4q F#4q",
+"E4q G4q F#4q E4q",
+"D4q E4q D4q rq"
+]
+}
+]
+},
+{
+"id": "tune-lord-enthroned-in-heavenly-splendor-bryn-calfaria",
+"title": "Bryn Calfaria (“Lord, Enthroned in Heavenly Splendor”)",
+"by": "William Owen, 1852",
+"year": "1852",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project; setting: \"The English Hymnal\", 1906, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": -2,
+"mode": "major"
+},
+"meter": {
+"n": 6,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"D4q D4q G4h A4h",
+"Bb4q Bb4q Bb4h A4h",
+"Bb4q Bb4q D5h C5q Bb4q",
+"A4q A4q G4w",
+"D4q D4q G4h A4h",
+"Bb4q Bb4q Bb4h A4h",
+"Bb4q Bb4q D5h C5q Bb4q",
+"A4q A4q G4w",
+"G4q A4q Bb4h G4h",
+"A4q Bb4q C5h A4h",
+"Bb4q C5q D5h Bb4q D5q",
+"Eb5e D5e C5q D5e C5e Bb4q C5e Bb4e A4e G4e",
+"D5w Bb4q Bb4q",
+"D5h C5q Bb4q A4q A4q",
+"G4w."
+]
+}
+]
+},
+{
+"id": "tune-lord-jesus-think-on-me-southwell",
+"title": "Southwell (“Lord Jesus Think On Me”)",
+"by": "William Daman's Psalter, 1579",
+"year": "1579",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project; setting: \"Common Service Book\" (ULCA), 1917, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": -4,
+"mode": "major"
+},
+"meter": {
+"n": 4,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"rh. F4q",
+"Ab4q Ab4q G4q G4q",
+"F4h. Ab4q",
+"Ab4q Ab4q Bb4q Bb4q",
+"C5h. C5q",
+"Eb5q Eb5q Db5q Db5q",
+"C5q C5q Bb4q C5q",
+"Bb4q Ab4q G4q G4q",
+"F4h. rq"
+]
+}
+]
+},
+{
+"id": "tune-lord-of-our-life-iste-confessor-rouen",
+"title": "Iste Confessor-Rouen (“Lord Of Our Life”)",
+"by": "from Poitiers Antiphoner, 1746",
+"year": "1746",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": -1,
+"mode": "major"
+},
+"meter": {
+"n": 4,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"D4h A4q F4q",
+"G4h A4h",
+"D4q. E4e F4q G4q",
+"F4q E4q D4h",
+"D4h A4q F4q",
+"G4h A4h",
+"A4q. G4e A4q B4q",
+"C5q B4q A4h",
+"D5h C5q D5q",
+"C5q Bb4q A4h",
+"C5q. Bb4e A4q Bb4q",
+"A4q G4q F4h",
+"A4h D4q E4q",
+"F4h E4h",
+"D4w"
+]
+}
+]
+},
+{
+"id": "tune-lord-thee-i-love-with-all-my-heart-herzlich-lieb-hab-ich-dich-o-herr",
+"title": "Herzlich Lieb Hab ich Dich O Herr (“Lord, Thee I Love with All My Heart”)",
+"by": "Strassburg, 1577",
+"year": "1577",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project; setting: \"Evangelical Lutheran Hymn-Book\", 1931, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": -2,
+"mode": "major"
+},
+"meter": {
+"n": 4,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"Bb4h A4q G4q",
+"F4q Eb4e D4e G4q G4q",
+"F4h Bb4h",
+"A4q G4q F4q Eb4e D4e",
+"G4q G4q F4q F4q",
+"G4q A4q Bb4q D5q",
+"C5q Bb4h A4q",
+"Bb4w",
+"Bb4h A4q G4q",
+"F4q Eb4e D4e G4q G4q",
+"F4h Bb4h",
+"A4q G4q F4q Eb4e D4e",
+"G4q G4q F4q F4q",
+"G4q A4q Bb4q D5q",
+"C5q Bb4h A4q",
+"Bb4h. Bb4q",
+"Bb4q C5q Bb4q G4q",
+"Bb4q Bb4q A4q A4q",
+"Bb4q C5q Bb4q G4q",
+"Bb4q Bb4q A4h",
+"Bb4q D5e D5e C5e Bb4e Bb4e A4e",
+"Bb4q A4q Bb4h~",
+"Bb4q A4q G4q F4q",
+"F4q E4q F4h",
+"rh D5h",
+"C5h Bb4h",
+"A4q D5q Eb5q C5q",
+"Bb4q C5q Bb4q A4q",
+"Bb4q. Bb4e Bb4q Bb4q",
+"C5q Bb4q Bb4q A4q",
+"Bb4w"
+]
+}
+]
+},
+{
+"id": "tune-lord-who-at-canas-wedding-feast-st-ursula",
+"title": "St Ursula (“Lord, Who at Cana's Wedding Feast”)",
+"by": "Frederick Westlake, 1863",
+"year": "1863",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": 1,
+"mode": "major"
+},
+"meter": {
+"n": 4,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"rh. B4q",
+"D5q. C5e B4q G4q",
+"B4q A4q G4q D4q",
+"E4q G4q G4q. A4e",
+"F#4h. A4q",
+"D5q. C5e B4q E5e D5e",
+"C5q. B4e A4q B4q",
+"G4q B4q D5q. C#5e",
+"B4h. D5q",
+"D5q. D5e E5q D5q",
+"D5q. C5e B4q B4q",
+"G4q. G4e C5q E5q",
+"A4h. A4q",
+"D5q. D5e E5q D5q",
+"C5q D5q B4q A4q",
+"G4q. G4e G4q F#4q",
+"G4h. rq"
+]
+}
+]
+},
+{
+"id": "tune-lord-who-throughout-these-forty-days-st-flavian",
+"title": "St Flavian (“Lord Who Throughout These Forty Days”)",
+"by": "Day's Psalter, 1563",
+"year": "1563",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": -1,
+"mode": "major"
+},
+"meter": {
+"n": 4,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"rh. F4q",
+"F4q E4q F4q A4q",
+"G4q G4q F4q F4q",
+"Bb4q A4q F4q G4q",
+"A4h. A4q",
+"A4q Bb4q C5q A4q",
+"F4q G4q A4q A4q",
+"G4q F4q F4q E4q",
+"F4h. rq"
+]
+}
+]
+},
+{
+"id": "tune-may-god-bestow-on-us-his-grace-es-wollt-uns-gott-genaedig",
+"title": "Es Wollt uns Gott Genaedig (“May God Bestow on Us His Grace”)",
+"by": "adapted from older German hymn by Martin Luther. Found in Erfurt Enchiridion, 15",
+"year": "1524",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": 0,
+"mode": "major"
+},
+"meter": {
+"n": 4,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"rh B4h",
+"C5q B4q A4q B4q",
+"D5q. E5e D5q C5q",
+"B4h D5h",
+"C5q B4q C5q A4q",
+"G4q D4q F4q G4q",
+"E4w",
+"rh B4h",
+"C5q B4q A4q B4q",
+"D5q. E5e D5q C5q",
+"B4h D5h",
+"C5q B4q C5q A4q",
+"G4q D4q F4q G4q",
+"E4w",
+"G4h F4q E4q",
+"D4q E4q C4q D4q",
+"E4h B4h",
+"C5q A4q G4q A4q",
+"C5h B4h",
+"E5h D5q B4q",
+"D5q A4q G4q F4q",
+"E4h G4h",
+"A4q G4q C5q D5q",
+"B4h A4h",
+"rq C5q B4q A4q",
+"G4q D4q F4q G4q",
+"E4w"
+]
+}
+]
+},
+{
+"id": "tune-more-love-to-thee-more-love-to-thee",
+"title": "More Love to Thee",
+"by": "William Howard Doane, 1870",
+"year": "1870",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project; setting: William Howard Doane, 1870, alt, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": -4,
+"mode": "major"
+},
+"meter": {
+"n": 4,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"Eb4h F4q Eb4q",
+"Ab4q. Bb4e C5h",
+"C5h Bb4q Ab4q",
+"Bb4h. rq",
+"Eb4h F4q Eb4q",
+"Ab4q. Bb4e C5h",
+"Bb4h Ab4q G4q",
+"Ab4h. rq",
+"Db5h Db5q Db5q",
+"Db5q. C5e C5h",
+"Bb4h Bb4q Bb4q",
+"Bb4q. Ab4e Ab4h",
+"F4h F4q F4q",
+"Ab4h. rq",
+"Bb4h Ab4q G4q",
+"Ab4h. rq"
+]
+}
+]
+},
+{
+"id": "tune-my-faith-looks-up-to-thee-olivet",
+"title": "Olivet (“My Faith Looks Up To Thee”)",
+"by": "Lowell Mason, 1832",
+"year": "1832",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": 2,
+"mode": "major"
+},
+"meter": {
+"n": 4,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"D4h F#4q A4q",
+"A4q. G4e F#4h",
+"E4h E4q G4q",
+"G4q. F#4e E4h",
+"F#4h E4q B4q",
+"A4w",
+"A4h F#4q G4q",
+"A4q. B4e A4h",
+"A4h F#4q G4q",
+"A4q. B4e A4h",
+"D5h C#5q B4q",
+"A4q. G4e F#4q D4q",
+"E4h A4h",
+"D4w"
+]
+}
+]
+},
+{
+"id": "tune-my-hope-is-built-melita",
+"title": "Melita (“My Hope Is Built”)",
+"by": "John Bacchus Dykes, 1861",
+"year": "1861",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project; setting: \"Hymns Ancient and Modern\", 1869, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": 0,
+"mode": "major"
+},
+"meter": {
+"n": 4,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"rh. C4q",
+"E4q. E4e G4q G4q",
+"A4q A4q G4q G4q",
+"C5q D5q B4q G4q",
+"G4q F#4q G4q D4q",
+"F4q. F4e E4q E4q",
+"G4q. G4e F#4q B4q",
+"G4q F#4q E4q A4q",
+"G4q F#4q E4q E4q",
+"E4q. E4e F4q F4q",
+"F#4q. F#4e G4q G4q",
+"G4q A4q G4q E4q",
+"D4q. C4e C4q rq"
+]
+}
+]
+},
+{
+"id": "tune-my-jesus-as-thou-wilt-jewett-weber",
+"title": "Jewett-Weber (“My Jesus, As Thou Wilt”)",
+"by": "Carl M. von Weber, 1821",
+"year": "1821",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project; setting: \"Evangelical Lutheran Hymn-Book\", 1931, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": -3,
+"mode": "major"
+},
+"meter": {
+"n": 4,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"Bb4h G4q Eb4e G4e",
+"F4q. Ab4s G4s F4h",
+"G4h Eb4q G4e Bb4e",
+"Bb4q. Ab4e G4h",
+"Eb5h C5q Ab4e C5e",
+"Bb4q. Bb4e G4q Eb4e G4e",
+"Bb4e Ab4e F4q Ab4e G4e Eb4q",
+"F4h Bb4q rq",
+"Bb4h G4q Eb4e G4e",
+"F4q. Ab4s G4s F4h",
+"G4h Eb4q G4e Bb4e",
+"Bb4q. B4e C5h",
+"Eb5h C5q Ab4e C5e",
+"Bb4q. Bb4e G4q Eb4e G4e",
+"Bb4e. Eb4s G4h F4q",
+"Eb4w"
+]
+}
+]
+},
+{
+"id": "tune-my-saviors-love-my-saviors-love-i-stand-amazed-in-the-presence",
+"title": "My Saviors Love-I Stand Amazed in the Presence (“My Savior's Love”)",
+"by": "Charles H. Gabriel, 1905",
+"year": "1905",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": -4,
+"mode": "major"
+},
+"meter": {
+"n": 4,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"rh. Eb4q",
+"Eb4q C4q Eb4q Ab4e. Bb4s",
+"C5h Ab4q Ab4q",
+"G4q G4e. G4s Ab4q Bb4q",
+"Ab4h. Eb4q",
+"F4q F4q Ab4q G4e. F4s",
+"Eb4h Ab4q Bb4q",
+"C5q C5e. C5s Bb4q Bb4q",
+"Ab4h. rq",
+"C5h C5e. Bb4s Ab4q",
+"Eb5h Eb5e. Db5s C5q",
+"Bb4q Bb4q Bb4q. C5e",
+"Db5q C5q Bb4h",
+"C5h C5e. Bb4s Ab4q",
+"Eb5h Eb5e. Db5s C5q",
+"Bb4q C5e Db5e C5q. Bb4e",
+"Ab4q G4q Ab4q rq"
+]
+}
+]
+},
+{
+"id": "tune-nearer-my-god-to-thee-bethany",
+"title": "Bethany (“Nearer, My God, To Thee”)",
+"by": "Lowell Mason, 1856",
+"year": "1856",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project; setting: Lowell Mason, 1859, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": 1,
+"mode": "major"
+},
+"meter": {
+"n": 6,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"B4h. A4h G4q",
+"G4h E4q E4h.",
+"D4h. G4h B4q",
+"A4h.~ A4h rq",
+"B4h. A4h G4q",
+"G4h E4q E4h.",
+"D4h G4q F#4h A4q",
+"G4h.~ G4h rq",
+"D5h. E5h D5q",
+"D5h B4q D5h.",
+"D5h. E5h D5q",
+"D5h B4q A4h.",
+"B4h. A4h G4q",
+"G4h E4q E4h.",
+"D4h G4q F#4h A4q",
+"G4h.~ G4h rq"
+]
+}
+]
+},
+{
+"id": "tune-no-not-one-no-not-one",
+"title": "No Not One (“No, Not One!”)",
+"by": "George Crawford Hugg, 1894",
+"year": "1894",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project; setting: \"Pentecostal Hymns, No. 2\", 1894, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": -1,
+"mode": "major"
+},
+"meter": {
+"n": 4,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"A4q A4e. G4s F4q F4e. E4s",
+"D4q F4q D4e C4e rq",
+"A4q A4q G4q rq",
+"A4q G4q F4q rq",
+"A4q A4e. G4s F4q F4e. E4s",
+"D4q F4q D4e C4e rq",
+"A4q A4q G4q rq",
+"A4q G4q F4q rq",
+"A4q C5q C5q D5e. C5s",
+"A4q A4q G4e F4e rq",
+"A4q C5q C5q D5e. C5s",
+"A4q A4q G4h",
+"A4q A4e. G4s F4q F4e. E4s",
+"D4q F4q D4e C4e rq",
+"A4q A4q G4q rq",
+"A4q G4q F4q rq"
+]
+}
+]
+},
+{
+"id": "tune-none-other-lamb-rossetti",
+"title": "Rossetti (“None Other Lamb”)",
+"by": "William Jeater, 1907",
+"year": "1907",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": 2,
+"mode": "major"
+},
+"meter": {
+"n": 3,
+"d": 2
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"rh. A4q G4q G4q",
+"F#4h. A4q G4q G4q",
+"F#4h. F#4q F#4q A4q",
+"D5q. C#5e B4q A4q F#4q G#4q",
+"A4h. C#5q B4q A4q",
+"B4q. A4e A4q B4q A4q G4q",
+"F#4w.",
+"E4h F#4h G4h",
+"F#4h. rh."
+]
+}
+]
+},
+{
+"id": "tune-now-praise-we-christ-the-holy-one-christum-wir-sollen-loben-schon",
+"title": "Christum Wir Sollen Loben Schon (“Now Praise We Christ, the Holy One”)",
+"by": "ancient Latin found in Erfurt Enchiridion, 1524",
+"year": "1524",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": 0,
+"mode": "major"
+},
+"meter": {
+"n": 4,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"D4h F4q G4q",
+"A4q D4q G4q F4q",
+"E4h rq G4q",
+"A4q C5q C5q B4q",
+"A4q B4q C5h",
+"rq G4q A4q C5q",
+"C5q B4q A4q G#4q",
+"A4h rq D4q",
+"A4q A4q C5q A4q",
+"G4e A4e F4q E4h",
+"E4w"
+]
+}
+]
+},
+{
+"id": "tune-now-rest-beneath-nights-shadow-innsbruck-nun-ruhen-alle-walder-o-welt-ich-muss-dich-lassen",
+"title": "Innsbruck-Nun ruhen alle Walder-O Welt Ich Muss Dich Lassen (“Now Rest Beneath Night's Shadow”)",
+"by": "Heinrich Isaac, 1490",
+"year": "1490",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": 1,
+"mode": "major"
+},
+"meter": {
+"n": 4,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"rh. B4q",
+"G4q A4q B4e C5e D5q",
+"C5h B4q B4e C5e",
+"D5q D5q A4q B4q",
+"G4h F#4q D4q",
+"G4q A4q B4q B4q",
+"A4h. B4q",
+"G4q A4q B4e C5e D5q",
+"C5h B4q B4e C5e",
+"D5q D5q A4q B4q",
+"G4h F#4q D4q",
+"G4q A4q B4q C5q",
+"B4q A4q G4q rq"
+]
+}
+]
+},
+{
+"id": "tune-o-come-all-ye-faithful-adeste-fideles-portugese-hymn",
+"title": "Adeste Fideles-Portugese Hymn (“O Come, All Ye Faithful”)",
+"by": "John F. Wade, 1743",
+"year": "1743",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project; setting: \"A Hymnal\" (Episcopal), 1916, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": 1,
+"mode": "major"
+},
+"meter": {
+"n": 4,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"rh. G4q",
+"G4h D4q G4q",
+"A4h D4h",
+"B4q A4q B4q C5q",
+"B4h A4q G4q",
+"G4h F#4q E4q",
+"F#4q G4q A4q B4q",
+"F#4h E4q. D4e",
+"D4h. rq",
+"D5h C5q B4q",
+"C5h B4h",
+"A4q B4q G4q A4q",
+"F#4q. E4e D4q G4q",
+"G4q F#4q G4q A4q",
+"G4h D4q B4q",
+"B4q A4q B4q C5q",
+"B4h A4q B4q",
+"C5q B4q A4q G4q",
+"F#4h G4q C5q",
+"B4h A4q. G4e",
+"G4h. rq"
+]
+}
+]
+},
+{
+"id": "tune-o-come-o-come-emmanuel-veni-emmanuel",
+"title": "Veni Emmanuel (“O Come O Come Emmanuel”)",
+"by": "15th Century French processional",
+"year": "",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project; setting: \"Common Service Book\" (ULCA), 1917, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": 1,
+"mode": "major"
+},
+"meter": {
+"n": 4,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"rh. E4q",
+"G4q B4q B4q B4q",
+"A4q C5q B4q A4q",
+"G4h. A4q",
+"B4q G4q E4q G4q",
+"A4q F#4q E4q D4q",
+"E4h. A4q",
+"A4q E4q E4q F#4q",
+"G4h F#4q E4q",
+"D4h. G4q",
+"A4q B4q B4q B4q",
+"A4q C5q B4q A4q",
+"G4h. D5q",
+"D5h. B4q",
+"B4h. B4q",
+"A4q C5q B4q A4q",
+"G4h. A4q",
+"B4q G4q E4q G4q",
+"A4q F#4q E4q D4q",
+"E4h. rq"
+]
+}
+]
+},
+{
+"id": "tune-o-father-all-creating-aurelia",
+"title": "Aurelia (“O Father, All Creating”)",
+"by": "Samuel Sebastian Wesley, 1864",
+"year": "1864",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": 2,
+"mode": "major"
+},
+"meter": {
+"n": 4,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"rh. F#4q",
+"F#4q F#4q G4q F#4q",
+"F#4h E4q D4q",
+"D4q B4q A4q G4q",
+"F#4h. G4q",
+"A4q D5q D5q C#5q",
+"C#5h B4q A4q",
+"G4q A4q F#4q D4q",
+"E4h. E4q",
+"F#4q G4q A4q B4q",
+"B4h A4q D5q",
+"D5q. C#5e B4q F#4q",
+"G4h. E4q",
+"F#4q F#4q G4q F#4q",
+"F#4h E4q D4q",
+"D4q E4q D4q C#4q",
+"D4h. rq"
+]
+}
+]
+},
+{
+"id": "tune-o-for-a-thousand-tongues-azmon",
+"title": "Azmon (“O For A Thousand Tongues”)",
+"by": "Carl G. Gläser, 1828",
+"year": "1828",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project; setting: Lowell Mason, 1839, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": -4,
+"mode": "major"
+},
+"meter": {
+"n": 3,
+"d": 2
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"rw Eb4h",
+"Ab4q Ab4q Bb4h Bb4h",
+"C5q Bb4q Ab4h Bb4h",
+"C5q C5q Db5h C5h",
+"Bb4w Eb5h",
+"Eb5q C5q C5h Ab4h",
+"Ab4q F4q F4h Ab4q F4q",
+"Eb4q Ab4q Ab4h Bb4h",
+"Ab4w rh"
+]
+}
+]
+},
+{
+"id": "tune-o-holy-blessed-trinity-o-heilige-dreifaltigkeit-steht-auf-ihr-lieben-kinderlein",
+"title": "O Heilige Dreifaltigkeit-Steht Auf Ihr Lieben Kinderlein (“O Holy, Blessed Trinity”)",
+"by": "Nikolaus Hermann, 1558",
+"year": "1558",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": 2,
+"mode": "major"
+},
+"meter": {
+"n": 4,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"rh. D4q",
+"F#4q G4q A4q A4q",
+"B4q B4q A4h",
+"rq A4q A4q D5q",
+"C#5q A4q B4q B4q",
+"A4h. A4q",
+"D5q C#5q B4q A4q",
+"B4q G4q F#4h",
+"rq F#4q B4q B4q",
+"A4q F#4q G4q E4q",
+"D4h. rq"
+]
+}
+]
+},
+{
+"id": "tune-o-holy-spirit-enter-in-wie-schon-leuchtet",
+"title": "Wie Schon Leuchtet (“O Holy Spirit, Enter In”)",
+"by": "Phillipp Nicolai, 1599",
+"year": "1599",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project; setting: \"Mehrstimmiges ChoralBuch\", 1906, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": -3,
+"mode": "major"
+},
+"meter": {
+"n": 4,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"rh Eb4h",
+"Bb4h G4h",
+"Eb4h Bb4h",
+"C5q C5q Bb4h",
+"rq Bb4q C5q D5q",
+"Eb5q D5q C5q C5q",
+"Bb4h rq Bb4q",
+"C5h Bb4h",
+"Ab4q G4q F4h",
+"Eb4w",
+"rh Eb4h",
+"Bb4h G4h",
+"Eb4h Bb4h",
+"C5q C5q Bb4h",
+"rq Bb4q C5q D5q",
+"Eb5q D5q C5q C5q",
+"Bb4h rq Bb4q",
+"C5h Bb4h",
+"Ab4q G4q F4h",
+"Eb4w",
+"Bb4h G4h",
+"Bb4h G4h",
+"G4q G4q F4q F4q",
+"G4q G4q F4q F4q",
+"G4q G4q F4q Eb4q",
+"Eb5h Bb4h",
+"C5h Bb4h",
+"Ab4q G4q F4h",
+"Eb4w"
+]
+}
+]
+},
+{
+"id": "tune-o-little-town-of-bethlehem-st-louis",
+"title": "St Louis (“O Little Town of Bethlehem”)",
+"by": "Lewis H. Redner, 1868",
+"year": "1868",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project; setting: \"The Chapel Hymnal\", 1898, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": -1,
+"mode": "major"
+},
+"meter": {
+"n": 4,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"rh. A4q",
+"A4q A4q G#4q A4q",
+"C5q Bb4q D4q G4q",
+"F4q E4e F4e G4q C4q",
+"A4h. A4q",
+"A4q A4q D5q C5q",
+"C5q Bb4q D4q G4q",
+"F4q E4e F4e A4q G4q",
+"F4h. A4q",
+"A4q A4q G4q F4q",
+"E4h E4q E4q",
+"D4q E4q F4q G4q",
+"A4h. A4q",
+"A4q A4q G#4q A4q",
+"C5q Bb4q D4q D5q",
+"C5q F4q A4q. G4e",
+"F4h. rq"
+]
+}
+]
+},
+{
+"id": "tune-o-lord-how-shall-i-meet-thee-wie-soll-ich-dich-empfange",
+"title": "Wie Soll Ich Dich Empfange (“O Lord, How Shall I Meet Thee”)",
+"by": "Johann Crüger, 1653",
+"year": "1653",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": -3,
+"mode": "major"
+},
+"meter": {
+"n": 4,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"rh Eb4h",
+"G4q Ab4q Bb4q Bb4q",
+"Ab4h G4q Ab4q",
+"G4q Eb4q F4q F4q",
+"Eb4h Eb4h",
+"G4q Ab4q Bb4q Bb4q",
+"Ab4h G4q Ab4q",
+"G4q Eb4q F4q F4q",
+"Eb4h Bb4h",
+"C5q D5q Eb5q D5q",
+"C5h Bb4q G4q",
+"C5q Bb4q Ab4q G4q",
+"F4h G4h",
+"Eb4q F4q G4q Bb4q",
+"Ab4h G4q Bb4q",
+"Ab4q G4q F4q F4q",
+"Eb4h rh"
+]
+}
+]
+},
+{
+"id": "tune-o-lord-i-am-not-worthy-o-lord-i-am-not-worthy",
+"title": "O Lord I Am Not Worthy (“O Lord, I Am Not Worthy”)",
+"by": "traditional air, before 1871",
+"year": "1871",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": -2,
+"mode": "major"
+},
+"meter": {
+"n": 4,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"rh. D4e Eb4e",
+"F4q G4q F4q Bb4q",
+"Bb4q A4h A4e Bb4e",
+"C5q Eb4q G4q F4q",
+"D4h. D4e Eb4e",
+"F4q F4q Bb4q A4q",
+"A4q G4h G4q",
+"F4q Bb4q A4q C5q",
+"Bb4h. rq"
+]
+}
+]
+},
+{
+"id": "tune-o-lord-my-god-i-thirst-for-you-kingsfold",
+"title": "Kingsfold (“O Lord, My God, I Thirst For You”)",
+"by": "traditional English",
+"year": "",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project; setting: Ralph Vaughan Williams, 1906, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": 1,
+"mode": "major"
+},
+"meter": {
+"n": 4,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"rh. G4e F#4e",
+"E4q E4q E4q D4q",
+"G4q G4q A4q G4e A4e",
+"B4q B4q A4e G4e E4q",
+"D4h. G4e F#4e",
+"E4q E4q E4q D4q",
+"G4q G4q A4q G4e A4e",
+"B4q B4q A4e G4e E4q",
+"E4h. B4e C5e",
+"D5q B4q B4e A4e G4q",
+"A4q A4q B4h",
+"B4q B4e A4e G4q E4q",
+"D4h. G4e F#4e",
+"E4q E4q E4e D4e E4e F#4e",
+"G4q G4q A4q G4e A4e",
+"B4q B4q A4e G4e E4q",
+"E4h. rq"
+]
+}
+]
+},
+{
+"id": "tune-o-lord-my-soul-convicted-winchester-new",
+"title": "Winchester New (“O Lord My Soul Convicted”)",
+"by": "from \"Musikalisches Handbuch\", Hamburg, 1690",
+"year": "1690",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project; setting: Charles Lewis Hutchins, 1896, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": 0,
+"mode": "major"
+},
+"meter": {
+"n": 4,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"rh. G4q",
+"C5q G4q A4q A4q",
+"G4q F4q E4q E4q",
+"F4q E4q D4q G4q",
+"G4q F#4q G4q G4q",
+"C5q D5q E5q C5q",
+"F5q E5q D5q E5q",
+"C5q A4q G4q C5q",
+"C5q B4q C5q rq"
+]
+}
+]
+},
+{
+"id": "tune-o-lord-of-heaven-and-earth-and-sea-es-ist-kein-tag",
+"title": "Es Ist Kein Tag (“O Lord of Heav'n and Earth and Sea”)",
+"by": "Johann D. Meyer, 1692",
+"year": "1692",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project; setting: \"The English Hymnal\", 1906, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": 2,
+"mode": "major"
+},
+"meter": {
+"n": 4,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"rh. A4q",
+"D5q C#5e B4e A4q B4e A4e",
+"G4e F#4e E4q D4q F#4e G4e",
+"A4q A4q B4q C#5q",
+"D5q D5e E5e C#5q D5e C#5e",
+"B4q A4q G4q E4q",
+"F#4q. G4e A4q D4e E4e",
+"F#4h E4h",
+"D4h. rq"
+]
+}
+]
+},
+{
+"id": "tune-o-lord-we-praise-thee-gott-sei-gelobet-und-gebenedeiet",
+"title": "Gott Sei Gelobet Und Gebenedeiet (“O Lord We Praise Thee”)",
+"by": "Traditional",
+"year": "",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": 2,
+"mode": "major"
+},
+"meter": {
+"n": 4,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"A4h A4q A4q",
+"B4h A4h",
+"D5q. E5e D5q C#5q",
+"B4h A4h",
+"B4h D5h",
+"A4h F#4h",
+"G4h F#4h",
+"E4h G4h",
+"A4w",
+"A4h A4q A4q",
+"B4h A4h",
+"D5q. E5e D5q C#5q",
+"B4h A4h",
+"B4h D5h",
+"A4h F#4h",
+"G4h F#4h",
+"E4h G4h",
+"A4w",
+"A4h A4q A4q",
+"B4q. A4e G#4h",
+"A4w",
+"A4h A4h",
+"B4h C#5h",
+"D5h A4q A4q",
+"B4h A4h",
+"C#5h D5h",
+"E5h E5h",
+"D5q. C#5e B4h",
+"A4h A4q. G4e",
+"E4w",
+"F#4h G#4h",
+"A4w",
+"F#4h G#4h",
+"A4w",
+"E4h G4h",
+"F#4h E4h",
+"F#4h E4h",
+"D4w",
+"A4h A4q A4q",
+"B4q. A4e G#4h",
+"A4w"
+]
+}
+]
+},
+{
+"id": "tune-o-sacred-head-now-wounded-passion-chorale-herzlich-tut-mich-verlangen",
+"title": "Passion Chorale-Herzlich Tut Mich Verlangen (“O Sacred Head, Now Wounded”)",
+"by": "Hans Leo Hassler, 1601. Adapted by J.S. Bach, 1729",
+"year": "1601",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": 0,
+"mode": "major"
+},
+"meter": {
+"n": 4,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"rh. E4q",
+"A4q G4q F4q E4q",
+"D4h E4q B4q",
+"C5q C5q B4e A4e B4q",
+"A4h. E4q",
+"A4q G4q F4q E4q",
+"D4h E4q B4q",
+"C5q C5q B4e A4e B4q",
+"A4h. C5q",
+"B4e A4e G4q A4q B4q",
+"C5h C5q G4q",
+"A4q G4q F4q F4q",
+"E4h. C5q",
+"B4e C5e D5q C5q B4q",
+"A4h B4q E4q",
+"F4q E4q D4q G4q",
+"E4h. rq"
+]
+}
+]
+},
+{
+"id": "tune-o-that-the-lord-would-guide-my-ways-evan-eva",
+"title": "Evan-Eva (“O That The Lord Would Guide My Ways”)",
+"by": "William H. Havergal, 1847",
+"year": "1847",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project; setting: Lowell Mason, 1850, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": -4,
+"mode": "major"
+},
+"meter": {
+"n": 3,
+"d": 2
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"rw Eb4h",
+"Eb4q Ab4q C5h Bb4h",
+"Ab4q F4q Eb4h Eb4h",
+"Eb4q Ab4q C5h Ab4h",
+"Bb4w Db5h",
+"C5q Bb4q Ab4h Bb4h",
+"C5q Ab4q F4h Eb4h",
+"Eb4q Ab4q C5h Bb4h",
+"Ab4w rh"
+]
+}
+]
+},
+{
+"id": "tune-on-what-has-now-been-sown-darwalls-148th",
+"title": "Darwalls 148th (“On What Has Now Been Sown”)",
+"by": "John Darwall, 1770",
+"year": "1770",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": 2,
+"mode": "major"
+},
+"meter": {
+"n": 4,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"rh. D4q",
+"F#4q D4q A4q F#4q",
+"D5h. C#5q",
+"B4q A4q G4q F#4q",
+"E4h. E4q",
+"F#4q D4q B4q A4q",
+"G#4q E4q E5q D5q",
+"C#5h B4h",
+"A4h. A4q",
+"B4h C#5h",
+"D5h. D4q",
+"E4q F#4q G4q A4q",
+"B4q C#5q D5q E5q",
+"D5h C#5h",
+"D5h. rq"
+]
+}
+]
+},
+{
+"id": "tune-open-now-thy-gates-of-beauty-unser-herrscher-neander",
+"title": "Unser Herrscher-Neander (“Open Now Thy Gates of Beauty”)",
+"by": "Joachim Neander, 1680",
+"year": "1680",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project; setting: \"Chorale Book for England\", 1863, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": -2,
+"mode": "major"
+},
+"meter": {
+"n": 4,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"Bb3q. C4e D4q Bb3q",
+"D4q Eb4q F4q F4q",
+"Bb4q A4e G4e F4q D5q",
+"C5q C5q Bb4h",
+"Bb3q. C4e D4q Bb3q",
+"D4q Eb4q F4q F4q",
+"Bb4q A4e G4e F4q D5q",
+"C5q C5q Bb4h",
+"D5q. D5e C5q C5q",
+"Bb4q Bb4q A4h",
+"G4q. G4e F4q Bb4q",
+"C5q A4q Bb4h"
+]
+}
+]
+},
+{
+"id": "tune-our-father-thou-in-heaven-above-vater-unser-im-himmelreich",
+"title": "Vater Unser im Himmelreich (“Our Father Thou in Heaven Above”)",
+"by": "attr. Martin Luther, found in Valentin Schumann's Geistliche Lieder, Leipzig, 15",
+"year": "1539",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": -2,
+"mode": "major"
+},
+"meter": {
+"n": 4,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"G4h G4q Eb4q",
+"F4q G4q Eb4q D4q",
+"C4h G4h",
+"G4q F4q Bb4q G4q",
+"Eb4q F4q G4h",
+"G4h Bb4q C5q",
+"Eb5q D5q C5q B4q",
+"C5h C5h",
+"D5q C5q Bb4q A4q",
+"G4q F#4q G4h",
+"C5h Bb4q A4q",
+"Bb4q G4q G4q F4q",
+"Eb4h G4h",
+"Ab4q G4q Eb4q F4q",
+"Eb4q D4q C4h"
+]
+}
+]
+},
+{
+"id": "tune-out-of-the-deep-i-cry-to-thee-aus-tiefer-not-strassburg",
+"title": "Aus Tiefer Not Strassburg (“Out of the Deep I Cry to Thee”)",
+"by": "from Köpfel's Gesangbuch, Strassburg, 1525",
+"year": "1525",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": 0,
+"mode": "major"
+},
+"meter": {
+"n": 4,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"rh. G4q",
+"F4q G4q A4q A4q",
+"G4q A4q B4q C5q",
+"B4q A4q G4q G4q",
+"A4h G4q G4q",
+"F4q G4q A4q A4q",
+"G4q A4q B4q C5q",
+"B4q A4q G4q G4q",
+"A4h G4q G4q",
+"A4q C5q B4q G4q",
+"A4q F4q E4q F4q",
+"D4q D4q A4q B4q",
+"C5q A4q G4q D5q",
+"B4q A4q G4q G4q",
+"A4h G4q rq"
+]
+}
+]
+},
+{
+"id": "tune-over-kidron-jesus-treadeth-over-kedron-jesus-treadaer",
+"title": "Over Kedron Jesus Treadaer (“Over Kidron Jesus Treadeth”)",
+"by": "Ludvig Mathias Lindeman",
+"year": "",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project; setting: \"The Lutheran Hymnary\", 1913, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": -4,
+"mode": "major"
+},
+"meter": {
+"n": 4,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"C5q Bb4q Ab4q F4q",
+"Ab4q G4q E4q C4q",
+"F4q. G4e Ab4q G4q",
+"C5q Bb4q Ab4q. re",
+"C5q Bb4q Ab4q F4q",
+"Ab4q G4q E4q C4q",
+"F4q. G4e Ab4q G4q",
+"C5q Bb4q Ab4q. re",
+"Bb4q Bb4q C5q Ab4q",
+"Db5q C5q Bb4q. re",
+"C5q C5q Db5q Bb4q",
+"Eb5q Db5q C5q. re",
+"Db5q C5q Bb4q C5q",
+"Ab4q G4q F4q Db4q",
+"C4q. E4e F4q Ab4q",
+"C5h Bb4q Ab4q",
+"G4w",
+"F4w"
+]
+}
+]
+},
+{
+"id": "tune-pass-me-not-o-gentle-savior-pass-me-not-o-gentle-savior",
+"title": "Pass Me Not O Gentle Savior (“Pass Me Not, O Gentle Savior”)",
+"by": "William Howard Doane, 1870",
+"year": "1870",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project; setting: \"The Coronation\", 1872, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": -4,
+"mode": "major"
+},
+"meter": {
+"n": 4,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"C5q. Bb4e Ab4e. G4s Ab4e. F4s",
+"Eb4h Ab4h",
+"Bb4q. Bb4e Ab4q Bb4q",
+"C5h. rq",
+"C5q. Bb4e Ab4e. G4s Ab4e. F4s",
+"Eb4h Ab4h",
+"Bb4q. Ab4e C5q Bb4q",
+"Ab4h. rq",
+"Eb5h C5h",
+"Bb4q. Ab4e F4h",
+"Eb4q Ab4q C5q Ab4q",
+"Bb4h. rq",
+"C5q. Bb4e Ab4e. G4s Ab4e. F4s",
+"Eb4h Ab4h",
+"Bb4q. Ab4e C5q Bb4q",
+"Ab4h. rq"
+]
+}
+]
+},
+{
+"id": "tune-praise-my-soul-the-king-of-heaven-praise-my-soul-lauda-anima",
+"title": "Praise My Soul-Lauda Anima (“Praise My Soul The King Of Heaven”)",
+"by": "John Goss, 1869",
+"year": "1869",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project; setting: \"The Choral Hymnal\", 1888, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": -3,
+"mode": "major"
+},
+"meter": {
+"n": 2,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"Bb4q Bb4q",
+"Bb4q Bb4q",
+"Eb5q D5q",
+"C5h",
+"Bb4h",
+"Ab4q G4q",
+"C5q Bb4q",
+"G4q Ab4q",
+"F4h",
+"G4q G4q",
+"G4q G4q",
+"C5q Bb4q",
+"Bb4q A4q",
+"Bb4q C5q",
+"D5q Eb5q",
+"G4q A4q",
+"Bb4h",
+"Eb5q D5q",
+"C5q Bb4q",
+"Eb5q D5q",
+"C5q Bb4q",
+"C5q Bb4q",
+"Ab4q F4q",
+"Eb4q D4q",
+"Eb4h"
+]
+}
+]
+},
+{
+"id": "tune-praise-to-the-lord-the-almighty-lobe-den-herren",
+"title": "Lobe Den Herren (“Praise To The Lord, The Almighty”)",
+"by": "from Ander Theil des Erneuerten Gesangbuch, 1665",
+"year": "1665",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": 1,
+"mode": "major"
+},
+"meter": {
+"n": 3,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"G4q G4q D5q",
+"B4q. A4e G4q",
+"F#4q E4q D4q",
+"E4q F#4q G4q",
+"A4h.",
+"G4h.",
+"G4q G4q D5q",
+"B4q. A4e G4q",
+"F#4q E4q D4q",
+"E4q F#4q G4q",
+"A4h.",
+"G4h.",
+"D5q D5q D5q",
+"E5h.",
+"B4q. C5e D5q",
+"D5q. C5e B4q",
+"A4h.",
+"D4q E4q F#4q",
+"G4q A4q B4q",
+"A4h.",
+"G4h."
+]
+}
+]
+},
+{
+"id": "tune-rejoice-my-heart-be-glad-and-sing-ich-singe-dir-mit-herz",
+"title": "Ich Singe dir mit Herz (“Rejoice, My Heart, Be Glad and Sing”)",
+"by": "Johann Balthasar König, 1738",
+"year": "1738",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": -2,
+"mode": "major"
+},
+"meter": {
+"n": 4,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"rh. F4q",
+"F4q F4q F4q Bb4q",
+"C5q A4q Bb4q C5q",
+"G4q A4q G4q G4q",
+"F4h. F4q",
+"Bb4q C5q D5q Bb4q",
+"Eb5q D5q C5q Bb4q",
+"C5q D5q C5q C5q",
+"Bb4h. rq"
+]
+}
+]
+},
+{
+"id": "tune-rescue-the-perishing-rescue-the-perishing",
+"title": "Rescue the Perishing",
+"by": "William Howard Doane, 1870",
+"year": "1870",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": -2,
+"mode": "major"
+},
+"meter": {
+"n": 4,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"F4q D4e Eb4e F4e F4e F4q",
+"Bb4q A4e G4e G4q F4q",
+"F4q G4e A4e Bb4q C5e D5e",
+"C5q Bb4e G4e F4q rq",
+"F4q D4e Eb4e F4e F4e F4q",
+"Bb4q A4e G4e G4q F4q",
+"F4q G4e A4e Bb4q C5e D5e",
+"C5q Bb4e A4e Bb4h",
+"C5q Bb4e C5e D5e. C5s Bb4q",
+"C5q Bb4e C5e D5q Bb4q",
+"Bb4q A4e G4e F4e Bb4e D5q",
+"C5q Bb4e A4e Bb4h"
+]
+}
+]
+},
+{
+"id": "tune-savior-like-a-shepherd-lead-us-bradbury",
+"title": "Bradbury (“Savior, Like A Shepherd Lead Us”)",
+"by": "William B. Bradbury, 1859",
+"year": "1859",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": -3,
+"mode": "major"
+},
+"meter": {
+"n": 4,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"G4q G4q G4e F4e G4e Ab4e",
+"Bb4q Eb5q Bb4q G4q",
+"F4q G4q Ab4e C5e Bb4e Ab4e",
+"G4h. rq",
+"G4q G4q G4e F4e G4e Ab4e",
+"Bb4q Eb5q Bb4q G4q",
+"F4q G4q Ab4e C5e Bb4e Ab4e",
+"G4h. Bb4e Bb4e",
+"C5q Eb5h D5e C5e",
+"Bb4q G4h G4e G4e",
+"F4q C5q Bb4q Ab4q",
+"G4h. Bb4e Bb4e",
+"C5q Eb5h D5e C5e",
+"Bb4q Eb5h Eb4e F4e",
+"G4q Bb4q Ab4q. F4e",
+"Eb4h. rq"
+]
+}
+]
+},
+{
+"id": "tune-savior-of-the-nations-come-nun-komm-der-heiden-heiland",
+"title": "Nun Komm Der Heiden Heiland (“Savior Of The Nations Come”)",
+"by": "from Walter's Geistliche Gesangbüchlein, 1524",
+"year": "1524",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": -2,
+"mode": "major"
+},
+"meter": {
+"n": 4,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"G4q G4q F4q Bb4q",
+"A4e G4e A4q G4h",
+"G4q Bb4q C5q. Bb4e",
+"C5q D5q Bb4h",
+"Bb4q C5q D5q Bb4q",
+"C5q Bb4e A4e G4h",
+"G4q G4q F4q Bb4q",
+"A4e G4e A4q G4h"
+]
+}
+]
+},
+{
+"id": "tune-savior-when-in-dust-to-thee-aberystwyth",
+"title": "Aberystwyth (“Savior When In Dust To Thee”)",
+"by": "Joseph Parry, 1879",
+"year": "1879",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project; setting: \"The English Hymnal\", 1906, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": -1,
+"mode": "major"
+},
+"meter": {
+"n": 4,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"D4q D4e E4e F4e G4e A4q",
+"F4q E4q D4h",
+"F4q E4q D4q C#4q",
+"D4e E4e F4q E4h",
+"D4q D4e E4e F4e G4e A4q",
+"F4q E4q D4h",
+"E4q F4e G4e A4q G4q",
+"F4q E4q D4h",
+"D4q C4q D4q E4q",
+"F4q A4e G4e F4h",
+"F4q E4q F4q G4q",
+"A4q C5e B4e A4h",
+"D5q D5q C5q A4q",
+"F4q G4q A4h",
+"D4q D4e E4e F4e G4e A4q",
+"F4q E4q D4h"
+]
+}
+]
+},
+{
+"id": "tune-see-amid-the-winters-snow-humility",
+"title": "Humility (“See Amid the Winter's Snow”)",
+"by": "John Goss, 1870",
+"year": "1870",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": 1,
+"mode": "major"
+},
+"meter": {
+"n": 4,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"G4q. A4e G4q F#4q",
+"E4q. D4e D4h",
+"G4q A4q C5q B4q",
+"B4q. A4e A4h",
+"G4q. A4e G4q F#4q",
+"E4q. D4e D4h",
+"G4q A4q B4q C5q",
+"A4q. G4e G4h",
+"D5q. D5e C5q B4q",
+"A4q G4q F#4h",
+"D5q. D5e C5q B4q",
+"A4q G4q F#4h",
+"G4q. A4e G4q F#4q",
+"E4q. D4e D4h",
+"D5q. B4e G4q C5q",
+"B4q A4q G4h"
+]
+}
+]
+},
+{
+"id": "tune-see-the-lord-ascends-in-triumph-rex-gloriae",
+"title": "Rex Gloriae (“See, The Lord Ascends In Triumph”)",
+"by": "Henry Thomas Smart, 1868",
+"year": "1868",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": 3,
+"mode": "major"
+},
+"meter": {
+"n": 4,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"A4q E4q A4q B4q",
+"C#5q. D5e C#5q B4q",
+"E5q A4q B4q C#5e D5e",
+"C#5q B4q C#5h",
+"C#5q B4q C#5q E5q",
+"A4q G#4q G#4q F#4q",
+"B4q B4q E5q G#4q",
+"F#4q F#4q E4h",
+"E4q. F#4e G#4q B4q",
+"A4q G#4q F#4q E4q",
+"A4q B4q C#5e D5e E5q",
+"D5q C#5q B4h",
+"A4q E4q A4q B4q",
+"C#5q. D5e C#5q B4q",
+"E5q A4q D5q C#5q",
+"B4q B4q A4h",
+"A4q. A4e B4q C#5q",
+"E5q C#5q A4q B4q",
+"E4q A4q B4q C#5q",
+"B4e C#5e A4q G#4h",
+"A4q. A4e B4q C#5q",
+"E5q C#5q A4q B4q",
+"E4q. A4e G#4q E4q",
+"G#4e A4e F#4q E4h",
+"F#4q A4q G#4q E4q",
+"F#4q A4q E4q E4q",
+"A4q B4q C#5q F#4q",
+"A4e B4e G#4q F#4h",
+"G#4q A4q F#4q E4q",
+"A4q B4q D5q C#5q",
+"E5q C#5q A4q B4q",
+"C#5e A4e G#4q A4h"
+]
+}
+]
+},
+{
+"id": "tune-silent-night-stille-nacht",
+"title": "Stille Nacht (“Silent Night”)",
+"by": "Franz Xaver Gruber, 1818",
+"year": "1818",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project; setting: \"Concordia Kinderchöre\", 1908, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": -2,
+"mode": "major"
+},
+"meter": {
+"n": 3,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"F4e. G4s F4e D4q.",
+"F4e. G4s F4e D4q.",
+"C5q C5e A4q.",
+"Bb4q Bb4e F4q.",
+"G4q G4e Bb4e. A4s G4e",
+"F4e. G4s F4e D4q.",
+"G4q G4e Bb4e. A4s G4e",
+"F4e. G4s F4e D4q.",
+"C5q C5e Eb5e. C5s A4e",
+"Bb4q. D5q.",
+"Bb4e F4e D4e F4e. Eb4s C4e",
+"Bb3h."
+]
+}
+]
+},
+{
+"id": "tune-sing-o-sing-this-blessed-morn-nativity",
+"title": "Nativity (“Sing, O Sing, This Blessed Morn”)",
+"by": "William Henry Monk, 1865",
+"year": "1865",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": 0,
+"mode": "major"
+},
+"meter": {
+"n": 4,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"C5q B4q C5q E4q",
+"F4q A4q G4h",
+"A4q A4q G4q A4q",
+"G4q F4q E4h",
+"C5q C5q B4q A4q",
+"G#4q B4q A4h",
+"A4q. G4e F#4q G4q",
+"B4q A4q G4h",
+"A4q A4q C5q E4q",
+"F4q A4q G4h",
+"E4q E4q G4q G4q",
+"A4q A4q C5h"
+]
+}
+]
+},
+{
+"id": "tune-souls-of-men-why-will-ye-scatter-in-babilone",
+"title": "In Babilone (“Souls of Men! Why Will Ye Scatter”)",
+"by": "traditional Dutch found in \"Oude en Nieuwe Hollantse Boerenlities en Contradanse",
+"year": "1710",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": 1,
+"mode": "major"
+},
+"meter": {
+"n": 4,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"G4q F#4e E4e D4q G4q",
+"A4q G4e A4e B4q G4q",
+"C5q B4e A4e B4q A4e G4e",
+"F#4e G4e A4e F#4e G4h",
+"G4q F#4e E4e D4q G4q",
+"A4q G4e A4e B4q G4q",
+"C5q B4e A4e B4q A4e G4e",
+"F#4e G4e A4e F#4e G4h",
+"G4q A4e B4e C5q B4q",
+"A4q G#4q A4q A4q",
+"A4q B4e C5e D5q G4q",
+"A4q G4e F#4e E4q D4q",
+"G4q F#4e E4e D4q G4q",
+"A4q G4e A4e B4q G4q",
+"C5q B4e A4e B4q A4e G4e",
+"F#4e G4e A4e F#4e G4h"
+]
+}
+]
+},
+{
+"id": "tune-stricken-smitten-and-afflicted-o-mein-jesu-ich-muss-sterben-wo-ist-jesus-mein-verlangen",
+"title": "O Mein Jesu Ich Muss Sterben-Wo Ist Jesus Mein Verlangen (“Stricken, Smitten, and Afflicted”)",
+"by": "from Geistliches Volkslied, 1850",
+"year": "1850",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": -2,
+"mode": "major"
+},
+"meter": {
+"n": 6,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"rw G4q A4q",
+"Bb4h Bb4h C5q Bb4q",
+"A4h A4h Bb4q A4q",
+"G4h A4h G4q F#4q",
+"G4w G4q A4q",
+"Bb4h Bb4h C5q Bb4q",
+"A4h A4h Bb4q A4q",
+"G4h A4h G4q F#4q",
+"G4w Bb4q C5q",
+"D5h D5h Eb5q D5q",
+"C5h C5h D5q C5q",
+"Bb4h Bb4h C5q Bb4q",
+"A4w G4q F#4q",
+"G4h Bb4h A4q G4q",
+"A4h A4h Bb4q A4q",
+"G4h A4h G4q F#4q",
+"G4w rh"
+]
+}
+]
+},
+{
+"id": "tune-take-my-life-and-let-it-be-mozart",
+"title": "Mozart (“Take My Life And Let It Be”)",
+"by": "Wolfgang Amadeus Mozart (1756-1791)",
+"year": "1756",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": 1,
+"mode": "major"
+},
+"meter": {
+"n": 3,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"G4h G4q",
+"F#4h D4q",
+"C5h C5q",
+"B4h.",
+"D5h B4q",
+"D5q C5q A4q",
+"G4h B4e A4e",
+"A4h.",
+"G4h G4q",
+"F#4q. E4e D4q",
+"C5h C5q",
+"B4h.",
+"D5h B4q",
+"A4q C5q E5q",
+"G4h F#4q",
+"G4h."
+]
+}
+]
+},
+{
+"id": "tune-take-thou-my-hand-so-nimm-denn-meine-hande",
+"title": "So Nimm Denn Meine Hande (“Take Thou My Hand and Lead Me”)",
+"by": "Friedrich Silcher, 1842",
+"year": "1842",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project; setting: Donna Snell, circa 1975, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": -1,
+"mode": "major"
+},
+"meter": {
+"n": 4,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"rh. C5q",
+"D5q C5q Bb4q A4q",
+"A4h G4q A4q",
+"Bb4h C5h",
+"A4h. C5q",
+"D5q C5q Bb4q A4q",
+"A4h G4q A4q",
+"Bb4h C5h",
+"A4h. A4q",
+"G4q C5q B4q D5q",
+"C5q. D5e E5q F5q",
+"E5h D5h",
+"C5h. C5q",
+"F5q E5e D5e C5q C5q",
+"D5h C5q Bb4q",
+"A4q Bb4h G4q",
+"F4h. rq"
+]
+}
+]
+},
+{
+"id": "tune-take-up-thy-cross-the-savior-said-nun-lasst-uns-den-leib-begraben",
+"title": "Nun Lasst Uns Den Leib Begraben (“'Take Up Thy Cross', the Savior Said”)",
+"by": "George Rhau, 1544",
+"year": "1544",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": 1,
+"mode": "major"
+},
+"meter": {
+"n": 4,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"G4h A4q G4q",
+"F#4q G4q A4q B4q",
+"G4h. G4q",
+"A4q B4q C5q B4q",
+"G4q A4q B4h",
+"G4h A4q A4q",
+"B4q A4q G4q F#4q",
+"E4h. A4q",
+"B4q A4q G4q E4q",
+"G4q A4q G4h"
+]
+}
+]
+},
+{
+"id": "tune-that-men-a-godly-life-might-live-dies-sind-die-heilgen-zehu-gebot",
+"title": "Dies sind die heilgen zehu Gebot (“That Men a godly Life Might Live”)",
+"by": "Traditional",
+"year": "",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": 0,
+"mode": "major"
+},
+"meter": {
+"n": 4,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"rq G4q G4q G4q",
+"G4q G4q G4e A4e B4q",
+"C5h rq C5q",
+"D5q D5q C5q G4q",
+"A4q B4q C5h",
+"rq C5q D5q D5q",
+"C5q G4q A4q G4q",
+"F4h rq F4q",
+"A4q B4q C5h",
+"Bb4q G4q Bb4h",
+"Bb4q. A4e G4h",
+"G4w"
+]
+}
+]
+},
+{
+"id": "tune-the-advent-of-our-god-st-thomas",
+"title": "St Thomas (“The Advent of Our God”)",
+"by": "Aaron Williams, 1770",
+"year": "1770",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": 1,
+"mode": "major"
+},
+"meter": {
+"n": 4,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"rh. D4q",
+"G4q G4q B4q A4e G4e",
+"A4h. B4e C5e",
+"D5q C5e B4e C5q B4q",
+"A4h. D5q",
+"B4q G4q A4q D4q",
+"G4e A4e B4e C#5e D5q. D5e",
+"E5q D5e C5e B4q A4q",
+"G4h. rq"
+]
+}
+]
+},
+{
+"id": "tune-the-apostle-looked-and-heard-a-voice-london-addisons",
+"title": "London-Addisons (“The Apostle Looked and Heard a Voice”)",
+"by": "John Sheeles, 1720",
+"year": "1720",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": 1,
+"mode": "major"
+},
+"meter": {
+"n": 4,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"rh. G4q",
+"B4q B4q A4q D5q",
+"C5e B4e A4e G4e A4q D4q",
+"G4e A4e B4q A4q G4e F#4e",
+"G4q F#4e E4e F#4q A4q",
+"B4q E5q A4q D5q",
+"G4q A4e G4e F#4q A4q",
+"B4q C#5q D5q G4q",
+"F#4q E4q D4q D4q",
+"A4q A4q F#4q E4e D4e",
+"G4q A4q B4q B4q",
+"D5q D5q C5e B4e A4e G4e",
+"C5q D5q E5q D5q",
+"E5q D5e C5e D5q G4q",
+"C5q B4e A4e B4q G4q",
+"A4q G4q F#4q G4q",
+"C5q B4q A4q D5q",
+"E5q D5q F#4q G4e A4e",
+"B4q A4e G4e G4q rq"
+]
+}
+]
+},
+{
+"id": "tune-the-bridegroom-soon-will-call-us-act-gott-vom-himmelreiche",
+"title": "Act Gott Vom Himmelreiche (“The Bridegroom Soon Will Call Us”)",
+"by": "from Musae Sionae",
+"year": "",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": 1,
+"mode": "major"
+},
+"meter": {
+"n": 3,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"rh D4q",
+"G4h G4q",
+"A4h C5q",
+"B4q. A4e B4q",
+"A4h A4q",
+"G4h G4q",
+"C5h B4q",
+"A4h B4q",
+"E4h F#4q",
+"G4h A4q",
+"F#4q. E4e F#4q",
+"D4h B4q",
+"B4h D5q",
+"C5h C5q",
+"B4h B4q",
+"B4h D5q",
+"A4h B4q",
+"C5q. D5e C5q",
+"B4h B4q",
+"B4h D5q",
+"C5h B4q",
+"A4h B4q",
+"A4h G4q",
+"A4h F#4q",
+"G4q. F#4e G4q",
+"A4h B4q",
+"D5h B4q",
+"C5q A4h",
+"G4h rq"
+]
+}
+]
+},
+{
+"id": "tune-the-day-is-surely-drawing-near-es-ist-gewisslich-an-der-zett",
+"title": "Es ist Gewisslich an der Zett (“The Day is Surely Drawing Near”)",
+"by": "from Klug's Geistliche Lieder, Wittenberg, 1533",
+"year": "1533",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": 1,
+"mode": "major"
+},
+"meter": {
+"n": 4,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"rq G4q G4q B4q",
+"A4q G4q A4q A4q",
+"B4h G4h",
+"B4q C5q D5q B4q",
+"A4h G4h",
+"rq G4q G4q B4q",
+"A4q G4q A4q A4q",
+"B4h G4h",
+"B4q C5q D5q B4q",
+"A4h G4h",
+"rq B4q B4q A4q",
+"G4q F#4q G4q E4q",
+"D4h. D4q",
+"G4q G4q G4q F#4q",
+"G4q A4q B4h",
+"G4h B4q C5q",
+"D5q B4q A4h",
+"G4w"
+]
+}
+]
+},
+{
+"id": "tune-the-first-noel-the-first-noel",
+"title": "The First Noel",
+"by": "Traditional English carol",
+"year": "",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": 2,
+"mode": "major"
+},
+"meter": {
+"n": 3,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"rh F#4e E4e",
+"D4q. E4e F#4e G4e",
+"A4h B4e C#5e",
+"D5q C#5q B4q",
+"A4h B4e C#5e",
+"D5q C#5q B4q",
+"A4q B4q C#5q",
+"D5q A4q G4q",
+"F#4h F#4e E4e",
+"D4q. E4e F#4e G4e",
+"A4h B4e C#5e",
+"D5q C#5q B4q",
+"A4h B4e C#5e",
+"D5q C#5q B4q",
+"A4q B4q C#5q",
+"D5q A4q G4q",
+"F#4h F#4e E4e",
+"D4q. E4e F#4e G4e",
+"A4h D5e C#5e",
+"B4h B4q",
+"A4h A4q",
+"D5q C#5q B4q",
+"A4q B4q C#5q",
+"D5q A4q G4q",
+"F#4h rq"
+]
+}
+]
+},
+{
+"id": "tune-the-god-of-abraham-praise-yigdal-leoni",
+"title": "Yigdal-Leoni (“The God of Abraham Praise”)",
+"by": "Traditional Hebrew",
+"year": "",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project; setting: Meyer Lyon, 1780, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": -4,
+"mode": "major"
+},
+"meter": {
+"n": 4,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"rh. C4q",
+"F4q G4q Ab4q Bb4q",
+"C5h. Ab4q",
+"Bb4q C5q Db5q Eb5q",
+"C5h. G4q",
+"Ab4q Bb4q C5q Db5q",
+"Eb5q G4q Ab4q Db5q",
+"C5h Bb4h",
+"Ab4h. Ab4q",
+"C5q C5q C5q C5q",
+"Bb4h. Ab4e G4e",
+"F4e G4e Ab4e Bb4e C5q F4q",
+"F4q E4h C4q",
+"F4q G4q Ab4q Bb4q",
+"C5q Bb4e C5e Db5q C5e Bb4e",
+"Ab4h G4h",
+"F4h. rq"
+]
+}
+]
+},
+{
+"id": "tune-the-gospel-shows-the-fathers-grace-herr-jesu-christ-dich-zu-uns-wend",
+"title": "Herr Jesu Christ Dich Zu Uns Wend (“The Gospel Shows The Father's Grace”)",
+"by": "from Cantionale Germanicum, Dresden, 1628",
+"year": "1628",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": -1,
+"mode": "major"
+},
+"meter": {
+"n": 6,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"rw F4h",
+"A4h C5q A4h G4q",
+"A4q B4q C5h D5h",
+"C5h A4q G4h F4q",
+"F4q E4q F4h G4h",
+"A4h A4q G4h C5q",
+"C5q B4q C5h A4h",
+"Bb4h A4q G4h F4q",
+"F4q E4q F4h rh"
+]
+}
+]
+},
+{
+"id": "tune-the-king-shall-come-consolation-morning-song",
+"title": "Consolation-Morning Song (“The King Shall Come”)",
+"by": "John Wyeth, 1813",
+"year": "1813",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": -4,
+"mode": "major"
+},
+"meter": {
+"n": 4,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"rh. C4q",
+"F4q G4q Ab4q Bb4e Ab4e",
+"G4q F4e Eb4e C4q C4q",
+"F4q G4q Ab4q Bb4q",
+"C5h. Ab4e Bb4e",
+"C5q Db5e C5e Bb4q Ab4q",
+"G4q F4e Eb4e C4q C4q",
+"F4q G4q Ab4e F4e G4q",
+"F4h. rq"
+]
+}
+]
+},
+{
+"id": "tune-the-lily-of-the-valley-salvation-the-lily-of-the-valley",
+"title": "Salvation-The Lily of the Valley (“The Lily of the Valley”)",
+"by": "William S. Hays, 1881",
+"year": "1881",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project; setting: Ira D. Sankey, 1887, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": -1,
+"mode": "major"
+},
+"meter": {
+"n": 6,
+"d": 8
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"re rh F4s A4s",
+"C5q C5e D5q C5e",
+"C5e A4h F4e",
+"G4q F4e F4q D4e",
+"C4q. F4q G4e",
+"A4q A4e A4q A4e",
+"D5q C5e A4q F4e",
+"G4h.~",
+"G4q. F4q A4e",
+"C5q C5e D5q C5e",
+"C5e A4h F4e",
+"G4q F4e F4q D4e",
+"C4q. F4q G4e",
+"A4q A4e G4q F4e",
+"G4q G4e F4q E4e",
+"F4h.~",
+"F4q. re F4q",
+"F4e Bb4q Bb4q Bb4e",
+"Bb4e D5h D5e",
+"D5e C5q C5q A4e",
+"C5q. A4q G4e",
+"F4q F4e F4q F4e",
+"D5q C5e A4q F4e",
+"G4h.~",
+"G4q. F4q A4e",
+"C5e C5q D5q C5e",
+"C5e A4h F4e",
+"G4q F4e F4q D4e",
+"C4q. F4q G4e",
+"A4q A4e G4q F4e",
+"G4q G4e F4q E4e",
+"F4h.~",
+"F4q. re rq"
+]
+}
+]
+},
+{
+"id": "tune-the-love-of-god-the-love-of-god",
+"title": "The Love of God",
+"by": "Frederick Martin Lehman, 1917",
+"year": "1917",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project; setting: Claudia Lehman Mays, 1917, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": -5,
+"mode": "major"
+},
+"meter": {
+"n": 3,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"rq. Db4e Db4e. Eb4s",
+"F4q. Ab4e Bb4e. Ab4s",
+"Ab4q F4e Ab4e Ab4e. F4s",
+"Eb4q. Gb4e F4e. Eb4s",
+"F4q. Db4e Db4e. Eb4s",
+"F4q. Ab4e Bb4e. Ab4s",
+"Ab4q F4e Ab4e Ab4e. F4s",
+"Eb4q. Gb4e F4e. Eb4s",
+"Db4q. Db5e Db5e. Db5s",
+"Bb4q. Db5e Db5e. Db5s",
+"Ab4q F4e Ab4e Ab4e. Bb4s",
+"Ab4q Eb4q Gb4q",
+"F4q. Db5e Db5e. Db5s",
+"Bb4q. Db5e Db5e. Db5s",
+"Ab4q F4e Ab4e Ab4e. Bb4s",
+"Ab4q Eb4q F4q",
+"Db4q. Db5e Db5e. Db5s",
+"Db5q. Db5e C5e. Bb4s",
+"Ab4q F4e Ab4e Ab4e. Bb4s",
+"Ab4q Eb4q Bb4q",
+"Ab4q. Db5e Db5e. Db5s",
+"Db5q. Db5e C5e. Bb4s",
+"Ab4q F4e Ab4e Ab4e. Bb4s",
+"Ab4q Eb4q F4q",
+"Db4q. rq."
+]
+}
+]
+},
+{
+"id": "tune-the-mouth-of-fools-doth-god-confess-es-spricht-der-unweisen-mund",
+"title": "Es spricht der Unweisen Mund (“The Mouth of Fools Doth God Confess”)",
+"by": "from Walter's Geistliche Gesangbüchlein, 1524",
+"year": "1524",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project; setting: Michael Praetorius, 1610, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": 1,
+"mode": "major"
+},
+"meter": {
+"n": 4,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"G4h G4q E4q",
+"D4q G4q A4q B4q",
+"G4h rq G4q",
+"G4q A4q B4q C5q",
+"A4h G4h",
+"G4h G4q E4q",
+"D4q G4q A4q B4q",
+"G4h rq G4q",
+"G4q A4q B4q C5q",
+"A4h G4h",
+"rq G4q E4q F#4q",
+"G4q E4q D4q C#4q",
+"D4h rq D4q",
+"G4q A4q B4q C5q",
+"B4q A4q B4h",
+"rq A4q B4q C5q",
+"D5q B4q A4e G4e A4q",
+"G4w"
+]
+}
+]
+},
+{
+"id": "tune-the-old-rugged-cross-old-rugged-cross",
+"title": "The Old Rugged Cross",
+"by": "George Bennard, 1913",
+"year": "1913",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": -2,
+"mode": "major"
+},
+"meter": {
+"n": 6,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"rq rw D4e Eb4e",
+"F4q. E4e G4q F4h F4e F4e",
+"G4q. F#4e A4q G4h G4e G4e",
+"A4q. G4e F4q Eb4q F4q Eb4q",
+"D4h.~ D4h D4e Eb4e",
+"F4q. E4e G4q F4h F4e F4e",
+"G4q. F#4e A4q G4h G4e G4e",
+"A4q. G4e F4q Eb5q D5q C5q",
+"Bb4h.~ Bb4h A4e Bb4e",
+"C5q. C5e C5q C5q Bb4q A4q",
+"Bb4h.~ Bb4h Bb4e A4e",
+"G4q. G4e G4q Bb4q A4q G4q",
+"F4h.~ F4h F4e Bb4e",
+"D5q. D5e D5q D5q Eb5q D5q",
+"G4h.~ G4h Eb5e Eb5e",
+"D5q. C5e Bb4q F4q A4q C5q",
+"Bb4h.~ Bb4h rq"
+]
+}
+]
+},
+{
+"id": "tune-the-people-that-in-darkness-sat-lobt-gott-ihr-christen-allzugleich",
+"title": "Lobt Gott Ihr Christen Allzugleich (“The People That in Darkness Sat”)",
+"by": "Nikolaus Hermann, 1554",
+"year": "1554",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": -1,
+"mode": "major"
+},
+"meter": {
+"n": 4,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"rh. F4q",
+"C5q C5q C5q C5q",
+"D5q C5e Bb4e A4q A4q",
+"Bb4q C5q D5q D5q",
+"C5h. C5q",
+"C5q C5q C5q A4q",
+"C5q Bb4e A4e G4q C5q",
+"A4q F4q G4q G4q",
+"F4h A4h",
+"C5q F4q G4q G4q",
+"F4h. rq"
+]
+}
+]
+},
+{
+"id": "tune-theres-a-great-day-coming-theres-a-great-day-coming",
+"title": "Theres A Great Day Coming (“There's a Great Day Coming”)",
+"by": "Will L. Thompson, 1886",
+"year": "1886",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project; setting: \"Alexander's Hymns No. 3\", 1915, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": 1,
+"mode": "major"
+},
+"meter": {
+"n": 4,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"rh. D4e D4e",
+"G4q G4q G4s G4e. re G4e",
+"B4q B4q A4s G4e. E4e D4e",
+"G4q G4q G4s G4e. A4e B4e",
+"A4h. G4e A4e",
+"B4q B4e B4e B4e D5e D5e B4e",
+"A4e G4e G4e E4e D4q D4e D4e",
+"G4s G4e. G4e G4e A4q A4q",
+"G4h. rq",
+"D5q. D5e E5e D5e rq",
+"B4q. B4e C5e B4e rq",
+"G4q. G4e G4e G4e G4e G4e",
+"B4q A4q A4h",
+"D5q. D5e E5e D5e rq",
+"B4q. B4e C5e B4e rq",
+"G4q. G4e A4q A4q",
+"G4h. rq"
+]
+}
+]
+},
+{
+"id": "tune-thine-arm-o-lord-in-days-of-old-kingsfold",
+"title": "Kingsfold (“Thine Arm, O Lord, in Days of Old”)",
+"by": "traditional English",
+"year": "",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project; setting: Ralph Vaughan Williams, 1906, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": 1,
+"mode": "major"
+},
+"meter": {
+"n": 4,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"rh. G4e F#4e",
+"E4q E4q E4q D4q",
+"G4q G4q A4q G4e A4e",
+"B4q B4q A4e G4e E4q",
+"D4h. G4e F#4e",
+"E4q E4q E4q D4q",
+"G4q G4q A4q G4e A4e",
+"B4q B4q A4e G4e E4q",
+"E4h. B4e C5e",
+"D5q B4q B4e A4e G4q",
+"A4q A4q B4q G4e A4e",
+"B4q B4e A4e G4q E4q",
+"D4h. G4e F#4e",
+"E4q E4q E4e D4e E4e F#4e",
+"G4q G4q A4q G4e A4e",
+"B4q B4q A4e G4e E4q",
+"E4h. rq"
+]
+}
+]
+},
+{
+"id": "tune-thou-who-at-thy-first-eucharist-unde-et-memores",
+"title": "Unde Et Memores (“Thou, Who at Thy First Eucharist”)",
+"by": "William Henry Monk, 1875",
+"year": "1875",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": 2,
+"mode": "major"
+},
+"meter": {
+"n": 4,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"rh. F#4q",
+"F#4q. D4e D4q E4q",
+"F#4q. F#4e F#4q G4q",
+"A4h. F#4q",
+"E4q F#4q G4q. G4e",
+"G4q F#4q A4q F#4q",
+"E4h. F#4q",
+"F#4q. D4e D4q E4q",
+"F#4q. F#4e F#4q G4q",
+"A4h. F#4q",
+"B4q A4q G#4q. G#4e",
+"A4q B4q C#5q B4q",
+"A4h. A4q",
+"D5q A4q G4q F#4q",
+"B4q B4q D5q B4q",
+"A4h. A4q",
+"G4q F#4q E4q D4q",
+"B4q. G4e F#4q E4q",
+"D4h. rq"
+]
+}
+]
+},
+{
+"id": "tune-though-in-the-midst-of-life-we-be-mitten-wir-im-leben-sind",
+"title": "Mitten Wir Im Leben Sind (“Though in the Midst of Life We Be”)",
+"by": "Medieval sequence altered by Martin Luther",
+"year": "",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": 0,
+"mode": "major"
+},
+"meter": {
+"n": 4,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"G4q G4q A4q B4q",
+"C5q C5q B4q A4q",
+"B4q C5q D5q A4q",
+"G4e E4e F4q E4h",
+"G4q G4q A4q B4q",
+"C5q C5q B4q A4q",
+"B4q C5q D5q A4q",
+"G4e E4e F4q E4q re D4e",
+"E4q E4q G4q F4q",
+"E4q D4q C4q re C4e",
+"G4q G4q A4q B4q",
+"C5q C5q B4q A4q",
+"B4q C5q D5q A4q",
+"G4e E4e F4q E4h",
+"A4h G4q E4q",
+"F4q G4q E4h",
+"G4h G4q E4q",
+"F4q G4q E4h",
+"A4h G4q A4q",
+"B4h B4h",
+"B4q A4q G4q F4q",
+"E4h D4q A4q",
+"G4q F4q E4h",
+"A4q G4q A4q B4q",
+"C5q A4q G4h",
+"C5q B4q D5q A4q",
+"G4q F4q E4h",
+"D4q A4q G4q F4q",
+"E4h E4h"
+]
+}
+]
+},
+{
+"id": "tune-through-the-night-of-doubt-and-sorrow-rex-gloriae",
+"title": "Rex Gloriae (“Through the Night of Doubt and Sorrow”)",
+"by": "Henry Thomas Smart, 1868",
+"year": "1868",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": 3,
+"mode": "major"
+},
+"meter": {
+"n": 4,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"A4q E4q A4q B4q",
+"C#5q. D5e C#5q B4q",
+"E5q A4q B4q C#5e D5e",
+"C#5q B4q C#5h",
+"C#5q B4q C#5q E5q",
+"A4q G#4q G#4q F#4q",
+"B4q B4q E5q G#4q",
+"F#4q F#4q E4h",
+"E4q. F#4e G#4q B4q",
+"A4q G#4q F#4q E4q",
+"A4q B4q C#5e D5e E5q",
+"D5q C#5q B4h",
+"A4q E4q A4q B4q",
+"C#5q. D5e C#5q B4q",
+"E5q A4q D5q C#5q",
+"B4q B4q A4h"
+]
+}
+]
+},
+{
+"id": "tune-tis-good-lord-to-be-here-potsdam",
+"title": "Potsdam (“Tis Good, Lord, To Be Here”)",
+"by": "adapted from Johann Sebastian Bach, 1750, by John Goss, 1854",
+"year": "1750",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project; setting: John Goss, 1854, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": 4,
+"mode": "major"
+},
+"meter": {
+"n": 2,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"rq E4q",
+"F#4q A4q",
+"G#4q F#4q",
+"E4q B4q",
+"C#5q E5q",
+"D#5q C#5q",
+"B4q G#4q",
+"A4q C#5q",
+"B4q A4q",
+"G#4q A#4q",
+"B4q E4q",
+"F#4q A4q",
+"G#4q F#4q",
+"E4q rq"
+]
+}
+]
+},
+{
+"id": "tune-to-god-be-the-glory-to-god-be-the-glory",
+"title": "To God Be The Glory",
+"by": "William Howard Doane, 1875",
+"year": "1875",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": -4,
+"mode": "major"
+},
+"meter": {
+"n": 3,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"rh Eb4q",
+"Eb4h F4e G4e",
+"Ab4q Eb4q Ab4q",
+"Bb4q Eb4q Bb4q",
+"C5h C5q",
+"Db5q F4q Db5q",
+"C5q Ab4q C5q",
+"C5q Bb4q F4q",
+"Bb4h Eb4q",
+"Eb4h F4e G4e",
+"Ab4q Eb4q Ab4q",
+"Bb4q Eb4q Bb4q",
+"C5h C5q",
+"Eb5q Db5q Bb4q",
+"Ab4q G4q Ab4q",
+"C5q C5q Bb4q",
+"Ab4h C5e. Db5s",
+"Eb5h C5e. Db5s",
+"Eb5h Eb5e. C5s",
+"Ab4q Bb4q C5q",
+"Bb4h Bb4e. C5s",
+"Db5h Bb4e. C5s",
+"Db5h Db5e Ab4e",
+"Eb5q Eb5q Db5q",
+"C5h Eb4q",
+"Eb4h F4e G4e",
+"Ab4q Eb4q Ab4q",
+"Bb4q Eb4q Bb4q",
+"C5h C5q",
+"Eb5q Db5q Bb4q",
+"Ab4q G4q Ab4q",
+"C5q C5q Bb4q",
+"Ab4h rq"
+]
+}
+]
+},
+{
+"id": "tune-to-jordan-came-our-lord-the-christ-christ-unser-herr",
+"title": "Christ Unser Herr (“To Jordan Came Our Lord, The Christ”)",
+"by": "Johann Walter, 1524",
+"year": "1524",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": 0,
+"mode": "major"
+},
+"meter": {
+"n": 4,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"D4h F4q G4q",
+"A4q G4q C5q B4q",
+"A4h. A4q",
+"C5q B4q A4q G4q",
+"F4q E4q D4h",
+"D4h F4q G4q",
+"A4q G4q C5q B4q",
+"A4h. A4q",
+"C5q B4q A4q G4q",
+"F4q E4q D4h",
+"rq D4q G4q G4q",
+"E4q A4q A4q G4q",
+"A4h. A4q",
+"D5q D5q E5q. C5e",
+"D5e C5e B4q A4h",
+"rq A4q C5q B4q",
+"A4q G4q A4q F4q",
+"E4h. D4q",
+"F4q G4q A4q. F4e",
+"G4e F4e E4q D4h",
+"rq D5q D5q D5q",
+"E5q D5q C5q B4q",
+"A4w"
+]
+}
+]
+},
+{
+"id": "tune-to-shepherds-as-they-watched-by-night-vom-himmel-hoch",
+"title": "Vom Himmel Hoch (“To Shepherds As They Watched By Night”)",
+"by": "traditional German from Schumann's Geistliche Lieder, Leipzig, 1539",
+"year": "1539",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": 2,
+"mode": "major"
+},
+"meter": {
+"n": 4,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"re rh. D5e",
+"C#5q B4q C#5q A4q",
+"B4q C#5q D5q re D5e",
+"D5q A4q A4q F#4q",
+"A4q G4q F#4q re F#4e",
+"B4q B4q A4q C#5q",
+"D5q B4q A4q re D5e",
+"C#5q B4q A4q A4q",
+"G4e F#4e E4q D4q re re"
+]
+}
+]
+},
+{
+"id": "tune-today-thy-mercy-calls-me-anthes",
+"title": "Anthes (“Today Thy Mercy Calls Me”)",
+"by": "Friedrich K. Anthes, 1847",
+"year": "1847",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project; setting: \"Evangelical Lutheran Hymn-Book\", 1931, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": 3,
+"mode": "major"
+},
+"meter": {
+"n": 4,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"rh. E4q",
+"A4q G#4q A4q B4q",
+"C#5h A4q A4q",
+"F#4q D5q C#5q B4q",
+"A4h. E4q",
+"A4q G#4q A4q B4q",
+"C#5h A4q A4q",
+"F#4q D5q C#5q B4q",
+"A4h. C#5q",
+"B4q G#4q A4q F#4q",
+"G#4h E4q E4q",
+"F#4q G#4q A4q B4q",
+"C#5h. E4q",
+"A4q G#4q F#4q E4q",
+"B4h B4q C#5q",
+"D5q B4q A4q G#4q",
+"A4h. rq"
+]
+}
+]
+},
+{
+"id": "tune-under-his-wings-under-his-wings",
+"title": "Under His Wings",
+"by": "Ira David Sankey, 1898",
+"year": "1898",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": -5,
+"mode": "major"
+},
+"meter": {
+"n": 6,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"F4q Gb4q G4q Ab4h Ab4e Ab4e",
+"Ab4q Bb4q F4q Ab4q Gb4h",
+"Eb4q F4q Gb4q Bb4q Ab4q Ab4q",
+"Ab4q Eb4q E4q F4h.",
+"F4q Gb4q G4q Ab4q Ab4q Db5q",
+"Eb5q Db5q Bb4q Bb4q Ab4h",
+"Bb4q C5q Db5q Db5q Ab4q F4q",
+"Ab4q Gb4q Eb4q Db4h.",
+"Ab4q F4q Ab4q Db5h.",
+"C5q Bb4q C5q Db5h.",
+"Db5q Ab4q F4q Bb4q Ab4q F4q",
+"F4q Eb4w rq",
+"Db4q F4q Ab4q Db5h C5q",
+"Eb5q Db5q Bb4q Ab4h.",
+"Bb4q C5q Db5q Ab4q F4q Db4q",
+"Eb4h. Db4h rq"
+]
+}
+]
+},
+{
+"id": "tune-we-gather-together-kremser",
+"title": "Kremser (“We Gather Together”)",
+"by": "Traditional Dutch circa 1597",
+"year": "1597",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project; setting: Eduard Kremser, 1877, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": 2,
+"mode": "major"
+},
+"meter": {
+"n": 3,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"rh A4q",
+"A4q. B4e A4q",
+"F#4q G4q A4q",
+"G4q. F#4e E4q",
+"F#4q D4q A4q",
+"A4q. B4e C#5q",
+"D5q. E5e C#5q",
+"B4q. A4e B4q",
+"A4h A4q",
+"A4q. B4e C#5q",
+"D5q A4q A4q",
+"A4q. B4e G4e A4e",
+"F#4q D4q D4q",
+"G4q. A4e B4e G4e",
+"A4q. G4e F#4e F#4e",
+"G4q E4q. D4e",
+"D4h rq"
+]
+}
+]
+},
+{
+"id": "tune-we-give-thee-but-thine-own-energy",
+"title": "Energy (“We Give Thee But Thine Own”)",
+"by": "William H. Monk (1823-1889)",
+"year": "1823",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project; setting: \"Evangelical Lutheran Hymn-Book\", 1931, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": 1,
+"mode": "major"
+},
+"meter": {
+"n": 4,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"rh. D5q",
+"C5q B4q A4q B4e C5e",
+"B4h. B4q",
+"A4q D4q E4q E4q",
+"D4h. D4q",
+"E4q F#4q G4q B4q",
+"A4q A4q B4q B4q",
+"C5q B4q A4q A4q",
+"G4h. rq"
+]
+}
+]
+},
+{
+"id": "tune-we-now-implore-god-the-holy-ghost-nun-bitten-wir-den-heiligen-geist",
+"title": "Nun Bitten Wir Den Heiligen Geist (“We Now Implore God the Holy Ghost”)",
+"by": "ancient German found in Walter's Geistliche Gesangbüchlein, 1524",
+"year": "1524",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": -1,
+"mode": "major"
+},
+"meter": {
+"n": 4,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"rh F4h",
+"G4q G4q F4h",
+"D4h C4h",
+"D4h E4h",
+"F4w",
+"A4h C5h",
+"D5h C5h",
+"A4h F4h",
+"D4h E4h",
+"F4w",
+"A4q. A4e A4q G4q",
+"A4h F4q F4q",
+"G4q G4q A4h",
+"F4h G4q G4q",
+"A4h F4h",
+"D4q F4q F4q G4q",
+"F4h D4h",
+"C4w",
+"D4q. E4e F4h",
+"F4w"
+]
+}
+]
+},
+{
+"id": "tune-what-a-friend-we-have-in-jesus-untitled",
+"title": "untitled (“What A Friend We Have In Jesus”)",
+"by": "Charles C. Converse, 1868",
+"year": "1868",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project; setting: \"Book of hymns and tunes\", 1874, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": -1,
+"mode": "major"
+},
+"meter": {
+"n": 4,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"C5q. C5e D5e C5e A4e F4e",
+"F4h D4h",
+"C4q. F4e A4e F4e C5e A4e",
+"G4h. rq",
+"C5q. C5e D5e C5e A4e F4e",
+"F4h D4h",
+"C4q. F4e A4e G4e F4e E4e",
+"F4h. rq",
+"G4q. F#4e G4e A4e Bb4e G4e",
+"A4h C5h",
+"D5q. D5e C5e A4e Bb4e A4e",
+"G4h. rq",
+"C5q. C5e D5e C5e A4e F4e",
+"F4h D4h",
+"C4q. F4e A4e G4e F4e E4e",
+"F4h. rq"
+]
+}
+]
+},
+{
+"id": "tune-what-child-is-this-greensleeves",
+"title": "Greensleeves (“What Child Is This?”)",
+"by": "16th Century English Traditional",
+"year": "",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": 2,
+"mode": "major"
+},
+"meter": {
+"n": 3,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"re rh E4e",
+"G4q A4e B4e. C5s B4e",
+"A4q F#4e D4e. E4s F#4e",
+"G4q E4e E4e. D#4s E4e",
+"F#4q. B3q E4e",
+"G4q A4e B4e. C5s B4e",
+"A4q F#4e D4e. E4s F#4e",
+"G4e. F#4s E4e D#4e. C#4s D#4e",
+"E4q. E4q.",
+"D5q. D5e. C#5s B4e",
+"A4q F#4e D4e. E4s F#4e",
+"G4q E4e E4e. D#4s E4e",
+"F#4q D4e B3q.",
+"D5q. D5e. C#5s B4e",
+"A4q F#4e D4e. E4s F#4e",
+"G4e. F#4s E4e D#4e. C#4s D#4e",
+"E4q. E4q re"
+]
+}
+]
+},
+{
+"id": "tune-when-i-survey-the-wondrous-cross-hamburg",
+"title": "Hamburg (“When I Survey the Wondrous Cross”)",
+"by": ", Lowell Mason, 1824",
+"year": "1824",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project; setting: \"Northfield Hymnal\", 1904, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": -1,
+"mode": "major"
+},
+"meter": {
+"n": 4,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"F4h F4q G4q",
+"A4h G4q A4q",
+"Bb4h A4q G4q",
+"A4w",
+"A4h A4q A4q",
+"Bb4h A4q G4q",
+"F4h E4q F4q",
+"G4w",
+"F4h F4q G4q",
+"A4h G4q A4q",
+"Bb4h A4q G4q",
+"A4w",
+"A4h A4q A4q",
+"G4h F4h",
+"G4h A4q F4q",
+"F4w"
+]
+}
+]
+},
+{
+"id": "tune-when-i-survey-the-wondrous-cross-rockingham-old",
+"title": "Rockingham Old (“When I Survey the Wondrous Cross”)",
+"by": "Edward Miller, 1790",
+"year": "1790",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": 2,
+"mode": "major"
+},
+"meter": {
+"n": 3,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"rh D4q",
+"F#4q G4q E4q",
+"D4h F#4q",
+"A4h B4q",
+"A4h A4q",
+"D5h C#5q",
+"B4h A4q",
+"A4q G4q F#4q",
+"F#4q E4q E4q",
+"A4h B4q",
+"C#5h A4q",
+"D5q F#4q G4q",
+"A4h D4q",
+"G4h F#4q",
+"E4h D4q",
+"D4q F#4q E4q",
+"D4h rq"
+]
+}
+]
+},
+{
+"id": "tune-when-the-roll-is-called-up-yonder-when-the-roll-is-called-up-yonder",
+"title": "When The Roll Is Called Up Yonder",
+"by": "James Milton Black, 1893",
+"year": "1893",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": -4,
+"mode": "major"
+},
+"meter": {
+"n": 4,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"rh. Ab4e. Bb4s",
+"C5e. C5s C5e. C5s C5e. Bb4s Ab4e. Ab4s",
+"Bb4e. Ab4s Ab4e. F4s Eb4q Ab4e. Bb4s",
+"C5e. C5s C5e. C5s C5e. C5s Bb4e. Ab4s",
+"Bb4h. Ab4e. Bb4s",
+"C5e. C5s C5e. C5s C5e. Bb4s Ab4e. Ab4s",
+"Bb4e. Ab4s Ab4e. F4s Eb4q Ab4e. Bb4s",
+"C5e. C5s C5e. Ab4s Bb4e. Bb4s Bb4e. G4s",
+"Ab4h. C5e. Db5s",
+"Eb5h~ Eb5e. Db5s C5e. Db5s",
+"Eb5h C5q C5e. C5s",
+"Db5h~ Db5e. C5s Bb4e. C5s",
+"Db5h Bb4q C5e. Db5s",
+"Eb5h~ Eb5e. C5s Bb4e. Ab4s",
+"Ab4h Db5q Db5e. Bb4s",
+"C5e. C5s C5e. Ab4s Bb4e. Bb4s Bb4e. G4s",
+"Ab4h. rq"
+]
+}
+]
+},
+{
+"id": "tune-where-he-leads-me-where-he-leads-me",
+"title": "Where He Leads Me",
+"by": "attr. John Samuel Norris (1844-1907) or Philip Paul Bliss (1838-1876)",
+"year": "1844",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": -1,
+"mode": "major"
+},
+"meter": {
+"n": 4,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"rh. C4e. F4s",
+"A4q. A4e Bb4q. A4e",
+"A4e G4h re C4e. E4s",
+"G4q. F4e A4q. G4e",
+"G4e F4h re F4e. A4s",
+"C5q. C5e D5q. C5e",
+"C5e Bb4h re F4e G4e",
+"A4s C4e. A4s C4e. G4q. F4e",
+"F4h. C4e. F4s",
+"A4q. A4e Bb4q. A4e",
+"A4e G4h re C4e. E4s",
+"G4q. F4e A4q. G4e",
+"G4e F4h re F4e. A4s",
+"C5q. C5e D5q. C5e",
+"C5e Bb4h re F4e G4e",
+"A4s C4e. A4s C4e. G4q. F4e",
+"F4h. rq"
+]
+}
+]
+},
+{
+"id": "tune-whiter-than-snow-whiter-than-snow",
+"title": "Whiter Than Snow",
+"by": "William Gustavus Fischer, 1872",
+"year": "1872",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project; setting: \"Pentecostal Hymns, No. 2\", 1898, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": 3,
+"mode": "major"
+},
+"meter": {
+"n": 3,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"rh E4q",
+"E4q A4q B4q",
+"C#5q. B4e A4q",
+"B4q C#5q B4q",
+"A4h E4q",
+"E4q A4q B4q",
+"C#5q. B4e A4q",
+"B4q C#5q B4q",
+"A4h C#5q",
+"E5q C#5q A4q",
+"F#4e A4e A4q A4q",
+"D5q D5q D5q",
+"C#5h E4q",
+"E4q A4q C#5q",
+"C#5q. B4e A4q",
+"B4q. A4e B4q",
+"A4h.",
+"B4q B4q B4q",
+"B4h A4q",
+"C#5q A4q F#4q",
+"E4h E4q",
+"F#4q A4q D5q",
+"C#5q. B4e A4q",
+"B4q. A4e B4q",
+"A4h rq"
+]
+}
+]
+},
+{
+"id": "tune-wilt-thou-o-man-live-happily-mensch-willt-du-leben-seligich",
+"title": "Mensch Willt du Leben seligich (“Wilt Thou, O Man, Live Happily”)",
+"by": "attr. Martin Luther. Found in Walter's Geistliche Gesangbüchlein, 1524",
+"year": "1524",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": 0,
+"mode": "major"
+},
+"meter": {
+"n": 4,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"E4h G4q G4q",
+"A4q B4q C5q B4q",
+"A4h B4h",
+"C5q G4q A4q E4q",
+"G4h E4q C4q",
+"G4q F4q E4h",
+"B4h C5q D5q",
+"C5q A4q G#4q A4q",
+"B4h E4h",
+"B4q C5q B4q G4q",
+"A4q F4q E4q C4q",
+"G4q. F4e E4h",
+"E4w"
+]
+}
+]
+},
+{
+"id": "tune-within-the-fathers-house-franconia",
+"title": "Franconia (“Within the Father's House”)",
+"by": "Johann Balthasar König, 1738",
+"year": "1738",
+"style": "Hymn tune",
+"kind": "melody",
+"source": "Open Hymnal Project; setting: William Henry Havergal, 1847, soprano line",
+"license": "Public domain",
+"key": {
+"fifths": -3,
+"mode": "major"
+},
+"meter": {
+"n": 4,
+"d": 4
+},
+"tempo": 96,
+"parts": [
+{
+"name": "Melody",
+"clef": "treble",
+"m": [
+"rh. Eb4q",
+"F4q G4q Ab4q Bb4q",
+"G4h. Bb4q",
+"C5q Eb5q Ab4q G4q",
+"F4h. Bb4q",
+"Eb5q D5q C5q Bb4q",
+"C5q C5q Bb4q Bb4q",
+"Eb4q G4q F4q F4q",
+"Eb4h. rq"
+]
+}
+]
+}
+]

@@ -109,8 +109,8 @@ li.q .hint { font-size: 10pt; margin: 2pt 0 0; color: #333; }
 /* A grand staff is drawn larger, so there is room to write in both clefs. */
 .example.is-grand svg { height: ${Math.round(staffH * 1.65 * 100) / 100}in; }
 .example svg.piano, .example.is-grand svg.piano { height: 1in; margin: 4pt 0; }
-/* Chord Graph tables and phrases keep their own shape. */
-.example svg.cg-art { height: auto; }
+/* Chord Graph tables and phrases, and Clefwork Terms' markings, keep their own shape. */
+.example svg.cg-art, .example svg.tm-art { height: auto; }
 .lines { margin: 8pt 0 0; display: flex; flex-wrap: wrap; gap: 6pt 16pt; }
 .lines .slot { font-size: 10pt; }
 .lines .slot i { font-style: normal; display: inline-block; border-bottom: 0.75pt solid #000; min-width: 1.5in; margin-left: 4pt; }

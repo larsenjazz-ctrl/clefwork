@@ -3,7 +3,8 @@
    on the oboe) and students write what they hear on a one-line staff.
    Durations are counted in 48ths of a whole note, so every value from a sixteenth to a dotted whole,
    and every triplet from sixteenths to whole notes, is a whole number.
-   A note or rest is {v: 0 whole … 4 sixteenth, d: dotted, t: triplet, r: rest}. */
+   A note or rest is {v: 0 whole … 4 sixteenth, d: dotted, t: triplet, r: rest}, and a note may have
+   tie: 1 — tied to the next note of its part, in the same measure or across the bar line. */
 (function (root) {
   'use strict';
   const MQ = (root.MQ = root.MQ || {});
@@ -29,7 +30,96 @@
   function cleanEvent(e) {
     const out = { v: Math.max(0, Math.min(4, e.v | 0)), d: e.d ? 1 : 0, t: e.t ? 1 : 0, r: e.r ? 1 : 0 };
     if (e.p && !e.r) out.p = { step: e.p.step | 0, oct: e.p.oct | 0, alt: e.p.alt | 0 };
+    if (e.tie && !e.r) out.tie = 1;
     return out;
+  }
+
+  // ---------- ties ----------
+  // Where the note at L[m][i] is tied to: the next note of the measure, or across the bar line the
+  // first note of the next one (when this measure is full) — or null. A tie to a rest, to nothing yet,
+  // to a note past the `count` measures, or (with pitches) to a different note joins nothing.
+  function tieNext(L, m, i, len, count) {
+    const e = L[m] && L[m][i];
+    if (!e || !e.tie || e.r) return null;
+    let at = null;
+    if (i + 1 < L[m].length) at = { m, i: i + 1 };
+    else if (m + 1 < count && L[m + 1] && L[m + 1].length && total(L[m]) === len) at = { m: m + 1, i: 0 };
+    if (!at) return null;
+    const n = L[at.m][at.i];
+    if (n.r || (e.p && n.p && MQ.midi(e.p) !== MQ.midi(n.p))) return null;
+    return at;
+  }
+  // The notes of one part as they sound, tied notes joined: {m, i (the first note's measure and
+  // place), t (its start in the measure), g (its start from the beginning), d (how long it sounds),
+  // p, evs [{m, i} of every note written for it]}.
+  function soundingNotes(L, len, count) {
+    const out = [];
+    let held = null;
+    for (let m = 0; m < count; m++) {
+      let at = 0;
+      ((L && L[m]) || []).forEach((e, i) => {
+        const d = dur(e);
+        if (!e.r) {
+          if (held) { held.d += d; held.evs.push({ m, i }); }
+          else out.push(held = { m, i, t: at, g: m * len + at, d, p: e.p, evs: [{ m, i }] });
+          if (!tieNext(L, m, i, len, count)) held = null;
+        }
+        at += d;
+      });
+    }
+    return out;
+  }
+  // What's wrong with the ties of one part, in words: a tie that goes nowhere, or joins two pitches.
+  function tieProblems(L, len, count, where) {
+    const out = [];
+    for (let m = 0; m < count; m++) {
+      ((L && L[m]) || []).forEach((e, i) => {
+        if (!e.tie || e.r || tieNext(L, m, i, len, count)) return;
+        const last = i === L[m].length - 1;
+        const n = last ? L[m + 1] && L[m + 1][0] : L[m][i + 1];
+        out.push(`${where(m)}: ${n && n.r ? 'a note is tied to a rest' : n && e.p && n.p ? 'a tie joins two different notes' : last && m + 1 >= count ? 'the last note is tied to nothing' : 'a tie needs a note after it'}.`);
+      });
+    }
+    return out;
+  }
+  // Ties for an automatic example, after it's made (so examples without them stay as they were): a
+  // note held over the bar line, or an off-beat note held over the next beat. In a melody (pitch) the
+  // tied note takes the next one's pitch — an anticipation — or the next takes its pitch, whichever
+  // keeps the leaps within `leap` steps. Every note of a triplet is left alone.
+  function addTies(L, count, info, rng, o) {
+    const opt = o || {}, cands = [];
+    const onBeat = (t) => info.beats.some((b) => b.at === t);
+    const flat = [];
+    for (let m = 0; m < count; m++) {
+      let at = 0;
+      (L[m] || []).forEach((e, i) => { flat.push({ e, m, i, t: at }); at += dur(e); });
+    }
+    for (let k = 0; k + 1 < flat.length; k++) {
+      const a = flat[k], b = flat[k + 1];
+      if (a.e.r || b.e.r || a.e.t || b.e.t || a.e.tie) continue;
+      const bar = b.m === a.m + 1 && b.i === 0 && total(L[a.m]) === info.len;
+      const sync = b.m === a.m && b.t > 0 && onBeat(b.t) && !onBeat(a.t);
+      if (bar || sync) cands.push({ k, bar });
+    }
+    for (let i = cands.length - 1; i > 0; i--) { const j = Math.floor(rng() * (i + 1)); [cands[i], cands[j]] = [cands[j], cands[i]]; }
+    const want = Math.max(1, Math.round(count / 2));
+    let made = 0;
+    const dia = (x) => x && x.e.p && MQ.dia(x.e.p);
+    cands.forEach((c) => {
+      if (made >= want || (made && rng() < 0.35)) return;
+      const a = flat[c.k], b = flat[c.k + 1];
+      if (b.e.tie || (flat[c.k - 1] && flat[c.k - 1].e.tie)) return;      // one tie at a time
+      if (opt.pitch && MQ.midi(a.e.p) !== MQ.midi(b.e.p)) {
+        const prev = flat.slice(0, c.k).reverse().find((x) => !x.e.r), next = flat.slice(c.k + 2).find((x) => !x.e.r);
+        const fits = (x, d) => !x || Math.abs(dia(x) - d) <= (opt.leap || 7);
+        if (fits(prev, dia(b))) a.e.p = Object.assign({}, b.e.p);
+        else if (fits(next, dia(a))) b.e.p = Object.assign({}, a.e.p);
+        else return;
+      }
+      a.e.tie = 1;
+      made++;
+    });
+    return made;
   }
 
   // ---------- time signatures ----------
@@ -226,6 +316,7 @@
     o.tempo = Math.max(40, Math.min(240, Math.round(o.tempo || 80)));
     // gen: the generator version the examples come from. A quiz keeps its own; new ones use the latest.
     o.gen = Math.max(1, Math.min(7, o.gen | 0 || MQ.RHYTHM_GEN || 1));
+    o.ties = o.ties ? 1 : 0;                        // tie some notes, over a bar line or a beat
     // Filled in place: the builder keeps hold of this object while the teacher edits it.
     const c = (o.custom = o.custom || {});
     const D = { lo: 2, hi: 4, compound: 0, cut: 0, uneven: 0, shortest: 3, dotted: 1, triplets: 0, offbeats: 1, rests: 1 };
@@ -253,6 +344,7 @@
         out.push(!s.total ? `${where} is empty.` : `${where}: ${note}${/[.)]$/.test(note) ? '' : '.'}`);
       }
     }
+    if (!out.length) for (let l = 0; l < e.parts; l++) tieProblems(e.layers[l], info.len, e.measures, (m) => `Measure ${m + 1}${e.parts > 1 ? ' of the ' + partName(l) : ''}`).forEach((t) => out.push(t));
     // Scores count notes, so an example needs at least one.
     if (!out.length && !e.layers.slice(0, e.parts).some((L) => L.slice(0, e.measures).some((m) => m.some((x) => !x.r)))) out.push('There are only rests — add at least one note.');
     return out;
@@ -297,37 +389,30 @@
   // Note by note, by what sounds. Each note of the answer is right when the student has a note that
   // starts at the same moment, in the same part, and lasts as long. A note of the answer that is
   // missing or the wrong length is a wrong note, and so is each extra note the student writes where
-  // the answer has none. Rests only fill time, so a quarter rest and two eighth rests are the same.
-  function notesOf(events) {
-    const out = [];
-    let at = 0;
-    (events || []).forEach((e, i) => { const d = dur(e); if (!e.r) out.push({ t: at, d, i }); at += d; });
-    return out;
-  }
+  // the answer has none. Rests only fill time, so a quarter rest and two eighth rests are the same;
+  // tied notes are one note, so a half note and two tied quarters are the same too.
   // {notes, wrong, parts: [{measures: [{want: [..], got: [..], ok}]}]} — want and got mark each note
   // and rest of the answer and of the student's rhythm: true right, false wrong, null for rests.
   function compareRhythm(q, resp) {
-    const R = q.rh;
+    const R = q.rh, len = meterInfo(R.meter).len;
     let notes = 0, wrong = 0;
-    const parts = R.layers.map((L, l) => ({
-      measures: L.map((answer, m) => {
-        const mine = (resp && resp[l] && resp[l][m]) || [];
-        const want = answer.map(() => null), got = mine.map(() => null);
-        const theirs = notesOf(mine);
-        let bad = 0;
-        notesOf(answer).forEach((a) => {
-          notes++;
-          const s = theirs.find((x) => x.t === a.t);
-          const ok = !!s && s.d === a.d;
-          want[a.i] = ok;
-          if (s) got[s.i] = ok;
-          if (!ok) bad++;
-        });
-        theirs.forEach((s) => { if (got[s.i] == null) { got[s.i] = false; bad++; } });
-        wrong += bad;
-        return { want, got, ok: !bad };
-      }),
-    }));
+    const parts = R.layers.map((answer, l) => {
+      const count = answer.length;
+      const mine = answer.map((_, m) => (resp && resp[l] && resp[l][m]) || []);
+      const want = answer.map((evs) => evs.map(() => null)), got = mine.map((evs) => evs.map(() => null));
+      const mark = (flags, n, ok) => n.evs.forEach((x) => { flags[x.m][x.i] = ok; });
+      const theirs = soundingNotes(mine, len, count);
+      soundingNotes(answer, len, count).forEach((a) => {
+        notes++;
+        const s = theirs.find((x) => x.m === a.m && x.t === a.t);
+        const ok = !!s && s.d === a.d;
+        mark(want, a, ok);
+        if (s) mark(got, s, ok);
+        if (!ok) wrong++;
+      });
+      theirs.forEach((s) => { if (got[s.m][s.i] == null) { mark(got, s, false); wrong++; } });
+      return { measures: answer.map((_, m) => ({ want: want[m], got: got[m], ok: !want[m].includes(false) && !got[m].includes(false) })) };
+    });
     return { notes, wrong, parts };
   }
   function gradeRhythm(q, resp) {
@@ -345,7 +430,7 @@
     return events.map((e, i) => {
       const s = (e.r ? REST_SIGNS : NOTE_SIGNS)[e.v] + (e.d ? '.' : '');
       const g = groups.find((x) => x.from === i || x.to === i);
-      return (g && g.from === i ? '(' : '') + s + (g && g.to === i ? ')³' : '');
+      return (g && g.from === i ? '(' : '') + s + (g && g.to === i ? ')³' : '') + (e.tie && !e.r ? '‿' : '');
     }).join(' ');
   }
   function rhythmText(layers, meter) {
@@ -371,11 +456,16 @@
     clicks(0, o.countIn);
     if (o.metronome) clicks(start, bars);
     (layers || []).slice(0, ex.parts).forEach((L, l) => {
+      let held = null;                              // a note tied over: the next one only lengthens it
       for (let m = o.from; m <= o.to; m++) {
         let at = start + (m - o.from) * info.len;
-        (L[m] || []).forEach((e) => {
+        (L[m] || []).forEach((e, i) => {
           const d = dur(e);
-          if (!e.r) events.push({ at: at * sec, dur: d * sec, voice: l ? 'oboe' : 'piano', midi: e.p ? MQ.midi(e.p) : l ? OBOE_NOTE : PIANO_NOTE });
+          if (!e.r) {
+            if (held) held.dur += d * sec;
+            else events.push(held = { at: at * sec, dur: d * sec, voice: l ? 'oboe' : 'piano', midi: e.p ? MQ.midi(e.p) : l ? OBOE_NOTE : PIANO_NOTE });
+            if (!tieNext(L, m, i, info.len, o.to + 1)) held = null;
+          }
           at += d;
         });
       }
@@ -387,7 +477,7 @@
 
   Object.assign(MQ, {
     RHYTHM_VALUES: VALUES, RHYTHM_MAX: MAX_EXAMPLES, RHYTHM_GRID_BOXES: GRID_BOXES, rhythmGrid: gridSettings, rhythmCleanEvents: (m) => m.map(cleanEvent), RHYTHM_METERS: METERS, RHYTHM_TEMPO_UNITS: TEMPO_UNITS, RHYTHM_TEMPO_NAMES: TEMPO_NAMES,
-    rhythmDur: dur, rhythmTotal: total, rhythmEvent: cleanEvent, rhythmMeter: meterInfo, rhythmGroupings: groupingsOf,
+    rhythmDur: dur, rhythmTotal: total, rhythmEvent: cleanEvent, rhythmTieNext: tieNext, rhythmSounding: soundingNotes, rhythmTieProblems: tieProblems, rhythmAddTies: addTies, rhythmMeter: meterInfo, rhythmGroupings: groupingsOf,
     rhythmAmount: amountText, rhythmCount: countText, tripletGroups, tripletStartOk, tripletWhy, measureState, rhythmEditProblem: editProblem, measureNote,
     rhythmExample: newExample, exampleSettings, rhythmSettings, exampleProblems, rhythmProblems, rhythmQuestions, rhythmBlank: blankAnswer,
     compareRhythm, gradeRhythm, hasRhythmAnswer, rhythmAuto: autoSettings, describeRhythm, rhythmText, rhythmPlayEvents: playEvents, rhythmTempoText: tempoText,

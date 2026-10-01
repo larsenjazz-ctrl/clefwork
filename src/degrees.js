@@ -14,6 +14,8 @@
   // rhythm is); keyMode: 1 major, 2 minor, 3 both; keyMax: up to this many sharps or flats; clefs:
   // 1 treble, 2 bass, 3 both; hear: students may play the melody and the key (1) or only read it (0);
   // gen: the melody generator's version, so a quiz code keeps its melodies.
+  // src: 0 the melodies are made by the generator, 1 they're chosen from the library (mel: those
+  // melodies, as Clefwork Melody writes them — a quiz code carries their notes).
   // share: the percent of each melody's notes that are asked about (10–100, in tens), chosen at random
   // from the quiz's seed; score: 'question' (each melody is one question), 'notes' (each note asked
   // about is a point) or 'percent' (the notes' share of outOf points, as Clefwork Rhythm scores).
@@ -29,6 +31,11 @@
     if (!['question', 'notes', 'percent'].includes(s.score)) s.score = 'question';
     s.outOf = clamp(Math.round(s.outOf || 100), 1, 1000);
     s.gen = clamp(s.gen | 0 || MQ.MELODY_GEN || 1, 1, 7);
+    s.src = s.src ? 1 : 0;
+    // Kept as the same list, which the builder changes in place.
+    if (!Array.isArray(s.mel)) s.mel = [];
+    if (s.mel.length > MAX_MELODIES) s.mel.length = MAX_MELODIES;
+    s.mel.forEach((m) => MQ.melodyExample(m));
     return s;
   }
 
@@ -41,7 +48,8 @@
     const s = degreeSettings(cfg.deg);
     const auto = { on: true, gen: s.gen, count: n, measures: s.measures, level: s.level, tempo: 72, keyMode: s.keyMode, keyMax: s.keyMax, chromatic: 0, clefs: s.clefs };
     // Its own seed, so these aren't the same melodies a dictation block on the same seed would make.
-    const list = MQ.generateMelodies(((cfg.seed >>> 0) ^ 0x5ca1ede9) >>> 0, auto);
+    // Melodies from the library are the teacher's own choice, as many as they chose.
+    const list = s.src ? s.mel.slice(0, n) : MQ.generateMelodies(((cfg.seed >>> 0) ^ 0x5ca1ede9) >>> 0, auto);
     return list.map((raw, k) => {
       const ex = MQ.melodyExample(raw), K = MQ.melodyKey(ex.key);
       const layers = [ex.layers[0].slice(0, ex.measures).map((m) => m.map(MQ.rhythmEvent))];

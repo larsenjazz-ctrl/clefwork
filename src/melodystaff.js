@@ -1,25 +1,27 @@
 /* Clefwork Melody — the staff students and teachers write melodies on: five lines, a treble or bass
    clef, the key signature, and up to eight measures, four to a line. Notes have pitches: ledger
    lines, accidentals (shown only where the key signature and earlier notes in the measure don't
-   already say so), stems that turn down from the middle line, and beams. Editing works as on the
+   already say so), stems that turn down from the middle line, beams, and ties — across the bar line,
+   and across the end of a line. Editing works as on the
    rhythm staff — a caret, a selected note to replace — plus pitch: click where the next note goes,
    drag a note up or down, or use the arrow keys and ♯ ♭ ♮. Drawn with plain shapes so it prints. */
 (function (root) {
   'use strict';
   const MQ = root.MQ;
   const NS = 'http://www.w3.org/2000/svg';
-  const { RX, STEM, BEAM, BEAM_STEP, PAD_L, PAD_R, r1, headSVG, lineSVG, rectSVG, dotSVG, flagsSVG, restSVG, spacing, beamPlan, NAMES } = MQ.rhythmDraw;
+  const { RX, STEM, BEAM, BEAM_STEP, PAD_L, PAD_R, r1, headSVG, lineSVG, rectSVG, dotSVG, flagsSVG, restSVG, tieSVG, spacing, beamPlan, NAMES } = MQ.rhythmDraw;
   const HALF = 5, TOP = 46, SYS_H = 138;               // a staff space is 10; one line of music is SYS_H tall
   const MID = TOP + 20, BOT = TOP + 40;                 // the middle and bottom lines, within a system
   const ACC_SCALE = 0.85, ACC_W = 11;
   const bottomOf = (clef) => MQ.CLEFS[clef === 'bass' ? 'bass' : 'treble'].bottom;
 
   // The accidental each note shows: only what the key signature, and earlier notes on the same line
-  // or space in this measure, don't already give it.
-  function shownAccidentals(events, alts) {
+  // or space in this measure, don't already give it. A note tied over the bar line (tiedIn: the
+  // measure's first) keeps its accidental without showing it again; a later note needs it shown.
+  function shownAccidentals(events, alts, tiedIn) {
     const cur = {};
-    return events.map((e) => {
-      if (e.r || !e.p) return null;
+    return events.map((e, i) => {
+      if (e.r || !e.p || (i === 0 && tiedIn)) return null;
       const d = MQ.dia(e.p);
       const was = d in cur ? cur[d] : alts[e.p.step];
       cur[d] = e.p.alt;
@@ -42,7 +44,8 @@
     const events = (model.layers[0] || []).slice(0, model.measures).map((m) => m || []);
     const posOf = (p) => MQ.dia(p) - bottom;
     const plans = events.map((ev) => beamPlan(ev, info));
-    const accs = events.map((ev) => shownAccidentals(ev, K.alts));
+    const tiedIn = (m) => { const P = events[m - 1]; const to = P && P.length && MQ.rhythmTieNext(events, m - 1, P.length - 1, info.len, model.measures); return !!to && to.m === m; };
+    const accs = events.map((ev, m) => shownAccidentals(ev, K.alts, m > 0 && tiedIn(m)));
     const nSys = Math.ceil(model.measures / o.perLine);
     const ksW = Math.abs(K.fifths) * 9 + (K.fifths ? 8 : 0);
     const headW = (k) => 38 + ksW + (k === 0 && o.showTime ? 28 : 0) + 6;
@@ -131,6 +134,7 @@
     });
 
     // ---------- the notes ----------
+    const ties = [], drawn = [];
     const labelTiers = {};              // per line: how far right each tier of note labels reaches
     events.forEach((evs, m) => {
       const g = geo.measures[m], sy = g.sy;
@@ -191,7 +195,9 @@
         const right = next ? next.hx - RX - 2 - (next.acc != null ? ACC_W : 0) : Math.max(n.hx + RX + 8, xOf(m, n.t + n.d) - 2);
         const hit = o.print ? '' : `<rect class="r-hit" x="${r1(n.hx - RX - 3)}" y="${sy + TOP - 30}" width="${r1(Math.max(16, right - n.hx + RX + 3))}" height="100"/>`;
         s += `<g class="${cls}" data-l="0" data-m="${m}" data-i="${n.i}">${hit}${body}</g>`;
+        if (e.tie && !e.r) ties.push({ m, n, cls: markOf(n.i) });
       });
+      drawn[m] = list;
       // ---------- beams ----------
       beamed.forEach((grp) => {
         const up = grp[0].up, y0 = up ? grp[0].beamY : grp[0].beamY - BEAM;
@@ -248,6 +254,25 @@
           s += `<text class="n-label" x="${r1(n.hx)}" y="${r1(y)}" font-size="10.5" font-weight="700" text-anchor="middle" fill="${o.labelColor || '#2f3fbf'}">${t}</text>`;
         });
       }
+    });
+
+    // ---------- ties: on the side away from the stem, from a note to the next ----------
+    // Across the end of a line, in two halves: to the end of the line, and from the start of the next.
+    // A tie still waiting for its note reaches a little way right; one to a rest or another pitch is
+    // marked as a mistake.
+    ties.forEach(({ m, n, cls }) => {
+      const to = MQ.rhythmTieNext(events, m, n.i, info.len, model.measures);
+      const nx = to ? drawn[to.m][to.i] : null;
+      const after = n.i + 1 < events[m].length ? events[m][n.i + 1] : events[m + 1] && events[m + 1][0];
+      const down = n.up !== false, dy = down ? 6.5 : -6.5;
+      const x1 = n.hx + (n.e.d && !down ? 13 : 3);
+      const bad = !nx && after && !(n.i + 1 >= events[m].length && MQ.rhythmTotal(events[m]) < info.len) ? ' is-bad' : '';
+      let arc = '';
+      if (nx && geo.measures[to.m].sys !== geo.measures[m].sys) {
+        const g = geo.measures[m], g2 = geo.measures[to.m];
+        arc = tieSVG(x1, g.x1 + 4, n.hy + dy, down) + tieSVG(g2.x0 + 2, nx.hx - 3 - (nx.acc != null ? ACC_W : 0), nx.hy + dy, down);
+      } else arc = tieSVG(x1, nx ? nx.hx - 3 : x1 + 15, n.hy + dy, down);
+      s += `<g class="r-tie${bad}${cls}">${arc}</g>`;
     });
 
     // ---------- the caret, and where the next note will go ----------
@@ -327,9 +352,9 @@
       this.svg.setAttribute('aria-label', this.describeMelody(b.info));
     }
     describeMelody(info) {
-      const what = (e) => (e.r ? `${e.d ? 'dotted ' : ''}${NAMES[e.v]} rest` : `${MQ.fullName(e.p)} ${e.t ? 'triplet ' : ''}${e.d ? 'dotted ' : ''}${NAMES[e.v]}`);
+      const what = (e) => (e.r ? `${e.d ? 'dotted ' : ''}${NAMES[e.v]} rest` : `${MQ.fullName(e.p)} ${e.t ? 'triplet ' : ''}${e.d ? 'dotted ' : ''}${NAMES[e.v]}${e.tie ? ', tied to the next' : ''}`);
       const bars = this.model.layers[0].slice(0, this.model.measures).map((m, k) => `measure ${k + 1}: ${m.length ? m.map(what).join(', ') : 'empty'}`).join('; ');
-      const how = this.o.readOnly ? '' : ` Writing in measure ${this.caret.m + 1}. Choose a note value to add a note; letters A to G add that note, the up and down arrows move a note, and plus, minus and equals make it sharp, flat or natural.`;
+      const how = this.o.readOnly ? '' : ` Writing in measure ${this.caret.m + 1}. Choose a note value to add a note; letters A to G add that note, the up and down arrows move a note, plus, minus and equals make it sharp, flat or natural, and the tilde key ties a note to the next.`;
       return `${this.clef === 'bass' ? 'Bass' : 'Treble'} clef staff in ${MQ.melodyKeyName(this.o.key)}, ${info.label}, ${this.model.measures} measure${this.model.measures > 1 ? 's' : ''}. ${bars}.${how}`;
     }
     // ---------- pitch ----------
@@ -356,15 +381,45 @@
     }
     cursorPitch() { return this.cursor || this.before() || this.defaultPitch(); }
     sound(p) { if (this.o.sound !== false && MQ.Audio && p) MQ.Audio.play([[MQ.midi(p)]], 0.6); }
+    // ---------- ties ----------
+    // The note after the one at {m, i}, tied or not: the next in its measure, or across a full measure's
+    // bar line the first of the next.
+    after(at) {
+      const L = this.model.layers[0];
+      if (at.i + 1 < L[at.m].length) return { m: at.m, i: at.i + 1 };
+      if (at.m + 1 < this.model.measures && L[at.m + 1].length && MQ.rhythmTotal(L[at.m]) === this.info().len) return { m: at.m + 1, i: 0 };
+      return null;
+    }
+    before1(at) {
+      const L = this.model.layers[0];
+      if (at.i > 0) return { m: at.m, i: at.i - 1 };
+      return at.m > 0 && L[at.m - 1].length && MQ.rhythmTotal(L[at.m - 1]) === this.info().len ? { m: at.m - 1, i: L[at.m - 1].length - 1 } : null;
+    }
+    // Tied notes are one pitch: a note that changes takes the notes tied to it along.
+    syncTies(at) {
+      const L = this.model.layers[0], e = at && L[at.m] && L[at.m][at.i];
+      if (!e || e.r || !e.p) return;
+      for (let b = this.before1(at); b && L[b.m][b.i].tie && !L[b.m][b.i].r; b = this.before1(b)) L[b.m][b.i].p = Object.assign({}, e.p);
+      for (let c = at; L[c.m][c.i].tie;) {
+        const n = this.after(c);
+        if (!n || L[n.m][n.i].r) break;
+        L[n.m][n.i].p = Object.assign({}, e.p);
+        c = n;
+      }
+    }
+    tied(at) { this.syncTies(at); this.lastAt = at; }
     // Writes a note (or rest) of the given value: in place of the selected note, keeping its pitch,
     // or at the caret with the cursor's pitch.
     enter(ev) {
       const was = this.noteAt(this.sel);
-      if (!ev.r) ev.p = Object.assign({}, was ? was.p : this.cursorPitch());
+      // After a note tied over to this one, the same pitch.
+      const prev = !was && this.tieAt() && this.noteAt(this.tieAt());
+      if (!ev.r) ev.p = Object.assign({}, was ? was.p : prev && prev.tie ? prev.p : this.cursorPitch());
       const msg = super.enter(ev);
       if (!msg) {
         this.cursor = null;
         this.lastAt = this.enteredAt;
+        if (!ev.r && was) this.syncTies(this.enteredAt);
         if (!ev.r) this.sound(ev.p);
         this.render();
       }
@@ -384,6 +439,7 @@
       const e = this.target();
       if (e) {
         e.p = MQ.melodyPitchAt(this.K, MQ.dia(e.p) + steps);
+        this.syncTies(this.sel || this.lastAt);
         this.sound(e.p);
         this.changed();
         return true;
@@ -396,6 +452,7 @@
       const e = this.target();
       if (!e) return false;
       e.p.alt = alt;
+      this.syncTies(this.sel || this.lastAt);
       this.sound(e.p);
       this.changed();
       return true;
@@ -445,6 +502,7 @@
         const to = this.pitchAtY(p.y, drag.sys);
         if (note && MQ.dia(to) !== MQ.dia(note.p)) {
           note.p = to;
+          this.syncTies(drag);
           drag.moved = true;
           this.sound(to);
           this.render();

@@ -3,7 +3,8 @@
    A note is {v, d, t, r} as in Clefwork Rhythm, plus p = {step, oct, alt} when it isn't a rest.
    Grading is note by note: a note's rhythm is right when the student has a note starting at the
    same moment and lasting as long; its pitch is right when the student's note sounding at that
-   moment has the same pitch (so a rhythm slip doesn't also cost the pitch). */
+   moment has the same pitch (so a rhythm slip doesn't also cost the pitch). Tied notes, in the same
+   measure or across the bar line, are one note — heard and graded as one. */
 (function (root) {
   'use strict';
   const MQ = (root.MQ = root.MQ || {});
@@ -64,6 +65,7 @@
     o.keyMax = clamp(o.keyMax == null ? 2 : o.keyMax | 0, 0, 7);
     o.chromatic = o.chromatic ? 1 : 0;
     o.clefs = clamp(o.clefs | 0 || 1, 1, 3);
+    o.ties = o.ties ? 1 : 0;
     // Filled in place: the builder keeps hold of this object while the teacher edits it.
     const c = (o.custom = o.custom || {});
     const D = { lo: 2, hi: 4, compound: 0, cut: 0, uneven: 0, shortest: 3, dotted: 1, triplets: 0, offbeats: 1, rests: 1, range: 2, leap: 2 };
@@ -99,6 +101,7 @@
         const note = MQ.measureNote(events, info);
         out.push({ ex: n, text: `Melody ${n + 1}: measure ${m + 1} ${!s.total ? 'is empty.' : `— ${note}${/[.)]$/.test(note) ? '' : '.'}`}` });
       }
+      if (!out.some((x) => x.ex === n)) MQ.rhythmTieProblems(ex.layers[0], info.len, ex.measures, (m) => `Melody ${n + 1}, measure ${m + 1}`).forEach((text) => out.push({ ex: n, text }));
       if (!out.some((x) => x.ex === n) && !ex.layers[0].slice(0, ex.measures).some((m) => m.some((e) => !e.r))) out.push({ ex: n, text: `Melody ${n + 1} has only rests — add at least one note.` });
     });
     return out;
@@ -133,40 +136,31 @@
   const blankMelody = (q) => [q.mel.layers[0].map(() => [])];
 
   // ---------- grading ----------
-  function notesOf(events) {
-    const out = [];
-    let at = 0;
-    (events || []).forEach((e, i) => { const d = MQ.rhythmDur(e); if (!e.r) out.push({ t: at, d, i, p: e.p }); at += d; });
-    return out;
-  }
   const samePitch = (a, b) => !!a && !!b && MQ.midi(a) === MQ.midi(b);
   // {notes, wrong, pw, rw, parts}: how many notes the answer has; how many are wrong (pitch or
   // rhythm, plus each extra note); pitch mistakes; rhythm mistakes (extra notes count here); and
   // for each measure the answer's and the student's notes marked right or wrong, as compareRhythm.
   function compareMelody(q, resp) {
-    const M = q.mel;
+    const M = q.mel, len = MQ.rhythmMeter(M.meter).len, answer = M.layers[0], count = answer.length;
     let notes = 0, wrong = 0, pw = 0, rw = 0;
-    const measures = M.layers[0].map((answer, m) => {
-      const mine = (resp && resp[0] && resp[0][m]) || [];
-      const want = answer.map(() => null), got = mine.map(() => null);
-      const theirs = notesOf(mine);
-      let bad = 0;
-      notesOf(answer).forEach((a) => {
-        notes++;
-        const s = theirs.find((x) => x.t === a.t);
-        const sounding = theirs.find((x) => x.t <= a.t && a.t < x.t + x.d);
-        const rOk = !!s && s.d === a.d, pOk = !!sounding && samePitch(sounding.p, a.p);
-        if (!rOk) rw++;
-        if (!pOk) pw++;
-        const ok = rOk && pOk;
-        want[a.i] = ok;
-        if (s) got[s.i] = ok;
-        if (!ok) bad++;
-      });
-      theirs.forEach((s) => { if (got[s.i] == null) { got[s.i] = false; bad++; rw++; } });
-      wrong += bad;
-      return { want, got, ok: !bad };
+    const mine = answer.map((_, m) => (resp && resp[0] && resp[0][m]) || []);
+    const want = answer.map((evs) => evs.map(() => null)), got = mine.map((evs) => evs.map(() => null));
+    const mark = (flags, n, ok) => n.evs.forEach((x) => { flags[x.m][x.i] = ok; });
+    const theirs = MQ.rhythmSounding(mine, len, count);
+    MQ.rhythmSounding(answer, len, count).forEach((a) => {
+      notes++;
+      const s = theirs.find((x) => x.m === a.m && x.t === a.t);
+      const sounding = theirs.find((x) => x.g <= a.g && a.g < x.g + x.d);
+      const rOk = !!s && s.d === a.d, pOk = !!sounding && samePitch(sounding.p, a.p);
+      if (!rOk) rw++;
+      if (!pOk) pw++;
+      const ok = rOk && pOk;
+      mark(want, a, ok);
+      if (s) mark(got, s, ok);
+      if (!ok) wrong++;
     });
+    theirs.forEach((s) => { if (got[s.m][s.i] == null) { mark(got, s, false); wrong++; rw++; } });
+    const measures = answer.map((_, m) => ({ want: want[m], got: got[m], ok: !want[m].includes(false) && !got[m].includes(false) }));
     return { notes, wrong, pw, rw, parts: [{ measures }] };
   }
   // Points lost: a whole point for each wrong note, or half a point for each pitch or rhythm mistake.
@@ -181,7 +175,7 @@
   const REST_SIGNS = ['𝄻', '𝄼', '𝄽', '𝄾', '𝄿'];
   function describeMelody(q) {
     const M = q.mel;
-    const bar = (m) => m.map((e) => (e.r ? REST_SIGNS[e.v] : MQ.fullName(e.p) + DUR_SIGNS[e.v]) + (e.d ? '.' : '') + (e.t ? '³' : '')).join(' ') || '—';
+    const bar = (m) => m.map((e) => (e.r ? REST_SIGNS[e.v] : MQ.fullName(e.p) + DUR_SIGNS[e.v]) + (e.d ? '.' : '') + (e.t ? '³' : '') + (e.tie && !e.r ? '‿' : '')).join(' ') || '—';
     return `${melodyKeyName(M.key)}  | ${M.layers[0].map(bar).join(' | ')} |`;
   }
 

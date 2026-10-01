@@ -41,6 +41,7 @@
       const odd = events.find((e) => !e.t && MQ.rhythmDur(e) % box);
       const bar = `m. ${(ex.first || 1) + m}`;
       if (trip) out.push(`${bar} has a triplet — triplets don’t fit a grid of boxes.`);
+      else if (events.some((e) => e.tie && !e.r)) out.push(`${bar} has a tie — a note on the grid stays in its measure, so ties aren’t used. Write the tied notes as one note, or take the tie off.`);
       else if (odd) out.push(`${bar}: ${an(noteName(odd))} ${MQ.rhythmDur(odd) < box ? 'is shorter than a box' : 'doesn’t fill whole boxes'} (each box is ${an(boxName(box))} note).`);
     }
     return out;

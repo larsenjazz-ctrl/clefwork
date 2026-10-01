@@ -424,6 +424,8 @@
       const key = keyFor(rng, a);
       const clef = a.clefs === 2 ? 'bass' : a.clefs === 3 && rng() < 0.5 ? 'bass' : 'treble';
       const bars = buildMelody(rng, a, L, meter, key, clef);
+      // Ties come afterwards, from a generator of their own, so the melodies themselves stay the same.
+      if (a.ties) MQ.rhythmAddTies(bars, a.measures, info, MQ.mulberry32((Math.imul((seed >>> 0) + 1, 2246822519) ^ Math.imul(k + 1, 3266489917) ^ 0x71e5c0de) >>> 0), { pitch: true, leap: L.leap });
       while (bars.length < MQ.MELODY_MEASURES) bars.push([]);
       const tempo = Math.max(40, Math.min(240, Math.round((a.tempo * 12) / MQ.RHYTHM_TEMPO_UNITS[info.tempo])));
       out.push(MQ.melodyExample({ meter, measures: a.measures, tempo, key, clef, layers: [bars] }));

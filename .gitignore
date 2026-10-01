@@ -1,1 +1,4 @@
 .DS_Store
+
+# The library is served from the repository root; this is only the build's copy of it.
+dist/site/library/

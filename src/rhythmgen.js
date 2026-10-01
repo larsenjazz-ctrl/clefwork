@@ -243,6 +243,8 @@
       const meter = pickMeter(rng, rules);
       const info = MQ.rhythmMeter(meter);
       const bars = buildExample(rng, rules, a.measures, meter, a.gen);
+      // Ties come afterwards, from a generator of their own, so the rhythms themselves stay the same.
+      if (a.ties && !grid) MQ.rhythmAddTies(bars, a.measures, info, MQ.mulberry32((Math.imul((seed >>> 0) + 1, 2654435761) ^ Math.imul(k + 1, 40503) ^ 0x71e5c0de) >>> 0));
       while (bars.length < 4) bars.push([]);
       // The tempo is set as a quarter note; other beats keep the same speed of eighth notes.
       const tempo = Math.max(40, Math.min(240, Math.round((a.tempo * 12) / MQ.RHYTHM_TEMPO_UNITS[info.tempo])));

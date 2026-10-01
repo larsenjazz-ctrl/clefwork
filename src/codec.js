@@ -237,6 +237,135 @@
     return MQ.melodySettings(mb);
   }
 
+  // ---------- ties ----------
+  // A tie can't go in a note's own bits without changing every code made before, so a code's ties
+  // come at its very end: a 1, then how many, then where each one is (which example or question, part,
+  // measure and note). A code with no ties ends just as it always did, and an older Clefwork, which
+  // stops reading sooner, shows the notes untied. items: [{layers, parts, measures}] → [[k, l, m, i]].
+  function tiesIn(items) {
+    const out = [];
+    items.forEach((it, k) => {
+      for (let l = 0; l < it.parts; l++) for (let m = 0; m < Math.min(8, it.measures); m++) {
+        ((it.layers && it.layers[l] && it.layers[l][m]) || []).slice(0, 63).forEach((e, i) => { if (e && e.tie && !e.r) out.push([k, l, m, i]); });
+      }
+    });
+    return out;
+  }
+  function writeTies(w, ties, kBits) {
+    const list = ties.slice(0, 1023);
+    w.u(list.length, 10);
+    list.forEach(([k, l, m, i]) => w.u(k, kBits).u(l, 1).u(m, 3).u(i, 6));
+  }
+  function readTies(r, kBits, layersOf) {
+    const n = r.u(10);
+    for (let j = 0; j < n; j++) {
+      const k = r.u(kBits), l = r.u(1), m = r.u(3), i = r.u(6);
+      const L = layersOf(k), e = L && L[l] && L[l][m] && L[l][m][i];
+      if (e && !e.r) e.tie = 1;
+    }
+  }
+  // The written examples a quiz's ties belong to, in order: the rhythms, the melodies, then the
+  // library melodies of scale degrees.
+  const tieTargets = (rh, mb, mel) => [].concat(rh && !rh.auto.on ? rh.examples : [], mb && !mb.auto.on ? mb.examples : [], mel || [])
+    .map((ex) => ({ layers: ex.layers, parts: ex.parts || 1, measures: ex.measures }));
+
+  // ---------- Clefwork Analysis: newer boxes ----------
+  // Written after everything else (after any ties), so analysis quizzes without them keep their codes:
+  // the menus students choose from (how long each list is, then a bit for each kind), then for every
+  // box written earlier, 0 (as it was), 1 (linked to the next box, its figures changing) or 2 (non-
+  // harmonic tones: who circles the notes, the circles' size, each circle's centre and kind — 31 for
+  // one that's in a pair — and each pair's two circles and kind). A box of non-harmonic tones was
+  // written above as a Roman numeral box with no answer, which is how an older Clefwork shows it.
+  const qPos = (v) => Math.max(0, Math.min(1023, Math.round(v * 1023)));
+  const qRad = (v) => Math.max(1, Math.min(1023, Math.round(v * 4096)));
+  function writeCircles(w, v) {
+    const c = ((v && v.c) || []).slice(0, 63), l = ((v && v.l) || []).slice(0, 31).filter((x) => x.a < c.length && x.b < c.length);
+    w.u(c.length, 6);
+    c.forEach((x) => w.u(qPos(x.x), 10).u(qPos(x.y), 10).u(x.t >= 0 && x.t < 31 ? x.t : 31, 5));
+    w.u(l.length, 5);
+    l.forEach((x) => w.u(x.a, 6).u(x.b, 6).u(x.t >= 0 && x.t < 31 ? x.t : 31, 5));
+  }
+  function readCircles(r) {
+    const kind = (t) => (t === 31 ? -1 : t);
+    const c = [], l = [];
+    for (let i = 0, n = r.u(6); i < n; i++) c.push({ x: r.u(10) / 1023, y: r.u(10) / 1023, t: kind(r.u(5)) });
+    for (let i = 0, n = r.u(5); i < n; i++) l.push({ a: r.u(6), b: r.u(6), t: kind(r.u(5)) });
+    return { c, l };
+  }
+  // Then key changes: a 1, each score's (how many, then each one's box, whether students find it, the
+  // new key if given, and whether students name it), and how close a found box must be. Read only when
+  // the 1 is there, so extras written before key changes existed read the same.
+  function writeKeyChanges(w, an, scores) {
+    w.u(1, 1);
+    scores.forEach((sc) => {
+      const ks = sc.keys.slice(0, 15).map(MQ.analysisKeySettings);
+      w.u(ks.length, 4);
+      ks.forEach((m) => {
+        w.u(qPos(m.x), 10).u(qPos(m.y), 10).u(qPos(m.w), 10).u(qPos(m.h), 10).u(m.hide, 1).u(m.key ? 1 : 0, 1);
+        if (m.key) w.u(MQ.analysisKeyIndex(m.key), 5);
+        w.u(m.ask, 1);
+      });
+    });
+    w.u(Math.max(0, MQ.ANALYSIS_KEY_TOLS.indexOf(an.keyTol)), 2);
+  }
+  function readKeyChanges(r, an, scores) {
+    if (!(r.b.length > r.p) || !r.u(1)) return;
+    scores.forEach((sc) => {
+      const n = r.u(4);
+      sc.keys = [];
+      for (let i = 0; i < n; i++) {
+        const m = { x: r.u(10) / 1023, y: r.u(10) / 1023, w: r.u(10) / 1023, h: r.u(10) / 1023, hide: r.u(1) };
+        m.key = r.u(1) ? Object.assign({}, MQ.ANALYSIS_KEYS[r.u(5)] || MQ.ANALYSIS_KEYS[7]) : null;
+        m.ask = r.u(1);
+        sc.keys.push(m);
+      }
+    });
+    an.keyTol = MQ.ANALYSIS_KEY_TOLS[r.u(2)] || 15;
+  }
+  // Then the key each score begins in: a 1, and for each score whether students see it, name it or
+  // neither, and the key if given. Read only when the 1 is there.
+  function writeOpenKeys(w, scores) {
+    w.u(1, 1);
+    scores.forEach((sc) => {
+      const o = MQ.analysisOpenSettings(sc.open);
+      w.u(o.show, 2).u(o.key ? 1 : 0, 1);
+      if (o.key) w.u(MQ.analysisKeyIndex(o.key), 5);
+    });
+  }
+  function readOpenKeys(r, scores) {
+    if (!(r.b.length > r.p) || !r.u(1)) return;
+    scores.forEach((sc) => {
+      const show = r.u(2), key = r.u(1) ? Object.assign({}, MQ.ANALYSIS_KEYS[r.u(5)] || MQ.ANALYSIS_KEYS[7]) : null;
+      sc.open = { show, key };
+    });
+  }
+  function writeAnalysisExtras(w, an, regs) {
+    w.u(MQ.NHT_TYPES.length, 5);
+    MQ.NHT_TYPES.forEach((x) => w.u(an.nhtOpts.includes(x.id) ? 1 : 0, 1));
+    w.u(MQ.NHT_PAIRS.length, 5);
+    MQ.NHT_PAIRS.forEach((x) => w.u(an.pairOpts.includes(x.id) ? 1 : 0, 1));
+    regs.forEach((g) => {
+      if (g.ask !== 'nht') { w.u(g.link ? 1 : 0, 2); return; }
+      const T = MQ.nhtSettings(g.nht);
+      w.u(2, 2).u(T.mode, 1).u(qRad(T.rx), 10).u(qRad(T.ry), 10);
+      writeCircles(w, T);
+    });
+  }
+  function readAnalysisExtras(r, an, regs) {
+    const mask = () => { const n = r.u(5), out = []; for (let i = 0; i < n; i++) out.push(r.u(1)); return out; };
+    const m1 = mask(), m2 = mask();
+    an.nhtOpts = MQ.NHT_TYPES.filter((_, i) => m1[i]).map((x) => x.id);
+    an.pairOpts = MQ.NHT_PAIRS.filter((_, i) => m2[i]).map((x) => x.id);
+    regs.forEach((g) => {
+      const kind = r.u(2);
+      if (kind === 1) g.link = 1;
+      if (kind !== 2) return;
+      const T = { mode: r.u(1), rx: r.u(10) / 4096, ry: r.u(10) / 4096 };
+      Object.assign(T, readCircles(r));
+      Object.assign(g, { ask: 'nht', roman: '', symbol: '', nht: MQ.nhtSettings(T) });
+    });
+  }
+
   // ---------- quiz codes ----------
   // Retakes a quiz allows after the first attempt: a number from 0 to 31, or null for no limit.
   const retakeLimit = (cfg) => (cfg && Number.isInteger(cfg.retakes) && cfg.retakes >= 0 ? Math.min(31, cfg.retakes) : null);
@@ -261,6 +390,41 @@
     g.outOf = r.u(10);
     g.phrase = { mode: r.u(2), bars: r.u(1) ? 8 : 4, rules: r.u(4), symbols: r.u(1), showGraph: r.u(1) };
     cfg.graph = MQ.graphSettings(g);
+  }
+
+  // ---------- Clefwork Terms ----------
+  // Its generator version, how many of each kind of question and how many choices; then, for each kind
+  // the quiz asks, its settings: the terms (a bit each, as many as generator version 1 has), which ways
+  // of asking, the instruments of each family, and the listening tasks, dynamics or tempos, changes,
+  // how far apart the choices are and how often students may play each example.
+  const TERM_COUNTS = ['tmdyn', 'tmtempo', 'tminst', 'tmhdyn', 'tmhtempo', 'tmvocab'];
+  function writeTermsBlock(w, cfg) {
+    const s = MQ.termSettings(cfg.terms), B = MQ.TERM_BITS;
+    const n = TERM_COUNTS.map((k) => Math.min(31, (cfg.counts && cfg.counts[k]) || 0));
+    w.u(s.gen, 3);
+    n.forEach((v) => w.u(v, 5));
+    w.u(s.choices - 3, 2);
+    if (n[0]) w.u(s.dyn.terms, B.dyn).u(s.dyn.ask, 4);
+    if (n[1]) w.u(s.tempo.terms, B.tempo).u(s.tempo.ask, 4);
+    if (n[2]) { B.inst.forEach((bits, i) => w.u(s.inst.pick[i], bits)); w.u(s.inst.ask, 3); }
+    // The listening kinds' melodies: Clefwork's, or library pieces of the version the quiz was made with.
+    const lib = (b) => { w.u(b.lib, 3); if (b.lib) w.u(b.libv, 4); };
+    if (n[3]) { const d = s.hdyn; w.u(d.tasks, 3).u(d.levels, 6).u(d.changes, 4).u(d.spread, 1).u(d.plays, 4); lib(d); }
+    if (n[4]) { const t = s.htempo; w.u(t.tasks, 3).u(t.tempos, 6).u(t.changes, 4).u(t.spread, 1).u(t.beat, 1).u(t.plays, 4); lib(t); }
+    if (n[5]) w.u(s.vocab.cats, 10).u(s.vocab.book, 1).u(s.vocab.ask, 2);
+  }
+  function readTermsBlock(r, cfg) {
+    const B = MQ.TERM_BITS, s = { gen: r.u(3) };
+    const n = TERM_COUNTS.map((k) => (cfg.counts[k] = r.u(5)));
+    s.choices = r.u(2) + 3;
+    if (n[0]) s.dyn = { terms: r.u(B.dyn), ask: r.u(4) };
+    if (n[1]) s.tempo = { terms: r.u(B.tempo), ask: r.u(4) };
+    if (n[2]) { s.inst = { pick: B.inst.map((bits) => r.u(bits)) }; s.inst.ask = r.u(3); }
+    const lib = (b) => { b.lib = r.u(3); if (b.lib) b.libv = r.u(4); return b; };
+    if (n[3]) s.hdyn = lib({ tasks: r.u(3), levels: r.u(6), changes: r.u(4), spread: r.u(1), plays: r.u(4) });
+    if (n[4]) s.htempo = lib({ tasks: r.u(3), tempos: r.u(6), changes: r.u(4), spread: r.u(1), beat: r.u(1), plays: r.u(4) });
+    if (n[5]) s.vocab = { cats: r.u(10), book: r.u(1), ask: r.u(2) };
+    cfg.terms = MQ.termSettings(s);
   }
 
   function encodeQuiz(cfg) {
@@ -374,6 +538,13 @@
     // Extension 9: Clefwork Chord Graph — the retake limit (if any) behind a flag, then the graph block:
     // how many of each question, the keys, the chord and table choices, the scoring and the phrase
     // rules. No rhythm, melody or degree blocks.
+    // Extension 10: Clefwork Terms — the retake limit (if any) behind a flag, then the terms block. No
+    // other blocks.
+    // Extension 11: Scale degrees on melodies chosen from the library — everything extension 8 writes,
+    // then how many melodies and each one's notes, as Clefwork Melody writes them.
+    // Extension 12: Clefwork Analysis on more than one score — the first score as extension 1 writes it,
+    // the retake limit (if any) behind a flag, the first score's name, then each other score: its
+    // picture's fingerprint, its name and its boxes. (The pictures travel in the link: &img=, &img2= …)
     const an = MQ.analysisSettings(cfg.analysis);
     const regions = an.regions.slice(0, MQ.ANALYSIS_MAX);
     const limit = retakeLimit(cfg);
@@ -387,10 +558,14 @@
     const degrees = grid ? 0 : Math.min(MQ.DEGREE_MAX, (cfg.counts && cfg.counts.degree) || 0);
     const dg = degrees ? MQ.degreeSettings(cfg.deg) : null;
     const dgMore = !!dg && (dg.share < 100 || dg.score !== 'question');
+    const dgLib = !!dg && dg.src === 1 && dg.mel.length > 0;
     const graph = GRAPH_COUNTS.some((k) => cfg.counts && cfg.counts[k] > 0);
-    if (regions.length || an.img || limit != null || rhythm || melody || degrees || graph) {
+    const terms = TERM_COUNTS.some((k) => cfg.counts && cfg.counts[k] > 0);
+    const anMore = an.more.length > 0 && (regions.length > 0 || an.more.some((m) => m.regions.length));
+    if (regions.length || an.img || limit != null || rhythm || melody || degrees || graph || terms) {
       const q10 = (v) => Math.max(0, Math.min(1023, Math.round(v * 1023)));
-      const ext = graph ? 9 : grid ? 6 : degrees ? (dgMore ? 8 : 7) : melody ? 5 : rhythm ? 4 : limit != null ? 2 : 1;
+      const ext = terms ? 10 : graph ? 9 : anMore ? 12 : grid ? 6 : degrees ? (dgLib ? 11 : dgMore ? 8 : 7) : melody ? 5 : rhythm ? 4 : limit != null ? 2 : 1;
+      const deg8 = ext === 8 || ext === 11, deg7 = ext === 7 || deg8;
       w.u(ext, 8).u(an.override, 2).u(an.img ? 1 : 0, 1);
       if (an.img) w.u(an.img.hash >>> 0, 32);
       w.strN(an.notes, 200, 8).u(regions.length, 6);
@@ -404,7 +579,30 @@
         if (limit != null) w.u(limit, 5);
         writeGraphBlock(w, cfg);
       }
-      if (ext >= 4 && ext <= 8) {
+      if (ext === 10) {
+        w.u(limit != null ? 1 : 0, 1);
+        if (limit != null) w.u(limit, 5);
+        writeTermsBlock(w, cfg);
+      }
+      if (ext === 12) {
+        w.u(limit != null ? 1 : 0, 1);
+        if (limit != null) w.u(limit, 5);
+        w.strN(an.title, 120, 7);
+        const more = an.more.slice(0, MQ.ANALYSIS_SCORES - 1);
+        w.u(more.length, 3);
+        more.forEach((m) => {
+          w.u(m.img ? 1 : 0, 1);
+          if (m.img) w.u(m.img.hash >>> 0, 32);
+          w.strN(m.title, 120, 7);
+          const rs = m.regions.slice(0, MQ.ANALYSIS_MAX);
+          w.u(rs.length, 6);
+          rs.forEach((r) => {
+            w.u(q10(r.x), 10).u(q10(r.y), 10).u(q10(r.w), 10).u(q10(r.h), 10)
+              .u(Math.max(1, MQ.ANALYSIS_ASKS.indexOf(r.ask)), 2).str(r.roman, 63).str(r.symbol, 63);
+          });
+        });
+      }
+      if ((ext >= 4 && ext <= 8) || ext === 11) {
         w.u(limit != null ? 1 : 0, 1);
         if (limit != null) w.u(limit, 5);
         w.u(Math.min(15, rh.playsEx || 0), 4).u(Math.min(15, rh.playsAns || 0), 4)
@@ -421,13 +619,44 @@
           examples.forEach((ex) => writeExample(w, ex, grid));
         }
       }
-      if (ext === 5 || ext === 7 || ext === 8) writeMelodyBlock(w, mb);
+      if (ext === 5 || deg7) writeMelodyBlock(w, mb);
       if (ext === 6) w.u(MQ.RHYTHM_GRID_BOXES.indexOf(rh.grid.box), 2).u(rh.grid.show, 2).u(rh.grid.rests ? 1 : 0, 1);
-      if (ext === 7 || ext === 8) {
+      if (deg7) {
         const d = dg;
         w.u(degrees, 5).u(d.gen, 3).u(d.measures - 1, 3).u(d.level - 1, 3).u(d.keyMode, 2).u(d.keyMax, 3).u(d.clefs, 2).u(d.hear, 1);
       }
-      if (ext === 8) w.u(dg.share / 10 - 1, 4).u(DEGREE_SCORES.indexOf(dg.score), 2).u(dg.outOf, 10);
+      if (deg8) w.u(dg.share / 10 - 1, 4).u(DEGREE_SCORES.indexOf(dg.score), 2).u(dg.outOf, 10);
+      if (ext === 11) {
+        const list = dg.mel.slice(0, MQ.DEGREE_MAX);
+        w.u(list.length, 5);
+        list.forEach((m) => writeMelody(w, m));
+      }
+      // Then ties: whether automatic rhythms and melodies get some, then the written ones'.
+      let tiesWritten = false;
+      if ((ext >= 4 && ext <= 8) || ext === 11) {
+        const withMel = ext === 5 || deg7;
+        const ties = tiesIn(tieTargets(Object.assign({}, rh, { examples }), withMel ? Object.assign({}, mb, { examples: mb.examples.slice(0, MQ.MELODY_MAX) }) : null,
+          ext === 11 ? dg.mel.slice(0, MQ.DEGREE_MAX) : null));
+        const rt = rh.auto.on && rh.auto.ties ? 1 : 0, mt = withMel && mb.auto.on && mb.auto.ties ? 1 : 0;
+        if (ties.length || rt || mt) {
+          w.u(1, 1).u(rt, 1).u(mt, 1);
+          writeTies(w, ties, 6);
+          tiesWritten = true;
+        }
+      }
+      // Last, Clefwork Analysis's linked boxes and boxes of non-harmonic tones (see above).
+      const anRegs = regions.concat(ext === 12 ? [].concat(...an.more.slice(0, MQ.ANALYSIS_SCORES - 1).map((m) => m.regions.slice(0, MQ.ANALYSIS_MAX))) : []);
+      const anScores = [an].concat(ext === 12 ? an.more.slice(0, MQ.ANALYSIS_SCORES - 1) : []);
+      const keys = anScores.some((sc) => sc.keys && sc.keys.length);
+      const opens = anScores.some((sc) => sc.open && sc.open.show > 0);
+      if (keys || opens || anRegs.some((g) => g.link || g.ask === 'nht')) {
+        if (((ext >= 4 && ext <= 8) || ext === 11) && !tiesWritten) w.u(0, 1);
+        w.u(1, 1);
+        writeAnalysisExtras(w, an, anRegs);
+        if (keys) writeKeyChanges(w, an, anScores);
+        else if (opens) w.u(0, 1);
+        if (opens) writeOpenKeys(w, anScores);
+      }
     }
     return pack(KIND_QUIZ, w.b);
   }
@@ -557,6 +786,8 @@
       cfg.counts.melody = 0;
       cfg.graph = null;
       GRAPH_COUNTS.forEach((k) => (cfg.counts[k] = 0));
+      cfg.terms = null;
+      TERM_COUNTS.forEach((k) => (cfg.counts[k] = 0));
       if (cfg.helpOv.vprog == null) cfg.helpOv.vprog = 2;
       if (v >= 12) {
         cfg.helpOv.vprog = r.u(2);
@@ -589,7 +820,28 @@
             if (r.u(1)) cfg.retakes = r.u(5);
             readGraphBlock(r, cfg);
           }
-          if (ext >= 3 && ext <= 8) {
+          if (ext === 10) {
+            if (r.u(1)) cfg.retakes = r.u(5);
+            readTermsBlock(r, cfg);
+          }
+          if (ext === 12) {
+            if (r.u(1)) cfg.retakes = r.u(5);
+            const an = cfg.analysis;
+            an.title = r.strN(7);
+            an.more = [];
+            const k = r.u(3);
+            for (let j = 0; j < k; j++) {
+              const m = { img: r.u(1) ? { hash: r.u(32) } : null, title: r.strN(7), regions: [] };
+              const nr = r.u(6);
+              for (let i = 0; i < nr; i++) {
+                const box = { x: r.u(10) / 1023, y: r.u(10) / 1023, w: r.u(10) / 1023, h: r.u(10) / 1023 };
+                m.regions.push(Object.assign(box, { ask: MQ.ANALYSIS_ASKS[r.u(2)] || 'roman', roman: r.str(), symbol: r.str() }));
+              }
+              an.more.push(m);
+            }
+            cfg.counts.analysis = MQ.analysisRegionCount(an);
+          }
+          if ((ext >= 3 && ext <= 8) || ext === 11) {
             if (r.u(1)) cfg.retakes = r.u(5);
             const rh = { playsEx: r.u(4), playsAns: r.u(4), examples: [] };
             const grid = ext === 6;
@@ -616,15 +868,35 @@
             cfg.rhythm = MQ.rhythmSettings(rh);
             cfg.counts.rhythm = rh.auto ? rh.auto.count : rh.examples.length;
           }
-          if (ext === 5 || ext === 7 || ext === 8) {
+          const deg8 = ext === 8 || ext === 11, deg7 = ext === 7 || deg8;
+          if (ext === 5 || deg7) {
             cfg.melody = readMelodyBlock(r);
             cfg.counts.melody = cfg.melody.auto.on ? cfg.melody.auto.count : cfg.melody.examples.length;
           }
-          if (ext === 7 || ext === 8) {
+          if (deg7) {
             cfg.counts.degree = r.u(5);
             cfg.deg = MQ.degreeSettings({ gen: r.u(3), measures: r.u(3) + 1, level: r.u(3) + 1, keyMode: r.u(2), keyMax: r.u(3), clefs: r.u(2), hear: r.u(1) });
           }
-          if (ext === 8) Object.assign(cfg.deg, { share: (r.u(4) + 1) * 10, score: DEGREE_SCORES[r.u(2)] || 'question', outOf: r.u(10) });
+          if (deg8) Object.assign(cfg.deg, { share: (r.u(4) + 1) * 10, score: DEGREE_SCORES[r.u(2)] || 'question', outOf: r.u(10) });
+          if (ext === 11) {
+            const n = r.u(5), mel = [];
+            for (let i = 0; i < n; i++) mel.push(readMelody(r));
+            cfg.deg = MQ.degreeSettings(Object.assign(cfg.deg, { src: 1, mel }));
+          }
+          if (((ext >= 4 && ext <= 8) || ext === 11) && r.b.length > r.p && r.u(1)) {
+            const rt = r.u(1), mt = r.u(1), withMel = ext === 5 || deg7;
+            if (cfg.rhythm.auto.on) cfg.rhythm.auto.ties = rt;
+            if (withMel && cfg.melody.auto.on) cfg.melody.auto.ties = mt;
+            const items = tieTargets(cfg.rhythm, withMel ? cfg.melody : null, ext === 11 ? cfg.deg.mel : null);
+            readTies(r, 6, (k) => items[k] && items[k].layers);
+          }
+          if (cfg.analysis && r.b.length > r.p && r.u(1)) {
+            const an = cfg.analysis;
+            readAnalysisExtras(r, an, an.regions.concat(ext === 12 ? [].concat(...an.more.map((m) => m.regions)) : []));
+            readKeyChanges(r, an, [an].concat(ext === 12 ? an.more : []));
+            readOpenKeys(r, [an].concat(ext === 12 ? an.more : []));
+            cfg.counts.analysis = MQ.analysisRegionCount(an);
+          }
         }
         const sum = (b) => MQ.TECHNIQUES.reduce((n, t) => n + ((b.tech && b.tech[t.id]) || 0), 0);
         cfg.counts.voicing = sum(cfg.vc);
@@ -679,6 +951,13 @@
     return MQ.graphChordText(c);
   }
   function writeAnswer(w, q, resp, plays) {
+    if (q.type === 'term') {
+      // Clefwork Terms: the choice (0 blank), then whether it was heard, and if so how often it was played.
+      const hear = q.tm && q.tm.hear ? 1 : 0;
+      w.u(resp == null ? 0 : Math.min(7, resp + 1), 3).u(hear, 1);
+      if (hear) w.u(Math.min(31, (plays && plays.ex) || 0), 5);
+      return;
+    }
     if (q.type === 'cgtable' || q.type === 'cgtritone') {
       // A table: how many answer boxes, then each one.
       const n = Math.min(63, q.cg.slots.length);
@@ -800,6 +1079,10 @@
     return { kind: 'staff', value: cols };
   }
   function readAnswer(r, type, ver) {
+    if (type === 'term') {
+      const v = r.u(3), hear = r.u(1);
+      return { kind: 'choice', value: v ? v - 1 : null, plays: hear ? { ex: r.u(5), ans: 0 } : null };
+    }
     if (type === 'cgtable' || type === 'cgtritone') {
       const n = r.u(6), out = [];
       for (let j = 0; j < n; j++) out.push(readGraphText(r));
@@ -936,6 +1219,44 @@
         if (it.type === 'melody') w.u(n9(it.pw), 9).u(n9(it.rw), 9);
       });
     }
+    // Last, ties in the student's rhythms and melodies (as a quiz code's): question, part, measure, note.
+    if (ans) {
+      const ties = [];
+      ans.qs.forEach((q, k) => {
+        const R = q.type === 'rhythm' ? q.rh : q.type === 'melody' ? q.mel : null;
+        if (R) tiesIn([{ layers: ans.resp[k], parts: R.parts || 1, measures: R.measures }]).forEach(([, l, m, i]) => ties.push([k, l, m, i]));
+      });
+      // The blocks that follow each start with a 1, after a 0 for each one before that's missing.
+      let at = 0;
+      const begin = (j) => { while (at < j) { w.u(0, 1); at++; } w.u(1, 1); at = j + 1; };
+      if (ties.length) { begin(0); writeTies(w, ties, 7); }
+      // Then the circles and pairs students drew for non-harmonic tones: question, then as a quiz code's.
+      const nh = ans.qs.map((q, k) => k).filter((k) => {
+        const q = ans.qs[k], v = ans.resp[k];
+        return q.type === 'analysis' && q.an.ask === 'nht' && v && ((v.c && v.c.length) || (v.l && v.l.length));
+      });
+      if (nh.length) {
+        begin(1);
+        w.u(nh.length, 7);
+        nh.forEach((k) => { w.u(k, 7); writeCircles(w, ans.resp[k]); });
+      }
+      // Then key changes: each answer's question, the box drawn (if any) and the key chosen (if any).
+      const kc = ans.qs.map((q, k) => k).filter((k) => {
+        const q = ans.qs[k], v = ans.resp[k];
+        return q.type === 'analysis' && (q.an.ask === 'key' || q.an.ask === 'open') && v && (v.b || v.k != null);
+      });
+      if (kc.length) {
+        begin(2);
+        w.u(kc.length, 7);
+        kc.forEach((k) => {
+          const v = ans.resp[k];
+          w.u(k, 7).u(v.b ? 1 : 0, 1);
+          if (v.b) w.u(qPos(v.b.x), 10).u(qPos(v.b.y), 10).u(qPos(v.b.w), 10).u(qPos(v.b.h), 10);
+          w.u(v.k != null ? 1 : 0, 1);
+          if (v.k != null) w.u(v.k, 5);
+        });
+      }
+    }
     return pack(KIND_REPORT, w.b, sealKey(cfg, qid));
   }
 
@@ -977,6 +1298,24 @@
           if (GRAPH_COUNTS.includes(it.type)) { it.notes = r.u(9); it.wrong = r.u(9) / 2; }
           if (it.type === 'melody' && ver >= 12) { it.pw = r.u(9); it.rw = r.u(9); }
         });
+      }
+      if (ver >= 14 && rep.answers && r.b.length > r.p && r.u(1)) {
+        readTies(r, 7, (k) => { const a = rep.answers[k]; return a && (a.kind === 'rhythm' || a.kind === 'melody') ? a.value : null; });
+      }
+      if (ver >= 14 && rep.answers && r.b.length > r.p && r.u(1)) {
+        for (let j = 0, n = r.u(7); j < n; j++) {
+          const k = r.u(7), v = readCircles(r), a = rep.answers[k];
+          if (a && a.kind === 'text' && a.value) Object.assign(a.value, v);
+        }
+      }
+      if (ver >= 14 && rep.answers && r.b.length > r.p && r.u(1)) {
+        for (let j = 0, n = r.u(7); j < n; j++) {
+          const k = r.u(7), v = {};
+          if (r.u(1)) v.b = { x: r.u(10) / 1023, y: r.u(10) / 1023, w: r.u(10) / 1023, h: r.u(10) / 1023 };
+          if (r.u(1)) v.k = r.u(5);
+          const a = rep.answers[k];
+          if (a && a.kind === 'text' && a.value) Object.assign(a.value, v);
+        }
       }
       // True when the seal matches the quiz this report claims to belong to.
       rep.verifySeal = (cfg) => seal16(bitsToBytes(restBits), sealKey(cfg, rep.quizId)) === seal;

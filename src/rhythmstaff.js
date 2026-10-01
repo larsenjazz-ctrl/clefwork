@@ -1,5 +1,5 @@
 /* Clefwork Rhythm — the one-line staff. Draws a rhythm in one or two parts (stems up, and stems
-   down) with beams, flags, dots, rests and triplet brackets, and lets students and teachers write
+   down) with beams, flags, dots, rests, triplet brackets and ties, and lets students and teachers write
    one: a caret marks where the next note goes, a clicked note is selected and can be replaced.
    Everything is drawn as plain paths, lines and rectangles so the same picture prints and goes
    into PDFs and Word documents. */
@@ -34,6 +34,12 @@
         + `C${r1(sx + 9.2)} ${r1(y + 12.5 * d)} ${r1(sx + 3)} ${r1(y + 10.5 * d)} ${r1(sx)} ${r1(y + 9.5 * d)}Z"/>`;
     }
     return s;
+  }
+  // A tie: a thin crescent from x1 to x2 at height y, bowing down (below the notes) or up.
+  function tieSVG(x1, x2, y, down) {
+    const w = Math.max(6, x2 - x1), sg = down ? 1 : -1, ht = Math.min(7, 2.6 + w * 0.06);
+    const a = x1 + w * 0.22, b = x1 + w * 0.78, yo = y + sg * ht, yi = y + sg * (ht - 1.9);
+    return `<path fill="currentColor" d="M${r1(x1)} ${r1(y)}C${r1(a)} ${r1(yo)} ${r1(b)} ${r1(yo)} ${r1(x1 + w)} ${r1(y)}C${r1(b)} ${r1(yi)} ${r1(a)} ${r1(yi)} ${r1(x1)} ${r1(y)}Z"/>`;
   }
   function restSVG(v, x, pos) {
     if (v === 0) return rectSVG(x - 6, pos.wholeTop, 12, 5.2);
@@ -155,6 +161,7 @@
     s += lineSVG(W - 11, LINE - barH, W - 11, LINE + barH, 1.1) + rectSVG(W - 8, LINE - barH, 3.6, barH * 2);
 
     // ---------- each part's notes ----------
+    const ties = [];
     layers.forEach((L, l) => {
       const pos = partPos(l, two);
       const up = pos.up;
@@ -201,6 +208,7 @@
           const right = next ? next.hx - RX - 2 : Math.max(n.hx + RX + 8, xOf(m, n.t + n.d) - 2);
           const hit = o.print ? '' : `<rect class="r-hit" x="${r1(n.hx - RX - 3)}" y="${two ? (up ? 6 : LINE) : 6}" width="${r1(Math.max(16, right - n.hx + RX + 3))}" height="${two ? LINE - 6 : H - 12}"/>`;
           s += `<g class="${cls}" data-l="${l}" data-m="${m}" data-i="${n.i}">${hit}${body}</g>`;
+          if (e.tie && !e.r) ties.push({ l, m, n, cls: markOf(n.i) + dim });
         });
         // ---------- beams ----------
         beamed.forEach((grp) => {
@@ -244,6 +252,19 @@
       });
     });
 
+    // ---------- ties: from a note to the next, across the bar line too ----------
+    // Below the notes on one part; with two, the upper part's above and the lower part's below. A tie
+    // still waiting for its note reaches a little way right; one to a rest is marked as a mistake.
+    ties.forEach(({ l, m, n, cls }) => {
+      const L = layers[l], pos = partPos(l, two), down = !two || l === 1;
+      const to = MQ.rhythmTieNext(L, m, n.i, info.len, model.measures);
+      const nx = to ? plans[l][to.m].list[to.i] : null;
+      const after = n.i + 1 < L[m].length ? L[m][n.i + 1] : L[m + 1] && L[m + 1][0];
+      const x1 = n.hx + (n.e.d && !down ? 13 : 3), x2 = nx ? nx.hx - 3 : x1 + 15;
+      const y = two ? pos.head + (down ? 6 : -6) : LINE + 6;
+      s += `<g class="r-tie${!nx && after && after.r ? ' is-bad' : ''}${cls}">${tieSVG(x1, x2, y, down)}</g>`;
+    });
+
     // ---------- the caret: where the next note goes ----------
     if (o.editing && o.caret && !o.sel && layers[o.active]) {
       const cx = caretX(geo, layers, info, o.active, o.caret.m, o.caret.i);
@@ -277,6 +298,7 @@
     if (kind === 'dot') s = dotSVG(12, 14).replace('r="1.9"', 'r="3"');
     else if (kind === 'triplet') s = `<text x="12" y="19" font-size="15" font-weight="700" font-style="italic" text-anchor="middle" fill="currentColor" font-family="Georgia, serif">3</text><path d="M3 9V5h6M15 5h6v4" fill="none" stroke="currentColor" stroke-width="1.3"/>`;
     else if (kind === 'rest') s = `<path transform="translate(12 13) scale(0.85)" fill="currentColor" d="${QREST}"/>`;
+    else if (kind === 'tie') s = [6, 18].map((x) => `<path transform="${tilt(x, 9)}" fill="currentColor" d="${ell(4.6, 3.3)}"/>`).join('') + tieSVG(5, 19, 14.5, true);
     else {
       const v = NAMES.indexOf(kind);
       s = headSVG(v, v === 0 ? 12 : 9, 20);
@@ -330,12 +352,12 @@
       this.svg.setAttribute('aria-label', this.describe(b.info));
     }
     describe(info) {
-      const what = (e) => `${e.t ? 'triplet ' : ''}${e.d ? 'dotted ' : ''}${NAMES[e.v]} ${e.r ? 'rest' : 'note'}`;
+      const what = (e) => `${e.t ? 'triplet ' : ''}${e.d ? 'dotted ' : ''}${NAMES[e.v]} ${e.r ? 'rest' : 'note'}${e.tie && !e.r ? ' tied to the next' : ''}`;
       const parts = this.model.layers.slice(0, this.model.parts).map((L, l) => {
         const bars = L.slice(0, this.model.measures).map((m, k) => `measure ${k + 1}: ${m.length ? m.map(what).join(', ') : 'empty'}`).join('; ');
         return (this.model.parts > 1 ? (l ? 'Stems down part — ' : 'Stems up part — ') : '') + bars;
       });
-      const how = this.o.readOnly ? '' : ` Writing in measure ${this.caret.m + 1}. Choose a note value to add it; W, H, Q, E and S also add notes, R, period and T switch rests, dots and triplets, arrow keys move, Backspace deletes.`;
+      const how = this.o.readOnly ? '' : ` Writing in measure ${this.caret.m + 1}. Choose a note value to add it; W, H, Q, E and S also add notes, R, period and T switch rests, dots and triplets, the tilde key ties a note to the next, arrow keys move, Backspace deletes.`;
       return `One-line rhythm staff in ${info.label}, ${this.model.measures} measure${this.model.measures > 1 ? 's' : ''}. ${parts.join('. ')}.${how}`;
     }
     changed() {
@@ -401,6 +423,28 @@
       this.changed();
       return true;
     }
+    // Where the note to tie is: the selected one, or the one just before the caret (in the measure
+    // before, when the caret is at the start of one) — or null.
+    tieAt() {
+      const L = this.model.layers[this.active];
+      if (this.sel && this.sel.l === this.active) return { m: this.sel.m, i: this.sel.i };
+      const { m, i } = this.caret;
+      if (i > 0) return { m, i: i - 1 };
+      if (m > 0 && L[m - 1].length) return { m: m - 1, i: L[m - 1].length - 1 };
+      return null;
+    }
+    // Ties that note to the next one, or unties it. Returns a message when it can't.
+    toggleTie() {
+      const at = this.tieAt(), L = this.model.layers[this.active];
+      if (!at) return 'Write a note first, then tie it to the next one.';
+      const e = L[at.m][at.i];
+      if (e.r) return 'Only notes can be tied — that’s a rest.';
+      if (e.tie) delete e.tie; else e.tie = 1;
+      this.tied(at);
+      this.changed();
+      return null;
+    }
+    tied() { /* Clefwork Melody: the next note takes this one's pitch */ }
     clearMeasure() {
       const L = this.model.layers[this.active], m = this.sel ? this.sel.m : this.caret.m;
       if (!L[m].length) return false;
@@ -485,6 +529,6 @@
   }
 
   // The pieces Clefwork Melody's staff draws with.
-  MQ.rhythmDraw = { RX, RY, STEM, BEAM, BEAM_STEP, PAD_L, PAD_R, r1, headSVG, lineSVG, rectSVG, dotSVG, flagsSVG, restSVG, spacing, beamPlan, NAMES, copyLayers };
+  MQ.rhythmDraw = { RX, RY, STEM, BEAM, BEAM_STEP, PAD_L, PAD_R, r1, headSVG, lineSVG, rectSVG, dotSVG, flagsSVG, restSVG, tieSVG, spacing, beamPlan, NAMES, copyLayers };
   Object.assign(MQ, { RhythmStaff, rhythmArt, rhythmIcon: icon, rhythmMarkup: build });
 })(window);
