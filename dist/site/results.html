@@ -685,13 +685,23 @@ input.an-ed-in { font: 700 16px var(--f-mono); }
 .an-strip > img { position: absolute; left: 0; width: 100%; height: auto; pointer-events: none; user-select: none; }
 .an-hl { position: absolute; border-radius: 3px; background: color-mix(in srgb, var(--c) 20%, transparent); box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--c) 55%, transparent); cursor: pointer; transition: background 0.12s, box-shadow 0.12s; }
 .an-hl.is-hover, .an-hl.is-active { background: color-mix(in srgb, var(--c) 34%, transparent); box-shadow: inset 0 0 0 2.5px var(--c); }
+.an-hl-num { position: absolute; top: 1px; left: 50%; transform: translateX(-50%); min-width: 17px; height: 15px; padding: 0 4px; border-radius: 8px;
+  background: var(--c); color: #fff; font: 700 10.5px/15px var(--f-body); text-align: center; pointer-events: none; opacity: 0.75; transition: opacity 0.12s, transform 0.12s; }
+.an-hl.is-hover .an-hl-num, .an-hl.is-active .an-hl-num { opacity: 1; transform: translateX(-50%) scale(1.15); }
+.an-crop .an-hl-num, .an-kmark .an-hl-num { display: none; }
 .an-crop .an-hl { cursor: default; }
 .an-lane { position: relative; min-height: 50px; background: var(--surface); }
-.an-box { position: absolute; top: 8px; left: 0; width: 78px; padding: 4px; border-radius: 8px; background: color-mix(in srgb, var(--c) 14%, var(--surface)); border: 1.5px solid color-mix(in srgb, var(--c) 60%, transparent); transition: box-shadow 0.12s; }
+.an-box { position: absolute; top: 8px; left: 0; width: 78px; padding: 4px; border-radius: 8px; background: var(--surface-2); border: 1.5px solid var(--line-2);
+  transition: box-shadow 0.12s, background 0.12s, border-color 0.12s; }
+.an-box.is-hover { background: color-mix(in srgb, var(--c) 10%, var(--surface)); border-color: color-mix(in srgb, var(--c) 45%, transparent); }
+.an-box.is-active, .an-box.is-checked { background: color-mix(in srgb, var(--c) 14%, var(--surface)); border-color: color-mix(in srgb, var(--c) 60%, transparent); }
 .an-box.is-active { box-shadow: 0 0 0 2.5px var(--c); }
-.an-num { position: absolute; top: -8px; left: -6px; min-width: 18px; height: 18px; padding: 0 4px; border-radius: 9px; background: var(--c); color: #fff; font: 700 11px/18px var(--f-body); text-align: center; }
+.an-num { position: absolute; top: -10px; left: -8px; min-width: 22px; height: 22px; padding: 0 5px; border-radius: 11px; background: var(--c); color: #fff;
+  font: 700 13px/22px var(--f-body); text-align: center; box-shadow: 0 0 0 2px var(--surface); }
 .an-field { display: flex; flex-direction: column; align-items: stretch; gap: 1px; }
-input.an-in { width: 100%; min-height: 34px; padding: 4px 2px; text-align: center; font: 700 14px var(--f-mono); border-radius: 6px; background: var(--surface); }
+input.an-in { width: 100%; min-height: 34px; padding: 4px 2px; text-align: center; font: 700 14px var(--f-mono); border-radius: 6px;
+  background: var(--surface); border-color: var(--line); color: var(--ink-2); }
+.an-box.is-hover input.an-in, .an-box.is-active input.an-in, .an-box.is-checked input.an-in { color: var(--ink); border-color: color-mix(in srgb, var(--c) 55%, var(--line-2)); }
 .an-in.is-invalid { border-color: var(--bad); color: var(--bad); }
 .an-pv { min-height: 20px; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 2px; font-size: 12px; color: var(--accent); text-align: center; line-height: 1.15; }
 .an-pv .fig-rn { font-size: 15px; }
@@ -1163,7 +1173,7 @@ input.cg-sym { font-size: 15px; }
 .an-lane.is-nht { position: static; display: flex; flex-wrap: wrap; gap: 10px; padding: 10px 6px; min-height: 0; }
 .an-nht { position: relative; flex: 0 1 380px; padding: 10px 10px 8px 14px; border-radius: 8px; background: color-mix(in srgb, var(--c) 10%, var(--surface)); border: 1.5px solid color-mix(in srgb, var(--c) 60%, transparent); display: flex; flex-direction: column; gap: 6px; }
 .an-nht.is-active { box-shadow: 0 0 0 2.5px var(--c); }
-.an-nht .an-num { top: -8px; left: -6px; }
+.an-nht .an-num { top: -10px; left: -8px; background: var(--c); }
 .an-nht-head { font-size: 13.5px; color: var(--ink-2); }
 .an-c-rows { display: flex; flex-direction: column; gap: 4px; }
 .an-c-row { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
@@ -1200,7 +1210,7 @@ input.cg-sym { font-size: 15px; }
 .an-sheet.is-drawing .an-strip { cursor: crosshair; touch-action: none; }
 .an-sheet.is-drawing .an-strip > .an-hl { cursor: crosshair; }
 .an-keys-top { border-bottom: 1px solid var(--line); }
-.an-num-key { background: var(--c, #7b3fd4) !important; min-width: 24px; }
+.an-num-key { background: var(--c, #7b3fd4) !important; min-width: 26px; }
 .an-item-num.an-num-key { width: auto; min-width: 26px; padding: 0 5px; border-radius: 13px; }
 .an-reg.is-key { border-style: dashed; }
 .an-reg.is-key.is-hidden { background: repeating-linear-gradient(45deg, color-mix(in srgb, var(--c) 18%, transparent) 0 6px, transparent 6px 12px); }
@@ -16882,8 +16892,8 @@ svg.staff .nlabel { display: none; }
     main.append(h('div', { class: 'take is-analysis' }, progressHead(t),
       h('section', { class: 'card stage an-take' },
         h('div', { class: 'an-take-top' },
-          h('p', { class: 'an-lede' }, (asks.some((a) => a !== 'nht') ? 'Type your answer in the box beside each highlighted part of the music. ' : '')
-            + (hasNht ? 'For non-harmonic tones, click each one in its box to circle it, then name it. ' : '') + 'The colours and numbers show which box goes with which part.'),
+          h('p', { class: 'an-lede' }, (asks.some((a) => a !== 'nht') ? 'Click a highlighted part of the music — or its answer box — to start typing there. Tab moves to the next box, Shift+Tab back. ' : '')
+            + (hasNht ? 'For non-harmonic tones, click each one in its box to circle it, then name it. ' : '') + 'Only the box you are answering is coloured in; its number and colour match the music.'),
           h('div', { class: 'an-zoom', role: 'group', 'aria-label': 'Zoom the music' },
             zoom2,
             h('button', { type: 'button', class: 'btn btn-quiet sm', 'aria-label': 'Zoom out', onclick: () => setZoom(S.azoom - 0.25) }, '−'), zoomVal,
@@ -16936,7 +16946,12 @@ svg.staff .nlabel { display: none; }
       document.querySelectorAll('.qdot').forEach((d, j) => { if (j === i) d.setAttribute('aria-current', 'step'); else d.removeAttribute('aria-current'); });
       onActive();
     };
-    const focusBox = (i) => { const inp = boxes[i][0] && boxes[i][0].querySelector('input, select'); if (inp && !inp.disabled) inp.focus(); else setActive(i); };
+    // Hovering a box or its highlight lights up both, so the pair is easy to see.
+    const hover = (i, on) => [hls, boxes].forEach((list) => list[i].forEach((el) => el.classList.toggle('is-hover', on)));
+    // Clicking the music starts at the Roman numeral, which is the answer below the system.
+    const boxFor = (i) => boxes[i].find((b) => b.dataset.k === 'r') || boxes[i][0];
+    const focusBox = (i) => { setActive(i); const el = boxFor(i); const inp = el && el.querySelector('input, select'); if (inp && !inp.disabled) inp.focus(); };
+    const stops = [];               // every answer box, in the order Tab walks them
     const answered = (i) => {
       saveAttempt();
       const dot = document.querySelectorAll('.qdot')[i];
@@ -17135,7 +17150,10 @@ svg.staff .nlabel { display: none; }
           }
           const nht = q.an.ask === 'nht';
           const hl = h('span', { class: 'an-hl' + (nht && !q.an.nht.mode ? ' is-nht' : ''), title: `Box ${i + 1}`, onclick: nht && !q.an.nht.mode ? null : () => focusBox(i),
-            style: boxStyle({ x: r.x, y: (r.y - piece.y0) / span, w: r.w, h: r.h / span }, anColor(i)) });
+            style: boxStyle({ x: r.x, y: (r.y - piece.y0) / span, w: r.w, h: r.h / span }, anColor(i)) },
+            h('span', { class: 'an-hl-num', 'aria-hidden': 'true' }, String(i + 1)));
+          hl.addEventListener('mouseenter', () => hover(i, true));
+          hl.addEventListener('mouseleave', () => hover(i, false));
           hls[i].push(hl);
           strip.append(hl);
           if (!nht) return;
@@ -17162,8 +17180,8 @@ svg.staff .nlabel { display: none; }
           nv[i].panel = nhtPanel(i);
           const el = nv[i].panel.el;
           el.addEventListener('focusin', () => setActive(i));
-          el.addEventListener('mouseenter', () => hls[i].forEach((x) => x.classList.add('is-hover')));
-          el.addEventListener('mouseleave', () => hls[i].forEach((x) => x.classList.remove('is-hover')));
+          el.addEventListener('mouseenter', () => hover(i, true));
+          el.addEventListener('mouseleave', () => hover(i, false));
           boxes[i].push(el);
           lane.append(el);
         });
@@ -17179,11 +17197,12 @@ svg.staff .nlabel { display: none; }
           answered(i);
           setActive(i);
         });
-        const box = h('div', { class: 'an-box' + (locked ? ' is-checked' : '') + (k === 'r' && q.an.linked ? ' is-linked' : ''), style: `--c:${anColor(i)}`, 'data-i': i, 'data-cx': cx, 'data-link': k === 'r' && q.an.link ? '1' : null },
+        const box = h('div', { class: 'an-box' + (locked ? ' is-checked' : '') + (k === 'r' && q.an.linked ? ' is-linked' : ''), style: `--c:${anColor(i)}`, 'data-i': i, 'data-k': k, 'data-cx': cx, 'data-link': k === 'r' && q.an.link ? '1' : null },
           h('span', { class: 'an-num', 'aria-hidden': 'true' }, String(i + 1)), f.el);
+        stops.push({ i, k, box });
         f.input.addEventListener('focus', () => setActive(i));
-        box.addEventListener('mouseenter', () => hls[i].forEach((el) => el.classList.add('is-hover')));
-        box.addEventListener('mouseleave', () => hls[i].forEach((el) => el.classList.remove('is-hover')));
+        box.addEventListener('mouseenter', () => hover(i, true));
+        box.addEventListener('mouseleave', () => hover(i, false));
         box.addEventListener('click', (e) => { if (e.target === box) focusBox(i); });
         boxes[i].push(box);
         lane.append(box);
@@ -17233,14 +17252,16 @@ svg.staff .nlabel { display: none; }
       if (!W) return;
       lane.querySelectorAll('svg.an-chain').forEach((x) => x.remove());
       const list = Array.from(lane.querySelectorAll(':scope > .an-box'));
-      const rowH = Math.max(0, ...list.map((b) => b.offsetHeight)) + 6;
+      // Room for the number, which sits on the box's top left corner.
+      const GAP = 13;
+      const rowH = Math.max(0, ...list.map((b) => b.offsetHeight)) + 14;
       const rows = [];
       list.forEach((b) => {
         const bw = b.offsetWidth;
         let left = Math.max(0, Math.min(W - bw, +b.dataset.cx * W - bw / 2));
-        let row = rows.findIndex((edge) => edge + 6 <= left || (edge + 6 - left <= bw * 0.4 && edge + 6 + bw <= W));
+        let row = rows.findIndex((edge) => edge + GAP <= left || (edge + GAP - left <= bw * 0.4 && edge + GAP + bw <= W));
         if (row < 0) { row = rows.length; rows.push(0); }
-        left = Math.max(left, rows[row] ? rows[row] + 6 : 0);
+        left = Math.max(left, rows[row] ? rows[row] + GAP : 0);
         rows[row] = left + bw;
         b.style.left = left + 'px';
         b.style.top = 8 + row * rowH + 'px';
@@ -17262,6 +17283,24 @@ svg.staff .nlabel { display: none; }
       });
       lane.prepend(svg);
     });
+    // Tab goes to the next box by number — the Roman numeral first where both are asked — rather
+    // than along one lane and back, taking in each box's own figure menu on the way. At either end,
+    // focus leaves the music as usual.
+    stops.sort((a, b) => a.i - b.i || (a.k === b.k ? 0 : a.k === 'r' ? -1 : 1));
+    const walk = [];
+    stops.forEach((stop) => walk.push(...stop.box.querySelectorAll('input, select')));
+    walk.forEach((el, n) => el.addEventListener('keydown', (e) => {
+      if (e.key !== 'Tab' || e.altKey || e.ctrlKey || e.metaKey) return;
+      const step = e.shiftKey ? -1 : 1;
+      let next = null;
+      for (let m = n + step; m >= 0 && m < walk.length; m += step) { if (!walk[m].disabled) { next = walk[m]; break; } }
+      if (!next) return;
+      e.preventDefault();
+      const box = next.closest('.an-box');
+      if (box) setActive(+box.dataset.i);
+      next.focus();
+      if (next.select) next.select();
+    }));
     if (window.ResizeObserver) new ResizeObserver(layout).observe(sheet);
     requestAnimationFrame(layout);
     setActive(Math.max(0, Math.min(t.idx, all.length - 1)));

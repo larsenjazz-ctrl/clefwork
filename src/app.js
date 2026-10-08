@@ -4051,8 +4051,8 @@
     main.append(h('div', { class: 'take is-analysis' }, progressHead(t),
       h('section', { class: 'card stage an-take' },
         h('div', { class: 'an-take-top' },
-          h('p', { class: 'an-lede' }, (asks.some((a) => a !== 'nht') ? 'Type your answer in the box beside each highlighted part of the music. ' : '')
-            + (hasNht ? 'For non-harmonic tones, click each one in its box to circle it, then name it. ' : '') + 'The colours and numbers show which box goes with which part.'),
+          h('p', { class: 'an-lede' }, (asks.some((a) => a !== 'nht') ? 'Click a highlighted part of the music — or its answer box — to start typing there. Tab moves to the next box, Shift+Tab back. ' : '')
+            + (hasNht ? 'For non-harmonic tones, click each one in its box to circle it, then name it. ' : '') + 'Only the box you are answering is coloured in; its number and colour match the music.'),
           h('div', { class: 'an-zoom', role: 'group', 'aria-label': 'Zoom the music' },
             zoom2,
             h('button', { type: 'button', class: 'btn btn-quiet sm', 'aria-label': 'Zoom out', onclick: () => setZoom(S.azoom - 0.25) }, '−'), zoomVal,
@@ -4105,7 +4105,12 @@
       document.querySelectorAll('.qdot').forEach((d, j) => { if (j === i) d.setAttribute('aria-current', 'step'); else d.removeAttribute('aria-current'); });
       onActive();
     };
-    const focusBox = (i) => { const inp = boxes[i][0] && boxes[i][0].querySelector('input, select'); if (inp && !inp.disabled) inp.focus(); else setActive(i); };
+    // Hovering a box or its highlight lights up both, so the pair is easy to see.
+    const hover = (i, on) => [hls, boxes].forEach((list) => list[i].forEach((el) => el.classList.toggle('is-hover', on)));
+    // Clicking the music starts at the Roman numeral, which is the answer below the system.
+    const boxFor = (i) => boxes[i].find((b) => b.dataset.k === 'r') || boxes[i][0];
+    const focusBox = (i) => { setActive(i); const el = boxFor(i); const inp = el && el.querySelector('input, select'); if (inp && !inp.disabled) inp.focus(); };
+    const stops = [];               // every answer box, in the order Tab walks them
     const answered = (i) => {
       saveAttempt();
       const dot = document.querySelectorAll('.qdot')[i];
@@ -4304,7 +4309,10 @@
           }
           const nht = q.an.ask === 'nht';
           const hl = h('span', { class: 'an-hl' + (nht && !q.an.nht.mode ? ' is-nht' : ''), title: `Box ${i + 1}`, onclick: nht && !q.an.nht.mode ? null : () => focusBox(i),
-            style: boxStyle({ x: r.x, y: (r.y - piece.y0) / span, w: r.w, h: r.h / span }, anColor(i)) });
+            style: boxStyle({ x: r.x, y: (r.y - piece.y0) / span, w: r.w, h: r.h / span }, anColor(i)) },
+            h('span', { class: 'an-hl-num', 'aria-hidden': 'true' }, String(i + 1)));
+          hl.addEventListener('mouseenter', () => hover(i, true));
+          hl.addEventListener('mouseleave', () => hover(i, false));
           hls[i].push(hl);
           strip.append(hl);
           if (!nht) return;
@@ -4331,8 +4339,8 @@
           nv[i].panel = nhtPanel(i);
           const el = nv[i].panel.el;
           el.addEventListener('focusin', () => setActive(i));
-          el.addEventListener('mouseenter', () => hls[i].forEach((x) => x.classList.add('is-hover')));
-          el.addEventListener('mouseleave', () => hls[i].forEach((x) => x.classList.remove('is-hover')));
+          el.addEventListener('mouseenter', () => hover(i, true));
+          el.addEventListener('mouseleave', () => hover(i, false));
           boxes[i].push(el);
           lane.append(el);
         });
@@ -4348,11 +4356,12 @@
           answered(i);
           setActive(i);
         });
-        const box = h('div', { class: 'an-box' + (locked ? ' is-checked' : '') + (k === 'r' && q.an.linked ? ' is-linked' : ''), style: `--c:${anColor(i)}`, 'data-i': i, 'data-cx': cx, 'data-link': k === 'r' && q.an.link ? '1' : null },
+        const box = h('div', { class: 'an-box' + (locked ? ' is-checked' : '') + (k === 'r' && q.an.linked ? ' is-linked' : ''), style: `--c:${anColor(i)}`, 'data-i': i, 'data-k': k, 'data-cx': cx, 'data-link': k === 'r' && q.an.link ? '1' : null },
           h('span', { class: 'an-num', 'aria-hidden': 'true' }, String(i + 1)), f.el);
+        stops.push({ i, k, box });
         f.input.addEventListener('focus', () => setActive(i));
-        box.addEventListener('mouseenter', () => hls[i].forEach((el) => el.classList.add('is-hover')));
-        box.addEventListener('mouseleave', () => hls[i].forEach((el) => el.classList.remove('is-hover')));
+        box.addEventListener('mouseenter', () => hover(i, true));
+        box.addEventListener('mouseleave', () => hover(i, false));
         box.addEventListener('click', (e) => { if (e.target === box) focusBox(i); });
         boxes[i].push(box);
         lane.append(box);
@@ -4402,14 +4411,16 @@
       if (!W) return;
       lane.querySelectorAll('svg.an-chain').forEach((x) => x.remove());
       const list = Array.from(lane.querySelectorAll(':scope > .an-box'));
-      const rowH = Math.max(0, ...list.map((b) => b.offsetHeight)) + 6;
+      // Room for the number, which sits on the box's top left corner.
+      const GAP = 13;
+      const rowH = Math.max(0, ...list.map((b) => b.offsetHeight)) + 14;
       const rows = [];
       list.forEach((b) => {
         const bw = b.offsetWidth;
         let left = Math.max(0, Math.min(W - bw, +b.dataset.cx * W - bw / 2));
-        let row = rows.findIndex((edge) => edge + 6 <= left || (edge + 6 - left <= bw * 0.4 && edge + 6 + bw <= W));
+        let row = rows.findIndex((edge) => edge + GAP <= left || (edge + GAP - left <= bw * 0.4 && edge + GAP + bw <= W));
         if (row < 0) { row = rows.length; rows.push(0); }
-        left = Math.max(left, rows[row] ? rows[row] + 6 : 0);
+        left = Math.max(left, rows[row] ? rows[row] + GAP : 0);
         rows[row] = left + bw;
         b.style.left = left + 'px';
         b.style.top = 8 + row * rowH + 'px';
@@ -4431,6 +4442,24 @@
       });
       lane.prepend(svg);
     });
+    // Tab goes to the next box by number — the Roman numeral first where both are asked — rather
+    // than along one lane and back, taking in each box's own figure menu on the way. At either end,
+    // focus leaves the music as usual.
+    stops.sort((a, b) => a.i - b.i || (a.k === b.k ? 0 : a.k === 'r' ? -1 : 1));
+    const walk = [];
+    stops.forEach((stop) => walk.push(...stop.box.querySelectorAll('input, select')));
+    walk.forEach((el, n) => el.addEventListener('keydown', (e) => {
+      if (e.key !== 'Tab' || e.altKey || e.ctrlKey || e.metaKey) return;
+      const step = e.shiftKey ? -1 : 1;
+      let next = null;
+      for (let m = n + step; m >= 0 && m < walk.length; m += step) { if (!walk[m].disabled) { next = walk[m]; break; } }
+      if (!next) return;
+      e.preventDefault();
+      const box = next.closest('.an-box');
+      if (box) setActive(+box.dataset.i);
+      next.focus();
+      if (next.select) next.select();
+    }));
     if (window.ResizeObserver) new ResizeObserver(layout).observe(sheet);
     requestAnimationFrame(layout);
     setActive(Math.max(0, Math.min(t.idx, all.length - 1)));
