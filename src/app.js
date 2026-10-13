@@ -1280,6 +1280,53 @@
   }
 
   // ---------- builder ----------
+  // "Edit a quiz you already shared": paste its code or link and the page reloads with it loaded,
+  // so nothing of the quiz being replaced is left behind in the builder.
+  function editQuizBox() {
+    const ta = h('textarea', { id: 'q-edit', rows: 2, spellcheck: 'false', autocomplete: 'off', placeholder: 'Paste the quiz code, or the quiz link' });
+    const note = h('div', { class: 'edit-note', role: 'status' });
+    const say = (tone, ...kids) => { note.className = 'edit-note' + (tone ? ' is-' + tone : ''); note.replaceChildren(...kids); };
+    const load = () => {
+      const text = ta.value.trim();
+      if (!text) { say('bad', 'Paste the quiz code or link first.'); ta.focus(); return; }
+      const { code, imgs } = quizCodeIn(text);
+      let cfg = null;
+      try { cfg = code ? MQ.decodeQuiz(code) : null; } catch (e) { say('bad', e.message || 'That code didn’t work.'); return; }
+      if (!cfg || !sumCounts(cfg)) { say('bad', cfg ? 'There are no questions in that quiz code.' : 'Paste a quiz code, or a link to the quiz.'); return; }
+      const app = appOf(cfg);
+      if (app.mode !== MODE) {
+        const href = SITE ? SITE + app.page + '#edit=' + MQ.normalize(code) + imgs.map((d, k) => (d ? `&img${k ? k + 1 : ''}=${d}` : '')).join('') : '';
+        say('bad', `That is a ${app.label} quiz. `, href ? h('a', { href, target: '_blank', rel: 'noopener' }, `Open it in ${app.label} ↗`) : `Open it in ${app.label} to edit it.`);
+        return;
+      }
+      // The reload starts the builder cleanly, with this quiz as its draft.
+      let stored = false;
+      try { sessionStorage.setItem('clefwork.edit', text); stored = !!sessionStorage.getItem('clefwork.edit'); } catch (e) { stored = false; }
+      if (stored) { location.reload(); return; }
+      const res = loadForEdit(text);          // storage turned off: load it here instead
+      toast(res.msg, res.tone);
+      if (res.ok) { S.editUndo = true; go('build'); }
+    };
+    ta.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); load(); } });
+    const back = S.editUndo && store.get(DRAFT + '-back', null)
+      ? h('div', { class: 'btn-row' }, h('button', { type: 'button', class: 'btn btn-quiet sm', onclick: () => {
+        const old = store.get(DRAFT + '-back', null);
+        if (!old) return;
+        S.cfg = old;
+        store.del(DRAFT + '-back');
+        S.editUndo = false;
+        saveDraft();
+        go('build');
+        toast('Put the quiz that was here back');
+      } }, 'Put the quiz that was here back'))
+      : null;
+    return h('details', { class: 'fine-details edit-quiz', open: S.editUndo || null }, h('summary', null, 'Edit a quiz you already shared'),
+      h('p', { class: 'fine' }, 'Paste its code or link to put every setting back in the builder — it replaces the quiz you have here. Editing makes a new code and link to share; report codes from the old one still grade on this computer.'),
+      fld('Quiz code or link', ta),
+      h('div', { class: 'btn-row' }, h('button', { type: 'button', class: 'btn', onclick: load }, 'Load it for editing')),
+      note, back);
+  }
+
   function renderBuild(main) {
     const cfg = S.cfg;
     const R = {};
@@ -1292,6 +1339,7 @@
       STUDENT ? null : h('div', { class: 'row2' },
         fld('Title', textIn('q-title', cfg.title, 60, 'e.g. Unit 3 note reading', (v) => { cfg.title = v; changed(); })),
         fld('Teacher', textIn('q-teacher', cfg.teacher, 40, 'e.g. Ms. Rivera', (v) => { cfg.teacher = v; changed(); }))),
+      STUDENT ? null : editQuizBox(),
       KEYS ? keysPresets(cfg) : GRAPH ? graphPresets(cfg) : TERMS ? termPresets(cfg) : ANALYSIS || DICTATION ? null : h('div', { class: 'presets' }, h('span', { class: 'mini-label' }, STUDENT ? 'Presets' : 'Or start from a preset'),
         h('div', { class: 'preset-row' }, MQ.PRESETS.map((p) => h('button', { type: 'button', class: 'btn btn-quiet sm', onclick: () => {
           const keep = { custom: cfg.counts.custom, voicing: cfg.counts.voicing, progression: cfg.counts.progression };
@@ -2207,6 +2255,73 @@
     document.body.append(dlg);
     dlg.showModal();
     loadXLSX().catch(() => {});
+  }
+
+  // ---------- editing a quiz that was already shared ----------
+  // Every setting travels in the quiz code, so a code — or any Clefwork link carrying one — can be
+  // put back in the builder. Which app built it is read from the questions it asks.
+  const APPS = [
+    { only: onlyKeys, mode: 'keys', page: 'keys.html', label: 'Clefwork Keys' },
+    { only: onlyAnalysis, mode: 'analysis', page: 'analysis.html', label: 'Clefwork Analysis' },
+    { only: onlyRhythm, mode: 'rhythm', page: 'rhythm.html', label: 'Clefwork Rhythm' },
+    { only: onlyMelody, mode: 'melody', page: 'melody.html', label: 'Clefwork Melody' },
+    { only: onlyGraph, mode: 'graph', page: 'graph.html', label: 'Clefwork Chord Graph' },
+    { only: onlyTerms, mode: 'terms', page: 'terms.html', label: 'Clefwork Terms' },
+  ];
+  const appOf = (cfg) => APPS.find((a) => a.only(cfg)) || { mode: '', page: 'clefwork.html', label: 'Clefwork' };
+  // A pasted code, a quiz link, a results link or a grade link — whichever it is, find the quiz code
+  // in it, with any Analysis pictures the link carries.
+  function quizCodeIn(text) {
+    let raw = String(text || '').trim();
+    if (raw.includes('#')) raw = raw.slice(raw.indexOf('#') + 1);
+    try { raw = decodeURIComponent(raw); } catch (e) { /* leave it as typed */ }
+    const named = {};
+    const bits = raw.split('&');
+    bits.forEach((bit) => { const i = bit.indexOf('='); if (i > 0) named[bit.slice(0, i)] = bit.slice(i + 1); });
+    const code = named.take || named.edit || named.q || (bits[0].includes('=') ? '' : bits[0]);
+    const imgs = [named.img || ''].concat([2, 3, 4, 5, 6].map((k) => named['img' + k] || ''));
+    while (imgs.length && !imgs[imgs.length - 1]) imgs.pop();
+    return { code: String(code || '').trim(), imgs };
+  }
+  // Reads the code, keeps any pictures it brought, and puts its settings in the builder.
+  // Returns the message to show; `ok` means the draft was replaced.
+  function loadForEdit(text) {
+    const { code, imgs } = quizCodeIn(text);
+    if (!code) return { msg: 'Paste a quiz code, or a link to the quiz.', tone: 'bad' };
+    let cfg;
+    try { cfg = MQ.decodeQuiz(code); } catch (e) { return { msg: e.message || 'That code didn’t work.', tone: 'bad' }; }
+    if (!sumCounts(cfg)) return { msg: 'There are no questions in that quiz code.', tone: 'bad' };
+    const app = appOf(cfg);
+    if (app.mode !== MODE) return { msg: `That is a ${app.label} quiz. Open it there to edit it.`, tone: 'bad', app, code, imgs };
+    // The pictures of an Analysis quiz travel in its link, not its code.
+    if (listCount(cfg, 'analysis')) {
+      MQ.analysisScores(cfg.analysis).forEach((sc, k) => {
+        try { if (imgs[k] && sc.img && MQ.hashOfData(imgs[k]) === sc.img.hash) keepScore(imgs[k], sc.img.hash); } catch (e) { /* a damaged link changes nothing */ }
+      });
+    }
+    // Write it out and read it back, so the builder holds exactly what the new code will give
+    // students — a quiz from an older Clefwork is brought up to date here, not when it is shared.
+    const was = MQ.generateQuiz(cfg).length;
+    let fresh = cfg;
+    try { fresh = MQ.decodeQuiz(MQ.encodeQuiz(cfg)); } catch (e) { /* keep what decoded */ }
+    const now = MQ.generateQuiz(fresh).length;
+    store.set(DRAFT + '-back', S.cfg);     // the quiz this replaced, so a wrong paste can be undone
+    S.cfg = fresh;
+    S.pvIdx = 0; S.pvShow = false; S.pvResp = null;
+    if (ANALYSIS) {
+      // Start on this quiz's first score, and fetch its picture (the link may have just brought it).
+      S.anScore = 0; S.aed = null; S.aorig = null;
+      const first = MQ.analysisScores(fresh.analysis)[0];
+      S.aimg = first && first.img ? null : undefined;
+      if (first && first.img) loadScore(first.img.hash).then((pic) => { S.aimg = pic || false; if (S.view === 'build') go('build'); });
+    }
+    saveDraft();
+    rememberQuiz(code, cfg);               // reports from the old code still grade on this device
+    const name = fresh.title ? `“${fresh.title}”` : 'that quiz';
+    return { ok: true, msg: now === was
+      ? `Loaded ${name}. Change anything, then share the new link.`
+      : `Loaded ${name}, which was made with an older Clefwork: it now asks ${now} question${now === 1 ? '' : 's'} instead of ${was}. Check it before sharing.`,
+      tone: now === was ? '' : 'bad' };
   }
 
   // ---------- student ----------
@@ -6947,7 +7062,20 @@
     document.querySelectorAll('.nav button').forEach((b) => b.addEventListener('click', () => { S.linkError = null; go(b.dataset.view); }));
     let view = 'build';
     const hash = decodeURIComponent(location.hash.slice(1));
-    const m = hash.match(/^(take|grade)=([\s\S]+)$/);
+    // A quiz to edit: pasted into the Build tab (which reloads the page), or an #edit= link from
+    // another Clefwork page.
+    let editMsg = null;
+    if (!STUDENT && MODE !== 'canvas' && MODE !== 'results') {
+      let text = '';
+      try { text = sessionStorage.getItem('clefwork.edit') || ''; sessionStorage.removeItem('clefwork.edit'); } catch (e) { /* storage off */ }
+      const fromLink = hash.match(/^edit=([\s\S]+)$/);
+      if (!text && fromLink) text = fromLink[1];
+      if (text) {
+        editMsg = loadForEdit(text);
+        if (editMsg.ok) S.editUndo = true;
+      }
+    }
+    const m = editMsg ? null : hash.match(/^(take|grade)=([\s\S]+)$/);
     if (m && m[1] === 'take') {
       // Anything after the code is named: &img=… carries an Analysis quiz's picture.
       const [codePart, ...more] = m[2].split('&');
@@ -6971,9 +7099,11 @@
       if (one) { S.grade.input = one[1]; S.grade.quiz = one[2]; } else S.grade.input = m[2];
       view = 'grade';
     }
+    else if (editMsg) view = 'build';
     else if (VIEWS[hash]) view = hash;
     else if (S.take && S.take.started && !S.take.done) view = 'take';
     go(view);
+    if (editMsg) toast(editMsg.msg, editMsg.tone);
     if (document.fonts && document.fonts.load) {
       const fail = () => { if (MQ.clefFont !== false) { MQ.clefFont = false; go(S.view); } };
       document.fonts.load('48px "Noto Music"', '\u{1D11E}').then((list) => { if (list && list.length) MQ.clefFont = true; else fail(); }, fail);

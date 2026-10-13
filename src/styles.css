@@ -1206,3 +1206,9 @@ input.cg-sym { font-size: 15px; }
 .an-open-row { display: flex; flex-wrap: wrap; gap: 8px 20px; align-items: flex-end; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface-2); }
 .an-open-row > .help { flex: 1 1 100%; margin: 0; }
 .an-open-key { margin: 0 0 8px; }
+
+/* "Edit a quiz you already shared", on the Build tab */
+.edit-quiz textarea { font-size: 13px; }
+.edit-quiz .btn-row { margin-top: 10px; }
+.edit-note:not(:empty) { margin-top: 10px; font-size: 13.5px; color: var(--ink-2); }
+.edit-note.is-bad { color: var(--bad); }

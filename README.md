@@ -17,6 +17,8 @@ Music theory quizzes that run entirely in the browser — no server, no accounts
 
 A quiz's settings and a random seed are packed into a **quiz code**, so everyone who opens the same code gets the same questions. When a student finishes, their name, score, timings and answers are packed into a **report code** that the teacher pastes into the Grade reports tab, where the answers can be viewed on the staff. Both codes carry a checksum, and report codes also carry a seal tied to the quiz.
 
+Because the code carries every setting, a quiz can be read back: **Edit a quiz you already shared**, on the Build tab, takes a quiz code or any Clefwork link carrying one and puts the whole quiz back in the builder — to fix a wrong answer key, change a setting or make next year's version. A code from another Clefwork page says which page to open it on, and offers a link that opens it there ready to edit (`#edit=`). The quiz that was in the builder is kept, so a wrong paste can be put back. Editing makes a new code and link to share; report codes from the old one still grade, because the codes shared from a computer are remembered there. A quiz made by an older Clefwork is brought up to date as it loads, and says so if that changes how many questions it asks.
+
 Question types: place a note, name a note, intervals (simple and compound), chords (triads through 13ths, inversions, typed chord symbols), scales (including pentatonics and modes), key signatures, chord progressions, figured bass (single chords and progressions), and voicings — single voiced chords and voiced progressions.
 
 ### Voicings
