@@ -9,6 +9,7 @@ Music theory quizzes that run entirely in the browser — no server, no accounts
 - **Clefwork Analysis:** [analysis.html](https://larsenjazz-ctrl.github.io/clefwork/analysis.html) — harmonic analysis on real music: upload a picture of a score, box the chords, and students write Roman numerals or chord symbols beside the music.
 - **Clefwork Rhythm:** [rhythm.html](https://larsenjazz-ctrl.github.io/clefwork/rhythm.html) — rhythmic dictation: students hear a rhythm in one or two parts and write it on a one-line staff; or a rhythm grid: students show where each note starts and how long it lasts on a grid of beats and boxes.
 - **Clefwork Melody:** [melody.html](https://larsenjazz-ctrl.github.io/clefwork/melody.html) — melodic dictation: students hear a melody of up to eight measures and write its pitches and rhythm on the staff.
+- **Clefwork Sight Singing:** [sing.html](https://larsenjazz-ctrl.github.io/clefwork/sing.html) — the same melodies, read instead of heard: students sing each one and record themselves, and hand the recordings in on Canvas.
 - **Clefwork Chord Graph:** [graph.html](https://larsenjazz-ctrl.github.io/clefwork/graph.html) — the chord graph as worksheets: diatonic progression tables, tritone substitution graphs, and phrases in Roman numerals checked against the graph's rules.
 - **Clefwork Terms:** [terms.html](https://larsenjazz-ctrl.github.io/clefwork/terms.html) — musical terms, multiple choice: dynamics, tempo markings and instrument families, and hearing the dynamics and tempo of a generated melody.
 - **Canvas pages:** [take.html](https://larsenjazz-ctrl.github.io/clefwork/take.html) takes one quiz and ends with a results link to hand in; [results.html](https://larsenjazz-ctrl.github.io/clefwork/results.html) shows one student's results from that link.
@@ -116,6 +117,16 @@ Melodic dictation, built on Clefwork Rhythm: the same levels, meters, listening 
 - **Results.** Report codes (version 12) carry every note the student wrote and each melody's wrong pitches and rhythms. The grade checker and results pages show the student's melody with each note marked, the right melody beneath with the missed notes marked, both playable, and "1 wrong of 13 (1 pitch, 0 rhythm)".
 - **Printing.** The Print tab prints each melody's key, meter, tempo and first note (when given) and blank staves with the clef and key signature, two measures to a line.
 
+### Clefwork Sight Singing
+
+The other way round from dictation: students read a melody and sing it. The melodies are set exactly as in Clefwork Melody — written by hand, made automatically from a level and keys, or taken from the library — and everything else about them (meters, tempo, keys, clefs, ties, the first note) works the same way.
+
+Students see one melody at a time with its key, time signature, tempo and measures, and can hear **Do**, **the scale of the key** and **the first note** before they sing. Nothing ever plays the melody itself — that would make it dictation. In a minor key the teacher chooses whether Do is the relative major (la-based) or the key's own tonic (do-based); the scale follows that choice. Each melody has a tick, *I've recorded this one*, which is all the quiz asks of a student besides their name.
+
+A quiz either gives everyone the same melodies, in order, or holds a **bank**: the teacher sets how many of the bank each student sings, and every student draws their own, in the bank's order. Everyone sings the same number, so a Canvas quiz can have one upload question for each recording. A retake draws again.
+
+Clefwork never hears, sees or keeps a recording — the report code carries the student's name, which melodies they were given and which they ticked, and nothing else. **Set up in Canvas** writes the instructions for the way these are handed in: a Canvas *quiz* with one File Upload question per recording and a last question for the Clefwork results link. Grading is by ear: the report opens each melody the student was given, with a **Play** button to hear the original beside their recording, so there is no score — it says *2 of 3 recorded*, not a mark. The Print tab prints the melodies as they stand, for singing from paper.
+
 ### Clefwork Chord Graph
 
 A separate app, built on the same engine, for the chord graph: a key's chords laid out in the order their roots fall by fifths — vii° iii vi ii V I, with the relative minor's VII III VI ii° V i under them — the chords that can stand in (IV for ii; vii° or IV for V; in minor iv for ii°, VII or iv for V), and each chord's tritone substitute: the dominant seventh a half step above the chord it leads to (♭II7 of the next chord), which is a tritone from the chord it replaces wherever the graph falls a perfect fifth. Three worksheets, each with a counter:
@@ -190,6 +201,7 @@ dist/clefwork-keys*.html              Clefwork Keys
 dist/clefwork-analysis*.html          Clefwork Analysis
 dist/clefwork-rhythm*.html            Clefwork Rhythm
 dist/clefwork-melody*.html            Clefwork Melody
+dist/clefwork-sing*.html              Clefwork Sight Singing
 dist/clefwork-graph*.html             Clefwork Chord Graph
 dist/clefwork-terms*.html             Clefwork Terms
 dist/site/library/                    the library's pieces and score pictures (copied from library/)

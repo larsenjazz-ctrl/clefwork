@@ -85,8 +85,16 @@
       return b.auto.on ? b.auto.count : Math.min(cfg.counts.rhythm || 0, b.examples.length);
     }
     if (key === 'melody') {
+      // The same melodies serve Clefwork Sight Singing, where they are sung instead of written down,
+      // so a quiz counts them one way or the other, never both.
+      if (cfg.counts.sing) return 0;
       const b = MQ.melodySettings(cfg.melody);
       return b.auto.on ? b.auto.count : Math.min(cfg.counts.melody || 0, b.examples.length);
+    }
+    if (key === 'sing') {
+      if (!cfg.counts.sing) return 0;
+      const b = MQ.melodySettings(cfg.melody);
+      return b.auto.on ? b.auto.count : Math.min(cfg.counts.sing, b.examples.length);
     }
     if (key === 'cgtable' || key === 'cgtritone' || key === 'cgphrase') return Math.min(MQ.GRAPH_MAX, cfg.counts[key] || 0);
     if (MQ.TERM_COUNTS.includes(key)) return Math.min(key === 'tmhdyn' || key === 'tmhtempo' ? MQ.TERMS_HEAR_MAX : MQ.TERMS_MAX, cfg.counts[key] || 0);
@@ -96,7 +104,7 @@
   };
   const sumCounts = (cfg) => MQ.BUILT_IN.reduce((s, t) => s + (cfg.counts[t.id] || 0), 0) + listCount(cfg, 'custom') + listCount(cfg, 'voicing') + listCount(cfg, 'vprog') + listCount(cfg, 'progression')
     + listCount(cfg, 'keys') + listCount(cfg, 'analysis') + listCount(cfg, 'rhythm') + listCount(cfg, 'melody')
-    + Math.min(MQ.DEGREE_MAX, cfg.counts.degree || 0) + graphCount(cfg) + termCount(cfg);
+    + Math.min(MQ.DEGREE_MAX, cfg.counts.degree || 0) + graphCount(cfg) + termCount(cfg) + listCount(cfg, 'sing');
   // Clefwork Chord Graph: its tables and phrases.
   const graphCount = (cfg) => listCount(cfg, 'cgtable') + listCount(cfg, 'cgtritone') + listCount(cfg, 'cgphrase');
   // Clefwork Terms: all five kinds of question, and the ones that are heard.
@@ -111,11 +119,14 @@
   const onlyMelody = (cfg) => !!(listCount(cfg, 'melody') && sumCounts(cfg) === listCount(cfg, 'melody'));
   const onlyGraph = (cfg) => !!(graphCount(cfg) && sumCounts(cfg) === graphCount(cfg));
   const onlyTerms = (cfg) => !!(termCount(cfg) && sumCounts(cfg) === termCount(cfg));
+  const onlySing = (cfg) => !!(listCount(cfg, 'sing') && sumCounts(cfg) === listCount(cfg, 'sing'));
+  // How many melodies one student sings, of a bank of this many.
+  const singAsked = (cfg) => MQ.singCount(MQ.singSettings(cfg.sing), listCount(cfg, 'sing'));
   // Clefwork Rhythm quizzes are rhythmic dictation or rhythm grids.
   const gridQuiz = (cfg) => MQ.rhythmSettings(cfg.rhythm).task === 'grid';
   // A rhythm grid's rhythm is read, heard, or both.
   const gridHow = (cfg) => ['read', 'heard', 'read and heard'][MQ.rhythmSettings(cfg.rhythm).grid.show];
-  const clefsText = (cfg) => onlyTerms(cfg) ? (termHeard(cfg) ? 'multiple choice, read and heard' : 'multiple choice') : onlyGraph(cfg) ? 'chord symbols and Roman numerals' : onlyMelody(cfg) ? 'heard, then written on the staff' : onlyRhythm(cfg) ? (gridQuiz(cfg) ? `${gridHow(cfg)}, then shown on a grid` : 'heard, then written on a one-line staff') : onlyAnalysis(cfg) ? 'answered beside a picture of the score' : onlyKeys(cfg) ? 'grand staff, note names & piano' : [cfg.clefs & 1 ? 'treble' : null, cfg.clefs & 2 ? 'bass' : null].filter(Boolean).join(' & ') + ' clef' + (usesGrand(cfg) ? ' + grand staff' : '');
+  const clefsText = (cfg) => onlySing(cfg) ? 'read from the staff and sung' : onlyTerms(cfg) ? (termHeard(cfg) ? 'multiple choice, read and heard' : 'multiple choice') : onlyGraph(cfg) ? 'chord symbols and Roman numerals' : onlyMelody(cfg) ? 'heard, then written on the staff' : onlyRhythm(cfg) ? (gridQuiz(cfg) ? `${gridHow(cfg)}, then shown on a grid` : 'heard, then written on a one-line staff') : onlyAnalysis(cfg) ? 'answered beside a picture of the score' : onlyKeys(cfg) ? 'grand staff, note names & piano' : [cfg.clefs & 1 ? 'treble' : null, cfg.clefs & 2 ? 'bass' : null].filter(Boolean).join(' & ') + ' clef' + (usesGrand(cfg) ? ' + grand staff' : '');
   const clonePlaced = (pl) => (pl ? pl.map((c) => (c || []).map((p) => ({ ...p }))) : null);
   // The student version (practice + take a quiz, no quiz codes shown) is the same app with this flag set.
   const STUDENT = !!window.CLEFWORK_STUDENT;
@@ -132,8 +143,9 @@
   const MELODY = MODE === 'melody';                  // Clefwork Melody: melodic dictation
   const GRAPH = MODE === 'graph';                    // Clefwork Chord Graph: chord tables and phrases
   const TERMS = MODE === 'terms';                    // Clefwork Terms: dynamics, tempo and instruments, read and heard
+  const SING = MODE === 'sing';                      // Clefwork Sight Singing: melodies students sing and record
   const DICTATION = RHYTHM || MELODY;
-  const DRAFT = KEYS ? 'draft-keys' : ANALYSIS ? 'draft-analysis' : RHYTHM ? 'draft-rhythm' : MELODY ? 'draft-melody' : GRAPH ? 'draft-graph' : TERMS ? 'draft-terms' : 'draft';
+  const DRAFT = KEYS ? 'draft-keys' : ANALYSIS ? 'draft-analysis' : RHYTHM ? 'draft-rhythm' : MELODY ? 'draft-melody' : SING ? 'draft-sing' : GRAPH ? 'draft-graph' : TERMS ? 'draft-terms' : 'draft';
   // An Analysis quiz's pictures travel in its links, after the code: #take=CODE&img=…, and &img2=…
   // and so on for a quiz on more than one score.
   const withScore = (code) => {
@@ -215,6 +227,12 @@
     c.melody = { examples: [], auto: { on: true } };       // melodies made automatically, to start with
     return c;
   }
+  function singDefault() {
+    const c = melodyDefault();
+    c.title = 'Sight Singing';
+    c.sing = { pick: 0, aids: 7, minor: 0, tick: 1 };
+    return c;
+  }
   // A worksheet set to start from: two diatonic tables, a tritone graph and two phrases (one major,
   // one minor), in the order the worksheets come.
   function graphDefault() {
@@ -239,7 +257,7 @@
   }
   function loadDraft() {
     const d = store.get(DRAFT, null);
-    const base = KEYS ? keysDefault() : ANALYSIS ? analysisDefault() : RHYTHM ? rhythmDefault() : MELODY ? melodyDefault() : GRAPH ? graphDefault() : TERMS ? termsDefault() : MQ.defaultConfig();
+    const base = KEYS ? keysDefault() : ANALYSIS ? analysisDefault() : RHYTHM ? rhythmDefault() : MELODY ? melodyDefault() : SING ? singDefault() : GRAPH ? graphDefault() : TERMS ? termsDefault() : MQ.defaultConfig();
     if (d && d.counts && d.flags) {
       const custom = Array.isArray(d.custom) ? d.custom : [];
       const voicings = Array.isArray(d.voicings) ? d.voicings : [];
@@ -1238,6 +1256,7 @@
     return wrap;
   }
   function questionCard(q, cfg, o) {
+    if (q.type === 'sing') return singCard(q, cfg, o);
     if (q.type === 'term') return termCard(q, cfg, o);
     if (q.type === 'cgtable' || q.type === 'cgtritone') return graphTableCard(q, cfg, o);
     if (q.type === 'cgphrase') return phraseCard(q, cfg, o);
@@ -1340,7 +1359,7 @@
         fld('Title', textIn('q-title', cfg.title, 60, 'e.g. Unit 3 note reading', (v) => { cfg.title = v; changed(); })),
         fld('Teacher', textIn('q-teacher', cfg.teacher, 40, 'e.g. Ms. Rivera', (v) => { cfg.teacher = v; changed(); }))),
       STUDENT ? null : editQuizBox(),
-      KEYS ? keysPresets(cfg) : GRAPH ? graphPresets(cfg) : TERMS ? termPresets(cfg) : ANALYSIS || DICTATION ? null : h('div', { class: 'presets' }, h('span', { class: 'mini-label' }, STUDENT ? 'Presets' : 'Or start from a preset'),
+      KEYS ? keysPresets(cfg) : GRAPH ? graphPresets(cfg) : TERMS ? termPresets(cfg) : ANALYSIS || DICTATION || SING ? null : h('div', { class: 'presets' }, h('span', { class: 'mini-label' }, STUDENT ? 'Presets' : 'Or start from a preset'),
         h('div', { class: 'preset-row' }, MQ.PRESETS.map((p) => h('button', { type: 'button', class: 'btn btn-quiet sm', onclick: () => {
           const keep = { custom: cfg.counts.custom, voicing: cfg.counts.voicing, progression: cfg.counts.progression };
           S.cfg = p.apply(S.cfg); Object.assign(S.cfg.counts, keep);
@@ -1351,10 +1370,10 @@
     if (KEYS) form.append(keysSection(cfg, changed, R));
     if (ANALYSIS) form.append(...analysisSections(cfg, changed, R));
     if (RHYTHM) form.append(...rhythmSections(cfg, changed, R));
-    if (MELODY) form.append(...melodySections(cfg, changed, R));
+    if (MELODY || SING) form.append(...melodySections(cfg, changed, R));
     if (GRAPH) form.append(graphKeysSection(cfg, changed));
     if (TERMS) form.append(termChoicesSection(cfg, changed));
-    if (!KEYS && !ANALYSIS && !DICTATION && !GRAPH && !TERMS) form.append(sec('staff', 'Staff & notes', 'Applies to every question type.',
+    if (!KEYS && !ANALYSIS && !DICTATION && !GRAPH && !TERMS && !SING) form.append(sec('staff', 'Staff & notes', 'Applies to every question type.',
       h('div', { class: 'row2' },
         grp('Clefs', chips('q-clefs', [{ label: 'Treble' }, { label: 'Bass' }, { label: 'Grand staff' }], cfg.clefs, (m) => { cfg.clefs = m; changed(); }, (x) => x.label), 'Each tab can override this.'),
         grp('Ledger lines', seg('q-ledger', [0, 1, 2, 3].map((v) => ({ v, label: v === 0 ? 'None' : v === 1 ? '1' : String(v) })), cfg.ledger, (v) => { cfg.ledger = v; changed(); }), 'Maximum above or below the staff.')),
@@ -1616,7 +1635,7 @@
       go('build');
       toast('Cleared — the quiz is empty');
     } }, 'Clear all questions');
-    if (!KEYS && !ANALYSIS && !DICTATION) form.append(sec('types', GRAPH ? 'Worksheets' : 'Question types', GRAPH
+    if (!KEYS && !ANALYSIS && !DICTATION && !SING) form.append(sec('types', GRAPH ? 'Worksheets' : 'Question types', GRAPH
       ? 'Choose a worksheet to change its settings. The counter on each tab sets how many the quiz asks — each table or phrase is one question, in its own key.'
       : 'Choose a type to change its settings. The counter on each tab sets how many of those questions the quiz asks.',
       h('div', { class: 'types-top' }, clearBtn),
@@ -1634,33 +1653,33 @@
       h('div', { class: 'row2' }, fld('Time limit in minutes', timeIn, '0 means no limit. The quiz submits itself when time runs out.'),
         STUDENT ? null : fld('Retakes', retakeIn, 'Students can retake the quiz to improve their score — the same questions each time. Each report shows its attempt number.')),
       h('div', { class: 'toggles' },
-        ANALYSIS || DICTATION ? null : flag('shuffle', 'Shuffle question order', 'Mixes the question types together instead of grouping them.'),
-        KEYS || DICTATION || TERMS ? null : ANALYSIS ? flag('partial', 'Partial credit', 'A box that asks for both earns half credit for each right answer.')
+        ANALYSIS || DICTATION || SING ? null : flag('shuffle', 'Shuffle question order', 'Mixes the question types together instead of grouping them.'),
+        KEYS || DICTATION || TERMS || SING ? null : ANALYSIS ? flag('partial', 'Partial credit', 'A box that asks for both earns half credit for each right answer.')
           : GRAPH ? flag('partial', 'Partial credit', 'When each table or phrase is one question: a table earns credit for each right answer, a phrase for each measure and rule. Without it, only a perfect one counts.')
           : flag('partial', 'Partial credit', 'Chords and scales earn credit for each correct note.'),
-        STUDENT ? null : flag('feedback', 'Let students check answers', 'Students can check each question and see the right answer. Best for practice.'),
-        ANALYSIS || DICTATION || GRAPH || TERMS ? null : flag('labels', 'Show note names while dragging', STUDENT ? 'The note’s name appears as you move it.' : 'Practice mode: the note’s name appears as students move it.'),
-        DICTATION || TERMS ? null : ANALYSIS ? flag('enharmonic', 'Accept enharmonic spellings', 'Counts a G♭7 chord symbol as correct when the answer is F♯7.')
+        STUDENT || SING ? null : flag('feedback', 'Let students check answers', 'Students can check each question and see the right answer. Best for practice.'),
+        ANALYSIS || DICTATION || GRAPH || TERMS || SING ? null : flag('labels', 'Show note names while dragging', STUDENT ? 'The note’s name appears as you move it.' : 'Practice mode: the note’s name appears as students move it.'),
+        DICTATION || TERMS || SING ? null : ANALYSIS ? flag('enharmonic', 'Accept enharmonic spellings', 'Counts a G♭7 chord symbol as correct when the answer is F♯7.')
           : GRAPH ? flag('enharmonic', 'Accept enharmonic spellings', 'Counts A♯mi as correct when the answer is B♭mi. Tritone substitutes always take either spelling (C♭7 or B7).')
           : flag('enharmonic', 'Accept enharmonic spellings', 'Counts G♭ as correct when the answer is F♯.'),
-        KEYS || ANALYSIS || DICTATION || GRAPH || TERMS ? null : flag('noHelpers', 'Hide starting and helper notes', 'Students write every note themselves: both notes of an interval, every note of a scale, and a chord’s bass note.'))));
+        KEYS || ANALYSIS || DICTATION || GRAPH || TERMS || SING ? null : flag('noHelpers', 'Hide starting and helper notes', 'Students write every note themselves: both notes of an interval, every note of a scale, and a chord’s bass note.'))));
 
     // Side: share + preview + answer key
     R.summary = h('p', { class: 'share-summary' });
     R.code = h('output', { class: 'code', id: 'quiz-code', 'aria-label': 'Quiz code' });
-    R.copy = h('button', { type: 'button', class: 'btn btn-primary', onclick: () => { if ((RHYTHM && !rhythmReady()) || (MELODY && !melodyReady())) return; rememberQuiz(S.code, cfg); copyText(S.code, 'Quiz code'); } }, 'Copy quiz code');
+    R.copy = h('button', { type: 'button', class: 'btn btn-primary', onclick: () => { if ((RHYTHM && !rhythmReady()) || ((MELODY || SING) && !melodyReady())) return; rememberQuiz(S.code, cfg); copyText(S.code, 'Quiz code'); } }, 'Copy quiz code');
     R.link = SITE || !inFrame ? h('button', { type: 'button', class: ANALYSIS ? 'btn btn-primary' : 'btn', onclick: () => {
-      if ((ANALYSIS && !analysisReady()) || (RHYTHM && !rhythmReady()) || (MELODY && !melodyReady())) return;
+      if ((ANALYSIS && !analysisReady()) || (RHYTHM && !rhythmReady()) || ((MELODY || SING) && !melodyReady())) return;
       rememberQuiz(S.code, cfg);
       copyText(quizLink(S.code) || location.href.split('#')[0] + '#take=' + withScore(S.code), 'Quiz link');
     } }, 'Copy quiz link') : null;
     R.tryBtn = h('button', { type: 'button', class: 'btn', onclick: () => {
-      if ((ANALYSIS && !analysisReady()) || (RHYTHM && !rhythmReady()) || (MELODY && !melodyReady())) return;
+      if ((ANALYSIS && !analysisReady()) || (RHYTHM && !rhythmReady()) || ((MELODY || SING) && !melodyReady())) return;
       rememberQuiz(S.code, cfg);
       if (openQuiz(S.code, { preview: true })) { S.take.name = 'Teacher preview'; go('take'); }
     } }, 'Try it as a student');
-    R.exportBtn = h('button', { type: 'button', class: 'btn btn-quiet', onclick: () => { if ((!RHYTHM || rhythmReady()) && (!MELODY || melodyReady())) openExport(cfg); } }, 'Export to spreadsheet');
-    R.canvasBtn = h('button', { type: 'button', class: 'btn', onclick: () => { if ((!ANALYSIS || analysisReady()) && (!RHYTHM || rhythmReady()) && (!MELODY || melodyReady())) openCanvasKit(cfg, changed); } }, 'Set up in Canvas');
+    R.exportBtn = h('button', { type: 'button', class: 'btn btn-quiet', onclick: () => { if ((!RHYTHM || rhythmReady()) && ((!MELODY && !SING) || melodyReady())) openExport(cfg); } }, 'Export to spreadsheet');
+    R.canvasBtn = h('button', { type: 'button', class: 'btn', onclick: () => { if ((!ANALYSIS || analysisReady()) && (!RHYTHM || rhythmReady()) && ((!MELODY && !SING) || melodyReady())) openCanvasKit(cfg, changed); } }, 'Set up in Canvas');
     if (STUDENT) {
       const p = S.slots.practice;
       R.startBtn = h('button', { type: 'button', class: 'btn btn-primary', onclick: () => startPractice(cfg) }, 'Start practising');
@@ -1686,22 +1705,22 @@
           h('p', { class: 'fine' }, 'Grading on this computer finds the quiz by itself. Elsewhere, paste this in the grade checker’s Quiz code box to see each answer.'))));
     } else side.append(h('section', { class: 'card share' },
       h('div', { class: 'eyebrow' }, 'Share with students'),
-      R.summary, DICTATION ? (R.ready = h('div', { class: 'rh-ready' })) : null, R.code,
+      R.summary, DICTATION || SING ? (R.ready = h('div', { class: 'rh-ready' })) : null, R.code,
       h('div', { class: 'btn-row' }, R.copy, R.link, R.tryBtn, R.canvasBtn, R.exportBtn),
       h('p', { class: 'fine' }, SITE
         ? ['The quiz link opens the quiz straight away. The code holds every setting, so nothing is stored online, and everyone with the same code gets the same questions.']
         : ['The code holds every setting, so nothing is stored online. Students paste it on the ', h('b', null, 'Take a quiz'), ' tab, and everyone with the same code gets the same questions.']),
-      DICTATION ? null : h('button', { type: 'button', class: 'btn-link', onclick: () => { cfg.seed = MQ.randomSeed(); S.pvIdx = 0; S.pvResp = null; changed(); toast('New questions generated — share the new code'); } }, 'Make a new set of questions with these settings')));
+      DICTATION || SING ? null : h('button', { type: 'button', class: 'btn-link', onclick: () => { cfg.seed = MQ.randomSeed(); S.pvIdx = 0; S.pvResp = null; changed(); toast('New questions generated — share the new code'); } }, 'Make a new set of questions with these settings')));
 
     R.keyList = h('ol', { class: 'key-list' });
     if (!STUDENT) side.append(h('details', { class: 'card key' }, h('summary', null, 'Answer key'), R.keyList));
 
-    if (!ANALYSIS && !DICTATION) R.pvCount = h('span', { class: 'pv-count' });
+    if (!ANALYSIS && !DICTATION && !SING) R.pvCount = h('span', { class: 'pv-count' });
     R.pvHost = h('div', { class: 'pv-host' });
     R.prev = h('button', { type: 'button', class: 'btn btn-quiet sm', 'aria-label': 'Previous question', onclick: () => { S.pvIdx--; S.pvResp = null; renderPreview(); } }, '‹ Prev');
     R.next = h('button', { type: 'button', class: 'btn btn-quiet sm', 'aria-label': 'Next question', onclick: () => { S.pvIdx++; S.pvResp = null; renderPreview(); } }, 'Next ›');
     R.show = toggle('pv-show', 'Show answer', null, S.pvShow, (v) => { S.pvShow = v; renderPreview(); });
-    if (!ANALYSIS && !DICTATION) side.append(h('section', { class: 'card preview' },
+    if (!ANALYSIS && !DICTATION && !SING) side.append(h('section', { class: 'card preview' },
       h('div', { class: 'card-head' }, h('div', null, h('div', { class: 'eyebrow' }, 'Preview'), R.pvCount), h('div', { class: 'pager' }, R.prev, R.next)),
       R.pvHost, STUDENT ? null : h('div', { class: 'pv-foot' }, R.show)));
 
@@ -1721,7 +1740,7 @@
     function refresh() {
       R.syncTabs();
       const total = sumCounts(cfg);
-      R.total.textContent = GRAPH ? `${total} worksheet${total === 1 ? '' : 's'} in the quiz` : MELODY ? `${total} melod${total === 1 ? 'y' : 'ies'} in the quiz` : RHYTHM ? `${total} example${total === 1 ? '' : 's'} in the quiz` : `${total} question${total === 1 ? '' : 's'} in the quiz`;
+      R.total.textContent = SING ? `${total} melod${total === 1 ? 'y' : 'ies'} to sing${singAsked(cfg) < total ? `, ${singAsked(cfg)} each` : ''}` : GRAPH ? `${total} worksheet${total === 1 ? '' : 's'} in the quiz` : MELODY ? `${total} melod${total === 1 ? 'y' : 'ies'} in the quiz` : RHYTHM ? `${total} example${total === 1 ? '' : 's'} in the quiz` : `${total} question${total === 1 ? '' : 's'} in the quiz`;
       if (!total) {
         S.code = ''; S.qs = [];
         if (R.code) R.code.textContent = '—';
@@ -1734,22 +1753,30 @@
         [R.copy, R.link, R.tryBtn, R.exportBtn, R.canvasBtn, R.startBtn].forEach((b) => b && (b.disabled = false));
         const est = Math.max(1, Math.round((MQ.BUILT_IN.reduce((s, t) => s + t.est * (cfg.counts[t.id] || 0), 0) + 40 * listCount(cfg, 'custom') + 55 * listCount(cfg, 'voicing') + 90 * listCount(cfg, 'vprog') + 70 * listCount(cfg, 'progression') + 15 * listCount(cfg, 'keys') + 30 * listCount(cfg, 'analysis') + 120 * listCount(cfg, 'rhythm') + 180 * listCount(cfg, 'melody') + 60 * Math.min(MQ.DEGREE_MAX, cfg.counts.degree || 0)
           + 150 * listCount(cfg, 'cgtable') + 180 * listCount(cfg, 'cgtritone') + 120 * listCount(cfg, 'cgphrase')
-          + 15 * (termCount(cfg) - termHeard(cfg)) + 40 * termHeard(cfg)) / 60));
-        const sb = DICTATION ? dictation(cfg) : null;
+          + 15 * (termCount(cfg) - termHeard(cfg)) + 40 * termHeard(cfg) + 60 * singAsked(cfg)) / 60));
+        const sb = DICTATION && !SING ? dictation(cfg) : null;
         const dsc = !sb ? quizScoring(cfg, S.qs) : null;          // scale degrees scored by note or percent
         const outOf = sb ? (sb.score === 'percent' ? ` · out of ${sb.outOf} points` : ` · out of ${rhythmNotes(S.qs)} notes`)
           : dsc ? ` · out of ${fmtPts(MQ.reportStats({ items: S.qs.map((q) => ({ type: q.type, clef: q.clef, credit: 7, answered: true, sec: 0, notes: q.type === 'degree' ? q.deg.notes.length : MQ.isGraph(q) ? MQ.graphPoints(q) : undefined, wrong: 0 })), scoring: dsc }).n)} points` : '';
-        const noun = MELODY ? (total === 1 ? 'melody' : 'melodies') : `${RHYTHM ? 'example' : GRAPH ? 'worksheet' : 'question'}${total === 1 ? '' : 's'}`;
-        R.summary.replaceChildren(h('b', null, STUDENT ? 'Your practice' : cfg.title || 'Untitled quiz'), ` — ${total} ${noun} · ${clefsText(cfg)}${outOf} · about ${est} min${cfg.timeLimit ? ` · ${cfg.timeLimit}-minute limit` : ''}`);
+        const noun = MELODY || SING ? (total === 1 ? 'melody' : 'melodies') : `${RHYTHM ? 'example' : GRAPH ? 'worksheet' : 'question'}${total === 1 ? '' : 's'}`;
+        const each = SING && singAsked(cfg) < total ? ` (each student sings ${singAsked(cfg)})` : '';
+        R.summary.replaceChildren(h('b', null, STUDENT ? 'Your practice' : cfg.title || 'Untitled quiz'), ` — ${total} ${noun}${each} · ${clefsText(cfg)}${outOf} · about ${est} min${cfg.timeLimit ? ` · ${cfg.timeLimit}-minute limit` : ''}`);
       }
       if (R.scoreInfo) R.scoreInfo.textContent = total ? rhythmScoreText(cfg, S.qs) : '';
       if (R.ready) {
-        const probs = MELODY ? MQ.melodyProblems(cfg.melody) : MQ.rhythmProblems(cfg.rhythm);
+        const probs = MELODY || SING ? MQ.melodyProblems(cfg.melody) : MQ.rhythmProblems(cfg.rhythm);
         R.ready.replaceChildren(probs.length
           ? h('p', { class: 'warn-note' }, `Not ready to share yet. ${probs[0].text}${probs.length > 1 ? ` (${probs.length - 1} more to fix)` : ''}`)
           : h('p', { class: 'fine rh-ready-ok' }, '✓ Every measure is complete.'));
       }
-      R.keyList.replaceChildren(...S.qs.map((q) => q.type === 'melody' ? melodyKeyItem(q) : q.type === 'rhythm' ? rhythmKeyItem(q) : q.type === 'rgrid' ? gridKeyItem(q) : h('li', null, h('span', { class: 'key-q' }, q.text, q.type === 'analysis' || MQ.isGraph(q) ? null : h('span', { class: 'key-clef' }, ' · ' + (q.type === 'term' ? MQ.termCat(q) : MQ.clefLabel(q.clef)))), h('span', { class: 'key-a' }, q.cg ? graphAnswer(q) : q.type === 'analysis' || MQ.isGraph(q) ? accText(MQ.describeAnswer(q, cfg)) : MQ.describeAnswer(q, cfg)))));
+      if (R.singPick) {
+        const bank = listCount(cfg, 'sing');
+        R.singPick.sync(Math.min(cfg.sing.pick, bank), Math.max(1, bank));
+        R.singAsked.textContent = singAsked(cfg) >= bank
+          ? `Every student sings all ${bank} melod${bank === 1 ? 'y' : 'ies'}, in this order.`
+          : `Each student sings ${singAsked(cfg)} of the ${bank}, drawn for them when they start. Your Canvas quiz needs ${singAsked(cfg)} upload question${singAsked(cfg) === 1 ? '' : 's'}.`;
+      }
+      R.keyList.replaceChildren(...S.qs.map((q) => q.type === 'sing' ? singKeyItem(q) : q.type === 'melody' ? melodyKeyItem(q) : q.type === 'rhythm' ? rhythmKeyItem(q) : q.type === 'rgrid' ? gridKeyItem(q) : h('li', null, h('span', { class: 'key-q' }, q.text, q.type === 'analysis' || MQ.isGraph(q) ? null : h('span', { class: 'key-clef' }, ' · ' + (q.type === 'term' ? MQ.termCat(q) : MQ.clefLabel(q.clef)))), h('span', { class: 'key-a' }, q.cg ? graphAnswer(q) : q.type === 'analysis' || MQ.isGraph(q) ? accText(MQ.describeAnswer(q, cfg)) : MQ.describeAnswer(q, cfg)))));
       if (R.linkSize) {
         const kb = S.aimg ? Math.max(1, Math.round(withScore(S.code).length / 1024)) : 0;
         R.linkSize.replaceChildren(!S.code ? '' : kb > 150
@@ -2265,6 +2292,7 @@
     { only: onlyAnalysis, mode: 'analysis', page: 'analysis.html', label: 'Clefwork Analysis' },
     { only: onlyRhythm, mode: 'rhythm', page: 'rhythm.html', label: 'Clefwork Rhythm' },
     { only: onlyMelody, mode: 'melody', page: 'melody.html', label: 'Clefwork Melody' },
+    { only: onlySing, mode: 'sing', page: 'sing.html', label: 'Clefwork Sight Singing' },
     { only: onlyGraph, mode: 'graph', page: 'graph.html', label: 'Clefwork Chord Graph' },
     { only: onlyTerms, mode: 'terms', page: 'terms.html', label: 'Clefwork Terms' },
   ];
@@ -2324,6 +2352,15 @@
       tone: now === was ? '' : 'bad' };
   }
 
+  // Sight singing: which melodies this student is given. Everyone gets the whole set unless the
+  // quiz holds a bank; then each student draws their own, kept with their attempt and written into
+  // their report, so the teacher knows which melodies to listen for.
+  function singDraw(cfg, qs, pick) {
+    if (!qs.length || qs[0].type !== 'sing') return { qs, pick: null };
+    const list = (Array.isArray(pick) && pick.length ? pick : MQ.singPick(cfg, qs.length)).filter((i) => qs[i]);
+    return { qs: list.length ? list.map((i) => qs[i]) : qs, pick: list.length ? list : null };
+  }
+
   // ---------- student ----------
   function openQuiz(code, opts) {
     try {
@@ -2352,9 +2389,10 @@
         throw new MQ.CodeError(limit === 0 ? 'You’ve already taken this quiz on this device, and it can be taken once.'
           : `You’ve used all ${limit + 1} attempts at this quiz on this device.`);
       }
-      const qs = MQ.generateQuiz(cfg);
+      const draw = singDraw(cfg, MQ.generateQuiz(cfg), opts && opts.pick);
+      const qs = draw.qs;
       S.take = {
-        attempt: used + 1,
+        attempt: used + 1, pick: draw.pick,
         code: code.replace(/[^0-9A-Za-z]/g, '').toUpperCase(), cfg, qs, name: '', idx: 0,
         resp: qs.map(() => null), secs: qs.map(() => 0), checked: qs.map(() => false),
         started: false, done: false, reviewing: false, preview: !!(opts && opts.preview),
@@ -2410,7 +2448,8 @@
     const limit = MQ.retakeLimit(t.cfg);
     const best = t.preview ? null : bestSoFar(t.code);
     const about = [`Attempt ${t.attempt || 1}`, best != null ? `best so far ${Math.round(best)}%` : null].filter(Boolean).join(' · ');
-    const note = left === Infinity ? 'You can retake this quiz as many times as you like — the same questions, a fresh start.'
+    const fresh = sungQuiz(t.qs) && t.pick && t.pick.length < MQ.generateQuiz(t.cfg).length;
+    const note = left === Infinity ? (fresh ? 'You can retake this quiz as many times as you like — each time draws melodies again, so you may get different ones.' : 'You can retake this quiz as many times as you like — the same questions, a fresh start.')
       : left > 0 ? `You can retake this quiz ${left} more time${left === 1 ? '' : 's'}.`
         : limit === 0 ? 'This quiz can be taken once.' : 'You’ve used every retake for this quiz.';
     return h('div', { class: 'retake-row' },
@@ -2495,7 +2534,8 @@
       if (!a || !a.code) return;
       try {
         const cfg = MQ.decodeQuiz(a.code);
-        const qs = MQ.generateQuiz(cfg);
+        const draw = singDraw(cfg, MQ.generateQuiz(cfg), a.pick);
+        const qs = draw.qs;
         if (!a.resp || a.resp.length !== qs.length) return;
         S.slots[slot] = Object.assign(a, { cfg, qs });
       } catch (e) { store.del(slotKey(slot)); }
@@ -2560,6 +2600,14 @@
       h('div', { class: 'btn-row' }, h('button', { type: 'button', class: 'btn btn-primary', onclick: open }, 'Open quiz'),
         S.code && !STUDENT ? h('button', { type: 'button', class: 'btn btn-quiet', onclick: () => { if (openQuiz(S.code, { preview: true })) go(tv()); } }, 'Try the sample quiz') : null))));
   }
+  // What a sight singing quiz asks of a student before they start.
+  function singIntro(cfg, qs) {
+    const s = MQ.singSettings(cfg.sing);
+    const aids = [s.aids & MQ.SING_AIDS.DO ? 'Do' : null, s.aids & MQ.SING_AIDS.SCALE ? 'the scale' : null, s.aids & MQ.SING_AIDS.FIRST ? 'your first note' : null].filter(Boolean);
+    return `You’ll see ${qs.length} melod${qs.length === 1 ? 'y' : 'ies'} to sing, one at a time, and record yourself singing each one. `
+      + (aids.length ? `You can hear ${aids.length > 1 ? aids.slice(0, -1).join(', ') + ' and ' + aids[aids.length - 1] : aids[0]} first — but never the melody itself. ` : 'Nothing here plays the melody for you. ')
+      + 'Clefwork never hears or keeps your recordings: hand those in the way your teacher asked.';
+  }
   function takeIntro(main) {
     const t = S.take, cfg = t.cfg;
     const name = textIn('student-name', t.name, 40, 'First and last name', (v) => (t.name = v));
@@ -2583,6 +2631,7 @@
     if (listCount(cfg, 'progression')) types.push(`Chord progressions (${listCount(cfg, 'progression')})`);
     if (listCount(cfg, 'rhythm')) types.push(`${gridQuiz(cfg) ? 'Rhythm grid' : 'Rhythmic dictation'} (${listCount(cfg, 'rhythm')} example${listCount(cfg, 'rhythm') > 1 ? 's' : ''})`);
     if (listCount(cfg, 'melody')) types.push(`Melodic dictation (${listCount(cfg, 'melody')} melod${listCount(cfg, 'melody') > 1 ? 'ies' : 'y'})`);
+    if (listCount(cfg, 'sing')) types.push(`Sight singing (${t.qs.length} melod${t.qs.length > 1 ? 'ies' : 'y'} to record${singAsked(cfg) < listCount(cfg, 'sing') ? `, drawn from ${listCount(cfg, 'sing')}` : ''})`);
     if (listCount(cfg, 'analysis')) {
       const asks = MQ.analysisQuestions(cfg).map((q) => q.an.ask);
       const kinds = [asks.some((a) => a === 'roman' || a === 'both') ? 'Roman numerals' : null, asks.some((a) => a === 'symbol' || a === 'both') ? 'chord symbols' : null,
@@ -2598,7 +2647,9 @@
         h('div', null, h('dt', null, 'Time limit'), h('dd', null, cfg.timeLimit ? cfg.timeLimit + ' min' : 'None')),
         h('div', null, h('dt', null, 'Retakes'), h('dd', null, retakeText(MQ.retakeLimit(cfg)))),
         // A quiz of only Keys questions is on the grand staff and the piano, whatever the clef setting.
-        onlyTerms(cfg)
+        onlySing(cfg)
+          ? h('div', null, h('dt', null, 'Uses'), h('dd', null, 'Your voice and a recorder'))
+          : onlyTerms(cfg)
           ? h('div', null, h('dt', null, 'Uses'), h('dd', null, termHeard(cfg) ? 'Multiple choice, listening' : 'Multiple choice'))
           : onlyGraph(cfg)
           ? h('div', null, h('dt', null, 'Uses'), h('dd', null, 'Tables, phrases'))
@@ -2614,6 +2665,7 @@
       h('p', { class: 'types-line' }, types.join(' · ')),
       onlyAnalysis(cfg) && cfg.analysis.notes ? h('p', { class: 'an-notes' }, accText(cfg.analysis.notes)) : null,
       listCount(cfg, 'rhythm') || listCount(cfg, 'melody') ? h('p', { class: 'an-notes rh-intro' }, rhythmIntro(cfg, t.qs)) : null,
+      listCount(cfg, 'sing') ? h('p', { class: 'an-notes rh-intro' }, singIntro(cfg, t.qs)) : null,
       graphCount(cfg) ? h('p', { class: 'an-notes' }, graphIntro(cfg, t.qs)) : null,
       termCount(cfg) ? h('p', { class: 'an-notes rh-intro' }, termIntro(cfg)) : null,
       EMBEDDED ? h('p', { class: 'frame-note' }, h('strong', null, 'On a tablet or phone? '),
@@ -2701,8 +2753,12 @@
     main.append(h('div', { class: 'take' }, progressHead(t),
       h('section', { class: 'card stage' },
         h('div', { class: 'eyebrow' }, t.practice ? 'Finish practice?' : 'Ready to submit?'),
-        h('h1', { class: 'display' }, open.length ? `${open.length} question${open.length > 1 ? 's' : ''} still blank` : 'Every question has an answer'),
-        h('p', { class: 'lede' }, open.length
+        h('h1', { class: 'display' }, sungQuiz(t.qs)
+          ? (open.length ? `${open.length} melod${open.length > 1 ? 'ies' : 'y'} not ticked as recorded` : 'Every melody is ticked as recorded')
+          : open.length ? `${open.length} question${open.length > 1 ? 's' : ''} still blank` : 'Every question has an answer'),
+        h('p', { class: 'lede' }, open.length && sungQuiz(t.qs)
+          ? ['Tick each melody once you’ve recorded it, so your teacher knows it’s done — or submit anyway. Not ticked: ', open.map((i) => i + 1).join(', '), '.']
+          : open.length
           ? ['Blank questions count as wrong. Jump back with the numbers above, or submit now. Blank: ', open.map((i) => i + 1).join(', '), '.']
           : t.practice ? 'You can still go back and change anything before you see your results.'
             : MODE === 'canvas' ? 'You can still go back and change anything. Once you submit, you’ll get the results link to hand in on Canvas.'
@@ -2775,11 +2831,23 @@
         h('p', { class: 'fine' }, 'Practice results stay on this device — there’s nothing to send.')),
       h('section', { class: 'card' }, h('h3', { class: 'card-title' }, 'How you did'), typeBars(st, rep, t.qs), questionTable(rep, t))));
   }
+  // Sight singing: what the student has to hand in, and what the quiz says it kept.
+  const sungQuiz = (qs) => qs.length > 0 && qs.every((q) => q.type === 'sing');
+  function singDoneLines(t, st) {
+    return [
+      h('div', { class: 'score-line' },
+        h('div', { class: 'score-big' }, String(st.full), h('span', null, '/' + st.count)),
+        h('div', { class: 'score-meta' }, h('strong', null, `melod${st.count === 1 ? 'y' : 'ies'} ticked as recorded`),
+          h('span', null, `${t.qs.map((q) => q.sing.n + 1).join(', ')} — the ones you were given`))),
+      h('p', { class: 'lede' }, 'Clefwork has your name and which melodies you were given. Hand in your recordings the way your teacher asked, and send this with them.'),
+    ];
+  }
   function takeDone(main) {
     const t = S.take;
     if (t.practice) return practiceDone(main);
     const rep = MQ.decodeReport(t.reportCode);
     const st = MQ.reportStats(rep);
+    const sung = sungQuiz(t.qs);
     const teacher = t.cfg.teacher || 'your teacher';
     const body = `Hi ${t.cfg.teacher || ''},\n\nHere is my report code for "${t.cfg.title}":\n\n${t.reportCode}\n\n${t.name}`;
     const mail = `mailto:?subject=${encodeURIComponent('Quiz report: ' + (t.cfg.title || 'Music quiz') + ' — ' + t.name)}&body=${encodeURIComponent(body)}`;
@@ -2788,9 +2856,10 @@
     main.append(h('div', { class: 'take done' },
       h('section', { class: 'card stage done-hero' },
         h('div', { class: 'eyebrow' }, t.preview ? 'Preview finished' : 'Submitted'),
-        h('div', { class: 'score-line' },
-          h('div', { class: 'score-big' }, fmtPts(st.points), h('span', null, '/' + st.n)),
-          h('div', { class: 'score-meta' }, h('strong', null, Math.round(st.pct) + '%'), h('span', null, `${scoreNote(st)} · ${fmtDur(rep.totalSec)}`))),
+        sung ? singDoneLines(t, st)
+          : h('div', { class: 'score-line' },
+            h('div', { class: 'score-big' }, fmtPts(st.points), h('span', null, '/' + st.n)),
+            h('div', { class: 'score-meta' }, h('strong', null, Math.round(st.pct) + '%'), h('span', null, `${scoreNote(st)} · ${fmtDur(rep.totalSec)}`))),
         h('h2', { class: 'report-h' }, `Send this report code to ${teacher}`),
         h('output', { class: 'code code-lg', id: 'report-code' }, t.reportCode),
         h('div', { class: 'btn-row' },
@@ -2809,6 +2878,7 @@
   // Canvas: the student's next step is to paste one link into the assignment.
   const canvasScore = (points, n, outOf) => (outOf ? Math.round((points / n) * outOf * 100) / 100 : null);
   function canvasDone(main, t, rep, st, review) {
+    const sung = sungQuiz(t.qs);
     const link = resultsLink(t.reportCode, t.code);
     const linkBox = h('textarea', { class: 'code cv-result', rows: 3, readonly: true, spellcheck: 'false', 'aria-label': 'Your results link' });
     linkBox.value = link;
@@ -2818,15 +2888,20 @@
     main.append(h('div', { class: 'take done' },
       h('section', { class: 'card stage done-hero' },
         h('div', { class: 'eyebrow' }, t.preview ? 'Preview finished' : 'Finished'),
-        h('div', { class: 'score-line' },
-          h('div', { class: 'score-big' }, fmtPts(st.points), h('span', null, '/' + st.n)),
-          h('div', { class: 'score-meta' }, h('strong', null, Math.round(st.pct) + '%'),
-            h('span', null, scaled != null ? `${fmtPts(scaled)} of ${outOf} points` : `${scoreNote(st)} · ${fmtDur(rep.totalSec)}`))),
+        sung ? singDoneLines(t, st)
+          : h('div', { class: 'score-line' },
+            h('div', { class: 'score-big' }, fmtPts(st.points), h('span', null, '/' + st.n)),
+            h('div', { class: 'score-meta' }, h('strong', null, Math.round(st.pct) + '%'),
+              h('span', null, scaled != null ? `${fmtPts(scaled)} of ${outOf} points` : `${scoreNote(st)} · ${fmtDur(rep.totalSec)}`))),
         h('h2', { class: 'report-h' }, 'Now hand it in on Canvas'),
-        h('ol', { class: 'cv-steps' },
+        sung ? h('ol', { class: 'cv-steps' },
           h('li', null, 'Press ', h('b', null, 'Copy results link'), '.'),
-          h('li', null, 'Go back to the assignment in Canvas and choose ', h('b', null, 'Start Assignment'), ' (or ', h('b', null, 'Submit Assignment'), ').'),
-          h('li', null, 'Choose ', h('b', null, 'Website URL'), ', paste the link, and press ', h('b', null, 'Submit Assignment'), '.')),
+          h('li', null, 'Go back to the quiz in Canvas and paste the link into the question that asks for it.'),
+          h('li', null, 'Upload each recording to its own question — recording 1 is the first melody you were shown, and so on.'))
+          : h('ol', { class: 'cv-steps' },
+            h('li', null, 'Press ', h('b', null, 'Copy results link'), '.'),
+            h('li', null, 'Go back to the assignment in Canvas and choose ', h('b', null, 'Start Assignment'), ' (or ', h('b', null, 'Submit Assignment'), ').'),
+            h('li', null, 'Choose ', h('b', null, 'Website URL'), ', paste the link, and press ', h('b', null, 'Submit Assignment'), '.')),
         h('div', { class: 'btn-row' },
           h('button', { type: 'button', class: 'btn btn-primary', onclick: () => copyText(link, 'Results link') }, 'Copy results link')),
         linkBox,
@@ -2872,6 +2947,7 @@
     return `${st.full} fully correct`;
   }
   function resultCell(it) {
+    if (it.type === 'sing') return it.credit === 7 ? h('span', { class: 'res is-good' }, '✓ Recorded') : h('span', { class: 'res is-blank' }, '— Not ticked');
     if (it.notes != null && MQ.GRAPH_TYPES.includes(it.type)) {
       // Chord Graph: points out of points, halves included.
       if (!it.wrong) return h('span', { class: 'res is-good' }, '✓ Correct');
@@ -2897,8 +2973,8 @@
       const q = quiz && quiz.qs[i];
       tbody.append(h('tr', null,
         h('td', { class: 'num' }, String(i + 1)),
-        h('td', null, q ? q.text : typeOf(it.type).label),
-        h('td', null, it.type === 'analysis' ? 'Score' : it.type === 'rhythm' ? 'Rhythm' : it.type === 'rgrid' ? 'Grid' : it.type === 'cgphrase' ? 'Phrase' : MQ.GRAPH_TYPES.includes(it.type) ? 'Table' : it.type === 'term' ? (q && q.tm ? MQ.termCat(q) : 'Terms') : MQ.CLEFS[it.clef].label),
+        h('td', null, it.type === 'sing' ? (q ? `Melody ${q.sing.n + 1}` : 'A melody') : q ? q.text : typeOf(it.type).label),
+        h('td', null, it.type === 'sing' ? 'Sung' : it.type === 'analysis' ? 'Score' : it.type === 'rhythm' ? 'Rhythm' : it.type === 'rgrid' ? 'Grid' : it.type === 'cgphrase' ? 'Phrase' : MQ.GRAPH_TYPES.includes(it.type) ? 'Table' : it.type === 'term' ? (q && q.tm ? MQ.termCat(q) : 'Terms') : MQ.CLEFS[it.clef].label),
         key ? h('td', { class: 'ans' + (q && (q.mel || q.rh || q.cg || q.ph) ? ' is-long' : '') }, q ? (q.cg ? graphAnswer(q) : q.ph ? accText(MQ.describeAnswer(q, quiz.cfg)) : MQ.describeAnswer(q, quiz.cfg)) : '') : null,
         h('td', null, resultCell(it)),
         h('td', { class: 'num' }, it.sec >= 63 ? '63+ s' : it.sec + ' s')));
@@ -2909,6 +2985,14 @@
   }
 
   // ---------- grading ----------
+  // Sight singing: the quiz holds the whole bank, so a report's melodies are looked up by the
+  // numbers it carries — otherwise the teacher would see the first few melodies, not the right ones.
+  function singReportQuiz(r) {
+    if (!r.quiz || !r.answers || !r.items.length || !r.items.every((it) => it.type === 'sing')) return r.quiz;
+    const bank = r.quiz.qs;
+    const qs = r.answers.map((a) => (a && a.value ? bank.find((q) => q.sing && q.sing.n === a.value.n) : null) || null);
+    return qs.every(Boolean) ? Object.assign({}, r.quiz, { qs }) : r.quiz;
+  }
   function knownQuizzes(extra) {
     const out = [], seen = new Set();
     const add = (code, source) => {
@@ -2973,6 +3057,7 @@
     const quizzes = knownQuizzes(linkQuizzes);
     reports.forEach((r) => {
       r.quiz = quizzes.find((q) => q.id === r.quizId) || null;
+      r.quiz = singReportQuiz(r);
       r.sealOk = r.quiz ? r.verifySeal(r.quiz.cfg) : null;
       r.stats = MQ.reportStats(r);
     });
@@ -3006,6 +3091,7 @@
   function reportDetail(r, opts) {
     const o = Object.assign({ showKey: true, openAnswers: false, canvas: false }, opts);
     const st = r.stats;
+    const sung = r.items.length > 0 && r.items.every((it) => it.type === 'sing');
     const title = r.quiz ? r.quiz.cfg.title : `Quiz #${r.quizId.toString(16).toUpperCase().padStart(4, '0')}`;
     const outOf = o.canvas && r.quiz ? r.quiz.cfg.canvasPts || 0 : 0;
     const scaled = canvasScore(st.points, st.n, outOf);
@@ -3016,17 +3102,23 @@
           h('h2', { class: 'display student' }, r.name || 'Unnamed student'),
           h('p', { class: 'meta' }, `${title} · submitted ${fmtDate(r.submittedAt)} · ${fmtDur(r.totalSec)}`),
           verifyChips(r)),
-        h('div', { class: 'score-block' },
-          h('div', { class: 'score-big' }, fmtPts(st.points), h('span', null, '/' + st.n)),
-          h('div', { class: 'score-pct' }, Math.round(st.pct) + '%'),
-          scaled != null ? h('div', { class: 'canvas-score' }, 'For Canvas: ', h('b', null, `${fmtPts(scaled)} / ${outOf}`)) : null)),
+        sung ? h('div', { class: 'score-block' },
+          h('div', { class: 'score-big' }, String(st.full), h('span', null, '/' + st.count)),
+          h('div', { class: 'score-pct' }, 'recorded'))
+          : h('div', { class: 'score-block' },
+            h('div', { class: 'score-big' }, fmtPts(st.points), h('span', null, '/' + st.n)),
+            h('div', { class: 'score-pct' }, Math.round(st.pct) + '%'),
+            scaled != null ? h('div', { class: 'canvas-score' }, 'For Canvas: ', h('b', null, `${fmtPts(scaled)} / ${outOf}`)) : null)),
+      sung ? h('p', { class: 'fine' }, 'Sight singing isn’t marked here — this says which melodies the student was given, and which they ticked off. Play each one below to compare with their recording.') : null,
       h('dl', { class: 'facts' },
-        st.noted && st.graph
+        sung
+          ? h('div', null, h('dt', null, 'Melodies'), h('dd', null, String(st.count)))
+          : st.noted && st.graph
           ? h('div', null, h('dt', null, 'Answers right'), h('dd', null, `${fmtPts(st.notes - st.wrong)} of ${st.notes}`))
           : st.noted
           ? h('div', null, h('dt', null, 'Wrong notes'), h('dd', null, `${st.wrong} of ${st.notes}`))
           : h('div', null, h('dt', null, 'Fully correct'), h('dd', null, `${st.full} of ${st.count}`)),
-        h('div', null, h('dt', null, 'Answered'), h('dd', null, `${st.answered} of ${st.count}`)),
+        h('div', null, h('dt', null, sung ? 'Ticked as recorded' : 'Answered'), h('dd', null, `${st.answered} of ${st.count}`)),
         h('div', null, h('dt', null, 'Avg per question'), h('dd', null, Math.round(st.avgSec) + ' s')),
         h('div', null, h('dt', null, 'Longest'), h('dd', null, st.slowest >= 0 ? `Q${st.slowest + 1} · ${r.items[st.slowest].sec >= 63 ? '63+' : r.items[st.slowest].sec} s` : '—'))),
       typeBars(st, r, r.quiz && r.quiz.qs),
@@ -3086,6 +3178,8 @@
     return h('div', { class: 'ans-wrap' }, h('div', { class: 'btn-row' }, btn), box);
   }
   function classSummary(reports, host) {
+    // Sight singing isn't marked here, so the class table counts recordings instead of scoring them.
+    const sung = reports.every((r) => r.items.length > 0 && r.items.every((it) => it.type === 'sing'));
     const pcts = reports.map((r) => r.stats.pct).sort((a, b) => a - b);
     const avg = pcts.reduce((a, b) => a + b, 0) / pcts.length;
     const mid = pcts.length % 2 ? pcts[(pcts.length - 1) / 2] : (pcts[pcts.length / 2 - 1] + pcts[pcts.length / 2]) / 2;
@@ -3096,31 +3190,32 @@
       tbody.append(h('tr', { class: i === S.grade.sel ? 'is-sel' : null },
         h('td', null, h('button', { type: 'button', class: 'linkish', onclick: () => { S.grade.sel = i; runGrade(host); } }, r.name || 'Unnamed'),
           r.attempt > 1 ? h('span', { class: 'attempt-tag' }, ` · attempt ${r.attempt}`) : null),
-        h('td', { class: 'num' }, `${fmtPts(r.stats.points)}/${r.stats.n}`),
-        h('td', { class: 'num' }, Math.round(r.stats.pct) + '%'),
+        h('td', { class: 'num' }, sung ? `${r.stats.full}/${r.stats.count}` : `${fmtPts(r.stats.points)}/${r.stats.n}`),
+        sung ? null : h('td', { class: 'num' }, Math.round(r.stats.pct) + '%'),
         h('td', { class: 'num' }, fmtDur(r.totalSec)),
         h('td', null, fmtDate(r.submittedAt)),
         h('td', null, r.sealOk === true ? h('span', { class: 'res is-good' }, '✓ Verified') : r.sealOk === false ? h('span', { class: 'res is-bad' }, '⚠ Check') : h('span', { class: 'res is-blank' }, 'Quiz unknown'))));
     });
     const csv = () => {
       const esc = (s) => `"${String(s).replace(/"/g, '""')}"`;
-      const rows = [['Student', 'Points', 'Out of', 'Percent', 'Minutes', 'Submitted', 'Quiz', 'Seal']].concat(reports.map((r) => [
-        r.name, fmtPts(r.stats.points), r.stats.n, Math.round(r.stats.pct), (r.totalSec / 60).toFixed(1), new Date(r.submittedAt).toISOString(),
+      const rows = [[ 'Student', sung ? 'Recorded' : 'Points', sung ? 'Melodies' : 'Out of', 'Percent', 'Minutes', 'Submitted', 'Quiz', 'Seal']].concat(reports.map((r) => [
+        r.name, sung ? r.stats.full : fmtPts(r.stats.points), sung ? r.stats.count : r.stats.n, sung ? '' : Math.round(r.stats.pct), (r.totalSec / 60).toFixed(1), new Date(r.submittedAt).toISOString(),
         r.quiz ? r.quiz.cfg.title : r.quizId, r.sealOk === true ? 'verified' : r.sealOk === false ? 'mismatch' : 'unknown']));
       copyText(rows.map((row) => row.map(esc).join(',')).join('\n'), 'Spreadsheet data');
     };
     return h('section', { class: 'card class' },
       h('div', { class: 'card-head' }, h('div', null, h('div', { class: 'eyebrow' }, 'Class summary'), h('h2', { class: 'card-title' }, `${reports.length} students`)),
         h('button', { type: 'button', class: 'btn sm', onclick: csv }, 'Copy for spreadsheet')),
-      h('dl', { class: 'facts' },
-        h('div', null, h('dt', null, 'Average'), h('dd', null, Math.round(avg) + '%')),
-        h('div', null, h('dt', null, 'Median'), h('dd', null, Math.round(mid) + '%')),
-        h('div', null, h('dt', null, 'Highest'), h('dd', null, Math.round(pcts[pcts.length - 1]) + '%')),
-        h('div', null, h('dt', null, 'Lowest'), h('dd', null, Math.round(pcts[0]) + '%'))),
-      h('div', { class: 'bars' }, h('div', { class: 'bars-group' }, h('h4', null, 'Class results by question type'),
+      sung ? h('p', { class: 'fine' }, 'Sight singing isn’t marked here: this counts the melodies each student ticked as recorded. Select a name to see which melodies they were given and to play them.')
+        : h('dl', { class: 'facts' },
+          h('div', null, h('dt', null, 'Average'), h('dd', null, Math.round(avg) + '%')),
+          h('div', null, h('dt', null, 'Median'), h('dd', null, Math.round(mid) + '%')),
+          h('div', null, h('dt', null, 'Highest'), h('dd', null, Math.round(pcts[pcts.length - 1]) + '%')),
+          h('div', null, h('dt', null, 'Lowest'), h('dd', null, Math.round(pcts[0]) + '%'))),
+      sung ? null : h('div', { class: 'bars' }, h('div', { class: 'bars-group' }, h('h4', null, 'Class results by question type'),
         MQ.TYPES.filter((t) => agg[t.id]).map((t) => bar(t.label, agg[t.id].points / reports.length, agg[t.id].n / reports.length)))),
       h('div', { class: 'table-wrap' }, h('table', { class: 'qtable' },
-        h('thead', null, h('tr', null, h('th', null, 'Student'), h('th', { class: 'num' }, 'Score'), h('th', { class: 'num' }, '%'), h('th', { class: 'num' }, 'Time'), h('th', null, 'Submitted'), h('th', null, 'Check'))),
+        h('thead', null, h('tr', null, h('th', null, 'Student'), h('th', { class: 'num' }, sung ? 'Recorded' : 'Score'), sung ? null : h('th', { class: 'num' }, '%'), h('th', { class: 'num' }, 'Time'), h('th', null, 'Submitted'), h('th', null, 'Check'))),
         tbody)),
       h('p', { class: 'fine' }, 'Select a name to see that student’s full report below.'));
   }
@@ -3216,6 +3311,30 @@
         rememberQuiz(S.code, cfg); // and this device should recognise the new code when grading
         draw();
       });
+      if (SING) {
+        const n = singAsked(cfg);
+        const lines = [];
+        for (let k = 1; k <= n; k++) lines.push(`  <li><strong>Recording ${k}</strong> — melody ${k} as Clefwork showed it to you.</li>`);
+        const singSteps = `<p><strong>Sing the melodies:</strong> <a href="${esc(link)}" target="_blank" rel="noopener">Open “${esc(title)}”</a></p>\n`
+          + `<ol>\n  <li>Type your first and last name, then read each melody. You can hear Do, the scale and your first note — not the melody.</li>\n`
+          + `  <li>Record yourself singing each one, in the order Clefwork shows them.</li>\n`
+          + `  <li>When you finish, press <strong>Copy results link</strong> and paste it into the last question here.</li>\n`
+          + `  <li>Upload your recordings:</li>\n</ol>\n<ul>\n${lines.join('\n')}\n</ul>`;
+        body.replaceChildren(
+          h('ol', { class: 'cv-steps' },
+            h('li', null, 'In Canvas, create a ', h('b', null, 'Quiz'), ' (not an assignment), so each recording has its own question.'),
+            h('li', null, 'Add ', h('b', null, `${n} File Upload question${n === 1 ? '' : 's'}`), ' — “Recording 1”, “Recording 2” … one for each melody a student sings.'),
+            h('li', null, 'Add one last question — ', h('b', null, 'Short answer'), ' or ', h('b', null, 'Essay'), ' — asking for the Clefwork results link.'),
+            h('li', null, 'Paste the text below into the quiz’s instructions (the ', h('code', null, '</>'), ' HTML editor), save and publish.'),
+            h('li', null, 'Grading: open each student’s results link to see which melodies they were given, play the original beside their recording, and score the questions.')),
+          box('cv-sing', 'Quiz instructions for students', singSteps, 'The link, the steps, and which recording goes with which melody.', 10),
+          box('cv-link', 'Quiz link', link, 'The link on its own — for an announcement or a module item.'),
+          h('p', { class: 'fine' }, n > 1 && singAsked(cfg) < listCount(cfg, 'sing')
+            ? `Each student draws ${n} melodies from the bank of ${listCount(cfg, 'sing')}, so everyone uploads ${n} recordings — their results link says which melodies they got.`
+            : 'Everyone sings the same melodies, in this order, so recording 1 is the same melody for every student.'),
+          h('p', { class: 'fine' }, 'Clefwork never hears or keeps a recording. It keeps the student’s name and which melodies they were given, which is what the results link shows you.'));
+        return;
+      }
       body.replaceChildren(
         h('ol', { class: 'cv-steps' },
           h('li', null, 'In Canvas, create an ', h('b', null, 'Assignment'), '. Under ', h('b', null, 'Submission type'), ' choose ', h('b', null, 'Online'), ' and tick only ', h('b', null, 'Website URL'), '.'),
@@ -6282,31 +6401,35 @@
     const sel = selectEl('ml-key', FIFTHS.map((f) => ({ v: f, label: `${names[f + 7]} ${key.mode} — ${sigLabel(f).toLowerCase()}` })), key.fifths, (v) => onPick({ fifths: +v, mode: key.mode }));
     return h('div', { class: 'ml-key-pick' }, modeSeg, sel);
   }
+  // The melodies: written here, made by Clefwork, or taken from the library. Clefwork Melody has
+  // students write down what they hear; Clefwork Sight Singing shows them the same melodies to sing.
   function melodySections(cfg, changed, R) {
     const mb = cfg.melody = MQ.melodySettings(cfg.melody);
+    const noun = SING ? 'Melodies to sing' : 'Melodies';
+    const setCount = (n) => { cfg.counts[SING ? 'sing' : 'melody'] = n; if (SING) cfg.counts.melody = 0; };
     // Three ways to fill the quiz: written here, made by Clefwork, or chosen from the library (which
     // are written melodies too, so only the builder knows the difference).
     const src = mb.auto.on ? 1 : mb.src === 2 ? 2 : 0;
     if (src === 0 && !mb.examples.length) mb.examples.push(MQ.newMelody());
-    cfg.counts.melody = mb.auto.on ? mb.auto.count : mb.examples.length;
+    setCount(mb.auto.on ? mb.auto.count : mb.examples.length);
     S.mlEx = Math.max(0, Math.min(mb.examples.length - 1, S.mlEx || 0));
     R.total = h('span', { class: 'mix-total' });
     const mode = seg('ml-mode', [{ v: 0, label: 'Write the melodies myself' }, { v: 1, label: 'Make them automatically' }, { v: 2, label: 'Choose them from the library' }], src, (v) => {
       mb.auto.on = v === 1;
       mb.src = v;
       if (v === 2) mb.examples = mb.examples.filter((ex) => !blankExample(ex));
-      cfg.counts.melody = mb.auto.on ? mb.auto.count : mb.examples.length;
+      setCount(mb.auto.on ? mb.auto.count : mb.examples.length);
       changed();
       go('build');
     });
     const extra = [
-      toggle('ml-first', 'Tell students the first note', 'Shown with the key and tempo, and new notes start from it.', mb.first, (v) => { mb.first = v ? 1 : 0; changed(); }),
+      toggle('ml-first', 'Tell students the first note', SING ? 'Its name is shown with the key and tempo.' : 'Shown with the key and tempo, and new notes start from it.', mb.first, (v) => { mb.first = v ? 1 : 0; changed(); }),
       grp('Pitch and rhythm', seg('ml-split', [{ v: 0, label: 'A note is right when both are' }, { v: 1, label: 'Half a point each' }], mb.split, (v) => { mb.split = v; changed(); }),
         'Half a point each: a note with the right rhythm and the wrong pitch still earns half its point.'),
     ];
-    const later = [scoringSection(mb, changed, R, extra), listeningSection(mb, changed)];
+    const later = SING ? singSections(cfg, changed, R, extra.slice(0, 1)) : [scoringSection(mb, changed, R, extra), listeningSection(mb, changed)];
     if (mb.auto.on) {
-      return [sec('ml-examples', 'Melodies', 'Clefwork writes the melodies from the level and keys you choose. Everyone with the quiz code gets the same ones.',
+      return [sec('ml-examples', noun, `Clefwork writes the melodies from the level and keys you choose. Everyone with the quiz code gets the same ${SING ? 'bank' : 'ones'}.`,
         mode, melodyAutoPanel(cfg, changed), h('div', { class: 'mix-foot' }, R.total))].concat(later);
     }
     if (src === 2) {
@@ -6314,13 +6437,13 @@
       const lib = libraryMode({
         id: 'ml-lib', need: 'melody', max: MQ.MELODY_MEASURES, limit: MQ.MELODY_MAX, list: mb.examples, pick: mb.pick, noun: 'melody', keyMax: true, ties: true, autoFill: true,
         make: (piece, x) => MQ.libraryMelody(piece, x.part, x.from, x.count), preview: melodyPreview,
-        changed: () => { cfg.counts.melody = mb.examples.length; changed(); },
+        changed: () => { setCount(mb.examples.length); changed(); },
       });
-      return [sec('ml-examples', 'Melodies', 'Melodies from real music. Everyone with the quiz code gets the same ones.', mode, lib, h('div', { class: 'mix-foot' }, R.total))].concat(later);
+      return [sec('ml-examples', noun, 'Melodies from real music. Everyone with the quiz code gets the same ones.', mode, lib, h('div', { class: 'mix-foot' }, R.total))].concat(later);
     }
     const tabs = h('div', { class: 'rh-tabs', role: 'tablist', 'aria-label': 'Melodies' });
     const body = h('div', { class: 'rh-ex' });
-    const edited = () => { cfg.counts.melody = mb.examples.length; changed(); drawTabs(); };
+    const edited = () => { setCount(mb.examples.length); changed(); drawTabs(); };
     function drawTabs() {
       tabs.replaceChildren(...mb.examples.map((ex, i) => {
         const ok = !MQ.melodyProblems({ examples: [ex] }).length;
@@ -6398,14 +6521,90 @@
     }
     drawTabs();
     drawExample();
-    return [sec('ml-examples', 'Melodies', 'Write each melody students will hear. Every measure has to be full before the quiz can be shared — rests count.',
+    return [sec('ml-examples', noun, `Write each melody students will ${SING ? 'sing' : 'hear'}. Every measure has to be full before the quiz can be shared — rests count.`,
       mode, tabs, body, h('div', { class: 'mix-foot' }, R.total))].concat(later);
   }
+  // ---------- Clefwork Sight Singing ----------
+  // Students read a melody and record themselves singing it, away from Clefwork. The only sounds
+  // they can ask for are Do, the scale and the first note; the melody itself plays for the teacher
+  // alone, in the builder and when grading.
+  const playAid = (M, kind, minor) => {
+    const e = MQ.singAidEvents(M, kind, minor);
+    if (!e) return;
+    if (!MQ.Audio.sequence(e.events, { total: e.total })) toast('This browser can’t play sound.', 'bad');
+  };
+  function singAidRow(M, s) {
+    const A = MQ.SING_AIDS;
+    const btn = (label, kind) => h('button', { type: 'button', class: 'btn sm', onclick: () => playAid(M, kind, s.minor) }, '♪ ' + label);
+    const row = h('div', { class: 'btn-row sg-aids' });
+    if (s.aids & A.DO) row.append(btn('Hear Do', 'do'));
+    if (s.aids & A.SCALE) row.append(btn('Hear the ' + MQ.singScaleName(M, s.minor), 'scale'));
+    if (s.aids & A.FIRST) row.append(btn('Hear the first note', 'first'));
+    if (!row.children.length) return null;
+    row.append(h('button', { type: 'button', class: 'btn btn-quiet sm', onclick: () => MQ.Audio.stop() }, 'Stop'));
+    return row;
+  }
+  let sgUid = 0;
+  function singCard(q, cfg, o) {
+    const M = q.mel, s = q.sing, info = MQ.rhythmMeter(M.meter), uid = ++sgUid;
+    const teacher = !!o.locked || !!o.keyMode;         // the builder's key, the grade checker, results
+    const wrap = h('div', { class: 'qcard rh-card ml-card sg-card' + (o.compact ? ' is-compact' : '') });
+    wrap.append(h('div', { class: 'q-eyebrow' }, typeOf(q.type).label,
+      h('span', { class: 'q-clef' }, `${MQ.melodyKeyName(M.key)} · ${info.label} · ${M.measures} measure${M.measures > 1 ? 's' : ''}${teacher ? ` · melody ${s.n + 1}` : ''}`)));
+    wrap.append(h(o.compact ? 'h3' : 'h2', { class: 'q-text' }, q.text));
+    if (!teacher) wrap.append(h('p', { class: 'q-hint' }, 'Take your time to read it, then record yourself singing it. Clefwork doesn’t play the melody or keep your recording — hand that in on Canvas.'));
+    wrap.append(melodyFacts(M, info));
+    const box = h('div', { class: 'rstaff-box mstaff-box' });
+    new MQ.MelodyStaff(box, { meter: M.meter, measures: M.measures, parts: 1, layers: M.layers, key: M.key, clef: M.clef, slots: MQ.MELODY_MEASURES, readOnly: true });
+    wrap.append(h('div', { class: 'rh-block' }, h('span', { class: 'mini-label' }, 'The melody'), box));
+    if (teacher) wrap.append(h('div', { class: 'btn-row sg-aids' }, rhythmPlayButton(M), h('span', { class: 'help' }, 'Students can’t play it — this is for you, to compare with their recording.')));
+    else {
+      const aids = singAidRow(M, s);
+      if (aids) wrap.append(h('div', { class: 'rh-block' }, h('span', { class: 'mini-label' }, 'Find your starting pitch'), aids));
+    }
+    // The tick: all the quiz keeps, besides which melodies the student was given.
+    if (s.tick) {
+      const done = !!(o.response && o.response.done);
+      if (teacher) wrap.append(h('p', { class: 'result ' + (done ? 'is-good' : 'is-bad') }, h('strong', null, done ? '✓ Recorded.' : 'Not ticked.'),
+        done ? ' The student marked this one recorded.' : ' The student didn’t mark this one as recorded.'));
+      else wrap.append(toggle('sg-done-' + uid, 'I’ve recorded this one', 'Tick it when your recording is made, so your teacher knows it’s done.', done,
+        (v) => { if (o.onResponse) o.onResponse({ done: !!v }); }));
+    }
+    return wrap;
+  }
+  // An answer-key entry: the melody drawn small, with its number.
+  function singKeyItem(q) {
+    const M = q.mel, box = h('div', { class: 'rstaff-box rh-key-staff' });
+    new MQ.MelodyStaff(box, { meter: M.meter, measures: M.measures, parts: 1, layers: M.layers, key: M.key, clef: M.clef, slots: M.measures, readOnly: true, compact: true });
+    return h('li', null, h('span', { class: 'key-q' }, `Melody ${q.sing.n + 1}`, h('span', { class: 'key-clef' }, ` · ${MQ.melodyKeyName(M.key)} · ${MQ.rhythmMeter(M.meter).label}`)), box);
+  }
+
+  // ---------- Clefwork Sight Singing: the builder ----------
+  function singSections(cfg, changed, R, extra) {
+    const sg = cfg.sing = MQ.singSettings(cfg.sing);
+    const total = listCount(cfg, 'sing');
+    R.singPick = counter('sg-pick', 'melodies each student sings', (v) => { sg.pick = v; changed(); });
+    R.singPick.sync(Math.min(sg.pick, total), Math.max(1, total));
+    R.singAsked = h('span', { class: 'help' });
+    const aids = chips('sg-aids', [{ label: 'Do' }, { label: 'The scale' }, { label: 'The first note' }], sg.aids,
+      (m) => { sg.aids = m; changed(); }, (x) => x.label, null, true);
+    const minor = seg('sg-minor', [{ v: 0, label: 'Do is the relative major' }, { v: 1, label: 'Do is the tonic' }], sg.minor, (v) => { sg.minor = v; changed(); });
+    return [sec('sg-quiz', 'Singing', 'Students read a melody and record themselves singing it. Clefwork never plays the melody to them, and never sees the recording — that goes to Canvas.',
+      grp('Melodies each student sings', R.singPick, '0 means all of them. Fewer makes the melodies above a bank: each student gets a different draw of that many, in the bank’s order.'),
+      R.singAsked,
+      grp('They can hear', aids, 'Before they sing. None of these plays the melody itself.'),
+      grp('In a minor key', minor, 'Which note “Do”, and the scale, start on — la-based minor (the relative major) or do-based minor (the key’s own tonic).'),
+      h('div', { class: 'toggles' },
+        toggle('sg-tick', 'Students tick each melody as recorded', 'The report then shows which melodies they say they recorded.', sg.tick, (v) => { sg.tick = v ? 1 : 0; changed(); }),
+        ...extra),
+      h('div', { class: 'mix-foot' }, R.total))];
+  }
+
   // ---------- Clefwork Melody: melodies made automatically ----------
   function melodyAutoPanel(cfg, changed) {
     const a = cfg.melody.auto, c = a.custom;
     const preview = h('div', { class: 'rh-auto-list' });
-    const redo = () => { a.gen = MQ.MELODY_GEN; cfg.counts.melody = a.count; changed(); drawPreview(); };
+    const redo = () => { a.gen = MQ.MELODY_GEN; cfg.counts[SING ? 'sing' : 'melody'] = a.count; if (SING) cfg.counts.melody = 0; changed(); drawPreview(); };
     const count = counter('ml-auto-count', 'melodies', (v) => { a.count = Math.max(1, v); if (v < 1) count.sync(1, 20); redo(); });
     count.sync(a.count, 20);
     const levels = h('div', { class: 'rh-levels', role: 'radiogroup', 'aria-label': 'Level' });
@@ -6482,6 +6681,18 @@
     for (let a = 0; a < M.measures; a += per) {
       const blank = { meter: M.meter, measures: Math.min(per, M.measures - a), layers: [[[], [], [], [], [], [], [], []]], key: M.key, clef: M.clef };
       rows.push(MQ.melodyArt(blank, { first: a, showTime: a === 0, measureW: 300, perLine: per, heightIn: (opts && opts.height) || 1.25, drawnClefs: opts && opts.drawnClefs }));
+    }
+    return rows;
+  }
+
+  // On paper a sight singing melody is printed as it stands — the student sings from the page.
+  function singPrintArt(q, opts) {
+    const M = q.mel, rows = [];
+    const per = M.measures > 2 ? 2 : M.measures;
+    for (let a = 0; a < M.measures; a += per) {
+      const n = Math.min(per, M.measures - a);
+      const part = { meter: M.meter, measures: n, layers: [M.layers[0].slice(a, a + n)], key: M.key, clef: M.clef };
+      rows.push(MQ.melodyArt(part, { first: a, showTime: a === 0, measureW: 300, perLine: per, heightIn: (opts && opts.height) || 1.25, drawnClefs: opts && opts.drawnClefs }));
     }
     return rows;
   }
@@ -6661,6 +6872,7 @@
     return { svg, markup, wIn: (vb[2] / vb[3]) * hIn, hIn };
   }
   function exportArt(q, opts) {
+    if (q.type === 'sing') return singPrintArt(q, opts);
     if (q.type === 'term') return termPrintArt(q);
     if (MQ.isGraph(q)) return graphPrintArt(q);
     if (q.type === 'melody') return melodyPrintArt(q, opts);
@@ -6921,6 +7133,7 @@
     const local = knownQuizzes().find((q) => q.id === r.quizId) || null;
     const mismatch = fromLink && fromLink.id !== r.quizId;
     r.quiz = local || (fromLink && !mismatch ? fromLink : null);
+    r.quiz = singReportQuiz(r);
     r.sealOk = r.quiz ? r.verifySeal(r.quiz.cfg) : null;
     r.stats = MQ.reportStats(r);
     const showKey = !!(r.quiz && (local || r.quiz.cfg.flags.feedback));
@@ -7010,6 +7223,15 @@
         h('li', null, h('b', null, '1'), ' Choose the dynamics, tempo markings and instruments to ask about, and what students hear'),
         h('li', null, h('b', null, '2'), ' Students answer multiple-choice questions, some of them by ear'),
         h('li', null, h('b', null, '3'), ' Students send back a report code — no accounts, no server'));
+    }
+    if (SING) {
+      const name = document.querySelector('.brand-name');
+      if (name) name.textContent = 'Clefwork Sight Singing';
+      document.title = 'Clefwork Sight Singing';
+      document.querySelector('.flow').replaceChildren(
+        h('li', null, h('b', null, '1'), ' Set the melodies — write them, let Clefwork make them, or take them from the library'),
+        h('li', null, h('b', null, '2'), ' Students read each melody and record themselves singing it'),
+        h('li', null, h('b', null, '3'), ' Recordings go to Canvas; the report code says who sang which melodies'));
     }
     if (MELODY) {
       const name = document.querySelector('.brand-name');

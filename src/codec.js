@@ -545,6 +545,9 @@
     // Extension 12: Clefwork Analysis on more than one score — the first score as extension 1 writes it,
     // the retake limit (if any) behind a flag, the first score's name, then each other score: its
     // picture's fingerprint, its name and its boxes. (The pictures travel in the link: &img=, &img2= …)
+    // Extension 13: Clefwork Sight Singing — the retake limit (if any) behind a flag, the melody
+    // block (the melodies students sing), then how many of them each student is given, what they may
+    // hear, how minor keys count and whether they tick each recording off.
     const an = MQ.analysisSettings(cfg.analysis);
     const regions = an.regions.slice(0, MQ.ANALYSIS_MAX);
     const limit = retakeLimit(cfg);
@@ -559,12 +562,13 @@
     const dg = degrees ? MQ.degreeSettings(cfg.deg) : null;
     const dgMore = !!dg && (dg.share < 100 || dg.score !== 'question');
     const dgLib = !!dg && dg.src === 1 && dg.mel.length > 0;
+    const sing = Math.min(31, (cfg.counts && cfg.counts.sing) || 0);
     const graph = GRAPH_COUNTS.some((k) => cfg.counts && cfg.counts[k] > 0);
     const terms = TERM_COUNTS.some((k) => cfg.counts && cfg.counts[k] > 0);
     const anMore = an.more.length > 0 && (regions.length > 0 || an.more.some((m) => m.regions.length));
-    if (regions.length || an.img || limit != null || rhythm || melody || degrees || graph || terms) {
+    if (regions.length || an.img || limit != null || rhythm || melody || degrees || graph || terms || sing) {
       const q10 = (v) => Math.max(0, Math.min(1023, Math.round(v * 1023)));
-      const ext = terms ? 10 : graph ? 9 : anMore ? 12 : grid ? 6 : degrees ? (dgLib ? 11 : dgMore ? 8 : 7) : melody ? 5 : rhythm ? 4 : limit != null ? 2 : 1;
+      const ext = sing ? 13 : terms ? 10 : graph ? 9 : anMore ? 12 : grid ? 6 : degrees ? (dgLib ? 11 : dgMore ? 8 : 7) : melody ? 5 : rhythm ? 4 : limit != null ? 2 : 1;
       const deg8 = ext === 8 || ext === 11, deg7 = ext === 7 || deg8;
       w.u(ext, 8).u(an.override, 2).u(an.img ? 1 : 0, 1);
       if (an.img) w.u(an.img.hash >>> 0, 32);
@@ -619,6 +623,13 @@
           examples.forEach((ex) => writeExample(w, ex, grid));
         }
       }
+      if (ext === 13) {
+        w.u(limit != null ? 1 : 0, 1);
+        if (limit != null) w.u(limit, 5);
+        writeMelodyBlock(w, mb);
+        const sg = MQ.singSettings(cfg.sing);
+        w.u(sing, 5).u(sg.pick, 5).u(sg.aids, 3).u(sg.minor, 1).u(sg.tick, 1);
+      }
       if (ext === 5 || deg7) writeMelodyBlock(w, mb);
       if (ext === 6) w.u(MQ.RHYTHM_GRID_BOXES.indexOf(rh.grid.box), 2).u(rh.grid.show, 2).u(rh.grid.rests ? 1 : 0, 1);
       if (deg7) {
@@ -633,8 +644,8 @@
       }
       // Then ties: whether automatic rhythms and melodies get some, then the written ones'.
       let tiesWritten = false;
-      if ((ext >= 4 && ext <= 8) || ext === 11) {
-        const withMel = ext === 5 || deg7;
+      if ((ext >= 4 && ext <= 8) || ext === 11 || ext === 13) {
+        const withMel = ext === 5 || ext === 13 || deg7;
         const ties = tiesIn(tieTargets(Object.assign({}, rh, { examples }), withMel ? Object.assign({}, mb, { examples: mb.examples.slice(0, MQ.MELODY_MAX) }) : null,
           ext === 11 ? dg.mel.slice(0, MQ.DEGREE_MAX) : null));
         const rt = rh.auto.on && rh.auto.ties ? 1 : 0, mt = withMel && mb.auto.on && mb.auto.ties ? 1 : 0;
@@ -650,7 +661,7 @@
       const keys = anScores.some((sc) => sc.keys && sc.keys.length);
       const opens = anScores.some((sc) => sc.open && sc.open.show > 0);
       if (keys || opens || anRegs.some((g) => g.link || g.ask === 'nht')) {
-        if (((ext >= 4 && ext <= 8) || ext === 11) && !tiesWritten) w.u(0, 1);
+        if (((ext >= 4 && ext <= 8) || ext === 11 || ext === 13) && !tiesWritten) w.u(0, 1);
         w.u(1, 1);
         writeAnalysisExtras(w, an, anRegs);
         if (keys) writeKeyChanges(w, an, anScores);
@@ -868,6 +879,12 @@
             cfg.rhythm = MQ.rhythmSettings(rh);
             cfg.counts.rhythm = rh.auto ? rh.auto.count : rh.examples.length;
           }
+          if (ext === 13) {
+            if (r.u(1)) cfg.retakes = r.u(5);
+            cfg.melody = readMelodyBlock(r);
+            cfg.counts.sing = r.u(5);
+            cfg.sing = MQ.singSettings({ pick: r.u(5), aids: r.u(3), minor: r.u(1), tick: r.u(1) });
+          }
           const deg8 = ext === 8 || ext === 11, deg7 = ext === 7 || deg8;
           if (ext === 5 || deg7) {
             cfg.melody = readMelodyBlock(r);
@@ -883,8 +900,8 @@
             for (let i = 0; i < n; i++) mel.push(readMelody(r));
             cfg.deg = MQ.degreeSettings(Object.assign(cfg.deg, { src: 1, mel }));
           }
-          if (((ext >= 4 && ext <= 8) || ext === 11) && r.b.length > r.p && r.u(1)) {
-            const rt = r.u(1), mt = r.u(1), withMel = ext === 5 || deg7;
+          if (((ext >= 4 && ext <= 8) || ext === 11 || ext === 13) && r.b.length > r.p && r.u(1)) {
+            const rt = r.u(1), mt = r.u(1), withMel = ext === 5 || ext === 13 || deg7;
             if (cfg.rhythm.auto.on) cfg.rhythm.auto.ties = rt;
             if (withMel && cfg.melody.auto.on) cfg.melody.auto.ties = mt;
             const items = tieTargets(cfg.rhythm, withMel ? cfg.melody : null, ext === 11 ? cfg.deg.mel : null);
@@ -951,6 +968,8 @@
     return MQ.graphChordText(c);
   }
   function writeAnswer(w, q, resp, plays) {
+    // Sight singing: the melody the student was given (its place in the bank), and their tick.
+    if (q.type === 'sing') { w.u(Math.min(63, q.sing.n), 6).u(resp && resp.done ? 1 : 0, 1); return; }
     if (q.type === 'term') {
       // Clefwork Terms: the choice (0 blank), then whether it was heard, and if so how often it was played.
       const hear = q.tm && q.tm.hear ? 1 : 0;
@@ -1079,6 +1098,7 @@
     return { kind: 'staff', value: cols };
   }
   function readAnswer(r, type, ver) {
+    if (type === 'sing') { const n = r.u(6); return { kind: 'sing', value: { n, done: !!r.u(1) } }; }
     if (type === 'term') {
       const v = r.u(3), hear = r.u(1);
       return { kind: 'choice', value: v ? v - 1 : null, plays: hear ? { ex: r.u(5), ans: 0 } : null };
@@ -1187,14 +1207,14 @@
     const w = new Writer();
     // Version 10 added rhythm answers, with how often each example and answer was played.
     // Version 14: types past the sixteenth (rhythm grids) write 15 and three more bits.
-    w.u(14, 4).u(qid, 16).str(report.name, 40)
+    w.u(15, 4).u(qid, 16).str(report.name, 40)
       .u(Math.max(0, Math.round((report.submittedAt - EPOCH) / 60000)), 24)
       .u(Math.min(65535, Math.round(report.totalSec)), 16)
       .u(report.partial ? 1 : 0, 1).u(report.items.length, 7);
     report.items.forEach((it) => {
       const ti = MQ.typeIndex(it.type);
       w.u(Math.min(15, ti), 4);
-      if (ti >= 15) w.u(ti - 15, 3);
+      if (ti >= 15) w.u(ti - 15, 4);        // version 15 widened this, which was full at 22 types
       w.u(['treble', 'bass', 'grand'].indexOf(it.clef) & 3, 2);
       if (report.partial) w.u(it.credit, 3); else w.u(it.credit === 7 ? 1 : 0, 1);
       w.u(it.answered ? 1 : 0, 1).u(Math.min(63, Math.round(it.sec)), 6);
@@ -1270,7 +1290,7 @@
     const restBits = body.slice(20);
     try {
       const ver = r.u(4);
-      if (ver < 1 || ver > 14) throw new CodeError('This report was made with a newer version of Clefwork.');
+      if (ver < 1 || ver > 15) throw new CodeError('This report was made with a newer version of Clefwork.');
       const rep = { code: group(clean), quizId: r.u(16), name: r.str() };
       rep.submittedAt = EPOCH + r.u(24) * 60000;
       rep.totalSec = r.u(16);
@@ -1279,7 +1299,7 @@
       rep.items = [];
       for (let i = 0; i < n; i++) {
         let ti = r.u(ver >= 3 ? 4 : 3);
-        if (ver >= 14 && ti === 15) ti += r.u(3);
+        if (ver >= 14 && ti === 15) ti += r.u(ver >= 15 ? 4 : 3);
         const type = MQ.TYPES[ti];
         // Version 1 reports used one bit for the clef; voicings were always the grand staff then.
         const clef = ver >= 2 ? ['treble', 'bass', 'grand'][r.u(2)] || 'treble'
