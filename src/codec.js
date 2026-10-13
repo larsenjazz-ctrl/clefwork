@@ -968,7 +968,10 @@
     return MQ.graphChordText(c);
   }
   function writeAnswer(w, q, resp, plays) {
-    // Sight singing: the melody the student was given (its place in the bank), and their tick.
+    // Sight singing: the melody the student was given (its place in the bank), their tick, and how
+    // they sang it — moved up or down by up to an octave, and read in the other clef (version 16).
+    // Sight singing: the melody the student was given (its place in the bank), and their tick. How
+    // they moved it to suit their voice goes in a block at the end.
     if (q.type === 'sing') { w.u(Math.min(63, q.sing.n), 6).u(resp && resp.done ? 1 : 0, 1); return; }
     if (q.type === 'term') {
       // Clefwork Terms: the choice (0 blank), then whether it was heard, and if so how often it was played.
@@ -1098,7 +1101,7 @@
     return { kind: 'staff', value: cols };
   }
   function readAnswer(r, type, ver) {
-    if (type === 'sing') { const n = r.u(6); return { kind: 'sing', value: { n, done: !!r.u(1) } }; }
+    if (type === 'sing') { const n = r.u(6); return { kind: 'sing', value: { n, done: !!r.u(1), tr: 0, bass: 0 } }; }
     if (type === 'term') {
       const v = r.u(3), hear = r.u(1);
       return { kind: 'choice', value: v ? v - 1 : null, plays: hear ? { ex: r.u(5), ans: 0 } : null };
@@ -1276,6 +1279,17 @@
           if (v.k != null) w.u(v.k, 5);
         });
       }
+      // Then sight singing: how far each melody was moved to suit the student's voice, and whether
+      // it was read in the other clef. Reports without this block were sung as written.
+      const sg = ans.qs.map((q, k) => k).filter((k) => ans.qs[k].type === 'sing' && ans.resp[k] && (ans.resp[k].tr || ans.resp[k].bass));
+      if (sg.length) {
+        begin(3);
+        w.u(sg.length, 7);
+        sg.forEach((k) => {
+          const v = ans.resp[k];
+          w.u(k, 7).u(Math.max(-12, Math.min(12, Math.round(v.tr || 0))) + 12, 5).u(v.bass ? 1 : 0, 1);
+        });
+      }
     }
     return pack(KIND_REPORT, w.b, sealKey(cfg, qid));
   }
@@ -1290,6 +1304,8 @@
     const restBits = body.slice(20);
     try {
       const ver = r.u(4);
+      // The version number is four bits, so 15 is the last of them: anything newer than version 15
+      // rides in the blocks at the end, which older reports simply don't have.
       if (ver < 1 || ver > 15) throw new CodeError('This report was made with a newer version of Clefwork.');
       const rep = { code: group(clean), quizId: r.u(16), name: r.str() };
       rep.submittedAt = EPOCH + r.u(24) * 60000;
@@ -1335,6 +1351,13 @@
           if (r.u(1)) v.k = r.u(5);
           const a = rep.answers[k];
           if (a && a.kind === 'text' && a.value) Object.assign(a.value, v);
+        }
+      }
+      if (ver >= 15 && rep.answers && r.b.length > r.p && r.u(1)) {
+        for (let j = 0, n = r.u(7); j < n; j++) {
+          const k = r.u(7), tr = r.u(5) - 12, bass = r.u(1);
+          const a = rep.answers[k];
+          if (a && a.kind === 'sing' && a.value) Object.assign(a.value, { tr, bass });
         }
       }
       // True when the seal matches the quiz this report claims to belong to.

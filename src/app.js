@@ -2839,6 +2839,7 @@
         h('div', { class: 'score-big' }, String(st.full), h('span', null, '/' + st.count)),
         h('div', { class: 'score-meta' }, h('strong', null, `melod${st.count === 1 ? 'y' : 'ies'} ticked as recorded`),
           h('span', null, `${t.qs.map((q) => q.sing.n + 1).join(', ')} — the ones you were given`))),
+      h('ul', { class: 'sg-sang' }, t.qs.map((q, i) => h('li', null, `Melody ${q.sing.n + 1}: `, accText(MQ.singSungText(q.mel, t.resp[i]))))),
       h('p', { class: 'lede' }, 'Clefwork has your name and which melodies you were given. Hand in your recordings the way your teacher asked, and send this with them.'),
     ];
   }
@@ -2975,12 +2976,14 @@
         h('td', { class: 'num' }, String(i + 1)),
         h('td', null, it.type === 'sing' ? (q ? `Melody ${q.sing.n + 1}` : 'A melody') : q ? q.text : typeOf(it.type).label),
         h('td', null, it.type === 'sing' ? 'Sung' : it.type === 'analysis' ? 'Score' : it.type === 'rhythm' ? 'Rhythm' : it.type === 'rgrid' ? 'Grid' : it.type === 'cgphrase' ? 'Phrase' : MQ.GRAPH_TYPES.includes(it.type) ? 'Table' : it.type === 'term' ? (q && q.tm ? MQ.termCat(q) : 'Terms') : MQ.CLEFS[it.clef].label),
-        key ? h('td', { class: 'ans' + (q && (q.mel || q.rh || q.cg || q.ph) ? ' is-long' : '') }, q ? (q.cg ? graphAnswer(q) : q.ph ? accText(MQ.describeAnswer(q, quiz.cfg)) : MQ.describeAnswer(q, quiz.cfg)) : '') : null,
+        key ? h('td', { class: 'ans' + (q && (q.mel || q.rh || q.cg || q.ph) ? ' is-long' : '') },
+          it.type === 'sing' && q ? accText(MQ.singSungText(q.mel, rep.answers && rep.answers[i] ? rep.answers[i].value : null))
+            : q ? (q.cg ? graphAnswer(q) : q.ph ? accText(MQ.describeAnswer(q, quiz.cfg)) : MQ.describeAnswer(q, quiz.cfg)) : '') : null,
         h('td', null, resultCell(it)),
         h('td', { class: 'num' }, it.sec >= 63 ? '63+ s' : it.sec + ' s')));
     });
     return h('div', { class: 'table-wrap' }, h('table', { class: 'qtable' },
-      h('thead', null, h('tr', null, h('th', null, '#'), h('th', null, 'Question'), h('th', null, rep.items.every((it) => it.type === 'term') ? 'Kind' : 'Clef'), key ? h('th', null, 'Answer') : null, h('th', null, 'Result'), h('th', { class: 'num' }, 'Time'))),
+      h('thead', null, h('tr', null, h('th', null, '#'), h('th', null, 'Question'), h('th', null, rep.items.every((it) => it.type === 'term') ? 'Kind' : 'Clef'), key ? h('th', null, rep.items.every((it) => it.type === 'sing') ? 'Sang it in' : 'Answer') : null, h('th', null, 'Result'), h('th', { class: 'num' }, 'Time'))),
       tbody));
   }
 
@@ -6546,32 +6549,71 @@
   }
   let sgUid = 0;
   function singCard(q, cfg, o) {
-    const M = q.mel, s = q.sing, info = MQ.rhythmMeter(M.meter), uid = ++sgUid;
+    const M = q.mel, s = q.sing, uid = ++sgUid;
     const teacher = !!o.locked || !!o.keyMode;         // the builder's key, the grade checker, results
+    // What the student chose: how far they moved it, and whether they read it in the other clef.
+    // Their last setting carries to the next melody, so a low voice doesn't set it over and over.
+    const start = o.response || (!teacher && S.take ? { tr: S.take.singTr || 0, bass: S.take.singBass || 0 } : {});
+    const resp = { done: !!start.done, tr: MQ.singShift(M, start).tr, bass: start.bass ? 1 : 0 };
     const wrap = h('div', { class: 'qcard rh-card ml-card sg-card' + (o.compact ? ' is-compact' : '') });
-    wrap.append(h('div', { class: 'q-eyebrow' }, typeOf(q.type).label,
-      h('span', { class: 'q-clef' }, `${MQ.melodyKeyName(M.key)} · ${info.label} · ${M.measures} measure${M.measures > 1 ? 's' : ''}${teacher ? ` · melody ${s.n + 1}` : ''}`)));
+    const eyebrow = h('span', { class: 'q-clef' });
+    wrap.append(h('div', { class: 'q-eyebrow' }, typeOf(q.type).label, eyebrow));
     wrap.append(h(o.compact ? 'h3' : 'h2', { class: 'q-text' }, q.text));
-    if (!teacher) wrap.append(h('p', { class: 'q-hint' }, 'Take your time to read it, then record yourself singing it. Clefwork doesn’t play the melody or keep your recording — hand that in on Canvas.'));
-    wrap.append(melodyFacts(M, info));
-    const box = h('div', { class: 'rstaff-box mstaff-box' });
-    new MQ.MelodyStaff(box, { meter: M.meter, measures: M.measures, parts: 1, layers: M.layers, key: M.key, clef: M.clef, slots: MQ.MELODY_MEASURES, readOnly: true });
-    wrap.append(h('div', { class: 'rh-block' }, h('span', { class: 'mini-label' }, 'The melody'), box));
-    if (teacher) wrap.append(h('div', { class: 'btn-row sg-aids' }, rhythmPlayButton(M), h('span', { class: 'help' }, 'Students can’t play it — this is for you, to compare with their recording.')));
-    else {
-      const aids = singAidRow(M, s);
-      if (aids) wrap.append(h('div', { class: 'rh-block' }, h('span', { class: 'mini-label' }, 'Find your starting pitch'), aids));
-    }
-    // The tick: all the quiz keeps, besides which melodies the student was given.
+    if (!teacher) wrap.append(h('p', { class: 'q-hint' }, 'Take your time to read it, then record yourself singing it. Move it up or down first if it doesn’t suit your voice. Clefwork doesn’t play the melody or keep your recording — hand that in on Canvas.'));
+    const facts = h('div', { class: 'sg-part' });
+    const music = h('div', { class: 'rh-block' });
+    const aids = h('div', { class: 'sg-part' });
+    const sung = h('p', { class: 'fine sg-sung' });
+    wrap.append(facts, music);
+    const save = () => { if (o.onResponse) o.onResponse({ done: resp.done, tr: resp.tr, bass: resp.bass }); };
+    // Everything that changes when the melody moves: its key, the staff, and what the help plays.
+    const draw = () => {
+      const T = MQ.singTransposed(M, resp), info = MQ.rhythmMeter(T.meter);
+      eyebrow.textContent = `${MQ.melodyKeyName(T.key)} · ${info.label} · ${T.measures} measure${T.measures > 1 ? 's' : ''}${teacher ? ` · melody ${s.n + 1}` : ''}`;
+      facts.replaceChildren(melodyFacts(T, info));
+      const box = h('div', { class: 'rstaff-box mstaff-box' });
+      new MQ.MelodyStaff(box, { meter: T.meter, measures: T.measures, parts: 1, layers: T.layers, key: T.key, clef: T.clef, slots: MQ.MELODY_MEASURES, readOnly: true });
+      music.replaceChildren(h('span', { class: 'mini-label' }, teacher ? 'The melody, as this student sang it' : 'The melody'), box);
+      if (teacher) music.append(h('div', { class: 'btn-row sg-aids' }, rhythmPlayButton(T),
+        h('span', { class: 'help' }, 'Students can’t play it — this is for you, to compare with their recording.')));
+      else {
+        const row = singAidRow(T, s);
+        aids.replaceChildren(...(row ? [h('span', { class: 'mini-label' }, 'Find your starting pitch'), row] : []));
+      }
+      sung.replaceChildren(h('b', null, teacher ? 'Sang it in: ' : 'You’ll sing in: '), MQ.singSungText(M, resp));
+    };
+    if (!teacher) {
+      // Up or down by as much as an octave, and the other clef — two octaves away.
+      const range = h('input', { type: 'range', id: 'sg-tr-' + uid, min: -MQ.SING_MAX_SHIFT, max: MQ.SING_MAX_SHIFT, step: 1, value: String(resp.tr), class: 'sg-range', 'aria-label': 'Move the melody up or down, in semitones' });
+      const move = (v) => {
+        resp.tr = Math.max(-MQ.SING_MAX_SHIFT, Math.min(MQ.SING_MAX_SHIFT, v));
+        range.value = String(resp.tr);
+        if (S.take) S.take.singTr = resp.tr;
+        draw(); save();
+      };
+      range.addEventListener('input', () => move(+range.value));
+      const step = (d) => h('button', { type: 'button', class: 'btn btn-quiet sm', 'aria-label': d < 0 ? 'A semitone lower' : 'A semitone higher', onclick: () => move(resp.tr + d) }, d < 0 ? '−' : '+');
+      const reset = h('button', { type: 'button', class: 'btn-link sg-reset', onclick: () => move(0) }, 'Back to the written key');
+      const other = M.clef === 'bass' ? 'treble' : 'bass';
+      const clefBox = toggle('sg-clef-' + uid, `Read it in ${other} clef`, `Two octaves ${other === 'bass' ? 'lower' : 'higher'}, for a ${other === 'bass' ? 'lower' : 'higher'} voice. You can still move it up or down from there.`, !!resp.bass,
+        (v) => { resp.bass = v ? 1 : 0; if (S.take) S.take.singBass = resp.bass; draw(); save(); });
+      wrap.append(h('div', { class: 'rh-block sg-fit' },
+        h('span', { class: 'mini-label' }, 'Sing it in your range'),
+        h('div', { class: 'sg-tr' }, step(-1), range, step(1)),
+        sung, reset, clefBox));
+      wrap.append(aids);
+    } else wrap.append(sung);
+    // The tick: with which melodies they were given, all the quiz keeps.
     if (s.tick) {
-      const done = !!(o.response && o.response.done);
-      if (teacher) wrap.append(h('p', { class: 'result ' + (done ? 'is-good' : 'is-bad') }, h('strong', null, done ? '✓ Recorded.' : 'Not ticked.'),
-        done ? ' The student marked this one recorded.' : ' The student didn’t mark this one as recorded.'));
-      else wrap.append(toggle('sg-done-' + uid, 'I’ve recorded this one', 'Tick it when your recording is made, so your teacher knows it’s done.', done,
-        (v) => { if (o.onResponse) o.onResponse({ done: !!v }); }));
+      if (teacher) wrap.append(h('p', { class: 'result ' + (resp.done ? 'is-good' : 'is-bad') }, h('strong', null, resp.done ? '✓ Recorded.' : 'Not ticked.'),
+        resp.done ? ' The student marked this one recorded.' : ' The student didn’t mark this one as recorded.'));
+      else wrap.append(toggle('sg-done-' + uid, 'I’ve recorded this one', 'Tick it when your recording is made, so your teacher knows it’s done.', resp.done,
+        (v) => { resp.done = !!v; save(); }));
     }
+    draw();
     return wrap;
   }
+
   // An answer-key entry: the melody drawn small, with its number.
   function singKeyItem(q) {
     const M = q.mel, box = h('div', { class: 'rstaff-box rh-key-staff' });

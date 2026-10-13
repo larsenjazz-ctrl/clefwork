@@ -66,16 +66,77 @@
     return all.slice(0, n).sort((a, b) => a - b);
   }
 
+  // ---------- singing it in your own range ----------
+  // A student may move a melody up or down by as much as an octave, and read it in the other clef —
+  // two octaves away — so it sits in their voice. The melody keeps its shape: every note moves the
+  // same interval, and the key signature moves with it.
+  const MAX_SHIFT = 12, CLEF_SHIFT = 24;
+  const singShift = (M, resp) => {
+    const r = resp || {};
+    const tr = clamp(Math.round(r.tr || 0), -MAX_SHIFT, MAX_SHIFT);
+    const swap = r.bass ? 1 : 0;
+    return { tr, swap, semis: tr + (swap ? (M && M.clef === 'bass' ? CLEF_SHIFT : -CLEF_SHIFT) : 0) };
+  };
+  // The key a melody lands in when it moves n semitones: a semitone is seven steps round the circle
+  // of fifths, and of the two spellings the one with fewer sharps or flats wins (C major up one
+  // semitone is D♭ major, not C♯ major).
+  function singKeyAfter(key, semis) {
+    const K = MQ.melodyKey(key);
+    let f = K.fifths + 7 * (((semis % 12) + 12) % 12);
+    while (f > 7) f -= 12;
+    while (f < -7) f += 12;
+    const other = f > 0 ? f - 12 : f + 12;
+    if (Math.abs(other) < Math.abs(f)) f = other;
+    return { fifths: f, mode: K.mode };
+  }
+  // The melody as the student reads and sings it.
+  function singTransposed(M, resp) {
+    const { semis, swap } = singShift(M, resp);
+    if (!semis && !swap) return M;
+    const key = singKeyAfter(M.key, semis);
+    const from = MQ.melodyKey(M.key), to = MQ.melodyKey(key);
+    // How far the letters move: from the old tonic to the new one, in the octave the shift lands in.
+    const p0 = { step: from.tonic.step, alt: from.tonic.alt, oct: 4 };
+    const target = MQ.midi(p0) + semis;
+    const tonicAt = (o) => ({ step: to.tonic.step, alt: to.tonic.alt, oct: o });
+    let oct = 4;
+    while (MQ.midi(tonicAt(oct)) < target) oct++;
+    while (MQ.midi(tonicAt(oct)) > target) oct--;
+    const letters = MQ.dia(tonicAt(oct)) - MQ.dia(p0);
+    const move = (p) => {
+      const base = MQ.fromDia(MQ.dia(p) + letters, 0);
+      return { step: base.step, oct: base.oct, alt: MQ.midi(p) + semis - MQ.midi(base) };
+    };
+    const layers = [M.layers[0].map((bar) => bar.map((e) => (e.r || !e.p ? Object.assign({}, e) : Object.assign({}, e, { p: move(e.p) }))))];
+    const out = Object.assign({}, M, { key, layers, first: M.first ? move(M.first) : M.first });
+    if (swap) out.clef = M.clef === 'bass' ? 'treble' : 'bass';
+    return out;
+  }
+  // How a student sang it, for the teacher: "G major · up 2 semitones · bass clef".
+  function singSungText(M, resp) {
+    const { tr, swap } = singShift(M, resp);
+    const t = singTransposed(M, resp);
+    if (!tr && !swap) return `${MQ.melodyKeyName(M.key)} · as written`;
+    const parts = [MQ.melodyKeyName(t.key)];
+    if (tr) parts.push(`${tr > 0 ? 'up' : 'down'} ${Math.abs(tr)} semitone${Math.abs(tr) === 1 ? '' : 's'}`);
+    if (swap) parts.push(`${t.clef} clef, two octaves ${t.clef === 'bass' ? 'lower' : 'higher'}`);
+    return parts.join(' · ');
+  }
+
   // ---------- what students may hear ----------
-  // Do, in the melody's own register.
+  // Do, in the octave the melody itself sits in — so a student who has moved the melody down hears
+  // Do and the scale down there too, where they are going to sing them.
   function doPitch(M, minor) {
     const K = MQ.melodyKey(M.key);
     const name = K.mode === 'minor' && !minor ? MQ.MAJOR_KEYS[K.fifths + 7] : null;
     const step = name ? LETTERS.indexOf(name[0]) : K.tonic.step;
-    const mid = MQ.CLEFS[M.clef === 'bass' ? 'bass' : 'treble'].bottom + 4;
+    const notes = [].concat(...(M.layers && M.layers[0] ? M.layers[0] : [])).filter((e) => e && !e.r && e.p).map((e) => MQ.midi(e.p)).sort((a, b) => a - b);
+    const anchor = notes.length ? notes[Math.floor(notes.length / 2)]
+      : MQ.midi(MQ.melodyPitchAt(K, MQ.CLEFS[M.clef === 'bass' ? 'bass' : 'treble'].bottom + 4));
+    // The highest Do at or just below the melody's middle, so its scale covers the melody.
     let d = step;
-    while (d + 7 <= mid) d += 7;
-    while (d - 7 >= mid - 3) d -= 7;
+    while (MQ.midi(MQ.melodyPitchAt(K, d + 7)) <= anchor + 2) d += 7;
+    while (MQ.midi(MQ.melodyPitchAt(K, d)) > anchor + 2) d -= 7;
     return { dia: d, pitch: MQ.melodyPitchAt(K, d) };
   }
   const singDo = (M, minor) => doPitch(M, minor).pitch;
@@ -111,7 +172,9 @@
 
   Object.assign(MQ, {
     SING_AIDS: { DO: AID_DO, SCALE: AID_SCALE, FIRST: AID_FIRST },
+    SING_MAX_SHIFT: MAX_SHIFT,
     singSettings, singCount, singQuestions, singPick, singDo, singAidEvents, singScaleName,
+    singShift, singKeyAfter, singTransposed, singSungText,
     singDone, gradeSing, hasSingAnswer, describeSing,
   });
 })(typeof window !== 'undefined' ? window : globalThis);

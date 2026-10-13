@@ -1212,3 +1212,13 @@ input.cg-sym { font-size: 15px; }
 .edit-quiz .btn-row { margin-top: 10px; }
 .edit-note:not(:empty) { margin-top: 10px; font-size: 13.5px; color: var(--ink-2); }
 .edit-note.is-bad { color: var(--bad); }
+
+/* Clefwork Sight Singing: moving a melody into your own range */
+.sg-fit { display: flex; flex-direction: column; gap: 8px; }
+.sg-tr { display: flex; align-items: center; gap: 10px; }
+input.sg-range { flex: 1; min-width: 0; accent-color: var(--accent); height: 28px; }
+.sg-sung { margin: 0; font-size: 14px; color: var(--ink-2); }
+.sg-sung b { color: var(--ink); }
+.sg-reset { align-self: flex-start; margin-top: 0; }
+.sg-aids { flex-wrap: wrap; }
+.sg-sang { margin: 10px 0 0; padding-left: 20px; font-size: 13.5px; color: var(--muted); display: grid; gap: 2px; }
