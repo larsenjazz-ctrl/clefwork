@@ -213,3 +213,7 @@ dist/site/                            copies published to GitHub Pages
 ```
 
 Set `CLEFWORK_BASE` before building to change the address used in shared links.
+
+### Testing typed answers
+
+`node tests/typed-answers.js` (no dependencies) checks every section that takes a typed answer — chord symbols, voicings, progressions, figured bass, Keys note names, Chord Graph tables and Analysis. It generates real questions through the quiz code and confirms that the answer each one shows is marked right, that the common ways students type it are right too (b and # for ♭ and ♯, m or - for mi, o for °, ø for mi7♭5, 6/5 for 65 …), and that wrong and confusable answers (B° for Bø7, sus2 for sus4) stay wrong. It exits non-zero on any failure; a number after the command shows more examples.

@@ -54,7 +54,8 @@
   // ---------- reading what a student types ----------
   // "V65", "V 6/5", "viio6", "bVII" … → {deg, shift, low, mark, seventh, inv}
   function parseFigured(str) {
-    let s = String(str || '').trim().replace(/[♭]/g, 'b').replace(/[♯]/g, '#').replace(/[º˚]/g, '°').replace(/Ø/g, 'ø').replace(/\s|\//g, '');
+    // /o is the half-diminished sign (vii/o7), so it is read before the slashes of 6/5 go.
+    let s = String(str || '').trim().replace(/[♭]/g, 'b').replace(/[♯]/g, '#').replace(/[º˚]/g, '°').replace(/Ø/g, 'ø').replace(/\/o/g, 'ø').replace(/\s|\//g, '');
     const m = s.match(/^([b#-+]?)(VII|VI|IV|V|III|II|I|vii|vi|iv|v|iii|ii|i)(.*)$/);
     if (!m) return null;
     const shift = m[1] === '#' || m[1] === '+' ? 1 : m[1] === 'b' || m[1] === '-' ? -1 : 0;

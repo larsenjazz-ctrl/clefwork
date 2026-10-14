@@ -286,19 +286,31 @@
     return null;
   }
 
-  // Marking a typed chord symbol: the right root and quality; a slash bass must be the right one.
+  // A typed symbol split at its slash: the chord, and the bass note named after it (or null).
+  function slashOf(str) {
+    const s = String(str || '').trim(), m = s.match(/^(.*)\/([A-Ga-g])([#b♯♭]?)$/);
+    if (!m) return { main: s, bass: null };
+    return { main: m[1], bass: { step: 'CDEFGAB'.indexOf(m[2].toUpperCase()), alt: /[#♯]/.test(m[3]) ? 1 : m[3] ? -1 : 0 } };
+  }
+  // Marking a typed chord symbol: the right root and quality; a slash bass, if one is written, must be
+  // the right one. Chords the plain reader doesn't know — altered extensions such as E13(♯5♭9), or
+  // 9sus4 — are compared note by note by the voicings' reader instead, so the answer shown can be typed.
   function gradeChordSymbol(q, resp, cfg) {
     const want = q.symbolAnswer;
     // Voicing questions allow altered chords, which have their own reader.
     if (want.voice) return MQ.gradeVoiceSymbol(want.q, resp, cfg);
-    const got = MQ.parseSymbol(String(resp || '').trim());
-    if (!got) return 0;
-    const wantChord = MQ.parseSymbol(want.q);
+    const text = String(resp || '').trim();
     const enh = cfg.flags.enharmonic;
     const same = (a, b) => (enh ? semisAbove(a, b) === 0 : a.step === b.step && a.alt === b.alt);
-    if (!wantChord || got.q !== wantChord.q || !same(got.root, wantChord.root)) return 0;
-    if (got.bass && (!want.bass || !same(got.bass, want.bass))) return 0; // a slash bass must match
-    return 1;
+    const badBass = (bass) => !!bass && (!want.bass || !same(bass, want.bass));
+    const got = MQ.parseSymbol(text), wantChord = MQ.parseSymbol(want.q);
+    if (got && wantChord) {
+      if (got.q !== wantChord.q || !same(got.root, wantChord.root)) return 0;
+      return badBass(got.bass) ? 0 : 1;
+    }
+    const g = slashOf(text);
+    if (!g.main || MQ.gradeVoiceSymbol(want.q, g.main, cfg) !== 1) return 0;
+    return badBass(g.bass) ? 0 : 1;
   }
   Object.assign(MQ, {
     gradeChordSymbol, analyzeSymbol, nameSpec, markNames, gradeNames, gradeSpelled, markSpelled, describeNames, customQuestionByNames: customQuestion,

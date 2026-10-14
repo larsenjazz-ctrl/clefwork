@@ -36,11 +36,12 @@
     const o = opts || {};
     const semis = { 1: 0, 3: Q.third[1], 5: Q.fifth[1] };
     const degOf = { 1: 1, 3: Q.third[0], 5: 5 };
+    if (quality === 'sus' && o.sus2) { semis[3] = 2; degOf[3] = 2; }   // sus2: a second where the third would be
     const has = [1, 3, 5];
     if (size === 'sixth') { has.push(6); semis[6] = 9; degOf[6] = 6; }
     if (size === 'seventh' || size === 'ninth' || size === 'eleventh' || size === 'thirteenth') {
       has.push(7);
-      semis[7] = o.seventh != null ? o.seventh : quality === 'dim' ? 9 : (quality === 'maj' || quality === 'aug') ? (o.majorSeventh ? 11 : 10) : 10;
+      semis[7] = o.seventh != null ? o.seventh : quality === 'dim' ? 9 : (quality === 'maj' || quality === 'aug' || quality === 'min') ? (o.majorSeventh ? 11 : 10) : 10;
       degOf[7] = 7;
     }
     if (size === 'ninth' || size === 'eleventh' || size === 'thirteenth') { has.push(9); semis[9] = 14; degOf[9] = 9; }
@@ -503,21 +504,23 @@
     let r = MQ.normalizeSuffix(m[3]);
     const alts = [];
     r = r.replace(/(b|#)(5|9|11|13)/g, (all, sign, deg) => { alts.push(sign + deg); return ''; });
-    const sus = /sus/.test(r); r = r.replace(/sus[24]?/, '');
-    let quality = 'maj', majorSeventh = false;
-    if (/^(dim|°)/.test(r)) { quality = 'dim'; r = r.replace(/^(dim|°)/, ''); }
-    else if (/^(ø)/.test(r)) { quality = 'min'; alts.push('b5'); r = r.replace(/^ø/, ''); }
+    const susM = r.match(/sus([24]?)/), sus = !!susM, sus2 = !!susM && susM[1] === '2';
+    r = r.replace(/sus[24]?/, '');
+    let quality = 'maj', majorSeventh = false, half = false;
+    // ° dim or o for diminished; ø — on its own, as the rest of Clefwork reads it — the half-diminished seventh.
+    if (/^(dim|°|o)/.test(r)) { quality = 'dim'; r = r.replace(/^(dim|°|o)/, ''); }
+    else if (/^(ø)/.test(r)) { quality = 'min'; alts.push('b5'); half = true; r = r.replace(/^ø/, ''); }
     else if (/^aug/.test(r)) { quality = 'aug'; r = r.replace(/^aug/, ''); }
     else if (/^maj/.test(r)) { majorSeventh = true; r = r.replace(/^maj/, ''); }
     else if (/^m/.test(r)) { quality = 'min'; r = r.replace(/^m(in)?/, ''); if (/^aj/.test(r)) return null; }
     if (/^maj/.test(r)) { majorSeventh = true; r = r.replace(/^maj/, ''); }
     if (sus) quality = 'sus';
     const num = r.match(/^(6|7|9|11|13)/);
-    const size = !num ? 'triad' : { 6: 'sixth', 7: 'seventh', 9: 'ninth', 11: 'eleventh', 13: 'thirteenth' }[num[1]];
+    const size = !num ? (half ? 'seventh' : 'triad') : { 6: 'sixth', 7: 'seventh', 9: 'ninth', 11: 'eleventh', 13: 'thirteenth' }[num[1]];
     r = r.replace(/^(6|7|9|11|13)/, '');
     if (r.replace(/[()\s]/g, '')) return null;                       // anything left over is not a chord symbol
     if (quality === 'aug' && !alts.includes('#5')) alts.push('#5');
-    const ch = makeChord(rootPc, quality, size, { majorSeventh, alts, bass });
+    const ch = makeChord(rootPc, quality, size, { majorSeventh, alts, bass, sus2 });
     return ch;
   }
   // Two symbols match when they name the same notes, from the same root, over the same bass.
