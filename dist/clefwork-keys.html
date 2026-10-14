@@ -4291,7 +4291,13 @@ input.sg-range { flex: 1; min-width: 0; accent-color: var(--accent); height: 28p
   };
   const FIG_TEXT = [['', '6', '64'], ['7', '65', '43', '42']];
   const NUM_RE = '(VII|VI|IV|V|III|II|I|vii|vi|iv|v|iii|ii|i)';
+  // Figures copied out of a textbook or a PDF come with raised and lowered digits and a fraction
+  // slash; they mean the same thing typed plainly, so they are read the same way.
+  const FIG_DIGITS = { '⁰': '0', '¹': '1', '²': '2', '³': '3', '⁴': '4', '⁵': '5', '⁶': '6', '⁷': '7', '⁸': '8', '⁹': '9',
+    '₀': '0', '₁': '1', '₂': '2', '₃': '3', '₄': '4', '₅': '5', '₆': '6', '₇': '7', '₈': '8', '₉': '9' };
   const clean = (s) => String(s || '').trim()
+    .replace(/[⁰¹²³⁴⁵⁶⁷⁸⁹₀₁₂₃₄₅₆₇₈₉]/g, (c) => FIG_DIGITS[c])
+    .replace(/[\u2044\u2215]/g, '/').replace(/[\u2010-\u2015]/g, '-')
     .replace(/♭/g, 'b').replace(/♯/g, '#').replace(/♮/g, '')
     .replace(/[º˚]/g, '°').replace(/Ø/g, 'ø').replace(/Δ/g, 'M').replace(/\s+/g, '');
 
@@ -4496,13 +4502,36 @@ input.sg-range { flex: 1; min-width: 0; accent-color: var(--accent); height: 28p
       return q;
     });
   }
+  // An answer Clefwork can't read — an odd spelling, or one from an older version — is still the
+  // answer the box shows, so a student who types exactly that is right. Without this they would all
+  // be marked wrong against an answer they had copied correctly.
+  const sameTyped = (a, b) => { const c = (x) => clean(x).replace(/\//g, ''); return !!c(a) && c(a) === c(b); };
+  const readRoman = (w) => parseRoman(w) || parseStage(w);
+  // Two answers written as stages — figures, with or without a numeral in front — mean the same chord.
+  const sameStage = (a, b) => !!a && !!b && a.figs === b.figs && !!a.base === !!b.base && (!a.base || sameRoman(a.base, b.base));
   // One answer box: r (Roman numeral) or s (chord symbol).
   function markAnalysisPart(q, k, resp, cfg) {
     const got = resp && resp[k];
     if (!got || !String(got).trim()) return false;
-    if (k === 'r' && (q.an.link || q.an.linked)) return stageRight(q, got);
-    if (k === 'r') { const p = parseRoman(got); return !!p && q.an.roman.some((w) => sameRoman(parseRoman(w), p)); }
-    return q.an.symbol.some((w) => MQ.gradeVoiceSymbol(w, String(got).trim(), cfg) === 1);
+    if (k === 'r' && (q.an.link || q.an.linked)) return stageRight(q, got) || q.an.roman.some((w) => !parseStage(w) && sameTyped(w, got));
+    if (k === 'r') {
+      const p = parseRoman(got), st = parseStage(got);
+      return q.an.roman.some((w) => {
+        const wp = parseRoman(w);
+        if (wp) return !!p && sameRoman(wp, p);
+        const ws = parseStage(w);                       // figures on their own, as a linked box takes them
+        if (ws) return sameStage(ws, st);
+        return sameTyped(w, got);
+      });
+    }
+    return q.an.symbol.some((w) => MQ.gradeVoiceSymbol(w, String(got).trim(), cfg) === 1 || (!MQ.parseVoiceSymbol(w) && sameTyped(w, got)));
+  }
+  // Which of a box's answers Clefwork can't read, so the builder can say so before the quiz goes out.
+  function unreadableAnswers(r, override) {
+    const ask = askFor(r, override), out = [];
+    if (ask !== 'symbol') alternatives(r.roman).forEach((w) => { if (!readRoman(w)) out.push({ part: 'roman', text: w }); });
+    if (ask !== 'roman') alternatives(r.symbol).forEach((w) => { if (!MQ.parseVoiceSymbol(w)) out.push({ part: 'symbol', text: w, roman: !!parseRoman(w) }); });
+    return out;
   }
   // A box of non-harmonic tones earns its share of what's right, less one for each extra circle or pair.
   function nhtCredit(c) { return !c.total ? (c.extra ? 0 : 1) : Math.max(0, c.right - c.extra) / c.total; }
@@ -4778,7 +4807,7 @@ input.sg-range { flex: 1; min-width: 0; accent-color: var(--accent); height: 28p
     parseStage, stageText, figTokens, analysisChains: chainsOf, analysisLinkProblems: linkProblems,
     analysisOpenSettings: openSettings, analysisOpenAsked: openAsked, ANALYSIS_KEY_TOLS: KEY_TOLS, ANALYSIS_KEYS: KEYS30, analysisKeyIndex: keyIndex, analysisKeyText: keyText, analysisKeySettings: keySettings, analysisKeyAsked: keyAsked, keyBoxRight, analysisKeyParts: keyParts, analysisKeyPartRight: keyPartRight,
     analysisSettings, analysisScores: scoresOf, analysisRegionCount: regionCount, alternatives, parseAnalysisRoman: parseRoman, sameRoman, romanParts, romanText, symbolOk, symbolText,
-    askFor, missingAnswers, analysisQuestions, markAnalysisPart, gradeAnalysis, hasAnalysisAnswer, describeAnalysis,
+    askFor, missingAnswers, unreadableAnswers, analysisQuestions, markAnalysisPart, gradeAnalysis, hasAnalysisAnswer, describeAnalysis,
     romanAnswerText, symbolAnswerText, analysisParts: partsOf,
     findBands, bandOf, readingOrder, sheetPlan, encodeScore, decodeScore, scoreURL, hashOfData,
   });
@@ -17806,6 +17835,12 @@ svg.staff .nlabel { display: none; }
     let from = 0;
     MQ.analysisScores(a).forEach((sc) => {
       MQ.analysisLinkProblems(sc.regions, a.override, from).forEach((t) => out.push(t));
+      // An answer Clefwork can't read would be shown to students as the answer and then marked
+      // wrong however they typed it, so it has to be said plainly here.
+      sc.regions.forEach((r, i) => {
+        MQ.unreadableAnswers(r, a.override).forEach((bad) => out.push(`Box ${from + i + 1}: Clefwork can’t read “${bad.text}” as a ${bad.part === 'roman' ? 'Roman numeral' : 'chord symbol'}`
+          + (bad.roman ? ' — that looks like a Roman numeral, so it belongs in the Roman numeral box.' : '. Students who type it are counted right, but nothing else is — fix it to mark the answer properly.')));
+      });
       sc.regions.forEach((r, i) => {
         if (r.ask !== 'nht') return;
         const off = r.nht.c.filter((c, j) => !MQ.analysisInPair(r.nht.l, j) && c.t >= 0 && !a.nhtOpts.includes(MQ.NHT_TYPES[c.t].id)).map((c) => MQ.NHT_TYPES[c.t].name)

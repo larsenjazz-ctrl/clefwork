@@ -4720,6 +4720,12 @@
     let from = 0;
     MQ.analysisScores(a).forEach((sc) => {
       MQ.analysisLinkProblems(sc.regions, a.override, from).forEach((t) => out.push(t));
+      // An answer Clefwork can't read would be shown to students as the answer and then marked
+      // wrong however they typed it, so it has to be said plainly here.
+      sc.regions.forEach((r, i) => {
+        MQ.unreadableAnswers(r, a.override).forEach((bad) => out.push(`Box ${from + i + 1}: Clefwork can’t read “${bad.text}” as a ${bad.part === 'roman' ? 'Roman numeral' : 'chord symbol'}`
+          + (bad.roman ? ' — that looks like a Roman numeral, so it belongs in the Roman numeral box.' : '. Students who type it are counted right, but nothing else is — fix it to mark the answer properly.')));
+      });
       sc.regions.forEach((r, i) => {
         if (r.ask !== 'nht') return;
         const off = r.nht.c.filter((c, j) => !MQ.analysisInPair(r.nht.l, j) && c.t >= 0 && !a.nhtOpts.includes(MQ.NHT_TYPES[c.t].id)).map((c) => MQ.NHT_TYPES[c.t].name)
