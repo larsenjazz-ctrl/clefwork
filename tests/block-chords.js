@@ -152,6 +152,21 @@ ok(MQ.gradeQuestion(octQ, [['C4', 'E4', 'B4'].map(P)], oct) === 1, 'a root in th
 const qs = MQ.generateQuiz(back);
 ok(qs.length === 3 && qs.every((q) => q.type === 'block'), 'three block questions', qs.map((q) => q.type).join(','));
 ok(qs[0].columns.length === 4 && qs[0].columns.every((c) => c.cap === 7 && !c.given.length), 'students write the root: room for 4 + 1 notes a chord, and two too many');
+// The builder edits the exercises in place while the quiz code is remade on every keystroke, so
+// reading the settings must keep each exercise (the same object), not copy it.
+const live = MQ.defaultConfig();
+Object.keys(live.counts).forEach((k) => (live.counts[k] = 0));
+live.block = MQ.blockSettings({ ex: [{ chords: 'D' }] });
+live.counts.block = 1;
+const row = live.block.ex[0];
+MQ.encodeQuiz(live);
+row.chords = 'Dmi7';
+MQ.encodeQuiz(live);
+row.chords = 'Dmi7 G7';
+MQ.generateQuiz(live);
+live.block.ex.push({ chords: 'Cma7', voices: 4 });
+MQ.encodeQuiz(live);
+ok(live.block.ex[0] === row && live.block.ex[0].chords === 'Dmi7 G7' && live.block.ex.length === 2, 'typing into an exercise is kept as the quiz code is remade', JSON.stringify(live.block.ex));
 // A quiz without block chords keeps its code.
 const plain = MQ.defaultConfig();
 ok(MQ.encodeQuiz(plain) === MQ.encodeQuiz(Object.assign({}, plain, { block: MQ.blockSettings({ ex: [{ chords: 'C', voices: 2 }] }) })), 'other quizzes keep their codes');
