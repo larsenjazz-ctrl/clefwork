@@ -595,7 +595,8 @@
       const c = MQ.compareNHT(q, response);
       lead = `Partly right — ${c.right} of ${c.total}${c.extra ? `, less ${c.extra} extra` : ''}.`;
     } else if (frac > 0 && q.type === 'analysis') {
-      lead = 'Partly right — 1 of 2 answers.';
+      const need = MQ.analysisParts(q).length;
+      lead = `Partly right — ${Math.round(frac * need)} of ${need} answers.`;
     } else if (frac > 0 && q.type === 'figprog') {
       const need = q.figuredList.length;
       lead = `Partly right — ${Math.round(frac * need)} of ${need} chords.`;
@@ -2708,7 +2709,7 @@
     if (listCount(cfg, 'analysis')) {
       const asks = MQ.analysisQuestions(cfg).map((q) => q.an.ask);
       const kinds = [asks.some((a) => a === 'roman' || a === 'both') ? 'Roman numerals' : null, asks.some((a) => a === 'symbol' || a === 'both') ? 'chord symbols' : null,
-        asks.includes('nht') ? 'non-harmonic tones' : null, asks.includes('key') ? 'key changes' : null, asks.includes('open') ? 'the opening key' : null].filter(Boolean);
+        asks.includes('nht') ? 'non-harmonic tones' : null, asks.includes('pivot') ? 'pivot chords' : null, asks.includes('key') ? 'key changes' : null, asks.includes('open') ? 'the opening key' : null].filter(Boolean);
       types.push(`Analysis (${listCount(cfg, 'analysis')} boxes) — ${kinds.length > 1 ? kinds.slice(0, -1).join(', ') + ' and ' + kinds[kinds.length - 1] : kinds[0]}`);
     }
     main.append(h('div', { class: 'narrow' }, h('section', { class: 'card stage' },
@@ -4098,7 +4099,9 @@
   // Each box has a colour, shared by its highlight on the music and its answer boxes.
   const AN_COLORS = ['#e39b12', '#2b86d6', '#d8457b', '#23a065', '#8a5ad6', '#15a0a3'];
   const anColor = (i) => AN_COLORS[i % AN_COLORS.length];
-  const ASK_LABEL = { roman: 'Roman numeral', symbol: 'Chord symbol', both: 'Roman numeral & chord symbol', nht: 'Non-harmonic tones', key: 'Key change', open: 'Opening key' };
+  const ASK_LABEL = { roman: 'Roman numeral', symbol: 'Chord symbol', both: 'Roman numeral & chord symbol', nht: 'Non-harmonic tones', key: 'Key change', open: 'Opening key', pivot: 'Pivot chord' };
+  // What each answer of a box is called: a pivot chord has a Roman numeral in each key.
+  const partLabel = (q, k) => (k === 'r2' ? 'Roman numeral — new key' : k === 'r' && q.an.ask === 'pivot' ? 'Roman numeral — old key' : k === 'r' ? 'Roman numeral' : 'Chord symbol');
   const letter = (i) => String.fromCharCode(97 + (i % 26));
   const KEY_COLOR = '#7b3fd4';
   // A menu of every key, major then minor; value: an index into MQ.ANALYSIS_KEYS (−1: none chosen).
@@ -4185,17 +4188,19 @@
   }
   const symbolAnswers = (list) => orList(list.map((w) => h('span', { class: 'fig-rn' }, MQ.symbolText(w))));
 
-  // One answer box — k is 'r' (Roman numeral) or 's' (chord symbol) — with a preview of how it reads.
+  // One answer box — k is 'r' (Roman numeral), 's' (chord symbol) or 'r2' (a pivot chord's Roman
+  // numeral in the new key) — with a preview of how it reads.
   let anUid = 0;
   function anInput(q, k, cfg, o, value, onInput) {
-    const roman = k === 'r';
+    const roman = k === 'r' || k === 'r2';
+    const wants = k === 'r2' ? q.an.roman2 || [] : roman ? q.an.roman : q.an.symbol;
     // On the student's sheet the key explains what to type, so the boxes stay bare.
     const inp = h('input', { type: 'text', id: 'an-in-' + ++anUid, class: 'an-in', maxlength: 15, placeholder: o.sheet ? null : roman ? 'V65' : 'G7',
       autocomplete: 'off', autocapitalize: 'off', autocorrect: 'off', spellcheck: 'false',
-      'aria-label': `Box ${q.an.n + 1}: ${roman ? 'Roman numeral' : 'chord symbol'}` });
-    inp.value = o.keyMode ? (roman ? q.an.roman[0] : q.an.symbol[0]) || '' : value || '';
+      'aria-label': `Box ${q.an.n + 1}: ${partLabel(q, k).toLowerCase().replace('roman', 'Roman')}` });
+    inp.value = o.keyMode ? wants[0] || '' : value || '';
     // Linked boxes read their figures as intervals above the bass; the next box takes figures alone.
-    const chain = roman && (q.an.link || q.an.linked);
+    const chain = k === 'r' && (q.an.link || q.an.linked);
     if (roman && q.an.linked) { inp.placeholder = o.sheet ? 'figs' : '53'; inp.setAttribute('aria-label', `Box ${q.an.n + 1}: figures, going on from box ${q.an.n}`); }
     const answer = () => (mark ? mark.full() : inp.value);
     const mark = roman && !q.an.linked ? markPicker(inp.id + '-mark', inp, () => { draw(); if (onInput) onInput(answer()); }) : null;
@@ -4219,7 +4224,7 @@
       const ok = MQ.markAnalysisPart(q, k, { [k]: value }, cfg);
       cell.classList.add(ok ? 'is-right' : 'is-wrong');
       pv.replaceChildren(ok ? h('span', { class: 'fig-mark is-right' }, '✓')
-        : h('span', { class: 'fig-mark is-wrong' }, '✗ ', roman ? romanAnswers(q.an.roman, chain) : symbolAnswers(q.an.symbol)));
+        : h('span', { class: 'fig-mark is-wrong' }, '✗ ', roman ? romanAnswers(wants, chain) : symbolAnswers(wants)));
     }
     return { el: cell, input: inp };
   }
@@ -4264,7 +4269,7 @@
     const row = h('div', { class: 'an-answers' });
     MQ.analysisParts(q).forEach((k) => {
       const f = anInput(q, k, cfg, o, resp[k], (v) => { resp[k] = v; if (o.onResponse) o.onResponse(Object.assign({}, resp)); });
-      row.append(h('div', { class: 'an-answer' }, h('label', { class: 'mini-label', for: f.input.id }, k === 'r' ? 'Roman numeral' : 'Chord symbol'), f.el));
+      row.append(h('div', { class: 'an-answer' }, h('label', { class: 'mini-label', for: f.input.id }, partLabel(q, k)), f.el));
     });
     wrap.append(row);
     if (o.keyMode) wrap.append(h('p', { class: 'result is-key' }, h('strong', null, 'Answer: '), MQ.describeAnswer(q, cfg)));
@@ -4398,18 +4403,19 @@
       host.querySelectorAll('.an-sheet').forEach((sheet) => (sheet.style.width = S.azoom * 100 + '%'));
     };
     const asks = t.qs.map((q) => q.an.ask);
-    const hasNht = asks.includes('nht');
+    const hasNht = asks.includes('nht'), hasPivot = asks.includes('pivot');
     main.append(h('div', { class: 'take is-analysis' }, progressHead(t),
       h('section', { class: 'card stage an-take' },
         h('div', { class: 'an-take-top' },
           h('p', { class: 'an-lede' }, (asks.some((a) => a !== 'nht') ? 'Click a highlighted part of the music — or its answer box — to start typing there. Tab moves to the next box, Shift+Tab back. ' : '')
-            + (hasNht ? 'For non-harmonic tones, click each one in its box to circle it, then name it. ' : '') + 'Only the box you are answering is coloured in; its number and colour match the music.'),
+            + (hasNht ? 'For non-harmonic tones, click each one in its box to circle it, then name it. ' : '')
+            + (hasPivot ? 'For a pivot chord, write its Roman numeral in the old key and in the new key. ' : '') + 'Only the box you are answering is coloured in; its number and colour match the music.'),
           h('div', { class: 'an-zoom', role: 'group', 'aria-label': 'Zoom the music' },
             zoom2,
             h('button', { type: 'button', class: 'btn btn-quiet sm', 'aria-label': 'Zoom out', onclick: () => setZoom(S.azoom - 0.25) }, '−'), zoomVal,
             h('button', { type: 'button', class: 'btn btn-quiet sm', 'aria-label': 'Zoom in', onclick: () => setZoom(S.azoom + 0.25) }, '+'))),
         cfg.analysis.notes ? h('p', { class: 'an-notes' }, cfg.analysis.notes) : null,
-        figuresKey(asks.some((a) => a === 'roman' || a === 'both'), asks.some((a) => a === 'symbol' || a === 'both'), { chains: t.qs.some((q) => q.an.link), nht: hasNht, keys: t.qs.some((q) => q.an.ask === 'key' && q.an.hide) }),
+        figuresKey(asks.some((a) => a === 'roman' || a === 'both' || a === 'pivot'), asks.some((a) => a === 'symbol' || a === 'both') || t.qs.some((q) => q.an.ask === 'pivot' && q.an.symbol.length), { chains: t.qs.some((q) => q.an.link), nht: hasNht, keys: t.qs.some((q) => q.an.ask === 'key' && q.an.hide) }),
         host),
       h('div', { class: 'take-actions' }, h('div', { class: 'spacer' }), checkBtn,
         h('button', { type: 'button', class: 'btn btn-primary', onclick: () => { t.reviewing = true; saveAttempt(); go(tv()); } }, t.practice ? 'Finish' : 'Review & submit'))));
@@ -4552,6 +4558,34 @@
       panel.draw();
       return panel;
     }
+    // ---------- pivot chords ----------
+    // The panel under the system: the chord's Roman numeral in the key before the change and in the new
+    // key, and its chord symbol when the teacher asks for one.
+    function pivotPanel(i) {
+      const q = all[i], locked = !!t.checked[i];
+      const el = h('div', { class: 'an-nht an-pivot' + (locked ? ' is-checked' : ''), style: `--c:${anColor(i)}`, 'data-i': i });
+      const rows = MQ.analysisParts(q).map((k) => {
+        const f = anInput(q, k, cfg, { locked, reveal: locked, sheet: true }, (t.resp[i] || {})[k], (v) => {
+          t.resp[i] = Object.assign({}, t.resp[i], { [k]: v });
+          answered(i);
+          setActive(i);
+        });
+        f.input.addEventListener('focus', () => setActive(i));
+        const box = h('div', { class: 'an-c-row an-pv-row', 'data-i': i, 'data-k': k },
+          h('label', { class: 'an-pv-label', for: f.input.id }, k === 'r' ? 'Old key' : k === 'r2' ? 'New key' : 'Chord symbol'), f.el);
+        stops.push({ i, k, box });
+        return box;
+      });
+      el.append(
+        h('div', { class: 'an-nht-head' }, h('span', { class: 'an-num', 'aria-hidden': 'true' }, String(i + 1)),
+          h('span', null, `Box ${i + 1} is a pivot chord: write its Roman numeral in the key before the change and in the new key${q.an.symbol.length ? ', and its chord symbol' : ''}.`)),
+        h('div', { class: 'an-c-rows' }, rows));
+      el.addEventListener('focusin', () => setActive(i));
+      el.addEventListener('mouseenter', () => hover(i, true));
+      el.addEventListener('mouseleave', () => hover(i, false));
+      boxes[i].push(el);
+      return el;
+    }
     // ---------- key changes ----------
     const keyPanels = [];
     const setDraw = (i) => { drawFor = i; sheet.classList.toggle('is-drawing', i != null); redrawKeyPanels(); };
@@ -4686,6 +4720,7 @@
         piece.items.forEach(({ i: j }) => {
           const i = ids[j];
           if (all[i].an.ask === 'key') { lane.append(keyPanel(i)); return; }
+          if (all[i].an.ask === 'pivot') { lane.append(pivotPanel(i)); return; }
           nv[i] = nv[i] || { parts: [], sel: null };
           nv[i].panel = nhtPanel(i);
           const el = nv[i].panel.el;
@@ -4837,7 +4872,7 @@
       // An answer Clefwork can't read would be shown to students as the answer and then marked
       // wrong however they typed it, so it has to be said plainly here.
       sc.regions.forEach((r, i) => {
-        MQ.unreadableAnswers(r, a.override).forEach((bad) => out.push(`Box ${from + i + 1}: Clefwork can’t read “${bad.text}” as a ${bad.part === 'roman' ? 'Roman numeral' : 'chord symbol'}`
+        MQ.unreadableAnswers(r, a.override).forEach((bad) => out.push(`Box ${from + i + 1}: Clefwork can’t read “${bad.text}” as a ${bad.part === 'roman2' ? 'Roman numeral (in the new key)' : bad.part === 'roman' ? 'Roman numeral' : 'chord symbol'}`
           + (bad.roman ? ' — that looks like a Roman numeral, so it belongs in the Roman numeral box.' : '. Students who type it are counted right, but nothing else is — fix it to mark the answer properly.')));
       });
       sc.regions.forEach((r, i) => {
@@ -5117,7 +5152,7 @@
       if (justDragged) return;
       if (S.aed) { if (S.aed.index !== i) toast(`Save or discard ${edName()} first.`, 'bad'); return; }
       const r = cur.regions[i];
-      S.aed = { index: i, x: r.x, y: r.y, w: r.w, h: r.h, ask: r.ask || 'roman', roman: r.roman || '', symbol: r.symbol || '', link: r.link ? 1 : 0,
+      S.aed = { index: i, x: r.x, y: r.y, w: r.w, h: r.h, ask: r.ask || 'roman', roman: r.roman || '', roman2: r.roman2 || '', symbol: r.symbol || '', link: r.link ? 1 : 0,
         nht: r.nht ? JSON.parse(JSON.stringify(r.nht)) : null, sel: null };
       redraw();
       const first = editor.querySelector('input');
@@ -5216,6 +5251,21 @@
       }
       const tidy = (s) => MQ.alternatives(s).map((x) => x.replace(/♭/g, 'b').replace(/♯/g, '#'));
       const rs = tidy(ed.roman), ss = tidy(ed.symbol);
+      if (ed.ask === 'pivot') {
+        // A pivot chord: whole numerals in both keys (no figures-only answers); the chord symbol is optional.
+        const r2 = tidy(ed.roman2 || '');
+        const badP = rs.concat(r2).find((x) => !MQ.parseAnalysisRoman(x)) || ss.find((x) => !MQ.symbolOk(x));
+        const msgP = !rs.length ? 'Type the Roman numeral in the key before the change.' : !r2.length ? 'Type the Roman numeral in the new key.'
+          : badP ? `“${badP}” can’t be read — fix it before saving.` : '';
+        if (msgP) {
+          toast(msgP, 'bad');
+          const inp = editor.querySelector(!rs.length ? '#an-ed-r' : !r2.length ? '#an-ed-r2' : 'input.is-invalid');
+          if (inp) inp.focus();
+          return;
+        }
+        const r4p = (v) => Math.round(v * 10000) / 10000;
+        return keep(ed, { x: r4p(ed.x), y: r4p(ed.y), w: r4p(ed.w), h: r4p(ed.h), ask: 'pivot', roman: rs.join(', '), roman2: r2.join(', '), symbol: ss.join(', ') });
+      }
       const needR = ed.ask !== 'symbol', needS = ed.ask !== 'roman';
       const bad = rs.find((x) => !MQ.parseAnalysisRoman(x) && !MQ.parseStage(x)) || ss.find((x) => !MQ.symbolOk(x));
       const msg = needR && !rs.length ? 'Type the Roman numeral students should write.'
@@ -5266,6 +5316,7 @@
       const pick = (k) => {
         ed.ask = k; ed.asking = false;
         if (k === 'nht' && !ed.nht) ed.nht = newNht();
+        if (k === 'pivot' && ed.roman2 == null) ed.roman2 = '';
         if (k === 'key') Object.assign(ed, { keyIndex: -1, hide: 1, key: null, keyAsk: 0 });
         redraw();
         const f = editor.querySelector('input:not([type=range]), select');
@@ -5280,6 +5331,7 @@
           h('button', { type: 'button', class: 'btn sm', onclick: () => pick('symbol') }, 'Chord symbol'),
           h('button', { type: 'button', class: 'btn sm', onclick: () => pick('both') }, 'Both'),
           h('button', { type: 'button', class: 'btn sm', onclick: () => pick('nht') }, 'Non-harmonic tones'),
+          h('button', { type: 'button', class: 'btn sm', onclick: () => pick('pivot') }, 'Pivot chord'),
           h('button', { type: 'button', class: 'btn sm', onclick: () => pick('key') }, 'Key change')),
         h('button', { type: 'button', class: 'btn-link', onclick: discard }, 'Cancel'));
       pop.addEventListener('keydown', (e) => { if (e.key === 'Escape') discard(); });
@@ -5380,29 +5432,43 @@
       // Linked from the box before (in reading order): this box's figures go on from its chord.
       const prev = ed.index > 0 ? cur.regions[ed.index - 1] : null;
       const linkedIn = !!(prev && prev.link && prev.ask !== 'nht');
+      const pivot = ed.ask === 'pivot';
       const field = (k) => {
-        const roman = k === 'r', key = roman ? 'roman' : 'symbol';
-        const inp = h('input', { type: 'text', id: 'an-ed-' + k, class: 'an-ed-in', maxlength: 60, placeholder: roman ? (linkedIn ? 'e.g. 53' : 'e.g. V65') : 'e.g. G7/B',
+        const roman = k === 'r' || k === 'r2', key = k === 'r2' ? 'roman2' : roman ? 'roman' : 'symbol';
+        const inp = h('input', { type: 'text', id: 'an-ed-' + k, class: 'an-ed-in', maxlength: 60, placeholder: roman ? (pivot ? (k === 'r' ? 'e.g. vi' : 'e.g. ii') : linkedIn ? 'e.g. 53' : 'e.g. V65') : 'e.g. G7/B',
           autocomplete: 'off', autocapitalize: 'off', autocorrect: 'off', spellcheck: 'false' });
-        inp.value = ed[key];
+        inp.value = ed[key] || '';
         const pv = h('span', { class: 'fig-preview' });
         const draw = () => {
           const alts = MQ.alternatives(inp.value);
-          const bad = alts.find((x) => (roman ? !MQ.parseAnalysisRoman(x) && !MQ.parseStage(x) : !MQ.symbolOk(x)));
+          const bad = alts.find((x) => (roman ? !MQ.parseAnalysisRoman(x) && (pivot || !MQ.parseStage(x)) : !MQ.symbolOk(x)));
           inp.classList.toggle('is-invalid', !!bad);
           pv.replaceChildren(bad ? h('span', { class: 'fig-unread is-bad' }, `“${bad}” isn’t a ${roman ? 'Roman numeral Clefwork can read' : 'chord symbol Clefwork can read'}`)
-            : roman ? h('span', null, romanAnswers(alts, ed.link || linkedIn)) : h('span', null, symbolAnswers(alts)));
+            : roman ? h('span', null, romanAnswers(alts, !pivot && (ed.link || linkedIn))) : h('span', null, symbolAnswers(alts)));
         };
         inp.addEventListener('input', () => { if (!roman) upperFirst(inp); ed[key] = inp.value; draw(); });
         inp.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); save(); } else if (e.key === 'Escape') discard(); });
         draw();
-        const needed = roman ? ed.ask !== 'symbol' : ed.ask !== 'roman';
-        const quizWants = want && (roman ? want !== 'symbol' : want !== 'roman');
+        const needed = pivot ? roman : roman ? ed.ask !== 'symbol' : ed.ask !== 'roman';
+        const quizWants = !pivot && want && (roman ? want !== 'symbol' : want !== 'roman');
         return h('div', { class: 'an-ed-field' },
-          h('label', { class: 'mini-label', for: inp.id }, roman ? 'Roman numeral' : 'Chord symbol',
+          h('label', { class: 'mini-label', for: inp.id }, pivot ? (k === 'r' ? 'Roman numeral — key before the change' : k === 'r2' ? 'Roman numeral — new key' : 'Chord symbol') : roman ? 'Roman numeral' : 'Chord symbol',
             needed ? null : h('span', { class: 'an-opt' }, quizWants ? ' — the quiz-wide setting asks for this too' : ' — optional')),
           inp, pv);
       };
+      if (pivot) {
+        editor.replaceChildren(h('div', { class: 'an-editor', role: 'group', 'aria-label': ed.index >= 0 ? `Box ${offset + ed.index + 1}` : 'New box' },
+          h('div', { class: 'an-ed-head' }, h('strong', null, `${ed.index >= 0 ? `Box ${offset + ed.index + 1}` : 'New box'} — pivot chord`),
+            h('span', { class: 'help' }, 'Drag on the music to redraw this box.')),
+          h('p', { class: 'help' }, 'The chord the two keys share, where the music changes key. Students write its Roman numeral in the key before the change and in the new key — vi in C major = ii in G major — and its chord symbol, if you give one. Mark the key change itself with a Key change box if you want students to name the new key.'),
+          h('div', { class: 'an-ed-fields' }, field('r'), field('r2'), field('s')),
+          h('p', { class: 'help' }, 'Leave the chord symbol empty to ask for the two Roman numerals only. If more than one answer is right, separate them with commas.'),
+          h('div', { class: 'btn-row' },
+            h('button', { type: 'button', class: 'btn btn-primary', onclick: save }, ed.index >= 0 ? 'Save changes' : 'Save box'),
+            h('button', { type: 'button', class: 'btn btn-quiet', onclick: discard }, ed.index >= 0 ? 'Cancel changes' : 'Discard box'),
+            ed.index >= 0 ? h('button', { type: 'button', class: 'btn btn-quiet an-del', onclick: (e) => removeBox(ed.index, e.currentTarget) }, 'Delete') : null)));
+        return;
+      }
       const showR = ed.ask !== 'symbol' || (want && want !== 'symbol') || !!ed.roman;
       const showS = ed.ask !== 'roman' || (want && want !== 'roman') || !!ed.symbol;
       editor.replaceChildren(h('div', { class: 'an-editor', role: 'group', 'aria-label': ed.index >= 0 ? `Box ${offset + ed.index + 1}` : 'New box' },
@@ -5439,7 +5505,10 @@
           h('span', { class: 'an-item-main' },
             h('span', { class: 'an-item-ask' }, ASK_LABEL[ask] + (ask === 'nht' ? (r.nht.mode ? ' — circled for students' : ' — students circle them') : '')
               + (ch.link ? ` — linked to box ${offset + i + 2}` : ch.linked ? ' — figures, from the box before' : '')),
-            ask === 'nht' ? h('span', { class: 'an-item-ans an-item-nht' }, MQ.nhtAnswerText(r.nht)) : h('span', { class: 'an-item-ans' },
+            ask === 'nht' ? h('span', { class: 'an-item-ans an-item-nht' }, MQ.nhtAnswerText(r.nht))
+            : ask === 'pivot' ? h('span', { class: 'an-item-ans' }, romanAnswers(rs, false), h('span', { class: 'an-sep' }, ' old key = '), romanAnswers(MQ.alternatives(r.roman2), false), h('span', { class: 'an-sep' }, ' new key'),
+              ss.length ? [h('span', { class: 'an-sep' }, ' · '), symbolAnswers(ss)] : null)
+            : h('span', { class: 'an-item-ans' },
               ask !== 'symbol' && rs.length ? romanAnswers(rs, inChain) : null,
               ask === 'both' ? h('span', { class: 'an-sep' }, ' · ') : null,
               ask !== 'roman' && ss.length ? symbolAnswers(ss) : null)),
