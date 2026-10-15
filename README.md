@@ -23,6 +23,10 @@ Because the code carries every setting, a quiz can be read back: **Edit a quiz y
 
 Question types: place a note, name a note, intervals (simple and compound), chords (triads through 13ths, inversions, typed chord symbols), scales (including pentatonics and modes), key signatures, chord progressions, figured bass (single chords and progressions), and voicings — single voiced chords and voiced progressions. Clefwork Voice Leading adds block chords, marked by the textbook’s rules.
 
+### Total points
+
+Every tool's **Quiz rules** have a **Total points** box. Left empty, a quiz counts as it always has — a point for each question, or for each note, chord or answer in the tools that count those. With a total, every score is the student's share of it, however many ways a question can be marked: 80% of a 10-point quiz is 8, and 9 of 12 block chords right on a 5-point quiz is 3.75. The detail stays underneath (the chords right, the wrong notes, the questions fully correct). The total travels in the quiz code and in each report code, so the score is the same on the student's page, in the grade checker, the class summary and spreadsheet copy, and on the results page in SpeedGrader. It is the same number as **Points in Canvas** in Set up in Canvas, and it takes the place of the out-of-100 settings some tools have of their own. Teacher changes to block-chord marks change the share too.
+
 ### Voicings
 
 Two tabs build chords from the teacher's complexity settings (sizes, qualities, altered notes, chords from a key or chromatic, slash chords) and voice them with a named technique: stacked thirds, chorale, block voicing, drop 2, drop 2 & 4, 5 plane / 9 plane, pop horn voicings, inner sevenths, or a voicing the teacher writes out. Each technique has its own counter and its own choices — staff, open or closed, three or four notes, inner 2nds. Students either write the notes for a printed chord symbol, or write the chord symbol for a printed voicing.
@@ -234,6 +238,10 @@ dist/site/                            copies published to GitHub Pages
 ```
 
 Set `CLEFWORK_BASE` before building to change the address used in shared links.
+
+### Testing total points
+
+`node tests/total-points.js` checks that a quiz with a total is scored as each student's share of it — plain questions, block chords (including a chord the teacher accepts) and Chord Graph answers — and that a quiz without one is scored as before.
 
 ### Testing block chords
 

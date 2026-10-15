@@ -1666,9 +1666,15 @@
     const RETAKES = [{ v: 'u', label: 'Unlimited' }, { v: 0, label: 'None — one attempt' }, { v: 1, label: '1 retake' }, { v: 2, label: '2 retakes' },
       { v: 3, label: '3 retakes' }, { v: 5, label: '5 retakes' }, { v: 10, label: '10 retakes' }];
     const retakeIn = selectEl('q-retakes', RETAKES, cfg.retakes == null ? 'u' : cfg.retakes, (v) => { cfg.retakes = v === 'u' ? null : +v; changed(); });
+    // Total points: the same number Set up in Canvas asks for, so the two always agree.
+    const totalIn = h('input', { type: 'number', id: 'q-total', min: 0, max: 1000, inputmode: 'numeric', placeholder: 'e.g. 10' });
+    totalIn.value = cfg.canvasPts || '';
+    totalIn.addEventListener('change', () => { const v = quizTotal({ canvasPts: +totalIn.value || 0 }); totalIn.value = v || ''; cfg.canvasPts = v; changed(); });
     form.append(sec('rules', 'Quiz rules', null,
       h('div', { class: 'row2' }, fld('Time limit in minutes', timeIn, '0 means no limit. The quiz submits itself when time runs out.'),
         STUDENT ? null : fld('Retakes', retakeIn, 'Students can retake the quiz to improve their score — the same questions each time. Each report shows its attempt number.')),
+      STUDENT ? null : h('div', { class: 'row2' }, fld('Total points', totalIn,
+        'Leave empty to count a point for each question (or note, chord or answer). Set a total and every score is the student’s share of it: 80% of a 10-point quiz is 8, however many ways a question can be marked. Canvas uses the same total.')),
       h('div', { class: 'toggles' },
         ANALYSIS || DICTATION || SING || VOICE ? null : flag('shuffle', 'Shuffle question order', 'Mixes the question types together instead of grouping them.'),
         KEYS || DICTATION || TERMS || SING || VOICE ? null : ANALYSIS ? flag('partial', 'Partial credit', 'A box that asks for both earns half credit for each right answer.')
@@ -1775,7 +1781,7 @@
           + 25 * S.qs.reduce((n, q) => n + (q.type === 'block' ? q.blk.syms.length : 0), 0)) / 60));
         const sb = DICTATION && !SING ? dictation(cfg) : null;
         const dsc = !sb ? quizScoring(cfg, S.qs) : null;          // scale degrees scored by note or percent
-        const outOf = sb ? (sb.score === 'percent' ? ` · out of ${sb.outOf} points` : ` · out of ${rhythmNotes(S.qs)} notes`)
+        const outOf = quizTotal(cfg) ? ` · worth ${quizTotal(cfg)} point${quizTotal(cfg) === 1 ? '' : 's'}` : sb ? (sb.score === 'percent' ? ` · out of ${sb.outOf} points` : ` · out of ${rhythmNotes(S.qs)} notes`)
           : dsc ? ` · out of ${fmtPts(MQ.reportStats({ items: S.qs.map((q) => ({ type: q.type, clef: q.clef, credit: 7, answered: true, sec: 0, notes: q.type === 'degree' ? q.deg.notes.length : MQ.isGraph(q) ? MQ.graphPoints(q) : q.type === 'block' ? q.blk.syms.length : undefined, wrong: 0 })), scoring: dsc }).n)} ${VOICE ? 'chords' : 'points'}` : '';
         const noun = MELODY || SING ? (total === 1 ? 'melody' : 'melodies') : `${RHYTHM ? 'example' : GRAPH ? 'worksheet' : VOICE ? 'exercise' : 'question'}${total === 1 ? '' : 's'}`;
         const each = SING && singAsked(cfg) < total ? ` (each student sings ${singAsked(cfg)})` : '';
@@ -2685,6 +2691,7 @@
           ? h('div', null, h('dt', null, 'Uses'), h('dd', null, 'Grand staff, piano'))
           : h('div', null, h('dt', null, 'Clefs'), h('dd', null, [cfg.clefs & 1 ? 'Treble' : null, cfg.clefs & 2 ? 'Bass' : null, usesGrand(cfg) ? 'Grand staff' : null].filter(Boolean).join(', ')))),
       h('p', { class: 'types-line' }, types.join(' · ')),
+      quizTotal(cfg) && !onlySing(cfg) ? h('p', { class: 'an-notes' }, `This quiz is worth ${quizTotal(cfg)} point${quizTotal(cfg) === 1 ? '' : 's'}. Your score is your share of everything it marks.`) : null,
       onlyAnalysis(cfg) && cfg.analysis.notes ? h('p', { class: 'an-notes' }, accText(cfg.analysis.notes)) : null,
       listCount(cfg, 'rhythm') || listCount(cfg, 'melody') ? h('p', { class: 'an-notes rh-intro' }, rhythmIntro(cfg, t.qs)) : null,
       listCount(cfg, 'sing') ? h('p', { class: 'an-notes rh-intro' }, singIntro(cfg, t.qs)) : null,
@@ -2792,7 +2799,16 @@
   }
   // How a quiz is scored when it isn't one point a question: rhythm and melody dictation by note, and
   // scale degrees when the teacher chose note or percent scoring.
+  // The quiz's total, when the teacher set one: every score is the student's share of it.
+  const quizTotal = (cfg) => Math.max(0, Math.min(1000, Math.round((cfg && cfg.canvasPts) || 0)));
   function quizScoring(cfg, qs) {
+    const own = toolScoring(cfg, qs);
+    const total = quizTotal(cfg);
+    // Total points: whatever a quiz counts (questions, notes, chords, answers), the score is that share
+    // of the teacher's total. Each question still counts as it always does underneath.
+    return total ? { mode: 'percent', outOf: total, split: own ? own.split : 0 } : own;
+  }
+  function toolScoring(cfg, qs) {
     // Block chords: every chord a point.
     if (qs.some((q) => q.type === 'block')) return { mode: 'notes', outOf: 100, split: 0 };
     if (qs.some((q) => q.type === 'rhythm' || q.type === 'melody' || q.type === 'rgrid')) {
@@ -2909,7 +2925,7 @@
     const linkBox = h('textarea', { class: 'code cv-result', rows: 3, readonly: true, spellcheck: 'false', 'aria-label': 'Your results link' });
     linkBox.value = link;
     linkBox.addEventListener('focus', () => linkBox.select());
-    const outOf = t.cfg.canvasPts || 0;
+    const outOf = quizTotal(t.cfg);
     const scaled = canvasScore(st.points, st.n, outOf);
     main.append(h('div', { class: 'take done' },
       h('section', { class: 'card stage done-hero' },
@@ -3132,7 +3148,8 @@
     const st = r.stats;
     const sung = r.items.length > 0 && r.items.every((it) => it.type === 'sing');
     const title = r.quiz ? r.quiz.cfg.title : `Quiz #${r.quizId.toString(16).toUpperCase().padStart(4, '0')}`;
-    const outOf = o.canvas && r.quiz ? r.quiz.cfg.canvasPts || 0 : 0;
+    // A quiz with Total points is already scored out of them; an older one may still be scaled here.
+    const outOf = o.canvas && r.quiz && !(st.mode === 'percent' && st.n === quizTotal(r.quiz.cfg)) ? quizTotal(r.quiz.cfg) : 0;
     const scaled = canvasScore(st.points, st.n, outOf);
     return h('section', { class: 'card report' },
       h('div', { class: 'report-top' },
@@ -3357,7 +3374,9 @@
       const describe = `<p><strong>Take the quiz:</strong> <a href="${esc(link)}" target="_blank" rel="noopener">Open “${esc(title)}”</a></p>\n` + steps;
       const ptsIn = h('input', { type: 'number', id: 'cv-points', min: 0, max: 1000, inputmode: 'numeric', value: pts || '' , placeholder: 'e.g. 10' });
       ptsIn.addEventListener('change', () => {
-        cfg.canvasPts = Math.max(0, Math.min(1000, Math.round(+ptsIn.value || 0)));
+        cfg.canvasPts = quizTotal({ canvasPts: +ptsIn.value || 0 });
+        const rules = document.getElementById('q-total');   // the same number as Total points in Quiz rules
+        if (rules) rules.value = cfg.canvasPts || '';
         changed();                 // the points travel inside the quiz code, so the links change
         rememberQuiz(S.code, cfg); // and this device should recognise the new code when grading
         draw();
@@ -3392,7 +3411,7 @@
           h('li', null, 'Set ', h('b', null, 'Points'), pts ? [' to ', h('b', null, String(pts)), '.'] : ' to whatever the quiz is worth, and enter that number below.'),
           h('li', null, 'Open the assignment description’s ', h('b', null, 'HTML editor'), ' (the ', h('code', null, '</>'), ' button) and paste the first box below — the quiz and its link in one. Save and publish.'),
           h('li', null, 'Students take the quiz, then submit their results link. In ', h('b', null, 'SpeedGrader'), ' each submission opens that student’s results — enter the score it shows.')),
-        fld('Points in Canvas', ptsIn, pts ? `Results pages show each score out of ${pts}, ready to type into SpeedGrader.` : 'Optional. When set, results pages also show the score scaled to these points.'),
+        fld('Points in Canvas', ptsIn, pts ? `The quiz is scored out of ${pts} — the Total points in Quiz rules — ready to type into SpeedGrader.` : 'Optional — the same as Total points in Quiz rules. When set, every score is out of these points.'),
         box('cv-embed', 'Embed the quiz in Canvas, with the link to the quiz (recommended)', embedded,
           'Students read the steps, take the quiz right in the assignment, and have the link for a tablet, a phone or the Canvas app — where an embedded page can’t always bring up the keyboard. In a web browser the quiz grows to fit, so nothing is cut off. Works on a Canvas page too.', 8),
         box('cv-desc', 'Link only (if your school blocks embedded sites)', describe, 'The steps and a link that opens the quiz in its own tab.', 6),
@@ -5706,23 +5725,25 @@
   // What students should know before a rhythm quiz: sound on, and how often they can listen.
   function rhythmIntro(cfg, qs) {
     const b = dictation(cfg);
-    if (!listCount(cfg, 'melody') && b.task === 'grid') return gridIntro(b, qs);
+    if (!listCount(cfg, 'melody') && b.task === 'grid') return gridIntro(b, qs, quizTotal(cfg));
     const times = (n) => (n === 1 ? 'once' : n === 2 ? 'twice' : `${n} times`);
     const ex = b.playsEx ? `You can play each example ${times(b.playsEx)}` : 'You can play each example as often as you like';
     const ans = b.playsAns ? `, and hear your own answer ${times(b.playsAns)}` : ', and hear your own answer as often as you like';
-    const notes = rhythmNotes(qs);
-    const score = b.score === 'percent' ? ` The quiz is out of ${b.outOf} points — the share of its ${notes} notes you get right.`
+    const notes = rhythmNotes(qs), outOf = quizTotal(cfg) || (b.score === 'percent' ? b.outOf : 0);
+    const score = outOf ? ` The quiz is out of ${outOf} points — the share of its ${notes} notes you get right.`
       : ` Every note is worth a point — ${notes} in all — and each wrong or extra note costs one.`;
     return `Turn your sound on — headphones help. ${ex}${ans}.${score}`;
   }
 
   // What students should know before a rhythm-grid quiz.
-  function gridIntro(b, qs) {
+  // total: the quiz's Total points, when the teacher set one.
+  function gridIntro(b, qs, total) {
     const G = b.grid, notes = rhythmNotes(qs), what = G.rests ? 'note and rest' : 'note';
     const times = (n) => (n === 1 ? 'once' : n === 2 ? 'twice' : `${n} times`);
     const how = `For every ${what}, click the box where it starts and choose its value, then drag its arrow across the boxes it lasts.`;
     const listen = G.show === 0 ? '' : `Turn your sound on. ${b.playsEx ? `You can play each example ${times(b.playsEx)}` : 'You can play each example as often as you like'}${b.playsAns ? `, and hear your grid ${times(b.playsAns)}` : ', and hear your grid as often as you like'}. `;
-    const score = b.score === 'percent' ? ` The quiz is out of ${b.outOf} points — the share of its ${notes} ${G.rests ? 'notes and rests' : 'notes'} you get right.`
+    const outOf = total || (b.score === 'percent' ? b.outOf : 0);
+    const score = outOf ? ` The quiz is out of ${outOf} points — the share of its ${notes} ${G.rests ? 'notes and rests' : 'notes'} you get right.`
       : ` Every ${what} is worth a point — ${notes} in all — and each wrong or extra one costs one.`;
     return `${listen}${how}${score}`;
   }
@@ -5973,6 +5994,7 @@
   function rhythmScoreText(cfg, qs) {
     const b = dictation(cfg), notes = rhythmNotes(qs);
     if (!notes) return '';
+    if (quizTotal(cfg)) return `These examples have ${notes} notes in all. The quiz is worth the ${quizTotal(cfg)} points set in Quiz rules: each student scores their share of the notes.`;
     if (b.score !== 'percent') return `These examples have ${notes} notes in all, so the quiz is out of ${notes}. Each wrong note costs a point.`;
     const eg = Math.min(3, notes);
     return `These examples have ${notes} notes in all. The quiz is out of ${b.outOf}: a student with ${eg} wrong note${eg === 1 ? '' : 's'} scores ${fmtPts(((notes - eg) / notes) * b.outOf)} of ${b.outOf}.`;
