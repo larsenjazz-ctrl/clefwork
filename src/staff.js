@@ -14,6 +14,9 @@
     (f > 0 ? SHARPS_T.slice(0, f) : FLATS_T.slice(0, -f)).map((d) => d + (clef === 'bass' ? -14 : 0));
 
   const HEAD = '<path class="head" fill-rule="evenodd" d="M-7.6 0A7.6 5.4 0 1 0 7.6 0A7.6 5.4 0 1 0 -7.6 0ZM2.75 -3.93A4.8 2.6 -55 1 0 -2.75 3.93A4.8 2.6 -55 1 0 2.75 -3.93Z"/>';
+  // A half note's head: smaller, tilted, with a narrow hole; its stem is drawn with the chord.
+  const HALF_HEAD = '<g transform="rotate(-22)"><path class="head" fill-rule="evenodd" d="M-6.6 0A6.6 4.6 0 1 0 6.6 0A6.6 4.6 0 1 0 -6.6 0ZM-5.2 0A5.2 1.9 0 1 0 5.2 0A5.2 1.9 0 1 0 -5.2 0Z"/></g>';
+  const STEM = 35;
   const ACC = {
     1: '<path d="M-3.2 -12.5V11M2.6 -13.5V10" stroke="currentColor" stroke-width="1.3" fill="none"/><path d="M-5.6 -4L5.2 -7.2V-4.2L-5.6 -1ZM-5.6 4L5.2 0.8V3.8L-5.6 7Z" fill="currentColor"/>',
     '-1': '<path d="M-3.5 -17V5.5" stroke="currentColor" stroke-width="1.4" fill="none"/><path d="M-3.5 5.5C1 2 6.2 -1.5 5.2 -4.6C4.3 -7.2 0.4 -6.6 -3.5 -2.6V-0.8C-0.6 -3.8 2.6 -4.9 3 -3.2C3.4 -1.3 0.2 1.8 -3.5 3.6Z" fill="currentColor"/>',
@@ -50,7 +53,9 @@
 
   class Staff {
     constructor(host, opts) {
-      this.opts = Object.assign({ clef: 'treble', grand: false, keySig: 0, keyAware: false, chordLabels: null, barlines: false, colW: null, columns: [], placed: null, readOnly: false, labels: false, reveal: null, revealPc: false, marks: null, onChange: null }, opts);
+      // value 'half': half notes, one stem per staff for each chord. barEvery: a bar line after every
+      // that many columns (two half notes to a 4/4 measure).
+      this.opts = Object.assign({ clef: 'treble', grand: false, keySig: 0, keyAware: false, chordLabels: null, barlines: false, barEvery: 1, value: 'whole', colW: null, columns: [], placed: null, readOnly: false, labels: false, reveal: null, revealPc: false, marks: null, onChange: null }, opts);
       const o = this.opts;
       // `by` is the y of the bottom staff line; min/max bound note positions on that staff.
       this.staves = o.grand
@@ -304,7 +309,7 @@
       for (let L = 10; L <= pos; L += 2) s += `<line class="ledger" x1="-12" x2="12" y1="${(pos - L) * HALF}" y2="${(pos - L) * HALF}"/>`;
       const acc = this.shownAcc(n.p);
       if (acc != null) s += `<g transform="translate(${-19 - accLevel * 11 - extraX - (acc === -2 ? 5 : 0)} 0)">${ACC[acc]}</g>`;
-      s += HEAD;
+      s += this.opts.value === 'half' ? HALF_HEAD : HEAD;
       if (n.col != null) s += '<ellipse class="hit" rx="12" ry="8"/>';
       if (n.label) s += `<text class="nlabel" y="${pos >= 4 ? 26 : -16}" text-anchor="middle">${n.label}</text>`;
       return s + '</g>';
@@ -317,7 +322,7 @@
         const accs = [];
         group.forEach((n) => {
           const d = MQ.dia(n.p);
-          n.shift = prev && d - prev.d === 1 && !prev.shift && prev.cls !== 'hover' ? 15 : 0;
+          n.shift = prev && d - prev.d === 1 && !prev.shift && prev.cls !== 'hover' ? (this.opts.value === 'half' ? 12.2 : 15) : 0;
           prev = { d, shift: n.shift, cls: n.cls };
           if (this.shownAcc(n.p) != null) accs.push(n);
         });
@@ -331,8 +336,19 @@
           placedAcc.push({ p: n.p, lvl });
         });
         group.forEach((n) => (out += this.noteSVG(x, n, n.shift, n.lvl || 0)));
+        if (this.opts.value === 'half') out += this.stem(x, st, group.filter((n) => n.cls !== 'hover' && n.cls !== 'expected'));
       });
       return out;
+    }
+
+    // One stem for a chord's notes on one staff: down when they sit mostly above the middle line, up
+    // otherwise — and always up beside a second, whose upper note sits to the right of the stem.
+    stem(x, st, group) {
+      if (!group.length) return '';
+      const pos = group.map((n) => this.posOf(n.p)), lo = Math.min(...pos), hi = Math.max(...pos);
+      const up = group.some((n) => n.shift) || 4 - lo >= hi - 4;
+      if (up) return `<line class="stem" x1="${x + 6}" x2="${x + 6}" y1="${this.yOf(st, lo) - 1.5}" y2="${Math.min(this.yOf(st, hi) - STEM, this.yOf(st, 4))}"/>`;
+      return `<line class="stem" x1="${x - 6}" x2="${x - 6}" y1="${this.yOf(st, hi) + 1.5}" y2="${Math.max(this.yOf(st, lo) + STEM, this.yOf(st, 4))}"/>`;
     }
 
     render() {
@@ -361,6 +377,7 @@
       }
       const n = o.columns.length;
       if (o.barlines) for (let i = 0; i < n - 1; i++) {
+        if ((i + 1) % (o.barEvery || 1)) continue;
         const x = (colX[i] + colX[i + 1]) / 2;
         s += `<line class="sl" x1="${x}" x2="${x}" y1="${top}" y2="${bottom}"/>`;
       }
@@ -377,7 +394,8 @@
         (this.placed[i] || []).forEach((p, idx) => {
           if (!p) return;
           const sel = this.sel && this.sel.col === i && this.sel.idx === idx;
-          const mark = o.marks && o.marks[i] ? (o.marks[i][idx] ? ' is-right' : ' is-wrong') : '';
+          // A mark of null leaves the note unmarked (block chords: a note no rule is about).
+          const mark = o.marks && o.marks[i] ? (o.marks[i][idx] === null ? ' is-plain' : o.marks[i][idx] ? ' is-right' : ' is-wrong') : '';
           const dragging = this.drag && this.drag.col === i && this.drag.idx === idx;
           notes.push({
             p, col: i, idx,
@@ -411,6 +429,7 @@
   MQ.Staff = Staff;
   MQ.ACC_SVG = ACC;
   MQ.HEAD_SVG = HEAD;
+  MQ.HALF_HEAD_SVG = HALF_HEAD;
   // For Clefwork Melody's staff, drawn at its own size.
   MQ.clefSVG = clefSVG;
   MQ.keySigDias = keySigDias;
