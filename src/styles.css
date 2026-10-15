@@ -741,6 +741,24 @@ input.an-in { width: 100%; min-height: 34px; padding: 4px 2px; text-align: cente
 .tool-name { font: 700 20px/1.2 var(--f-display); letter-spacing: -0.01em; }
 .tool-blurb { font-size: 14.5px; color: var(--ink-2); flex: 1; }
 .tool-go { font-weight: 700; font-size: 14.5px; color: var(--accent); }
+/* Your quizzes: the quizzes built in this browser, to open again. */
+.home-quizzes { display: flex; flex-direction: column; gap: 10px; }
+.home-quizzes .card-title { margin: 2px 0 0; }
+.yq-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 12px; flex-wrap: wrap; }
+.yq-filter { display: flex; flex-direction: column; gap: 4px; }
+.yq-filter[hidden] { display: none; }
+.home-quizzes .fine { margin: 0; }
+.yq-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+.yq-item { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 0; border-top: 1px solid var(--line); }
+.yq-main { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.yq-title { font: 700 16px/1.3 var(--f-display); overflow-wrap: anywhere; }
+.yq-meta { color: var(--muted); font-size: 13px; }
+.yq-acts { display: flex; gap: 6px; flex: none; }
+#yq-more { align-self: flex-start; }
+.yq-row { margin-top: 4px; }
+@media (max-width: 560px) {
+  .yq-item { flex-direction: column; align-items: stretch; }
+}
 .home-lower { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); gap: 16px; align-items: start; }
 .home-grade { display: flex; flex-direction: column; gap: 8px; }
 .home-grade .card-title, .home-student .card-title { margin: 2px 0 4px; }

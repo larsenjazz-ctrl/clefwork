@@ -270,9 +270,12 @@
     c.counts.block = 3;
     return c;
   }
-  function loadDraft() {
-    const d = store.get(DRAFT, null);
-    const base = KEYS ? keysDefault() : ANALYSIS ? analysisDefault() : RHYTHM ? rhythmDefault() : MELODY ? melodyDefault() : SING ? singDefault() : GRAPH ? graphDefault() : TERMS ? termsDefault() : VOICE ? blockDefault() : MQ.defaultConfig();
+  // A new quiz in this tool, as the builder starts it.
+  const freshConfig = () => (KEYS ? keysDefault() : ANALYSIS ? analysisDefault() : RHYTHM ? rhythmDefault() : MELODY ? melodyDefault() : SING ? singDefault() : GRAPH ? graphDefault() : TERMS ? termsDefault() : VOICE ? blockDefault() : MQ.defaultConfig());
+  // The draft this tool keeps (or `saved`, a quiz from Your quizzes), brought up to date.
+  function loadDraft(saved) {
+    const d = saved || store.get(DRAFT, null);
+    const base = freshConfig();
     if (d && d.counts && d.flags) {
       const custom = Array.isArray(d.custom) ? d.custom : [];
       const voicings = Array.isArray(d.voicings) ? d.voicings : [];
@@ -314,7 +317,7 @@
   // S.take is whichever quiz the current tab works with: a teacher's quiz, or (student version) a practice run.
   Object.defineProperty(S, 'take', { get: () => S.slots[S.slot], set: (v) => { S.slots[S.slot] = v; } });
   const tv = () => (S.slot === 'practice' ? 'practice' : 'take');
-  const saveDraft = () => store.set(DRAFT, S.cfg);
+  const saveDraft = () => { store.set(DRAFT, S.cfg); keepQuiz(S.cfg); };
   // Quizzes built or copied on this device. `created` is kept from the first time a code is seen.
   function rememberQuiz(code, cfg) {
     const id = MQ.quizId(code);
@@ -323,6 +326,43 @@
     const list = old.filter((q) => q.id !== id);
     list.unshift({ id, code, title: cfg.title, at: Date.now(), created: (prev && (prev.created || prev.at)) || Date.now() });
     store.set('recent', list.slice(0, 30));
+    // Your quizzes: the code this quiz was last shared as.
+    const mine = store.get('quizzes', []) || [];
+    const e = cfg.qid && mine.find((q) => q.qid === cfg.qid);
+    if (e) { e.code = MQ.normalize(code); e.shared = Date.now(); store.set('quizzes', mine); }
+  }
+
+  // ---------- your quizzes ----------
+  // Every quiz built on this computer, each under its own id (cfg.qid, which never goes in a quiz code),
+  // with its tool, title, size and dates — the landing page lists them to open again. A quiz joins the
+  // list the first time it is changed, so a builder opened and left alone adds nothing.
+  const QUIZZES_MAX = 60;
+  const OWN_QUIZZES = !STUDENT && MODE !== 'canvas' && MODE !== 'results';
+  const newQid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+  const toolHere = () => APPS.find((a) => a.mode === MODE) || { mode: '', page: 'clefwork.html', label: 'Clefwork' };
+  function keepQuiz(cfg) {
+    if (!OWN_QUIZZES || !cfg) return;
+    if (!cfg.qid) cfg.qid = newQid();
+    const list = store.get('quizzes', []) || [];
+    const at = list.findIndex((q) => q.qid === cfg.qid);
+    const prev = at >= 0 ? list.splice(at, 1)[0] : null;
+    const tool = toolHere();
+    list.unshift({
+      qid: cfg.qid, mode: tool.mode, page: tool.page, tool: tool.label, title: cfg.title || '', count: sumCounts(cfg),
+      created: prev ? prev.created : Date.now(), updated: Date.now(), code: prev ? prev.code || '' : '', shared: prev ? prev.shared || 0 : 0, cfg,
+    });
+    store.set('quizzes', list.slice(0, QUIZZES_MAX));
+  }
+  const savedQuiz = (qid) => (store.get('quizzes', []) || []).find((q) => q.qid === qid) || null;
+  // Start a new quiz in this tool; the one in the builder stays in Your quizzes.
+  function startNewQuiz() {
+    if (S.cfg && store.get(DRAFT, null)) keepQuiz(S.cfg);
+    const cfg = freshConfig();
+    cfg.qid = newQid();
+    store.set(DRAFT, cfg);
+    store.del(DRAFT + '-back');
+    try { history.replaceState(null, '', '#build'); } catch (e) { /* sandboxed */ }
+    location.reload();
   }
 
   // ---------- small controls ----------
@@ -1374,6 +1414,9 @@
       STUDENT ? null : h('div', { class: 'row2' },
         fld('Title', textIn('q-title', cfg.title, 60, 'e.g. Unit 3 note reading', (v) => { cfg.title = v; changed(); })),
         fld('Teacher', textIn('q-teacher', cfg.teacher, 40, 'e.g. Ms. Rivera', (v) => { cfg.teacher = v; changed(); }))),
+      STUDENT ? null : h('div', { class: 'btn-row yq-row' },
+        h('button', { type: 'button', class: 'btn btn-quiet sm', onclick: startNewQuiz }, 'Start a new quiz'),
+        h('a', { class: 'btn btn-quiet sm', href: HOME + '#quizzes' }, 'Your quizzes')),
       STUDENT ? null : editQuizBox(),
       KEYS ? keysPresets(cfg) : GRAPH ? graphPresets(cfg) : TERMS ? termPresets(cfg) : ANALYSIS || DICTATION || SING || VOICE ? null : h('div', { class: 'presets' }, h('span', { class: 'mini-label' }, STUDENT ? 'Presets' : 'Or start from a preset'),
         h('div', { class: 'preset-row' }, MQ.PRESETS.map((p) => h('button', { type: 'button', class: 'btn btn-quiet sm', onclick: () => {
@@ -2360,6 +2403,10 @@
     try { fresh = MQ.decodeQuiz(MQ.encodeQuiz(cfg)); } catch (e) { /* keep what decoded */ }
     const now = MQ.generateQuiz(fresh).length;
     store.set(DRAFT + '-back', S.cfg);     // the quiz this replaced, so a wrong paste can be undone
+    // Your quizzes: the quiz this code was shared from, if nothing has changed in it since; otherwise a
+    // new entry, so later work on the saved one isn't overwritten.
+    const was0 = (store.get('quizzes', []) || []).find((q) => q.mode === MODE && q.code && q.code === MQ.normalize(code) && q.updated <= (q.shared || 0) + 1000);
+    fresh.qid = was0 ? was0.qid : newQid();
     S.cfg = fresh;
     S.pvIdx = 0; S.pvShow = false; S.pvResp = null;
     if (ANALYSIS) {
@@ -7445,6 +7492,21 @@
     store.set('view', view);
   }
   function init() {
+    if (OWN_QUIZZES) {
+      const op = decodeURIComponent(location.hash.slice(1)).match(/^open=([0-9a-z]+)$/);
+      const e = op && savedQuiz(op[1]);
+      if (e && e.mode !== MODE) { location.replace(e.page + '#open=' + e.qid); return; }
+      if (e) {
+        if (!(S.cfg.qid && S.cfg.qid === e.qid)) store.set(DRAFT + '-back', S.cfg);
+        S.cfg = loadDraft(JSON.parse(JSON.stringify(e.cfg)));
+        S.cfg.qid = e.qid;
+        store.set(DRAFT, S.cfg);
+        S.openMsg = `Opened “${e.title || 'Untitled quiz'}”`;
+        try { history.replaceState(null, '', '#build'); } catch (err) { /* sandboxed */ }
+      } else if (op) S.openMsg = 'That quiz isn’t saved in this browser any more.';
+      // A draft from before Your quizzes existed joins the list.
+      if (store.get(DRAFT, null) && !S.cfg.qid) saveDraft();
+    }
     if (KEYS) {
       // Clefwork Keys: the same tabs, its own name.
       const name = document.querySelector('.brand-name');
@@ -7614,6 +7676,7 @@
     else if (S.take && S.take.started && !S.take.done) view = 'take';
     go(view);
     if (editMsg) toast(editMsg.msg, editMsg.tone);
+    else if (S.openMsg) toast(S.openMsg, /isn’t saved/.test(S.openMsg) ? 'bad' : '');
     if (document.fonts && document.fonts.load) {
       const fail = () => { if (MQ.clefFont !== false) { MQ.clefFont = false; go(S.view); } };
       document.fonts.load('48px "Noto Music"', '\u{1D11E}').then((list) => { if (list && list.length) MQ.clefFont = true; else fail(); }, fail);
