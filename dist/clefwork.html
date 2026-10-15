@@ -3966,7 +3966,10 @@ input.sg-range { flex: 1; min-width: 0; accent-color: var(--accent); height: 28p
     b.octave = b.octave == null ? 1 : b.octave ? 1 : 0;
     const first = Array.isArray(b.ex) && b.ex[0] && +b.ex[0].voices;
     b.voices = BLOCK_VOICES.includes(+b.voices) ? +b.voices : BLOCK_VOICES.includes(first) ? first : 4;
-    b.ex = (Array.isArray(b.ex) ? b.ex : []).slice(0, BLOCK_MAX).map((e) => ({ chords: String((e && e.chords) || ''), voices: b.voices }));
+    // Each exercise is tidied where it is, never copied: the builder's rows keep editing these objects
+    // while the quiz is read again on every keystroke.
+    b.ex = (Array.isArray(b.ex) ? b.ex : []).filter((e) => e && typeof e === 'object').slice(0, BLOCK_MAX);
+    b.ex.forEach((e) => { e.chords = String(e.chords || ''); e.voices = b.voices; });
     return b;
   }
 
