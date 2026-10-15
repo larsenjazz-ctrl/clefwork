@@ -1446,7 +1446,8 @@
     return {
       n, count, points, full, answered, pct: max ? (raw / max) * 100 : 0,
       // Note scoring: how many notes there were, and how many were wrong.
-      noted: !!sc, notes: sc ? max : 0, wrong: sc ? rep.items.reduce((s, it) => s + (it.wrong || 0), 0) : 0, mode: sc ? sc.mode : null,
+      // Counted by note (or chord, or answer) — not just scaled to a total, as a quiz of plain questions is.
+      noted: !!sc && rep.items.some((it) => it.notes != null), notes: sc ? max : 0, wrong: sc ? rep.items.reduce((s, it) => s + (it.wrong || 0), 0) : 0, mode: sc ? sc.mode : null,
       graph: rep.items.some((it) => GRAPH_COUNTS.includes(it.type)),    // Chord Graph: answers, not notes
       block: rep.items.some((it) => it.type === 'block'),                 // block chords: chords, not notes
       byType: by('type'), byClef: by('clef'),
