@@ -751,6 +751,24 @@ input.an-in { width: 100%; min-height: 34px; padding: 4px 2px; text-align: cente
 .tool-name { font: 700 20px/1.2 var(--f-display); letter-spacing: -0.01em; }
 .tool-blurb { font-size: 14.5px; color: var(--ink-2); flex: 1; }
 .tool-go { font-weight: 700; font-size: 14.5px; color: var(--accent); }
+/* Your quizzes: the quizzes built in this browser, to open again. */
+.home-quizzes { display: flex; flex-direction: column; gap: 10px; }
+.home-quizzes .card-title { margin: 2px 0 0; }
+.yq-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 12px; flex-wrap: wrap; }
+.yq-filter { display: flex; flex-direction: column; gap: 4px; }
+.yq-filter[hidden] { display: none; }
+.home-quizzes .fine { margin: 0; }
+.yq-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+.yq-item { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 0; border-top: 1px solid var(--line); }
+.yq-main { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.yq-title { font: 700 16px/1.3 var(--f-display); overflow-wrap: anywhere; }
+.yq-meta { color: var(--muted); font-size: 13px; }
+.yq-acts { display: flex; gap: 6px; flex: none; }
+#yq-more { align-self: flex-start; }
+.yq-row { margin-top: 4px; }
+@media (max-width: 560px) {
+  .yq-item { flex-direction: column; align-items: stretch; }
+}
 .home-lower { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); gap: 16px; align-items: start; }
 .home-grade { display: flex; flex-direction: column; gap: 8px; }
 .home-grade .card-title, .home-student .card-title { margin: 2px 0 4px; }
@@ -13901,9 +13919,12 @@ svg.staff .nlabel { display: none; }
     c.counts.block = 3;
     return c;
   }
-  function loadDraft() {
-    const d = store.get(DRAFT, null);
-    const base = KEYS ? keysDefault() : ANALYSIS ? analysisDefault() : RHYTHM ? rhythmDefault() : MELODY ? melodyDefault() : SING ? singDefault() : GRAPH ? graphDefault() : TERMS ? termsDefault() : VOICE ? blockDefault() : MQ.defaultConfig();
+  // A new quiz in this tool, as the builder starts it.
+  const freshConfig = () => (KEYS ? keysDefault() : ANALYSIS ? analysisDefault() : RHYTHM ? rhythmDefault() : MELODY ? melodyDefault() : SING ? singDefault() : GRAPH ? graphDefault() : TERMS ? termsDefault() : VOICE ? blockDefault() : MQ.defaultConfig());
+  // The draft this tool keeps (or `saved`, a quiz from Your quizzes), brought up to date.
+  function loadDraft(saved) {
+    const d = saved || store.get(DRAFT, null);
+    const base = freshConfig();
     if (d && d.counts && d.flags) {
       const custom = Array.isArray(d.custom) ? d.custom : [];
       const voicings = Array.isArray(d.voicings) ? d.voicings : [];
@@ -13945,7 +13966,7 @@ svg.staff .nlabel { display: none; }
   // S.take is whichever quiz the current tab works with: a teacher's quiz, or (student version) a practice run.
   Object.defineProperty(S, 'take', { get: () => S.slots[S.slot], set: (v) => { S.slots[S.slot] = v; } });
   const tv = () => (S.slot === 'practice' ? 'practice' : 'take');
-  const saveDraft = () => store.set(DRAFT, S.cfg);
+  const saveDraft = () => { store.set(DRAFT, S.cfg); keepQuiz(S.cfg); };
   // Quizzes built or copied on this device. `created` is kept from the first time a code is seen.
   function rememberQuiz(code, cfg) {
     const id = MQ.quizId(code);
@@ -13954,6 +13975,43 @@ svg.staff .nlabel { display: none; }
     const list = old.filter((q) => q.id !== id);
     list.unshift({ id, code, title: cfg.title, at: Date.now(), created: (prev && (prev.created || prev.at)) || Date.now() });
     store.set('recent', list.slice(0, 30));
+    // Your quizzes: the code this quiz was last shared as.
+    const mine = store.get('quizzes', []) || [];
+    const e = cfg.qid && mine.find((q) => q.qid === cfg.qid);
+    if (e) { e.code = MQ.normalize(code); e.shared = Date.now(); store.set('quizzes', mine); }
+  }
+
+  // ---------- your quizzes ----------
+  // Every quiz built on this computer, each under its own id (cfg.qid, which never goes in a quiz code),
+  // with its tool, title, size and dates — the landing page lists them to open again. A quiz joins the
+  // list the first time it is changed, so a builder opened and left alone adds nothing.
+  const QUIZZES_MAX = 60;
+  const OWN_QUIZZES = !STUDENT && MODE !== 'canvas' && MODE !== 'results';
+  const newQid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+  const toolHere = () => APPS.find((a) => a.mode === MODE) || { mode: '', page: 'clefwork.html', label: 'Clefwork' };
+  function keepQuiz(cfg) {
+    if (!OWN_QUIZZES || !cfg) return;
+    if (!cfg.qid) cfg.qid = newQid();
+    const list = store.get('quizzes', []) || [];
+    const at = list.findIndex((q) => q.qid === cfg.qid);
+    const prev = at >= 0 ? list.splice(at, 1)[0] : null;
+    const tool = toolHere();
+    list.unshift({
+      qid: cfg.qid, mode: tool.mode, page: tool.page, tool: tool.label, title: cfg.title || '', count: sumCounts(cfg),
+      created: prev ? prev.created : Date.now(), updated: Date.now(), code: prev ? prev.code || '' : '', shared: prev ? prev.shared || 0 : 0, cfg,
+    });
+    store.set('quizzes', list.slice(0, QUIZZES_MAX));
+  }
+  const savedQuiz = (qid) => (store.get('quizzes', []) || []).find((q) => q.qid === qid) || null;
+  // Start a new quiz in this tool; the one in the builder stays in Your quizzes.
+  function startNewQuiz() {
+    if (S.cfg && store.get(DRAFT, null)) keepQuiz(S.cfg);
+    const cfg = freshConfig();
+    cfg.qid = newQid();
+    store.set(DRAFT, cfg);
+    store.del(DRAFT + '-back');
+    try { history.replaceState(null, '', '#build'); } catch (e) { /* sandboxed */ }
+    location.reload();
   }
 
   // ---------- small controls ----------
@@ -15005,6 +15063,9 @@ svg.staff .nlabel { display: none; }
       STUDENT ? null : h('div', { class: 'row2' },
         fld('Title', textIn('q-title', cfg.title, 60, 'e.g. Unit 3 note reading', (v) => { cfg.title = v; changed(); })),
         fld('Teacher', textIn('q-teacher', cfg.teacher, 40, 'e.g. Ms. Rivera', (v) => { cfg.teacher = v; changed(); }))),
+      STUDENT ? null : h('div', { class: 'btn-row yq-row' },
+        h('button', { type: 'button', class: 'btn btn-quiet sm', onclick: startNewQuiz }, 'Start a new quiz'),
+        h('a', { class: 'btn btn-quiet sm', href: HOME + '#quizzes' }, 'Your quizzes')),
       STUDENT ? null : editQuizBox(),
       KEYS ? keysPresets(cfg) : GRAPH ? graphPresets(cfg) : TERMS ? termPresets(cfg) : ANALYSIS || DICTATION || SING || VOICE ? null : h('div', { class: 'presets' }, h('span', { class: 'mini-label' }, STUDENT ? 'Presets' : 'Or start from a preset'),
         h('div', { class: 'preset-row' }, MQ.PRESETS.map((p) => h('button', { type: 'button', class: 'btn btn-quiet sm', onclick: () => {
@@ -15991,6 +16052,10 @@ svg.staff .nlabel { display: none; }
     try { fresh = MQ.decodeQuiz(MQ.encodeQuiz(cfg)); } catch (e) { /* keep what decoded */ }
     const now = MQ.generateQuiz(fresh).length;
     store.set(DRAFT + '-back', S.cfg);     // the quiz this replaced, so a wrong paste can be undone
+    // Your quizzes: the quiz this code was shared from, if nothing has changed in it since; otherwise a
+    // new entry, so later work on the saved one isn't overwritten.
+    const was0 = (store.get('quizzes', []) || []).find((q) => q.mode === MODE && q.code && q.code === MQ.normalize(code) && q.updated <= (q.shared || 0) + 1000);
+    fresh.qid = was0 ? was0.qid : newQid();
     S.cfg = fresh;
     S.pvIdx = 0; S.pvShow = false; S.pvResp = null;
     if (ANALYSIS) {
@@ -21076,6 +21141,21 @@ svg.staff .nlabel { display: none; }
     store.set('view', view);
   }
   function init() {
+    if (OWN_QUIZZES) {
+      const op = decodeURIComponent(location.hash.slice(1)).match(/^open=([0-9a-z]+)$/);
+      const e = op && savedQuiz(op[1]);
+      if (e && e.mode !== MODE) { location.replace(e.page + '#open=' + e.qid); return; }
+      if (e) {
+        if (!(S.cfg.qid && S.cfg.qid === e.qid)) store.set(DRAFT + '-back', S.cfg);
+        S.cfg = loadDraft(JSON.parse(JSON.stringify(e.cfg)));
+        S.cfg.qid = e.qid;
+        store.set(DRAFT, S.cfg);
+        S.openMsg = `Opened “${e.title || 'Untitled quiz'}”`;
+        try { history.replaceState(null, '', '#build'); } catch (err) { /* sandboxed */ }
+      } else if (op) S.openMsg = 'That quiz isn’t saved in this browser any more.';
+      // A draft from before Your quizzes existed joins the list.
+      if (store.get(DRAFT, null) && !S.cfg.qid) saveDraft();
+    }
     if (KEYS) {
       // Clefwork Keys: the same tabs, its own name.
       const name = document.querySelector('.brand-name');
@@ -21245,6 +21325,7 @@ svg.staff .nlabel { display: none; }
     else if (S.take && S.take.started && !S.take.done) view = 'take';
     go(view);
     if (editMsg) toast(editMsg.msg, editMsg.tone);
+    else if (S.openMsg) toast(S.openMsg, /isn’t saved/.test(S.openMsg) ? 'bad' : '');
     if (document.fonts && document.fonts.load) {
       const fail = () => { if (MQ.clefFont !== false) { MQ.clefFont = false; go(S.view); } };
       document.fonts.load('48px "Noto Music"', '\u{1D11E}').then((list) => { if (list && list.length) MQ.clefFont = true; else fail(); }, fail);

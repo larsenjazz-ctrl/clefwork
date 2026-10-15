@@ -750,6 +750,24 @@ input.an-in { width: 100%; min-height: 34px; padding: 4px 2px; text-align: cente
 .tool-name { font: 700 20px/1.2 var(--f-display); letter-spacing: -0.01em; }
 .tool-blurb { font-size: 14.5px; color: var(--ink-2); flex: 1; }
 .tool-go { font-weight: 700; font-size: 14.5px; color: var(--accent); }
+/* Your quizzes: the quizzes built in this browser, to open again. */
+.home-quizzes { display: flex; flex-direction: column; gap: 10px; }
+.home-quizzes .card-title { margin: 2px 0 0; }
+.yq-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 12px; flex-wrap: wrap; }
+.yq-filter { display: flex; flex-direction: column; gap: 4px; }
+.yq-filter[hidden] { display: none; }
+.home-quizzes .fine { margin: 0; }
+.yq-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+.yq-item { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 0; border-top: 1px solid var(--line); }
+.yq-main { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.yq-title { font: 700 16px/1.3 var(--f-display); overflow-wrap: anywhere; }
+.yq-meta { color: var(--muted); font-size: 13px; }
+.yq-acts { display: flex; gap: 6px; flex: none; }
+#yq-more { align-self: flex-start; }
+.yq-row { margin-top: 4px; }
+@media (max-width: 560px) {
+  .yq-item { flex-direction: column; align-items: stretch; }
+}
 .home-lower { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); gap: 16px; align-items: start; }
 .home-grade { display: flex; flex-direction: column; gap: 8px; }
 .home-grade .card-title, .home-student .card-title { margin: 2px 0 4px; }
@@ -1280,6 +1298,21 @@ input.sg-range { flex: 1; min-width: 0; accent-color: var(--accent); height: 28p
       </div>
     </section>
 
+    <section class="card home-quizzes" id="quizzes" aria-labelledby="yq-title" hidden>
+      <div class="yq-head">
+        <div>
+          <div class="eyebrow">Your quizzes</div>
+          <h2 class="card-title" id="yq-title">Pick up where you left off</h2>
+        </div>
+        <label class="yq-filter"><span class="mini-label">Show</span>
+          <select id="yq-tool"><option value="">Every tool</option></select>
+        </label>
+      </div>
+      <p class="fine">Quizzes you have built in this browser on this computer, most recently changed first. They aren’t stored online — on another computer, paste a quiz’s code into <b>Edit a quiz you already shared</b> in its tool.</p>
+      <ul class="yq-list" id="yq-list"></ul>
+      <button type="button" class="btn btn-quiet sm" id="yq-more" hidden></button>
+    </section>
+
     <section class="home-tools" aria-label="Quiz builders">
       <a class="tool-card" href="clefwork.html">
         <svg class="tool-art" viewBox="0 0 160 64" aria-hidden="true">
@@ -1412,6 +1445,102 @@ input.sg-range { flex: 1; min-width: 0; accent-color: var(--accent); height: 28p
       location.replace('clefwork.html' + location.hash);
       return;
     }
+    // ---------- Your quizzes ----------
+    // The builders keep every quiz built in this browser in localStorage ('clefwork.quizzes'); each
+    // opens again in its own tool from #open=<id>. A draft saved before that list existed is shown
+    // too, and opens as the tool's current quiz.
+    var TOOLS = [
+      { mode: '', key: 'draft', page: 'clefwork.html', label: 'Clefwork' },
+      { mode: 'keys', key: 'draft-keys', page: 'keys.html', label: 'Clefwork Keys' },
+      { mode: 'analysis', key: 'draft-analysis', page: 'analysis.html', label: 'Clefwork Analysis' },
+      { mode: 'rhythm', key: 'draft-rhythm', page: 'rhythm.html', label: 'Clefwork Rhythm' },
+      { mode: 'melody', key: 'draft-melody', page: 'melody.html', label: 'Clefwork Melody' },
+      { mode: 'sing', key: 'draft-sing', page: 'sing.html', label: 'Clefwork Sight Singing' },
+      { mode: 'graph', key: 'draft-graph', page: 'graph.html', label: 'Clefwork Chord Graph' },
+      { mode: 'terms', key: 'draft-terms', page: 'terms.html', label: 'Clefwork Terms' },
+      { mode: 'voice', key: 'draft-voice', page: 'voice.html', label: 'Clefwork Voice Leading' }
+    ];
+    var get = function (k, d) { try { var v = localStorage.getItem('clefwork.' + k); return v ? JSON.parse(v) : d; } catch (e) { return d; } };
+    var set = function (k, v) { try { localStorage.setItem('clefwork.' + k, JSON.stringify(v)); } catch (e) { /* storage unavailable */ } };
+    var del = function (k) { try { localStorage.removeItem('clefwork.' + k); } catch (e) { /* storage unavailable */ } };
+    var when = function (ms) {
+      if (!ms) return '';
+      var d = new Date(ms), now = new Date(), day = 864e5;
+      var t = d.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
+      if (d.toDateString() === now.toDateString()) return 'today at ' + t;
+      if (d.toDateString() === new Date(now - day).toDateString()) return 'yesterday at ' + t;
+      return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: d.getFullYear() === now.getFullYear() ? undefined : 'numeric' });
+    };
+    var el = function (tag, cls, text) { var e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
+    var showAll = false;
+    function quizzes() {
+      var list = get('quizzes', []) || [];
+      if (!Array.isArray(list)) list = [];
+      // Drafts from before the list: shown until their tool is next opened (which adds them to it).
+      TOOLS.forEach(function (t) {
+        var d = get(t.key, null);
+        if (d && d.counts && !d.qid) list.push({ legacy: true, mode: t.mode, page: t.page, tool: t.label, title: d.title || '', updated: 0 });
+      });
+      return list;
+    }
+    function draw() {
+      var box = document.getElementById('quizzes'), ul = document.getElementById('yq-list'), more = document.getElementById('yq-more'), pick = document.getElementById('yq-tool');
+      var all = quizzes();
+      box.hidden = !all.length;
+      if (!all.length) return;
+      // Only the tools that have quizzes in the filter.
+      var have = TOOLS.filter(function (t) { return all.some(function (q) { return q.mode === t.mode; }); });
+      var keep = pick.value;
+      while (pick.options.length > 1) pick.remove(1);
+      have.forEach(function (t) { var o = el('option', null, t.label); o.value = t.mode || 'clefwork'; pick.append(o); });
+      pick.value = have.some(function (t) { return (t.mode || 'clefwork') === keep; }) ? keep : '';
+      pick.parentNode.hidden = have.length < 2;
+      var want = pick.value === 'clefwork' ? '' : pick.value;
+      var shown = all.filter(function (q) { return !pick.value || q.mode === want; });
+      var limit = showAll ? shown.length : 8;
+      ul.replaceChildren();
+      shown.slice(0, limit).forEach(function (q) {
+        var li = el('li', 'yq-item');
+        var main = el('div', 'yq-main');
+        main.append(el('strong', 'yq-title', q.title || 'Untitled quiz'));
+        var bits = [q.tool];
+        if (q.count != null) bits.push(q.count + ' ' + (q.mode === 'voice' ? 'exercise' : q.mode === 'graph' ? 'worksheet' : q.mode === 'melody' || q.mode === 'sing' ? (q.count === 1 ? 'melody' : 'melodies') : q.mode === 'rhythm' ? 'example' : 'question') + (q.count === 1 || q.mode === 'melody' || q.mode === 'sing' ? '' : 's'));
+        bits.push(q.legacy ? 'the draft in this tool' : 'changed ' + when(q.updated));
+        if (q.shared) bits.push(q.updated > q.shared + 1000 ? 'changed since you shared it' : 'shared ' + when(q.shared));
+        main.append(el('span', 'yq-meta', bits.join(' · ')));
+        var acts = el('div', 'yq-acts');
+        var open = el('a', 'btn btn-primary sm', 'Open');
+        open.href = q.legacy ? q.page + '#build' : q.page + '#open=' + q.qid;
+        open.setAttribute('aria-label', 'Open ' + (q.title || 'Untitled quiz') + ' in ' + q.tool);
+        acts.append(open);
+        if (!q.legacy) {
+          var rm = el('button', 'btn btn-quiet sm', 'Remove');
+          rm.type = 'button';
+          rm.setAttribute('aria-label', 'Remove ' + (q.title || 'Untitled quiz') + ' from this list');
+          rm.addEventListener('click', function () {
+            if (!confirm('Remove “' + (q.title || 'Untitled quiz') + '” from Your quizzes? This can’t be undone. Codes and links you shared keep working, and students’ reports still grade.')) return;
+            set('quizzes', (get('quizzes', []) || []).filter(function (x) { return x.qid !== q.qid; }));
+            // If it is the quiz open in its tool, that tool starts fresh next time.
+            var t = TOOLS.filter(function (x) { return x.mode === q.mode; })[0];
+            var d = t && get(t.key, null);
+            if (d && d.qid === q.qid) del(t.key);
+            draw();
+          });
+          acts.append(rm);
+        }
+        li.append(main, acts);
+        ul.append(li);
+      });
+      more.hidden = shown.length <= 8;
+      more.textContent = showAll ? 'Show fewer' : 'Show all ' + shown.length;
+    }
+    document.getElementById('yq-tool').addEventListener('change', draw);
+    document.getElementById('yq-more').addEventListener('click', function () { showAll = !showAll; draw(); });
+    draw();
+    // Coming back to this tab after working in a builder: show what changed.
+    window.addEventListener('pageshow', draw);
+    window.addEventListener('storage', function (e) { if (!e.key || /^clefwork\.(quizzes|draft)/.test(e.key)) draw(); });
+
     var form = document.getElementById('grade-form');
     form.addEventListener('submit', function (e) {
       e.preventDefault();
