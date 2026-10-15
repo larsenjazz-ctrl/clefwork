@@ -12,6 +12,7 @@ Music theory quizzes that run entirely in the browser — no server, no accounts
 - **Clefwork Sight Singing:** [sing.html](https://larsenjazz-ctrl.github.io/clefwork/sing.html) — the same melodies, read instead of heard: students sing each one and record themselves, and hand the recordings in on Canvas.
 - **Clefwork Chord Graph:** [graph.html](https://larsenjazz-ctrl.github.io/clefwork/graph.html) — the chord graph as worksheets: diatonic progression tables, tritone substitution graphs, and phrases in Roman numerals checked against the graph's rules.
 - **Clefwork Terms:** [terms.html](https://larsenjazz-ctrl.github.io/clefwork/terms.html) — musical terms, multiple choice: dynamics, tempo markings and instrument families, and hearing the dynamics and tempo of a generated melody.
+- **Clefwork Voice Leading:** [voice.html](https://larsenjazz-ctrl.github.io/clefwork/voice.html) — block chords: students write a block voicing for each chord symbol on the grand staff, and every chord is marked by the textbook's rules for block voicings. The teacher sees what the student wrote and Clefwork's marks, and can accept or reject any chord.
 - **Canvas pages:** [take.html](https://larsenjazz-ctrl.github.io/clefwork/take.html) takes one quiz and ends with a results link to hand in; [results.html](https://larsenjazz-ctrl.github.io/clefwork/results.html) shows one student's results from that link.
 
 ## How it works
@@ -20,7 +21,7 @@ A quiz's settings and a random seed are packed into a **quiz code**, so everyone
 
 Because the code carries every setting, a quiz can be read back: **Edit a quiz you already shared**, on the Build tab, takes a quiz code or any Clefwork link carrying one and puts the whole quiz back in the builder — to fix a wrong answer key, change a setting or make next year's version. A code from another Clefwork page says which page to open it on, and offers a link that opens it there ready to edit (`#edit=`). The quiz that was in the builder is kept, so a wrong paste can be put back. Editing makes a new code and link to share; report codes from the old one still grade, because the codes shared from a computer are remembered there. A quiz made by an older Clefwork is brought up to date as it loads, and says so if that changes how many questions it asks.
 
-Question types: place a note, name a note, intervals (simple and compound), chords (triads through 13ths, inversions, typed chord symbols), scales (including pentatonics and modes), key signatures, chord progressions, figured bass (single chords and progressions), and voicings — single voiced chords and voiced progressions.
+Question types: place a note, name a note, intervals (simple and compound), chords (triads through 13ths, inversions, typed chord symbols), scales (including pentatonics and modes), key signatures, chord progressions, figured bass (single chords and progressions), and voicings — single voiced chords and voiced progressions. Clefwork Voice Leading adds block chords, marked by the textbook’s rules.
 
 ### Voicings
 
@@ -155,6 +156,25 @@ A separate app, built on the same engine, of multiple-choice questions in five k
 
 Listening choices can be far apart (easier) or close together, and plays can be limited per question. The listening tabs can also play melodies from the library (below) instead of Clefwork's own. Codes: quiz extension 10 holds the settings; every Terms question is report type 21 (`term`), carrying the choice and, for listening, the play count — other quizzes keep their codes. The grade checker splits the score by kind, and the Print tab prints the markings with A–D choices.
 
+### Clefwork Voice Leading
+
+The first worksheet is **block chords**. At the top the teacher chooses how many notes go in each block (2 to 5, not counting the root in the bass) for the whole quiz, and whether the root may also be in the block as its octave. Then they type each exercise's chord symbols (up to eight, separated by spaces — Dmi7 G7 Cma7 A7; 6/9, add9, altered and slash chords too). Students write on the grand staff in half notes — two chords a 4/4 measure — or whole notes. The roots are printed low in the bass clef (E2 to D3), or students write them there themselves.
+
+There is no single right answer, so each chord is checked against the Rules for Block Voicings in the course textbook (Unit 5):
+
+- **Rule 1** — the block stays within an octave.
+- **Rule 2** — no root in the block, unless the teacher allows the root (the octave) there, which is the default; on seventh chords a 9th may take its place (the teacher can turn that off).
+- **Rule 3** — no doubled notes.
+- **Rule 4** — no major or minor second between the top two notes.
+- **Rule 7** — the chord symbol decides what the block needs: first the 3rd and the 7th (or 6th), then every extension, alteration or added note written in the symbol (the 13 in C13, the ♭5 in Cmi7♭5, the 9 in Cadd9). Those come before a 5th, the octave, or a 9th standing in for the root. When the symbol asks for more notes than the block holds (C7♯9♭13 in three notes), the block holds the 3rd and 7th and any of the others.
+- **Rule 8** — the number of notes the exercise asks for; a block with more notes than that is wrong. Students can write up to two notes too many, so the mistake is theirs to make and is marked.
+
+Every note must also be in the chord and spelled as it is (D♯ is not the 3rd of Cmi7 unless enharmonic spellings are accepted). A doubled note — and the root, when the teacher doesn't allow it — only counts against a block when the chord has enough other notes to fill it: a three-note C triad needs its octave, and a five-note one doubles a note. A root students write must be the chord's root (or a slash chord's bass note), the lowest note, at or below D3. An option from Unit 5, Assignment 1 also asks for a chord tone (1, 3, 5 or 7) on the bottom of the block.
+
+Every chord is a point. Students who may check their answers see each chord's marks, with the rule numbers, and the notes a rule is about in red. On the Grade reports tab — and on the results page, on the computer the quiz was built on — the teacher sees the student's notes, Clefwork's marks for every chord, and a choice for each one: keep the mark, **Accept** (a variation or alternative the teacher counts as right) or **Mark wrong**. The score, the class summary, the spreadsheet copy and the Canvas score all follow the teacher's choices, which are kept on that computer by report code.
+
+The answer key shows one good block for each chord — the one the rules like best, near the middle of the treble staff.
+
 ### The library
 
 Public-domain pieces to use as musical examples, in three kinds — **solo melodies**, **piano**, and **several instruments or voices** — each marked as one that can be heard (its notes are in the library) and/or one with a score picture:
@@ -206,6 +226,7 @@ dist/clefwork-melody*.html            Clefwork Melody
 dist/clefwork-sing*.html              Clefwork Sight Singing
 dist/clefwork-graph*.html             Clefwork Chord Graph
 dist/clefwork-terms*.html             Clefwork Terms
+dist/clefwork-voice*.html             Clefwork Voice Leading
 dist/site/library/                    the library's pieces and score pictures (copied from library/)
 dist/clefwork-take-standalone.html    Canvas: take one quiz
 dist/clefwork-results-standalone.html Canvas: one student's results
@@ -213,6 +234,10 @@ dist/site/                            copies published to GitHub Pages
 ```
 
 Set `CLEFWORK_BASE` before building to change the address used in shared links.
+
+### Testing block chords
+
+`node tests/block-chords.js` (no dependencies) checks the block-chord marks against the textbook's rules: good blocks from the textbook's examples pass, and blocks that break each rule are marked for that rule only. It also checks that the model answer for every chord type, in every key and block size, follows the rules; that the quiz code carries the exercises; that a report carries the student's notes; and that the teacher's accept and reject choices change the score.
 
 ### Testing typed answers
 

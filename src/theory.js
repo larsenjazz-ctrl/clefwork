@@ -113,6 +113,8 @@
     // listening ones — is this one type, so only one of the two type numbers left is used.
     { id: 'term', label: 'Musical Terms', blurb: 'Multiple-choice questions on dynamics, tempo markings and instrument families, and on hearing dynamics and tempo in a melody.', est: 20, custom: true },
     { id: 'sing', label: 'Sight Singing', blurb: 'A melody to read and sing, recorded by the student and handed in as audio.', est: 60, custom: true },
+    // Clefwork Voice Leading (see blockchords.js).
+    { id: 'block', label: 'Block Chords', blurb: 'Write a block voicing in half notes on the grand staff for each chord symbol — checked against the textbook’s rules, chord by chord.', est: 120, custom: true },
   ];
   const BUILT_IN = TYPES.filter((t) => !t.custom);
   const MAX_CUSTOM = 20, MAX_CUSTOM_NOTES = 6, MAX_VOICING_NOTES = 8;
@@ -168,7 +170,7 @@
       // Per-tab notes setting: 0 use the quiz setting, 1 print the helper note, 2 students write every note.
       helpOv: { interval: 0, chord: 0, custom: 2, voicing: 2, vprog: 2 },
       figpAsk: 1, // figured bass progression: 1 analyse, 2 spell, 3 both
-      counts: { place: 4, identify: 3, interval: 3, chord: 2, scale: 1, keysig: 2, custom: 0, voicing: 0, vprog: 0, progression: 0, figured: 0, figprog: 0, keys: 0, analysis: 0, rhythm: 0, melody: 0, degree: 0, cgtable: 0, cgtritone: 0, cgphrase: 0, tmdyn: 0, tmtempo: 0, tminst: 0, tmhdyn: 0, tmhtempo: 0, tmvocab: 0, sing: 0 },
+      counts: { place: 4, identify: 3, interval: 3, chord: 2, scale: 1, keysig: 2, custom: 0, voicing: 0, vprog: 0, progression: 0, figured: 0, figprog: 0, keys: 0, analysis: 0, rhythm: 0, melody: 0, degree: 0, cgtable: 0, cgtritone: 0, cgphrase: 0, tmdyn: 0, tmtempo: 0, tminst: 0, tmhdyn: 0, tmhtempo: 0, tmvocab: 0, sing: 0, block: 0 },
       ledger: 1,
       accMode: 3,
       intervals: maskOf(INTERVALS, ['M2', 'm3', 'M3', 'P4', 'P5', 'P8']),
@@ -742,6 +744,7 @@
     if (MQ.graphQuestions && (cfg.counts.cgtable || cfg.counts.cgtritone || cfg.counts.cgphrase)) MQ.graphQuestions(cfg).forEach((q) => qs.push(q));
     if (MQ.termQuestions && MQ.TERM_COUNTS.some((k) => cfg.counts[k] > 0)) MQ.termQuestions(cfg).forEach((q) => qs.push(q));
     if (MQ.singQuestions && cfg.counts.sing) MQ.singQuestions(cfg).forEach((q) => qs.push(q));
+    if (MQ.blockQuestions && cfg.counts.block) MQ.blockQuestions(cfg).forEach((q) => qs.push(q));
     if (cfg.flags.shuffle) shuffle(qs, rng);
     return qs;
   }
@@ -751,6 +754,7 @@
 
   // Returns, for each column, a boolean per placed note (true = that note is right).
   function markResponse(q, placed, cfg) {
+    if (q.type === 'block') return MQ.markBlock(q, placed, cfg);
     if (q.colSpecs) return MQ.markProgSpell(q, placed, cfg);
     if (q.nameSpec) return q.bassPc ? MQ.markSpelled(q, placed, cfg) : MQ.markNames(q, placed, cfg);
     const enh = cfg.flags.enharmonic;
@@ -778,6 +782,7 @@
     if (q.type === 'sing') return MQ.gradeSing(q, response);
     if (q.type === 'degree') return MQ.gradeDegrees(q, response);
     if (q.type === 'rgrid') return MQ.gradeGrid(q, response);
+    if (q.type === 'block') return MQ.gradeBlock(q, response, cfg);
     if (MQ.isGraph && MQ.isGraph(q)) return MQ.gradeGraph(q, response, cfg);
     if (q.type === 'figured' || q.type === 'figprog') return MQ.gradeFigured(q, response, cfg);
     if (q.type === 'progression') return MQ.gradeProgression(q, response, cfg);
@@ -809,6 +814,7 @@
       : q.type === 'sing' ? MQ.hasSingAnswer(q, response)
       : q.type === 'degree' ? MQ.hasDegreeAnswer(q, response)
       : q.type === 'rgrid' ? MQ.hasGridAnswer(q, response)
+      : q.type === 'block' ? MQ.hasBlockAnswer(q, response)
       : MQ.isGraph && MQ.isGraph(q) ? MQ.hasGraphAnswer(q, response)
       : q.type === 'figured' || q.type === 'figprog' ? MQ.hasFiguredAnswer(q, response)
       : q.colSpecs ? !!response && response.some((col) => col && col.some(Boolean))
@@ -828,6 +834,7 @@
     if (MQ.isGraph && MQ.isGraph(q)) return MQ.describeGraph(q);
     if (q.type === 'term') return MQ.describeTerm(q);
     if (q.type === 'sing') return MQ.describeSing(q);
+    if (q.type === 'block') return MQ.describeBlock(q);
     if (q.symbolAnswers) return q.symbolAnswers.map((a) => a.shown).join('  ');
     if (q.symbolAnswer) return q.symbolAnswer.shown;
     if (q.dropdowns) return q.dropdowns.map((d) => d.options[d.answer]).join(' · ');

@@ -97,6 +97,7 @@
       return b.auto.on ? b.auto.count : Math.min(cfg.counts.sing, b.examples.length);
     }
     if (key === 'cgtable' || key === 'cgtritone' || key === 'cgphrase') return Math.min(MQ.GRAPH_MAX, cfg.counts[key] || 0);
+    if (key === 'block') return Math.min(cfg.counts.block || 0, MQ.usableBlockExercises(cfg.block).length);
     if (MQ.TERM_COUNTS.includes(key)) return Math.min(key === 'tmhdyn' || key === 'tmhtempo' ? MQ.TERMS_HEAR_MAX : MQ.TERMS_MAX, cfg.counts[key] || 0);
     const list = key === 'custom' ? cfg.custom || [] : cfg.voicings || [];
     const n = cfg.counts[key] == null ? list.length : cfg.counts[key];
@@ -104,7 +105,7 @@
   };
   const sumCounts = (cfg) => MQ.BUILT_IN.reduce((s, t) => s + (cfg.counts[t.id] || 0), 0) + listCount(cfg, 'custom') + listCount(cfg, 'voicing') + listCount(cfg, 'vprog') + listCount(cfg, 'progression')
     + listCount(cfg, 'keys') + listCount(cfg, 'analysis') + listCount(cfg, 'rhythm') + listCount(cfg, 'melody')
-    + Math.min(MQ.DEGREE_MAX, cfg.counts.degree || 0) + graphCount(cfg) + termCount(cfg) + listCount(cfg, 'sing');
+    + Math.min(MQ.DEGREE_MAX, cfg.counts.degree || 0) + graphCount(cfg) + termCount(cfg) + listCount(cfg, 'sing') + listCount(cfg, 'block');
   // Clefwork Chord Graph: its tables and phrases.
   const graphCount = (cfg) => listCount(cfg, 'cgtable') + listCount(cfg, 'cgtritone') + listCount(cfg, 'cgphrase');
   // Clefwork Terms: all five kinds of question, and the ones that are heard.
@@ -120,13 +121,14 @@
   const onlyGraph = (cfg) => !!(graphCount(cfg) && sumCounts(cfg) === graphCount(cfg));
   const onlyTerms = (cfg) => !!(termCount(cfg) && sumCounts(cfg) === termCount(cfg));
   const onlySing = (cfg) => !!(listCount(cfg, 'sing') && sumCounts(cfg) === listCount(cfg, 'sing'));
+  const onlyBlock = (cfg) => !!(listCount(cfg, 'block') && sumCounts(cfg) === listCount(cfg, 'block'));
   // How many melodies one student sings, of a bank of this many.
   const singAsked = (cfg) => MQ.singCount(MQ.singSettings(cfg.sing), listCount(cfg, 'sing'));
   // Clefwork Rhythm quizzes are rhythmic dictation or rhythm grids.
   const gridQuiz = (cfg) => MQ.rhythmSettings(cfg.rhythm).task === 'grid';
   // A rhythm grid's rhythm is read, heard, or both.
   const gridHow = (cfg) => ['read', 'heard', 'read and heard'][MQ.rhythmSettings(cfg.rhythm).grid.show];
-  const clefsText = (cfg) => onlySing(cfg) ? 'read from the staff and sung' : onlyTerms(cfg) ? (termHeard(cfg) ? 'multiple choice, read and heard' : 'multiple choice') : onlyGraph(cfg) ? 'chord symbols and Roman numerals' : onlyMelody(cfg) ? 'heard, then written on the staff' : onlyRhythm(cfg) ? (gridQuiz(cfg) ? `${gridHow(cfg)}, then shown on a grid` : 'heard, then written on a one-line staff') : onlyAnalysis(cfg) ? 'answered beside a picture of the score' : onlyKeys(cfg) ? 'grand staff, note names & piano' : [cfg.clefs & 1 ? 'treble' : null, cfg.clefs & 2 ? 'bass' : null].filter(Boolean).join(' & ') + ' clef' + (usesGrand(cfg) ? ' + grand staff' : '');
+  const clefsText = (cfg) => onlyBlock(cfg) ? `grand staff, ${MQ.blockSettings(cfg.block).value ? 'whole' : 'half'} notes` : onlySing(cfg) ? 'read from the staff and sung' : onlyTerms(cfg) ? (termHeard(cfg) ? 'multiple choice, read and heard' : 'multiple choice') : onlyGraph(cfg) ? 'chord symbols and Roman numerals' : onlyMelody(cfg) ? 'heard, then written on the staff' : onlyRhythm(cfg) ? (gridQuiz(cfg) ? `${gridHow(cfg)}, then shown on a grid` : 'heard, then written on a one-line staff') : onlyAnalysis(cfg) ? 'answered beside a picture of the score' : onlyKeys(cfg) ? 'grand staff, note names & piano' : [cfg.clefs & 1 ? 'treble' : null, cfg.clefs & 2 ? 'bass' : null].filter(Boolean).join(' & ') + ' clef' + (usesGrand(cfg) ? ' + grand staff' : '');
   const clonePlaced = (pl) => (pl ? pl.map((c) => (c || []).map((p) => ({ ...p }))) : null);
   // The student version (practice + take a quiz, no quiz codes shown) is the same app with this flag set.
   const STUDENT = !!window.CLEFWORK_STUDENT;
@@ -144,8 +146,9 @@
   const GRAPH = MODE === 'graph';                    // Clefwork Chord Graph: chord tables and phrases
   const TERMS = MODE === 'terms';                    // Clefwork Terms: dynamics, tempo and instruments, read and heard
   const SING = MODE === 'sing';                      // Clefwork Sight Singing: melodies students sing and record
+  const VOICE = MODE === 'voice';                    // Clefwork Voice Leading: block chords on the grand staff
   const DICTATION = RHYTHM || MELODY;
-  const DRAFT = KEYS ? 'draft-keys' : ANALYSIS ? 'draft-analysis' : RHYTHM ? 'draft-rhythm' : MELODY ? 'draft-melody' : SING ? 'draft-sing' : GRAPH ? 'draft-graph' : TERMS ? 'draft-terms' : 'draft';
+  const DRAFT = KEYS ? 'draft-keys' : ANALYSIS ? 'draft-analysis' : RHYTHM ? 'draft-rhythm' : MELODY ? 'draft-melody' : SING ? 'draft-sing' : GRAPH ? 'draft-graph' : TERMS ? 'draft-terms' : VOICE ? 'draft-voice' : 'draft';
   // An Analysis quiz's pictures travel in its links, after the code: #take=CODE&img=…, and &img2=…
   // and so on for a quiz on more than one score.
   const withScore = (code) => {
@@ -255,9 +258,21 @@
     c.terms = MQ.termSettings(null);
     return c;
   }
+  // Block chords to start from: a ii–V–I–VI in C and one in E♭ in four-note blocks, and a triad
+  // progression in three.
+  function blockDefault() {
+    const c = MQ.defaultConfig();
+    Object.keys(c.counts).forEach((k) => (c.counts[k] = 0));
+    c.title = 'Block Chord Voicings';
+    c.flags.shuffle = false;
+    c.flags.partial = true;
+    c.block = MQ.blockSettings({ ex: [{ chords: 'Dmi7 G7 Cma7 A7', voices: 4 }, { chords: 'Fmi7 B♭7 E♭ma7 C7', voices: 4 }, { chords: 'C F G C', voices: 3 }] });
+    c.counts.block = 3;
+    return c;
+  }
   function loadDraft() {
     const d = store.get(DRAFT, null);
-    const base = KEYS ? keysDefault() : ANALYSIS ? analysisDefault() : RHYTHM ? rhythmDefault() : MELODY ? melodyDefault() : SING ? singDefault() : GRAPH ? graphDefault() : TERMS ? termsDefault() : MQ.defaultConfig();
+    const base = KEYS ? keysDefault() : ANALYSIS ? analysisDefault() : RHYTHM ? rhythmDefault() : MELODY ? melodyDefault() : SING ? singDefault() : GRAPH ? graphDefault() : TERMS ? termsDefault() : VOICE ? blockDefault() : MQ.defaultConfig();
     if (d && d.counts && d.flags) {
       const custom = Array.isArray(d.custom) ? d.custom : [];
       const voicings = Array.isArray(d.voicings) ? d.voicings : [];
@@ -1256,6 +1271,7 @@
     return wrap;
   }
   function questionCard(q, cfg, o) {
+    if (q.type === 'block') return blockCard(q, cfg, o);
     if (q.type === 'sing') return singCard(q, cfg, o);
     if (q.type === 'term') return termCard(q, cfg, o);
     if (q.type === 'cgtable' || q.type === 'cgtritone') return graphTableCard(q, cfg, o);
@@ -1359,7 +1375,7 @@
         fld('Title', textIn('q-title', cfg.title, 60, 'e.g. Unit 3 note reading', (v) => { cfg.title = v; changed(); })),
         fld('Teacher', textIn('q-teacher', cfg.teacher, 40, 'e.g. Ms. Rivera', (v) => { cfg.teacher = v; changed(); }))),
       STUDENT ? null : editQuizBox(),
-      KEYS ? keysPresets(cfg) : GRAPH ? graphPresets(cfg) : TERMS ? termPresets(cfg) : ANALYSIS || DICTATION || SING ? null : h('div', { class: 'presets' }, h('span', { class: 'mini-label' }, STUDENT ? 'Presets' : 'Or start from a preset'),
+      KEYS ? keysPresets(cfg) : GRAPH ? graphPresets(cfg) : TERMS ? termPresets(cfg) : ANALYSIS || DICTATION || SING || VOICE ? null : h('div', { class: 'presets' }, h('span', { class: 'mini-label' }, STUDENT ? 'Presets' : 'Or start from a preset'),
         h('div', { class: 'preset-row' }, MQ.PRESETS.map((p) => h('button', { type: 'button', class: 'btn btn-quiet sm', onclick: () => {
           const keep = { custom: cfg.counts.custom, voicing: cfg.counts.voicing, progression: cfg.counts.progression };
           S.cfg = p.apply(S.cfg); Object.assign(S.cfg.counts, keep);
@@ -1373,7 +1389,8 @@
     if (MELODY || SING) form.append(...melodySections(cfg, changed, R));
     if (GRAPH) form.append(graphKeysSection(cfg, changed));
     if (TERMS) form.append(termChoicesSection(cfg, changed));
-    if (!KEYS && !ANALYSIS && !DICTATION && !GRAPH && !TERMS && !SING) form.append(sec('staff', 'Staff & notes', 'Applies to every question type.',
+    if (VOICE) form.append(...blockSections(cfg, changed, R));
+    if (!KEYS && !ANALYSIS && !DICTATION && !GRAPH && !TERMS && !SING && !VOICE) form.append(sec('staff', 'Staff & notes', 'Applies to every question type.',
       h('div', { class: 'row2' },
         grp('Clefs', chips('q-clefs', [{ label: 'Treble' }, { label: 'Bass' }, { label: 'Grand staff' }], cfg.clefs, (m) => { cfg.clefs = m; changed(); }, (x) => x.label), 'Each tab can override this.'),
         grp('Ledger lines', seg('q-ledger', [0, 1, 2, 3].map((v) => ({ v, label: v === 0 ? 'None' : v === 1 ? '1' : String(v) })), cfg.ledger, (v) => { cfg.ledger = v; changed(); }), 'Maximum above or below the staff.')),
@@ -1635,7 +1652,7 @@
       go('build');
       toast('Cleared — the quiz is empty');
     } }, 'Clear all questions');
-    if (!KEYS && !ANALYSIS && !DICTATION && !SING) form.append(sec('types', GRAPH ? 'Worksheets' : 'Question types', GRAPH
+    if (!KEYS && !ANALYSIS && !DICTATION && !SING && !VOICE) form.append(sec('types', GRAPH ? 'Worksheets' : 'Question types', GRAPH
       ? 'Choose a worksheet to change its settings. The counter on each tab sets how many the quiz asks — each table or phrase is one question, in its own key.'
       : 'Choose a type to change its settings. The counter on each tab sets how many of those questions the quiz asks.',
       h('div', { class: 'types-top' }, clearBtn),
@@ -1653,16 +1670,17 @@
       h('div', { class: 'row2' }, fld('Time limit in minutes', timeIn, '0 means no limit. The quiz submits itself when time runs out.'),
         STUDENT ? null : fld('Retakes', retakeIn, 'Students can retake the quiz to improve their score — the same questions each time. Each report shows its attempt number.')),
       h('div', { class: 'toggles' },
-        ANALYSIS || DICTATION || SING ? null : flag('shuffle', 'Shuffle question order', 'Mixes the question types together instead of grouping them.'),
-        KEYS || DICTATION || TERMS || SING ? null : ANALYSIS ? flag('partial', 'Partial credit', 'A box that asks for both earns half credit for each right answer.')
+        ANALYSIS || DICTATION || SING || VOICE ? null : flag('shuffle', 'Shuffle question order', 'Mixes the question types together instead of grouping them.'),
+        KEYS || DICTATION || TERMS || SING || VOICE ? null : ANALYSIS ? flag('partial', 'Partial credit', 'A box that asks for both earns half credit for each right answer.')
           : GRAPH ? flag('partial', 'Partial credit', 'When each table or phrase is one question: a table earns credit for each right answer, a phrase for each measure and rule. Without it, only a perfect one counts.')
           : flag('partial', 'Partial credit', 'Chords and scales earn credit for each correct note.'),
         STUDENT || SING ? null : flag('feedback', 'Let students check answers', 'Students can check each question and see the right answer. Best for practice.'),
         ANALYSIS || DICTATION || GRAPH || TERMS || SING ? null : flag('labels', 'Show note names while dragging', STUDENT ? 'The note’s name appears as you move it.' : 'Practice mode: the note’s name appears as students move it.'),
         DICTATION || TERMS || SING ? null : ANALYSIS ? flag('enharmonic', 'Accept enharmonic spellings', 'Counts a G♭7 chord symbol as correct when the answer is F♯7.')
           : GRAPH ? flag('enharmonic', 'Accept enharmonic spellings', 'Counts A♯mi as correct when the answer is B♭mi. Tritone substitutes always take either spelling (C♭7 or B7).')
+          : VOICE ? flag('enharmonic', 'Accept enharmonic spellings', 'Counts D♯ as the 3rd of Cmi7. Without it, Clefwork asks for E♭.')
           : flag('enharmonic', 'Accept enharmonic spellings', 'Counts G♭ as correct when the answer is F♯.'),
-        KEYS || ANALYSIS || DICTATION || GRAPH || TERMS || SING ? null : flag('noHelpers', 'Hide starting and helper notes', 'Students write every note themselves: both notes of an interval, every note of a scale, and a chord’s bass note.'))));
+        KEYS || ANALYSIS || DICTATION || GRAPH || TERMS || SING || VOICE ? null : flag('noHelpers', 'Hide starting and helper notes', 'Students write every note themselves: both notes of an interval, every note of a scale, and a chord’s bass note.'))));
 
     // Side: share + preview + answer key
     R.summary = h('p', { class: 'share-summary' });
@@ -1740,7 +1758,7 @@
     function refresh() {
       R.syncTabs();
       const total = sumCounts(cfg);
-      R.total.textContent = SING ? `${total} melod${total === 1 ? 'y' : 'ies'} to sing${singAsked(cfg) < total ? `, ${singAsked(cfg)} each` : ''}` : GRAPH ? `${total} worksheet${total === 1 ? '' : 's'} in the quiz` : MELODY ? `${total} melod${total === 1 ? 'y' : 'ies'} in the quiz` : RHYTHM ? `${total} example${total === 1 ? '' : 's'} in the quiz` : `${total} question${total === 1 ? '' : 's'} in the quiz`;
+      R.total.textContent = VOICE ? `${total} exercise${total === 1 ? '' : 's'} in the quiz` : SING ? `${total} melod${total === 1 ? 'y' : 'ies'} to sing${singAsked(cfg) < total ? `, ${singAsked(cfg)} each` : ''}` : GRAPH ? `${total} worksheet${total === 1 ? '' : 's'} in the quiz` : MELODY ? `${total} melod${total === 1 ? 'y' : 'ies'} in the quiz` : RHYTHM ? `${total} example${total === 1 ? '' : 's'} in the quiz` : `${total} question${total === 1 ? '' : 's'} in the quiz`;
       if (!total) {
         S.code = ''; S.qs = [];
         if (R.code) R.code.textContent = '—';
@@ -1753,12 +1771,13 @@
         [R.copy, R.link, R.tryBtn, R.exportBtn, R.canvasBtn, R.startBtn].forEach((b) => b && (b.disabled = false));
         const est = Math.max(1, Math.round((MQ.BUILT_IN.reduce((s, t) => s + t.est * (cfg.counts[t.id] || 0), 0) + 40 * listCount(cfg, 'custom') + 55 * listCount(cfg, 'voicing') + 90 * listCount(cfg, 'vprog') + 70 * listCount(cfg, 'progression') + 15 * listCount(cfg, 'keys') + 30 * listCount(cfg, 'analysis') + 120 * listCount(cfg, 'rhythm') + 180 * listCount(cfg, 'melody') + 60 * Math.min(MQ.DEGREE_MAX, cfg.counts.degree || 0)
           + 150 * listCount(cfg, 'cgtable') + 180 * listCount(cfg, 'cgtritone') + 120 * listCount(cfg, 'cgphrase')
-          + 15 * (termCount(cfg) - termHeard(cfg)) + 40 * termHeard(cfg) + 60 * singAsked(cfg)) / 60));
+          + 15 * (termCount(cfg) - termHeard(cfg)) + 40 * termHeard(cfg) + 60 * singAsked(cfg)
+          + 25 * S.qs.reduce((n, q) => n + (q.type === 'block' ? q.blk.syms.length : 0), 0)) / 60));
         const sb = DICTATION && !SING ? dictation(cfg) : null;
         const dsc = !sb ? quizScoring(cfg, S.qs) : null;          // scale degrees scored by note or percent
         const outOf = sb ? (sb.score === 'percent' ? ` · out of ${sb.outOf} points` : ` · out of ${rhythmNotes(S.qs)} notes`)
-          : dsc ? ` · out of ${fmtPts(MQ.reportStats({ items: S.qs.map((q) => ({ type: q.type, clef: q.clef, credit: 7, answered: true, sec: 0, notes: q.type === 'degree' ? q.deg.notes.length : MQ.isGraph(q) ? MQ.graphPoints(q) : undefined, wrong: 0 })), scoring: dsc }).n)} points` : '';
-        const noun = MELODY || SING ? (total === 1 ? 'melody' : 'melodies') : `${RHYTHM ? 'example' : GRAPH ? 'worksheet' : 'question'}${total === 1 ? '' : 's'}`;
+          : dsc ? ` · out of ${fmtPts(MQ.reportStats({ items: S.qs.map((q) => ({ type: q.type, clef: q.clef, credit: 7, answered: true, sec: 0, notes: q.type === 'degree' ? q.deg.notes.length : MQ.isGraph(q) ? MQ.graphPoints(q) : q.type === 'block' ? q.blk.syms.length : undefined, wrong: 0 })), scoring: dsc }).n)} ${VOICE ? 'chords' : 'points'}` : '';
+        const noun = MELODY || SING ? (total === 1 ? 'melody' : 'melodies') : `${RHYTHM ? 'example' : GRAPH ? 'worksheet' : VOICE ? 'exercise' : 'question'}${total === 1 ? '' : 's'}`;
         const each = SING && singAsked(cfg) < total ? ` (each student sings ${singAsked(cfg)})` : '';
         R.summary.replaceChildren(h('b', null, STUDENT ? 'Your practice' : cfg.title || 'Untitled quiz'), ` — ${total} ${noun}${each} · ${clefsText(cfg)}${outOf} · about ${est} min${cfg.timeLimit ? ` · ${cfg.timeLimit}-minute limit` : ''}`);
       }
@@ -2295,6 +2314,7 @@
     { only: onlySing, mode: 'sing', page: 'sing.html', label: 'Clefwork Sight Singing' },
     { only: onlyGraph, mode: 'graph', page: 'graph.html', label: 'Clefwork Chord Graph' },
     { only: onlyTerms, mode: 'terms', page: 'terms.html', label: 'Clefwork Terms' },
+    { only: onlyBlock, mode: 'voice', page: 'voice.html', label: 'Clefwork Voice Leading' },
   ];
   const appOf = (cfg) => APPS.find((a) => a.only(cfg)) || { mode: '', page: 'clefwork.html', label: 'Clefwork' };
   // A pasted code, a quiz link, a results link or a grade link — whichever it is, find the quiz code
@@ -2647,7 +2667,9 @@
         h('div', null, h('dt', null, 'Time limit'), h('dd', null, cfg.timeLimit ? cfg.timeLimit + ' min' : 'None')),
         h('div', null, h('dt', null, 'Retakes'), h('dd', null, retakeText(MQ.retakeLimit(cfg)))),
         // A quiz of only Keys questions is on the grand staff and the piano, whatever the clef setting.
-        onlySing(cfg)
+        onlyBlock(cfg)
+          ? h('div', null, h('dt', null, 'Uses'), h('dd', null, `Grand staff, ${MQ.blockSettings(cfg.block).value ? 'whole' : 'half'} notes`))
+          : onlySing(cfg)
           ? h('div', null, h('dt', null, 'Uses'), h('dd', null, 'Your voice and a recorder'))
           : onlyTerms(cfg)
           ? h('div', null, h('dt', null, 'Uses'), h('dd', null, termHeard(cfg) ? 'Multiple choice, listening' : 'Multiple choice'))
@@ -2771,6 +2793,8 @@
   // How a quiz is scored when it isn't one point a question: rhythm and melody dictation by note, and
   // scale degrees when the teacher chose note or percent scoring.
   function quizScoring(cfg, qs) {
+    // Block chords: every chord a point.
+    if (qs.some((q) => q.type === 'block')) return { mode: 'notes', outOf: 100, split: 0 };
     if (qs.some((q) => q.type === 'rhythm' || q.type === 'melody' || q.type === 'rgrid')) {
       const rh = dictation(cfg);
       return { mode: rh.score, outOf: rh.outOf, split: rh.split ? 1 : 0 };
@@ -2791,7 +2815,7 @@
     const rhythm = t.qs.some((q) => q.type === 'rhythm' || q.type === 'melody' || q.type === 'rgrid');
     // Chord Graph quizzes scored by answer give credit for each one, whatever the partial-credit switch says.
     const byAnswer = t.qs.some((q) => MQ.isGraph(q)) && !!quizScoring(t.cfg, t.qs);
-    const partial = t.cfg.flags.partial || rhythm || byAnswer;
+    const partial = t.cfg.flags.partial || rhythm || byAnswer || t.qs.some((q) => q.type === 'block');
     const items = t.qs.map((q, i) => {
       const frac = MQ.gradeQuestion(q, t.resp[i], t.cfg);
       const credit = frac === 1 ? 7 : partial ? Math.min(6, Math.round(frac * 7)) : 0;
@@ -2801,6 +2825,7 @@
       if (q.type === 'melody') { const c = MQ.compareMelody(q, t.resp[i]); Object.assign(it, { notes: c.notes, wrong: c.wrong, pw: c.pw, rw: c.rw }); }
       if (q.type === 'degree') Object.assign(it, MQ.compareDegrees(q, t.resp[i]));
       if (MQ.isGraph(q)) Object.assign(it, MQ.compareGraph(q, t.resp[i], t.cfg));
+      if (q.type === 'block') { const c = MQ.compareBlock(q, t.resp[i], t.cfg); it.notes = c.notes; it.wrong = c.wrong; }
       return it;
     });
     t.report = {
@@ -2943,11 +2968,17 @@
   }
   // "3 wrong notes" for note-scored questions, or "12 fully correct" for the rest.
   function scoreNote(st) {
+    if (st.noted && st.block) return `${fmtPts(st.notes - st.wrong)} of ${st.notes} chords right`;
     if (st.noted && st.graph) return `${fmtPts(st.notes - st.wrong)} of ${st.notes} answers right`;
     if (st.noted) return `${st.wrong} wrong note${st.wrong === 1 ? '' : 's'} of ${st.notes}`;
     return `${st.full} fully correct`;
   }
   function resultCell(it) {
+    if (it.type === 'block' && it.notes != null) {
+      if (!it.answered) return h('span', { class: 'res is-blank' }, '— Blank');
+      if (!it.wrong) return h('span', { class: 'res is-good' }, `✓ ${it.notes} of ${it.notes} chords`);
+      return h('span', { class: 'res ' + (it.wrong < it.notes ? 'is-part' : 'is-bad') }, `${it.wrong < it.notes ? '◐' : '✗'} ${it.notes - it.wrong} of ${it.notes} chords`);
+    }
     if (it.type === 'sing') return it.credit === 7 ? h('span', { class: 'res is-good' }, '✓ Recorded') : h('span', { class: 'res is-blank' }, '— Not ticked');
     if (it.notes != null && MQ.GRAPH_TYPES.includes(it.type)) {
       // Chord Graph: points out of points, halves included.
@@ -2976,7 +3007,7 @@
         h('td', { class: 'num' }, String(i + 1)),
         h('td', null, it.type === 'sing' ? (q ? `Melody ${q.sing.n + 1}` : 'A melody') : q ? q.text : typeOf(it.type).label),
         h('td', null, it.type === 'sing' ? 'Sung' : it.type === 'analysis' ? 'Score' : it.type === 'rhythm' ? 'Rhythm' : it.type === 'rgrid' ? 'Grid' : it.type === 'cgphrase' ? 'Phrase' : MQ.GRAPH_TYPES.includes(it.type) ? 'Table' : it.type === 'term' ? (q && q.tm ? MQ.termCat(q) : 'Terms') : MQ.CLEFS[it.clef].label),
-        key ? h('td', { class: 'ans' + (q && (q.mel || q.rh || q.cg || q.ph) ? ' is-long' : '') },
+        key ? h('td', { class: 'ans' + (q && (q.mel || q.rh || q.cg || q.ph || q.blk) ? ' is-long' : '') },
           it.type === 'sing' && q ? accText(MQ.singSungText(q.mel, rep.answers && rep.answers[i] ? rep.answers[i].value : null))
             : q ? (q.cg ? graphAnswer(q) : q.ph ? accText(MQ.describeAnswer(q, quiz.cfg)) : MQ.describeAnswer(q, quiz.cfg)) : '') : null,
         h('td', null, resultCell(it)),
@@ -3062,6 +3093,8 @@
       r.quiz = quizzes.find((q) => q.id === r.quizId) || null;
       r.quiz = singReportQuiz(r);
       r.sealOk = r.quiz ? r.verifySeal(r.quiz.cfg) : null;
+      // Block chords: the teacher's own marks, changed here and kept on this device.
+      teachBlocks(r, () => { const y = window.scrollY; runGrade(host); window.scrollTo(0, y); });
       r.stats = MQ.reportStats(r);
     });
     host.replaceChildren();
@@ -3070,7 +3103,9 @@
     if (!reports.length) return;
     if (reports.length > 1) host.append(classSummary(reports, host));
     g.sel = Math.min(g.sel, reports.length - 1);
-    host.append(reportDetail(reports[g.sel]));
+    // Block chords open with the student's answers showing: that's where the marks are.
+    const sel = reports[g.sel];
+    host.append(reportDetail(sel, { openAnswers: g.openAns != null ? g.openAns : sel.items.some((it) => it.type === 'block'), onOpen: (v) => (g.openAns = v) }));
   }
   function verifyChips(r) {
     const chip = (tone, text) => h('span', { class: 'vchip is-' + tone }, text);
@@ -3078,7 +3113,8 @@
       chip('good', '✓ Code intact'),
       r.quiz ? chip('good', '✓ Quiz: ' + (r.quiz.cfg.title || 'untitled')) : chip('warn', 'Quiz not on this device — add its code to see questions'),
       r.sealOk === true ? chip('good', '✓ Seal verified') : r.sealOk === false ? chip('bad', '⚠ Seal doesn’t match — this code may have been edited') : null,
-      attemptChip(r, chip));
+      attemptChip(r, chip),
+      r.teach && r.teach.changed ? chip('warn', `You changed the marks on ${r.teach.changed} chord${r.teach.changed === 1 ? '' : 's'}`) : null);
   }
   // Which attempt this was, and a warning when it goes past the quiz's retake limit.
   function attemptChip(r, chip) {
@@ -3116,6 +3152,8 @@
       h('dl', { class: 'facts' },
         sung
           ? h('div', null, h('dt', null, 'Melodies'), h('dd', null, String(st.count)))
+          : st.noted && st.block
+          ? h('div', null, h('dt', null, 'Chords right'), h('dd', null, `${fmtPts(st.notes - st.wrong)} of ${st.notes}`))
           : st.noted && st.graph
           ? h('div', null, h('dt', null, 'Answers right'), h('dd', null, `${fmtPts(st.notes - st.wrong)} of ${st.notes}`))
           : st.noted
@@ -3148,8 +3186,9 @@
         const lost = MQ.answerLost(q, r.answers[i]);
         let card;
         try {
+          const teacher = q.type === 'block' && r.teach && r.teach.set ? { marks: r.teach.marks[i] || {}, set: (j, v) => r.teach.set(i, j, v) } : null;
           card = it.answered || q.type === 'progression' || q.type === 'term' || !q.choices
-            ? questionCard(q, cfg, { response: MQ.answerFor(q, r.answers[i]), locked: true, reveal: o.showKey && !lost, playsUsed: r.answers[i] && r.answers[i].plays })
+            ? questionCard(q, cfg, { response: MQ.answerFor(q, r.answers[i]), locked: true, reveal: (o.showKey || !!teacher) && !lost, playsUsed: r.answers[i] && r.answers[i].plays, teacher })
             : h('div', null, h('p', { class: 'q-text' }, q.text),
               h('p', { class: 'result is-bad' }, h('strong', null, 'Left blank.'), o.showKey ? [' The answer is ', h('b', null, MQ.describeAnswer(q, cfg)), '.'] : null));
           // No notes to mark: the verdict is in the heading, so just give the answer.
@@ -3167,14 +3206,18 @@
       }).filter(Boolean);
       box.replaceChildren(jump, ...cards);
     };
-    if (o.openAnswers) { build(); return h('div', { class: 'ans-wrap' }, box); }
+    if (o.openAnswers && !o.onOpen) { build(); return h('div', { class: 'ans-wrap' }, box); }
     // Chord Graph answers are tables and phrases, not notes on a staff.
     const seeText = r.items.every((it) => MQ.GRAPH_TYPES.includes(it.type) || it.type === 'term') ? 'See answers' : 'See answers on the staff';
-    const btn = h('button', { type: 'button', class: 'btn', 'aria-expanded': 'false' }, seeText);
+    // On the Grade tab the answers stay open (or shut) as the report is redrawn.
+    const startOpen = !!(o.openAnswers && o.onOpen);
+    const btn = h('button', { type: 'button', class: 'btn', 'aria-expanded': String(startOpen) }, startOpen ? 'Hide answers' : seeText);
+    if (startOpen) build();
     btn.addEventListener('click', () => {
       const open = btn.getAttribute('aria-expanded') !== 'true';
       btn.setAttribute('aria-expanded', String(open));
       btn.textContent = open ? 'Hide answers' : seeText;
+      if (o.onOpen) o.onOpen(open);
       if (!open) { box.replaceChildren(); return; }
       build();
     });
@@ -3245,6 +3288,11 @@
         if (MQ.isGraph(q)) {
           it.notes = MQ.graphPoints(q);
           it.wrong = !it.answered ? it.notes : Math.min(it.notes, Math.round(it.notes * (1 - skill) * rng() * 2.4) / 2);
+          it.credit = it.wrong ? Math.min(6, Math.round(((it.notes - it.wrong) / Math.max(1, it.notes)) * 7)) : 7;
+        }
+        if (q.type === 'block') {
+          it.notes = q.blk.syms.length;
+          it.wrong = !it.answered ? it.notes : Math.min(it.notes, Math.round(it.notes * (1 - skill) * rng() * 1.6));
           it.credit = it.wrong ? Math.min(6, Math.round(((it.notes - it.wrong) / Math.max(1, it.notes)) * 7)) : 7;
         }
         if (q.type === 'degree') {
@@ -6880,7 +6928,8 @@
       clef: q.clef, grand: !!q.grand, keySig: q.keySig || 0, keyAware: !!q.keyAware,
       columns: q.columns, readOnly: true, labels: false,
       chordLabels: q.chordLabels || null, barlines: !!q.chordLabels || q.type === 'figprog',
-      colW: q.chordLabels ? 62 : null,
+      colW: q.blk ? 66 : q.chordLabels ? 62 : null,
+      value: q.blk && !q.blk.value ? 'half' : 'whole', barEvery: q.blk && !q.blk.value ? 2 : 1,
     });
     MQ.clefFont = wasFont;
     const svg = st.svg;
@@ -6891,7 +6940,8 @@
     const pad = 32;
     // Chord symbols and Roman numerals are drawn below the staff, so keep them in view.
     const below = q.chordLabels ? st.vbH - staffBottom : pad;
-    const top = Math.max(0, staffTop - pad), height = Math.min(st.vbH - top, staffBottom + below - top);
+    // Block chords print their chord symbols above the grand staff.
+    const top = q.blk ? 0 : Math.max(0, staffTop - pad), height = Math.min(st.vbH - top, staffBottom + below - top);
     svg.setAttribute('viewBox', `0 ${top} ${W} ${height}`);
     svg.removeAttribute('style');
     svg.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
@@ -6902,7 +6952,7 @@
     const style = document.createElementNS('http://www.w3.org/2000/svg', 'style');
     style.textContent = 'svg{background:#fff}.sl{stroke:#000;stroke-width:1.1;fill:none}.brace{fill:#000}'
       + '.clef-glyph{fill:#000;font-family:"Noto Music","Bravura Text",serif}.note{color:#000}.note .head{fill:#000}'
-      + '.ledger{stroke:#000;stroke-width:1.3}.slot{display:none}.nlabel{display:none}'
+      + '.ledger{stroke:#000;stroke-width:1.3}.stem{stroke:#000;stroke-width:1.3}.slot{display:none}.nlabel{display:none}'
       + '.clabel{font:bold 13px Georgia,serif;fill:#000}.clabel.is-small{font-size:10.5px;fill:#333}'
       + '.sacc{font-family:"Noto Music",serif}';
     svg.insertBefore(style, svg.firstChild);
@@ -7155,6 +7205,163 @@
 
 
   // ---------- results page: one student's report from a link, for SpeedGrader ----------
+  // ---------- Clefwork Voice Leading: block chords ----------
+  // The builder: each exercise is a row of chord symbols and how many notes go in each block.
+  function blockSections(cfg, changed, R) {
+    const b = (cfg.block = MQ.blockSettings(cfg.block));
+    const sync = () => { cfg.counts.block = MQ.usableBlockExercises(b).length; };
+    const list = h('div', { class: 'bk-list' });
+    const addBtn = h('button', { type: 'button', class: 'btn sm', onclick: () => {
+      if (b.ex.length >= MQ.BLOCK_MAX) return;
+      b.ex.push({ chords: '', voices: b.voices });
+      draw();
+      const inp = document.getElementById(`bk-ch-${b.ex.length - 1}`);
+      if (inp) inp.focus();
+      changed();
+    } }, '+ Add an exercise');
+    const row = (e, i) => {
+      const status = h('p', { class: 'bk-status' });
+      const show = () => {
+        const p = MQ.blockExerciseProblems(e);
+        status.className = 'bk-status' + (p.bad.length ? ' warn-note' : p.tooMany ? ' warn-note' : ' fine');
+        status.replaceChildren(p.empty ? 'Type the chord symbols, separated by spaces — this exercise is left out until it has some.'
+          : p.bad.length ? `Clefwork can’t read ${p.bad.map((x) => `“${x}”`).join(', ')} — try symbols like Dmi7, G7, Cma7, F♯mi7♭5, B♭13, C6/9 or C(add9). Until then this exercise is left out.`
+          : (p.tooMany ? `Only the first ${MQ.BLOCK_CHORDS} chords are used: ` : 'Students see: ') + p.list.slice(0, MQ.BLOCK_CHORDS).map(MQ.blockSymbolShown).join('   '));
+      };
+      const inp = textIn(`bk-ch-${i}`, e.chords, 160, 'e.g. Dmi7 G7 Cma7 A7', (v) => { e.chords = v; show(); sync(); changed(); });
+      inp.classList.add('bk-chords');
+      const del = h('button', { type: 'button', class: 'btn btn-quiet sm', 'aria-label': `Remove exercise ${i + 1}`, onclick: () => { b.ex.splice(i, 1); sync(); draw(); changed(); } }, 'Remove');
+      show();
+      return h('div', { class: 'bk-row' }, h('span', { class: 'bk-num', 'aria-hidden': 'true' }, String(i + 1)),
+        h('div', { class: 'bk-main' }, fld(`Exercise ${i + 1}: chord symbols`, inp), status),
+        h('div', { class: 'bk-side' }, del));
+    };
+    const draw = () => {
+      list.replaceChildren(...b.ex.map(row));
+      if (!b.ex.length) list.append(h('p', { class: 'empty' }, 'No exercises yet.'));
+      addBtn.disabled = b.ex.length >= MQ.BLOCK_MAX;
+    };
+    draw();
+    sync();
+    const octaveNote = h('p', { class: 'help' });
+    const sayOctave = () => octaveNote.replaceChildren(b.octave
+      ? `Students may use the root in the block, as its octave — a ${b.voices}-note block of Cma7 can be C E G B or E G B D.`
+      : 'The root is marked wrong in the block unless the chord has no other note to fill it — a three-note C triad still needs its octave.');
+    sayOctave();
+    return [
+      sec('bk-block', 'The blocks', 'These apply to every exercise in the quiz.',
+        grp('Notes in each block', seg('bk-voices', MQ.BLOCK_VOICES.map((v) => ({ v, label: `${v} notes` })), b.voices, (v) => {
+          b.voices = v;
+          b.ex.forEach((e) => (e.voices = v));
+          sayOctave();
+          changed();
+        }), 'Not counting the root in the bass clef.'),
+        h('div', { class: 'toggles' },
+          toggle('bk-octave', 'Allow the root (octave) in the block', 'The root may be one of the notes above, as well as low in the bass clef.', b.octave, (v) => { b.octave = v ? 1 : 0; sayOctave(); changed(); })),
+        octaveNote),
+      sec('bk-ex', 'Exercises', `Each exercise is one question: up to ${MQ.BLOCK_CHORDS} chord symbols, separated by spaces. Every chord is a point.`,
+        list, h('div', { class: 'btn-row' }, addBtn)),
+      sec('bk-staff', 'On the staff', 'Students always write on the grand staff: the block above, the root low in the bass clef.',
+        h('div', { class: 'row2' },
+          grp('Roots', seg('bk-root', [{ v: 0, label: 'Printed for students' }, { v: 1, label: 'Students write them' }], b.root, (v) => { b.root = v; changed(); }),
+            'Printed roots sit between E2 and D3. A root students write must be the lowest note, at or below D3.'),
+          grp('Notes', seg('bk-value', [{ v: 0, label: 'Half notes' }, { v: 1, label: 'Whole notes' }], b.value, (v) => { b.value = v; changed(); }),
+            'Half notes put two chords in each 4/4 measure.'))),
+      sec('bk-rules', 'How chords are marked', 'From the textbook’s Rules for Block Voicings. Clefwork checks every chord against each rule. When you grade, you see what the student wrote and Clefwork’s marks, and you can accept or reject any chord.',
+        h('ul', { class: 'bk-rulelist' }, MQ.BLOCK_RULES.map((r) => h('li', null, h('b', null, `Rule ${r.n}`), ' ' + r.title))),
+        h('p', { class: 'help' }, 'Rule 7 reads the chord symbol: the 3rd and 7th come first, then every extension written in the symbol (the 13 in C13, the ♯11 in C7♯11), before a 5th or the octave. When the symbol asks for more notes than the block holds, the 3rd and 7th go in and any of the others fill the rest. A block with more notes than you allow is marked wrong (Rule 8).'),
+        h('p', { class: 'help' }, 'Every note must also be in the chord and spelled as it is (unless you accept enharmonic spellings). Rule 2 follows your choice above about the root. A doubled note is only marked when the chord has enough other notes to fill the block.'),
+        h('div', { class: 'toggles' },
+          toggle('bk-ninth', 'A 9th may replace the root', 'On seventh chords, the 9th can take the root’s place in the block (Rule 2).', b.ninth, (v) => { b.ninth = v ? 1 : 0; changed(); }),
+          toggle('bk-bottom', 'A chord tone on the bottom', 'The lowest note of the block must be the root, 3rd, 5th or 7th — as in Unit 5, Assignment 1.', b.bottom, (v) => { b.bottom = v ? 1 : 0; changed(); }))),
+    ];
+  }
+  // A block-chord exercise: the grand staff in half notes, and after checking, every chord's marks.
+  // o.teacher: {marks: {chord: true | false}, set(chord, value | null)} — the teacher's own verdicts.
+  function blockCard(q, cfg, o) {
+    const wrap = h('div', { class: 'qcard' + (o.compact ? ' is-compact' : '') });
+    wrap.append(h('div', { class: 'q-eyebrow' }, 'Block Chords', h('span', { class: 'q-clef' }, `Grand staff · ${q.blk.voices}-note blocks`)));
+    wrap.append(h(o.compact ? 'h3' : 'h2', { class: 'q-text' }, q.text));
+    if (q.hint && !o.locked) wrap.append(h('p', { class: 'q-hint' }, q.hint));
+    const staffBox = h('div', { class: 'staff-box' });
+    wrap.append(staffBox);
+    const placed = clonePlaced(o.response) || q.columns.map(() => []);
+    const staff = new MQ.Staff(staffBox, {
+      clef: 'grand', grand: true, columns: q.columns, placed, chordLabels: q.chordLabels, barlines: true,
+      barEvery: q.blk.value ? 1 : 2, value: q.blk.value ? 'whole' : 'half', colW: 66,
+      readOnly: !!o.locked, labels: cfg.flags.labels,
+      marks: o.reveal && !o.keyMode ? MQ.markResponse(q, placed, cfg) : null,
+      onChange: (pl) => o.onResponse && o.onResponse(pl),
+    });
+    staffBox.append(playButton(() => ({ chords: staff.pitches().filter((c) => c.length), dur: q.blk.value ? 2 : 1.2 }), 1, o.locked ? 'the chords' : 'your chords'));
+    if (!o.locked) wrap.append(palette(staff));
+    if (o.keyMode) wrap.append(h('p', { class: 'result is-key' }, h('strong', null, 'One good answer: '), MQ.describeAnswer(q, cfg)));
+    else if (o.reveal) wrap.append(blockMarks(q, cfg, placed, o.teacher));
+    return wrap;
+  }
+  // Each chord with the rules it breaks, and for the teacher a choice to keep or change the mark.
+  function blockMarks(q, cfg, placed, T) {
+    const cmp = MQ.compareBlock(q, placed, cfg);
+    const final = (c, j) => (T && T.marks[j] != null ? T.marks[j] : c.ok);
+    const right = cmp.chords.filter(final).length;
+    const head = right === cmp.notes
+      ? h('p', { class: 'result is-good', role: 'status' }, h('strong', null, cmp.notes === 1 ? 'The chord follows the rules.' : `All ${cmp.notes} chords follow the rules.`))
+      : h('p', { class: 'result is-bad', role: 'status' }, h('strong', null, `${right} of ${cmp.notes} chords ${T ? 'marked right' : 'follow the rules'}.`), ' Notes in red are the ones a rule is about.');
+    const rows = cmp.chords.map((c, j) => {
+      const auto = c.ok ? h('span', { class: 'res is-good' }, '✓ Follows every rule')
+        : h('ul', { class: 'bk-flags' }, c.flags.map((f) => h('li', null, f.rule ? h('span', { class: 'bk-rule' }, `Rule ${f.rule}`) : null, f.text)));
+      const cells = [h('th', { scope: 'row', class: 'bk-sym' }, c.symbol), h('td', null, auto)];
+      if (T) {
+        const tv = T.marks[j];
+        cells.push(h('td', { class: 'bk-teach' }, seg(`bk-t-${q.blk.n}-${j}-${Math.random().toString(36).slice(2, 7)}`, [
+          { v: 'auto', label: c.ok ? 'Keep ✓' : 'Keep ✗' },
+          { v: 'yes', label: 'Accept' },
+          { v: 'no', label: 'Mark wrong' },
+        ], tv == null ? 'auto' : tv ? 'yes' : 'no', (v) => T.set(j, v === 'auto' ? null : v === 'yes'))));
+      }
+      return h('tr', { class: (final(c, j) ? 'is-ok' : 'is-bad') + (T && T.marks[j] != null && T.marks[j] !== c.ok ? ' is-changed' : '') }, ...cells);
+    });
+    return h('div', { class: 'bk-marks' }, head,
+      h('div', { class: 'table-wrap' }, h('table', { class: 'qtable bk-table' },
+        h('thead', null, h('tr', null, h('th', null, 'Chord'), h('th', null, T ? 'Clefwork’s marks' : 'Marks'), T ? h('th', null, 'Your grade') : null)),
+        h('tbody', null, rows))));
+  }
+  // The teacher's marks for one report: kept on this device by report code, and folded into the
+  // report's scores. redraw (null: no changing marks here) shows the report again after a change.
+  function teachBlocks(r, redraw) {
+    r.teach = null;
+    if (!r.quiz || !r.answers || !r.items.some((it) => it.type === 'block')) return;
+    const key = MQ.normalize(r.code);
+    const all = store.get('block-marks', {}) || {};
+    const marks = all[key] || {};
+    if (!r.scoring) r.scoring = { mode: 'notes', outOf: 100, split: 0 };
+    let changed = 0;
+    r.items.forEach((it, i) => {
+      const q = r.quiz.qs[i];
+      if (it.type !== 'block' || !q || q.type !== 'block') return;
+      const cmp = MQ.compareBlock(q, MQ.answerFor(q, r.answers[i]), r.quiz.cfg);
+      const t = marks[i] || {};
+      const wrong = cmp.chords.filter((c, j) => !(t[j] != null ? t[j] : c.ok)).length;
+      changed += cmp.chords.filter((c, j) => t[j] != null && t[j] !== c.ok).length;
+      it.notes = cmp.notes;
+      it.wrong = wrong;
+      it.credit = wrong ? Math.min(6, Math.round(((cmp.notes - wrong) / Math.max(1, cmp.notes)) * 7)) : 7;
+    });
+    r.teach = {
+      marks, changed,
+      set: redraw ? (i, j, v) => {
+        const now = store.get('block-marks', {}) || {};
+        const mine = now[key] || {};
+        mine[i] = mine[i] || {};
+        if (v == null) delete mine[i][j]; else mine[i][j] = v;
+        if (!Object.keys(mine[i]).length) delete mine[i];
+        if (Object.keys(mine).length) now[key] = mine; else delete now[key];
+        store.set('block-marks', now);
+        redraw();
+      } : null,
+    };
+  }
+
   function hashParams() {
     const out = {};
     decodeURIComponent(location.hash.slice(1)).split('&').forEach((kv) => {
@@ -7183,6 +7390,8 @@
     r.quiz = local || (fromLink && !mismatch ? fromLink : null);
     r.quiz = singReportQuiz(r);
     r.sealOk = r.quiz ? r.verifySeal(r.quiz.cfg) : null;
+    // Block chords: the teacher can change the marks only where the quiz was built (this device).
+    teachBlocks(r, local ? () => { const y = window.scrollY; main.replaceChildren(); renderResults(main); window.scrollTo(0, y); } : null);
     r.stats = MQ.reportStats(r);
     const showKey = !!(r.quiz && (local || r.quiz.cfg.flags.feedback));
     if (mismatch) wrap.append(h('section', { class: 'card notice is-bad' }, h('h3', null, 'The quiz in this link doesn’t match the report'), h('p', null, 'The score is shown, but the questions can’t be — the link may have been edited.')));
@@ -7280,6 +7489,15 @@
         h('li', null, h('b', null, '1'), ' Set the melodies — write them, let Clefwork make them, or take them from the library'),
         h('li', null, h('b', null, '2'), ' Students read each melody and record themselves singing it'),
         h('li', null, h('b', null, '3'), ' Recordings go to Canvas; the report code says who sang which melodies'));
+    }
+    if (VOICE) {
+      const name = document.querySelector('.brand-name');
+      if (name) name.textContent = 'Clefwork Voice Leading';
+      document.title = 'Clefwork Voice Leading';
+      document.querySelector('.flow').replaceChildren(
+        h('li', null, h('b', null, '1'), ' Type the chord symbols and choose how many notes go in each block'),
+        h('li', null, h('b', null, '2'), ' Students write block voicings on the grand staff, in half notes'),
+        h('li', null, h('b', null, '3'), ' Clefwork marks every chord by the textbook’s rules — you see what they wrote and can change any mark'));
     }
     if (MELODY) {
       const name = document.querySelector('.brand-name');
