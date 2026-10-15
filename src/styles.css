@@ -1274,3 +1274,7 @@ input.sg-range { flex: 1; min-width: 0; accent-color: var(--accent); height: 28p
   .bk-table th.bk-sym, .bk-table td { border: 0; }
   .bk-teach { width: auto; }
 }
+
+/* Clefwork Analysis: a pivot chord's panel — its Roman numeral in each key, and its chord symbol. */
+.an-pivot .an-pv-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.an-pv-label { min-width: 92px; font-size: 13px; font-weight: 700; color: var(--ink-2); }

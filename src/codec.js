@@ -274,8 +274,10 @@
   // the menus students choose from (how long each list is, then a bit for each kind), then for every
   // box written earlier, 0 (as it was), 1 (linked to the next box, its figures changing) or 2 (non-
   // harmonic tones: who circles the notes, the circles' size, each circle's centre and kind — 31 for
-  // one that's in a pair — and each pair's two circles and kind). A box of non-harmonic tones was
-  // written above as a Roman numeral box with no answer, which is how an older Clefwork shows it.
+  // one that's in a pair — and each pair's two circles and kind) or 3 (a pivot chord: its Roman numeral
+  // in the new key). A box of non-harmonic tones was written above as a Roman numeral box with no
+  // answer, and a pivot chord as a Roman numeral box with its numeral in the old key — which is how an
+  // older Clefwork shows them.
   const qPos = (v) => Math.max(0, Math.min(1023, Math.round(v * 1023)));
   const qRad = (v) => Math.max(1, Math.min(1023, Math.round(v * 4096)));
   function writeCircles(w, v) {
@@ -345,6 +347,7 @@
     w.u(MQ.NHT_PAIRS.length, 5);
     MQ.NHT_PAIRS.forEach((x) => w.u(an.pairOpts.includes(x.id) ? 1 : 0, 1));
     regs.forEach((g) => {
+      if (g.ask === 'pivot') { w.u(3, 2).str(String(g.roman2 || ''), 63); return; }
       if (g.ask !== 'nht') { w.u(g.link ? 1 : 0, 2); return; }
       const T = MQ.nhtSettings(g.nht);
       w.u(2, 2).u(T.mode, 1).u(qRad(T.rx), 10).u(qRad(T.ry), 10);
@@ -359,6 +362,7 @@
     regs.forEach((g) => {
       const kind = r.u(2);
       if (kind === 1) g.link = 1;
+      if (kind === 3) { Object.assign(g, { ask: 'pivot', roman2: r.str() }); return; }
       if (kind !== 2) return;
       const T = { mode: r.u(1), rx: r.u(10) / 4096, ry: r.u(10) / 4096 };
       Object.assign(T, readCircles(r));
@@ -697,7 +701,7 @@
       const anScores = [an].concat(ext === 12 ? an.more.slice(0, MQ.ANALYSIS_SCORES - 1) : []);
       const keys = anScores.some((sc) => sc.keys && sc.keys.length);
       const opens = anScores.some((sc) => sc.open && sc.open.show > 0);
-      if (keys || opens || anRegs.some((g) => g.link || g.ask === 'nht')) {
+      if (keys || opens || anRegs.some((g) => g.link || g.ask === 'nht' || g.ask === 'pivot')) {
         if (((ext >= 4 && ext <= 8) || ext === 11 || ext === 13) && !tiesWritten) w.u(0, 1);
         w.u(1, 1);
         writeAnalysisExtras(w, an, anRegs);
@@ -1332,6 +1336,17 @@
           w.u(k, 7).u(Math.max(-12, Math.min(12, Math.round(v.tr || 0))) + 12, 5).u(v.bass ? 1 : 0, 1);
         });
       }
+      // Then pivot chords: each answer's question and the Roman numeral the student wrote in the new key
+      // (the old key's numeral and the chord symbol are with the answer above).
+      const pv = ans.qs.map((q, k) => k).filter((k) => {
+        const q = ans.qs[k], v = ans.resp[k];
+        return q.type === 'analysis' && q.an.ask === 'pivot' && v && String(v.r2 || '').trim();
+      });
+      if (pv.length) {
+        begin(4);
+        w.u(pv.length, 7);
+        pv.forEach((k) => { w.u(k, 7); writeText(w, ans.resp[k].r2); });
+      }
     }
     return pack(KIND_REPORT, w.b, sealKey(cfg, qid));
   }
@@ -1400,6 +1415,13 @@
           const k = r.u(7), tr = r.u(5) - 12, bass = r.u(1);
           const a = rep.answers[k];
           if (a && a.kind === 'sing' && a.value) Object.assign(a.value, { tr, bass });
+        }
+      }
+      if (ver >= 15 && rep.answers && r.b.length > r.p && r.u(1)) {
+        for (let j = 0, n = r.u(7); j < n; j++) {
+          const k = r.u(7), r2 = readText(r);
+          const a = rep.answers[k];
+          if (a && a.kind === 'text' && a.value) a.value.r2 = r2;
         }
       }
       // True when the seal matches the quiz this report claims to belong to.

@@ -14,6 +14,9 @@
      (a circle's radius, as fractions of the picture's width and height), c: [{x, y, t}] (circles: centre
      and kind, an index into NHT_TYPES, or −1 inside a pair), l: [{a, b, t}] (pairs: two circles and an
      index into NHT_PAIRS)}.
+   - A box can instead be a pivot chord (ask: 'pivot'), where the key changes through a chord the two
+     keys share: students write its Roman numeral in the key before the change (roman) and in the new
+     key (roman2), and its chord symbol (symbol) when the teacher gives one — the same chord in both.
    - A Roman numeral box can be linked to the next (link: 1): the same chord, its figures changing, as
      in V 6–5 over 4–3. The first box takes the numeral and figures (V64), the next just its figures (53).
    - Each score can mark where the key changes: keys: [{x, y, w, h (the chord, boxed), hide (students
@@ -50,7 +53,10 @@
     b.nhtOpts = NHT_TYPES.map((x) => x.id).filter((id) => b.nhtOpts.includes(id));
     b.pairOpts = NHT_PAIRS.map((x) => x.id).filter((id) => b.pairOpts.includes(id));
     [b].concat(b.more).forEach((sc) => {
-      sc.regions.forEach((r) => { if (r.ask === 'nht') r.nht = nhtSettings(r.nht); });
+      sc.regions.forEach((r) => {
+        if (r.ask === 'nht') r.nht = nhtSettings(r.nht);
+        if (r.ask === 'pivot') { r.roman2 = String(r.roman2 || ''); delete r.link; }
+      });
       if (!Array.isArray(sc.keys)) sc.keys = [];
       sc.keys = sc.keys.slice(0, 15).map(keySettings);
       sc.open = openSettings(sc.open);
@@ -352,6 +358,7 @@
   // asks for keeps asking for the one it has.
   function askFor(r, override) {
     if (r.ask === 'nht') return 'nht';
+    if (r.ask === 'pivot') return 'pivot';            // the quiz-wide answer type leaves pivot chords alone
     const want = override ? ASKS[override] : r.ask || 'roman';
     const hasR = alternatives(r.roman).length > 0, hasS = alternatives(r.symbol).length > 0;
     let r1 = want !== 'symbol' && hasR, s1 = want !== 'roman' && hasS;
@@ -367,19 +374,23 @@
     let n = 0;
     scoresOf(s).forEach((sc) => sc.regions.forEach((r) => {
       n++;
-      if (r.ask === 'nht') return;
+      if (r.ask === 'nht' || r.ask === 'pivot') return;
       if (want !== 'symbol' && !alternatives(r.roman).length) out.roman.push(n);
       if (want !== 'roman' && !alternatives(r.symbol).length) out.symbol.push(n);
     }));
     return out;
   }
-  const ASK_TEXT = { roman: 'Roman numeral with figures', symbol: 'Chord symbol', both: 'Roman numeral and chord symbol', nht: 'Non-harmonic tones' };
-  const partsOf = (q) => (q.an.ask === 'nht' || q.an.ask === 'key' || q.an.ask === 'open' ? [] : q.an.ask === 'both' ? ['r', 's'] : q.an.ask === 'symbol' ? ['s'] : ['r']);
+  const ASK_TEXT = { roman: 'Roman numeral with figures', symbol: 'Chord symbol', both: 'Roman numeral and chord symbol', nht: 'Non-harmonic tones', pivot: 'Pivot chord' };
+  // A box's answers: r (Roman numeral), s (chord symbol), and for a pivot chord r2 (its Roman numeral
+  // in the new key).
+  const partsOf = (q) => (q.an.ask === 'nht' || q.an.ask === 'key' || q.an.ask === 'open' ? []
+    : q.an.ask === 'pivot' ? (q.an.symbol.length ? ['r', 'r2', 's'] : ['r', 'r2'])
+      : q.an.ask === 'both' ? ['r', 's'] : q.an.ask === 'symbol' ? ['s'] : ['r']);
   // Linked boxes: each one marked {link} goes on into the next box of its score when both ask for a
   // Roman numeral. Returns, for every region, {link, linked, first (index of the chain's first box)}.
   function chainsOf(regions, override) {
     const out = regions.map(() => ({ link: false, linked: false, first: -1 }));
-    const roman = (r) => r && r.ask !== 'nht' && askFor(r, override) !== 'symbol';
+    const roman = (r) => r && r.ask !== 'nht' && r.ask !== 'pivot' && askFor(r, override) !== 'symbol';
     regions.forEach((r, i) => {
       if (!r.link || !roman(r) || !roman(regions[i + 1])) return;
       out[i].link = true;
@@ -396,7 +407,7 @@
       if (r.link && !ch[i].link) out.push(`Box ${n} is linked to the next box, but ${regions[i + 1] ? `box ${n + 1} doesn’t ask for a Roman numeral` : 'there’s no box after it'}.`);
       const alts = alternatives(r.roman);
       if (!ch[i].link && !ch[i].linked) {
-        const lone = r.ask !== 'nht' && askFor(r, override) !== 'symbol' && alts.find((w) => !parseRoman(w));
+        const lone = r.ask !== 'nht' && r.ask !== 'pivot' && askFor(r, override) !== 'symbol' && alts.find((w) => !parseRoman(w));
         if (lone) out.push(`Box ${n}: “${lone}” only works in linked boxes — link the box before it to this one, or type the whole numeral.`);
         return;
       }
@@ -448,6 +459,11 @@
         an: { n: i, score: k, region: { x: r.x, y: r.y, w: r.w, h: r.h }, ask, roman: alternatives(r.roman), symbol: alternatives(r.symbol), img: img ? img.hash : null },
         sig: 'an' + i, tags: [],
       };
+      if (ask === 'pivot') {
+        q.an.roman2 = alternatives(r.roman2);
+        q.hint = 'The key changes through this chord: write its Roman numeral in the key before the change and in the new key'
+          + (q.an.symbol.length ? ', and its chord symbol.' : '.');
+      }
       if (ask === 'nht') {
         const T = nhtSettings(JSON.parse(JSON.stringify(r.nht)));
         q.an.nht = T;
@@ -477,14 +493,14 @@
   const readRoman = (w) => parseRoman(w) || parseStage(w);
   // Two answers written as stages — figures, with or without a numeral in front — mean the same chord.
   const sameStage = (a, b) => !!a && !!b && a.figs === b.figs && !!a.base === !!b.base && (!a.base || sameRoman(a.base, b.base));
-  // One answer box: r (Roman numeral) or s (chord symbol).
+  // One answer box: r (Roman numeral), s (chord symbol) or r2 (a pivot chord's numeral in the new key).
   function markAnalysisPart(q, k, resp, cfg) {
     const got = resp && resp[k];
     if (!got || !String(got).trim()) return false;
     if (k === 'r' && (q.an.link || q.an.linked)) return stageRight(q, got) || q.an.roman.some((w) => !parseStage(w) && sameTyped(w, got));
-    if (k === 'r') {
+    if (k === 'r' || k === 'r2') {
       const p = parseRoman(got), st = parseStage(got);
-      return q.an.roman.some((w) => {
+      return (k === 'r2' ? q.an.roman2 || [] : q.an.roman).some((w) => {
         const wp = parseRoman(w);
         if (wp) return !!p && sameRoman(wp, p);
         const ws = parseStage(w);                       // figures on their own, as a linked box takes them
@@ -498,6 +514,7 @@
   function unreadableAnswers(r, override) {
     const ask = askFor(r, override), out = [];
     if (ask !== 'symbol') alternatives(r.roman).forEach((w) => { if (!readRoman(w)) out.push({ part: 'roman', text: w }); });
+    if (ask === 'pivot') alternatives(r.roman2).forEach((w) => { if (!parseRoman(w)) out.push({ part: 'roman2', text: w }); });
     if (ask !== 'roman') alternatives(r.symbol).forEach((w) => { if (!MQ.parseVoiceSymbol(w)) out.push({ part: 'symbol', text: w, roman: !!parseRoman(w) }); });
     return out;
   }
@@ -516,12 +533,15 @@
   const hasAnalysisAnswer = (q, resp) => !!resp && (q.an.ask === 'open' ? resp.k != null : q.an.ask === 'key' ? keyParts(q).some((p) => (p === 'b' ? !!resp.b : resp.k != null)) : q.an.ask === 'nht'
     ? (resp.c || []).some((c) => c.t >= 0) || (resp.l || []).some((l) => l.t >= 0) || (!q.an.nht.mode && (resp.c || []).length > 0)
     : partsOf(q).some((k) => String(resp[k] || '').trim()));
-  const romanAnswerText = (q) => q.an.roman.map((w) => (q.an.link || q.an.linked ? stageText(parseStage(w)) : romanText(parseRoman(w))) || w).join(' or ');
+  const romanAnswerText = (q, list) => (list || q.an.roman).map((w) => (q.an.link || q.an.linked ? stageText(parseStage(w)) : romanText(parseRoman(w))) || w).join(' or ');
   const symbolAnswerText = (q) => q.an.symbol.map(symbolText).join(' or ');
   function describeAnalysis(q) {
     if (q.an.ask === 'open') return keyText(q.an.key);
     if (q.an.ask === 'key') return q.an.key && keyParts(q).includes('k') ? `${q.an.hide ? 'The boxed chord — ' : ''}${keyText(q.an.key)}` : 'The boxed chord';
     if (q.an.ask === 'nht') return nhtAnswerText(q.an.nht);
+    if (q.an.ask === 'pivot') {
+      return `${romanAnswerText(q)} in the old key = ${romanAnswerText(q, q.an.roman2)} in the new key` + (q.an.symbol.length ? ` · ${symbolAnswerText(q)}` : '');
+    }
     return partsOf(q).map((k) => (k === 'r' ? romanAnswerText(q) : symbolAnswerText(q))).join(' · ');
   }
 
@@ -585,7 +605,8 @@
       const below = bi === bands.length - 1 ? 1 : (b.y1 + bands[bi + 1].y0) / 2;
       const cx = q.an.region.x + q.an.region.w / 2;
       // Non-harmonic tones get a lane of their own under the system, after its Roman numerals.
-      if (q.an.ask === 'nht' || q.an.ask === 'key') { laneAt(below, 'nht', 0.5).items.push({ i, cx }); return; }
+      // So do pivot chords: a panel with the numeral in each key.
+      if (q.an.ask === 'nht' || q.an.ask === 'key' || q.an.ask === 'pivot') { laneAt(below, 'nht', 0.5).items.push({ i, cx }); return; }
       if (q.an.ask !== 'roman') laneAt(above, 'symbol', 1).items.push({ i, cx });
       if (q.an.ask !== 'symbol') laneAt(below, 'roman', 0).items.push({ i, cx });
     });
