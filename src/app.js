@@ -597,6 +597,8 @@
     } else if (frac > 0 && q.type === 'analysis') {
       const need = MQ.analysisParts(q).length;
       lead = `Partly right — ${Math.round(frac * need)} of ${need} answers.`;
+    } else if (frac > 0 && q.type === 'ivname') {
+      lead = `Partly right — the ${MQ.gradeQuestion(Object.assign({}, q, { dropdowns: q.dropdowns.slice(0, 1) }), response, cfg) === 1 ? 'quality' : 'size'} is right.`;
     } else if (frac > 0 && q.type === 'figprog') {
       const need = q.figuredList.length;
       lead = `Partly right — ${Math.round(frac * need)} of ${need} chords.`;
@@ -1463,6 +1465,11 @@
       place: () => [staffPick('place'), toggle('f-strictOctave', 'Octave must match', 'Ask for an exact pitch such as F♯4 instead of any F♯.', cfg.flags.strictOctave, (v) => { cfg.flags.strictOctave = v; changed(); })],
       identify: () => [staffPick('identify'), h('p', { class: 'help' }, 'Students see a printed note and choose its name from four answers. Ledger lines and starting notes come from Staff & notes.')],
       interval: () => [
+        grp('Students', seg('q-ivask', [
+          { v: 1, label: 'Write the interval — one note is printed' },
+          { v: 2, label: 'Name the interval — both notes are printed' },
+          { v: 3, label: 'A mix of both' }], cfg.intervalAsk || 1, (v) => { cfg.intervalAsk = v; changed(); }),
+          'To name one, students see the two notes stacked on the staff and choose its quality (diminished, minor, major, perfect, augmented) and its size (unison to 13th) — every option, whichever intervals you choose below.'),
         staffPick('interval'),
         notesPick('interval', 'Print the first note', 'Students write both notes'),
         grp('Intervals to ask', chips('q-intervals', MQ.INTERVALS, cfg.intervals, (m) => { cfg.intervals = m; changed(); }, (x) => x.id, (x) => x.name),

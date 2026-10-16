@@ -581,6 +581,10 @@
     // Extension 13: Clefwork Sight Singing — the retake limit (if any) behind a flag, the melody
     // block (the melodies students sing), then how many of them each student is given, what they may
     // hear, how minor keys count and whether they tick each recording off.
+    // Last of all, after any ties and Clefwork Analysis's extras: a 1, then the Intervals tab's direction
+    // (1 write, 2 name, 3 both) — written only when students name intervals, so other quizzes keep their
+    // codes. A quiz that has no extension for anything else takes extension 1 (no score, no boxes) to
+    // carry it.
     // Extension 14: Clefwork Voice Leading, block chords — the retake limit (if any) behind a flag,
     // then the block-chord block. No other blocks.
     const an = MQ.analysisSettings(cfg.analysis);
@@ -602,7 +606,8 @@
     const graph = GRAPH_COUNTS.some((k) => cfg.counts && cfg.counts[k] > 0);
     const terms = TERM_COUNTS.some((k) => cfg.counts && cfg.counts[k] > 0);
     const anMore = an.more.length > 0 && (regions.length > 0 || an.more.some((m) => m.regions.length));
-    if (regions.length || an.img || limit != null || rhythm || melody || degrees || graph || terms || sing || block) {
+    const ivAsk = (cfg.counts && cfg.counts.interval) > 0 && (cfg.intervalAsk === 2 || cfg.intervalAsk === 3) ? cfg.intervalAsk : 0;
+    if (regions.length || an.img || limit != null || rhythm || melody || degrees || graph || terms || sing || block || ivAsk) {
       const q10 = (v) => Math.max(0, Math.min(1023, Math.round(v * 1023)));
       const ext = block ? 14 : sing ? 13 : terms ? 10 : graph ? 9 : anMore ? 12 : grid ? 6 : degrees ? (dgLib ? 11 : dgMore ? 8 : 7) : melody ? 5 : rhythm ? 4 : limit != null ? 2 : 1;
       const deg8 = ext === 8 || ext === 11, deg7 = ext === 7 || deg8;
@@ -701,14 +706,19 @@
       const anScores = [an].concat(ext === 12 ? an.more.slice(0, MQ.ANALYSIS_SCORES - 1) : []);
       const keys = anScores.some((sc) => sc.keys && sc.keys.length);
       const opens = anScores.some((sc) => sc.open && sc.open.show > 0);
-      if (keys || opens || anRegs.some((g) => g.link || g.ask === 'nht' || g.ask === 'pivot')) {
+      const extras = keys || opens || anRegs.some((g) => g.link || g.ask === 'nht' || g.ask === 'pivot');
+      if (extras || ivAsk) {
         if (((ext >= 4 && ext <= 8) || ext === 11 || ext === 13) && !tiesWritten) w.u(0, 1);
-        w.u(1, 1);
+        w.u(extras ? 1 : 0, 1);
+      }
+      if (extras) {
         writeAnalysisExtras(w, an, anRegs);
         if (keys) writeKeyChanges(w, an, anScores);
-        else if (opens) w.u(0, 1);
+        else if (opens || ivAsk) w.u(0, 1);
         if (opens) writeOpenKeys(w, anScores);
+        else if (ivAsk) w.u(0, 1);
       }
+      if (ivAsk) w.u(1, 1).u(ivAsk, 2);
     }
     return pack(KIND_QUIZ, w.b);
   }
@@ -959,6 +969,7 @@
             readOpenKeys(r, [an].concat(ext === 12 ? an.more : []));
             cfg.counts.analysis = MQ.analysisRegionCount(an);
           }
+          if (r.b.length > r.p && r.u(1)) cfg.intervalAsk = r.u(2) || 1;
         }
         const sum = (b) => MQ.TECHNIQUES.reduce((n, t) => n + ((b.tech && b.tech[t.id]) || 0), 0);
         cfg.counts.voicing = sum(cfg.vc);
@@ -1093,6 +1104,8 @@
         return;
       }
     }
+    // A named interval: its quality and size, as chosen from the menus (0 for not chosen).
+    if (q.type === 'ivname') { const a = resp || []; w.u(a[0] == null ? 0 : a[0] + 1, 3).u(a[1] == null ? 0 : a[1] + 1, 4); return; }
     if (q.type === 'chord') {
       w.u(q.symbolAnswer ? 1 : 0, 1);
       if (q.symbolAnswer) { writeText(w, resp); return; }
@@ -1146,6 +1159,7 @@
     return { kind: 'staff', value: cols };
   }
   function readAnswer(r, type, ver) {
+    if (type === 'ivname') { const a = r.u(3), b = r.u(4); return { kind: 'pick', value: [a ? a - 1 : null, b ? b - 1 : null] }; }
     if (type === 'sing') { const n = r.u(6); return { kind: 'sing', value: { n, done: !!r.u(1), tr: 0, bass: 0 } }; }
     if (type === 'term') {
       const v = r.u(3), hear = r.u(1);

@@ -41,6 +41,10 @@
     iv('P12', 19), iv('m13', 20), iv('M13', 21),
   ];
   const SIMPLE_INTERVALS = 13;
+  // What students choose from when they name a printed interval: every quality and every size, so the
+  // menus never hint at which intervals the quiz asks. Index → the quality letter and the size number.
+  const IV_QUALITIES = [['d', 'Diminished'], ['m', 'Minor'], ['M', 'Major'], ['P', 'Perfect'], ['A', 'Augmented']];
+  const IV_SIZES = ORD.slice(1).map((t, i) => [i + 1, t.charAt(0).toUpperCase() + t.slice(1)]);
 
   // Chord and scale members are [interval number, semitones] above the root.
   const CHORDS = [
@@ -85,7 +89,7 @@
   const TYPES = [
     { id: 'place', label: 'Place the Note', blurb: 'Drag a named note onto the staff.', est: 20 },
     { id: 'identify', label: 'Name the Note', blurb: 'Read a printed note and choose its name.', est: 15 },
-    { id: 'interval', label: 'Write an Interval', blurb: 'Add a note a given interval from a printed note.', est: 30 },
+    { id: 'interval', label: 'Write an Interval', blurb: 'Add a note a given interval from a printed note — or name an interval printed on the staff.', est: 30 },
     { id: 'chord', label: 'Build a Chord', blurb: 'Build a chord from its symbol — triads through 13ths, in root position or an inversion — above a printed bass note.', est: 45 },
     { id: 'scale', label: 'Write a Scale', blurb: 'Fill in a scale ascending from its first note.', est: 75 },
     { id: 'keysig', label: 'Name the Key', blurb: 'Identify a key from its key signature.', est: 20 },
@@ -115,6 +119,9 @@
     { id: 'sing', label: 'Sight Singing', blurb: 'A melody to read and sing, recorded by the student and handed in as audio.', est: 60, custom: true },
     // Clefwork Voice Leading (see blockchords.js).
     { id: 'block', label: 'Block Chords', blurb: 'Write a block voicing in half notes on the grand staff for each chord symbol — checked against the textbook’s rules, chord by chord.', est: 120, custom: true },
+    // Added last, so the numbers report codes already use keep their meaning.
+    // Intervals printed for students to name (the Intervals tab's "students name it" setting).
+    { id: 'ivname', label: 'Name the Interval', blurb: 'Read an interval printed on the staff, its two notes stacked, and choose its quality and size.', est: 20, custom: true },
   ];
   const BUILT_IN = TYPES.filter((t) => !t.custom);
   const MAX_CUSTOM = 20, MAX_CUSTOM_NOTES = 6, MAX_VOICING_NOTES = 8;
@@ -175,6 +182,7 @@
       accMode: 3,
       intervals: maskOf(INTERVALS, ['M2', 'm3', 'M3', 'P4', 'P5', 'P8']),
       intervalDir: 1,
+      intervalAsk: 1, // 1 print a note and students write the interval, 2 print the interval and students name it, 3 both
       chords: maskOf(CHORDS, ['maj', 'min']),
       inversions: 1,
       chordQual: 0b00011, // major, minor (then diminished, augmented, sus)
@@ -477,6 +485,25 @@
         if (okAlt(tgt)) best = { ivl, dir, start, tgt };
       }
       const { ivl, dir, start, tgt } = best;
+      // Students name a printed interval: both notes in one column, the lower one first.
+      const ask = cfg.intervalAsk === 2 ? 'name' : cfg.intervalAsk === 3 ? (rng() < 0.5 ? 'write' : 'name') : 'write';
+      if (ask === 'name') {
+        const notes = dir > 0 ? [start, tgt] : [tgt, start];
+        return {
+          type: 'ivname', clef,
+          text: 'Name the interval shown on the staff.',
+          hint: 'Choose its quality and its size.',
+          columns: [{ given: notes, cap: 0 }],
+          dropdowns: [
+            { label: 'Quality', options: IV_QUALITIES.map((x) => x[1]), answer: IV_QUALITIES.findIndex((x) => x[0] === ivl.id[0]) },
+            { label: 'Size', options: IV_SIZES.map((x) => x[1]), answer: IV_SIZES.findIndex((x) => x[0] === ivl.n) },
+          ],
+          ivName: ivl.name,
+          answer: [notes],
+          tags: ['iv:' + ivl.id, 'pc:' + pcName(start)],
+          sig: 'vn' + fullName(notes[0]) + ivl.id,
+        };
+      }
       if (bare) {
         // No printed note: the student writes both notes, in any octave.
         return {
@@ -837,6 +864,7 @@
     if (q.type === 'block') return MQ.describeBlock(q);
     if (q.symbolAnswers) return q.symbolAnswers.map((a) => a.shown).join('  ');
     if (q.symbolAnswer) return q.symbolAnswer.shown;
+    if (q.type === 'ivname') return q.ivName.charAt(0).toUpperCase() + q.ivName.slice(1);
     if (q.dropdowns) return q.dropdowns.map((d) => d.options[d.answer]).join(' · ');
     if (q.choices) return q.choices[q.answer];
     if (q.type === 'figured' || q.type === 'figprog') return MQ.describeFigured(q);
@@ -858,7 +886,7 @@
   }
 
   Object.assign(MQ, {
-    LETTERS, CLEFS, clefLabel, INTERVALS, SIMPLE_INTERVALS, CHORDS, INVERSIONS, SCALES, SIMPLE_SCALES, SIG_OPTIONS, FLAG_KEYS_V1, TYPES, BUILT_IN, MAX_CUSTOM, MAX_CUSTOM_NOTES, MAX_VOICING_NOTES, prettySymbol, PRESETS, FLAG_KEYS, MAJOR_KEYS, MINOR_KEYS,
+    LETTERS, CLEFS, clefLabel, INTERVALS, SIMPLE_INTERVALS, IV_QUALITIES, IV_SIZES, CHORDS, INVERSIONS, SCALES, SIMPLE_SCALES, SIG_OPTIONS, FLAG_KEYS_V1, TYPES, BUILT_IN, MAX_CUSTOM, MAX_CUSTOM_NOTES, MAX_VOICING_NOTES, prettySymbol, PRESETS, FLAG_KEYS, MAJOR_KEYS, MINOR_KEYS,
     normalizeSuffix, dia, midi, fromDia, transpose, pcName, fullName, samePitch, posOf, keyName, typeIndex,
     defaultConfig, randomSeed, maskOf, generateQuiz, resolveStaff, helpersOn, toGrand, STAFF_NAMES, gradeQuestion, markResponse, hasAnswer, describeAnswer,
     mulberry32, randPitchFor: randPitch, pickSpelled, spelledPick,
