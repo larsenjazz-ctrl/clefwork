@@ -21,7 +21,11 @@ A quiz's settings and a random seed are packed into a **quiz code**, so everyone
 
 Because the code carries every setting, a quiz can be read back: **Edit a quiz you already shared**, on the Build tab, takes a quiz code or any Clefwork link carrying one and puts the whole quiz back in the builder — to fix a wrong answer key, change a setting or make next year's version. A code from another Clefwork page says which page to open it on, and offers a link that opens it there ready to edit (`#edit=`). The quiz that was in the builder is kept, so a wrong paste can be put back. Editing makes a new code and link to share; report codes from the old one still grade, because the codes shared from a computer are remembered there. A quiz made by an older Clefwork is brought up to date as it loads, and says so if that changes how many questions it asks.
 
-Question types: place a note, name a note, intervals (simple and compound), chords (triads through 13ths, inversions, typed chord symbols), scales (including pentatonics and modes), key signatures, chord progressions, figured bass (single chords and progressions), and voicings — single voiced chords and voiced progressions. Clefwork Voice Leading adds block chords, marked by the textbook’s rules.
+Question types: place a note, name a note, intervals (simple and compound — written from a printed note, or named from a printed interval), chords (triads through 13ths, inversions, typed chord symbols), scales (including pentatonics and modes), key signatures, chord progressions, figured bass (single chords and progressions), and voicings — single voiced chords and voiced progressions. Clefwork Voice Leading adds block chords, marked by the textbook’s rules.
+
+### Naming intervals
+
+The Intervals tab can ask students to **write** an interval (one note is printed; they add the other), to **name** one, or a mix. To name an interval, students see its two notes stacked in one column on the staff and choose its quality (diminished, minor, major, perfect or augmented) and its size (unison to 13th). The menus always hold every quality and size, so they never hint at which intervals the quiz asks. Each choice is half the question when partial credit is on. Named intervals are their own question type, Name the Interval, so the grade checker shows what each student chose. The setting is written at the very end of the quiz code only when students name intervals, so other quizzes keep their codes.
 
 ### Your quizzes
 
@@ -244,6 +248,10 @@ dist/site/                            copies published to GitHub Pages
 ```
 
 Set `CLEFWORK_BASE` before building to change the address used in shared links.
+
+### Testing interval naming
+
+`node tests/interval-naming.js` checks that the setting travels in the quiz code (alone, with a retake limit and with scale degrees), that quizzes which only write intervals keep their codes, that each printed pair really is the interval in the answer key, the marking, and that reports bring back what students chose.
 
 ### Testing pivot chords
 
