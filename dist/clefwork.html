@@ -13931,7 +13931,9 @@ svg.staff .nlabel { display: none; }
     const base = location.href.split('#')[0];
     const t = S.take;
     const launch = LAUNCH_HASH.match(/^#take=([^&]+)/);
-    const launched = launch ? decodeURIComponent(launch[1]).replace(/[^0-9A-Za-z]/g, '').toUpperCase() : '';
+    let launchedRaw = launch ? launch[1] : '';
+    try { launchedRaw = decodeURIComponent(launchedRaw); } catch (e) { /* a stray % — read it as it is */ }
+    const launched = (launchedRaw.match(/^[0-9A-Za-z\s-]*/) || [''])[0].replace(/[^0-9A-Za-z]/g, '').toUpperCase();
     if (t && !t.practice && t.code && t.code !== launched) return base + '#take=' + t.code;
     return base + LAUNCH_HASH;
   }
@@ -16340,11 +16342,47 @@ svg.staff .nlabel { display: none; }
   }
 
   const slotKey = (slot) => (slot === 'practice' ? 'practice' : 'attempt');
+  // A quiz taken from a link is also kept under its own key, so a student with two quizzes open (two
+  // tabs, or one after another) finds each where they left it, and a reload always reopens the quiz in
+  // the address rather than whichever was saved last.
+  const ATTEMPTS_KEPT = 25;
+  const attemptKey = (code) => 'attempt.' + MQ.quizId(code).toString(16);
+  let takeCode = null;              // the quiz the take slot last held, to forget when it's left
+  function keepAttemptFor(code, rest) {
+    store.set(attemptKey(code), rest);
+    const ids = (store.get('attempt-index', []) || []).filter((k) => k !== attemptKey(code));
+    ids.unshift(attemptKey(code));
+    ids.slice(ATTEMPTS_KEPT).forEach((k) => store.del(k));
+    store.set('attempt-index', ids.slice(0, ATTEMPTS_KEPT));
+  }
+  function forgetAttemptFor(code) {
+    store.del(attemptKey(code));
+    store.set('attempt-index', (store.get('attempt-index', []) || []).filter((k) => k !== attemptKey(code)));
+  }
   function saveAttempt() {
     const t = S.take;
-    if (!t) { store.del(slotKey(S.slot)); return; }
+    if (!t) {
+      store.del(slotKey(S.slot));
+      if (S.slot === 'take' && takeCode) forgetAttemptFor(takeCode);   // left on purpose: a fresh start next time
+      if (S.slot === 'take') takeCode = null;
+      return;
+    }
     const { cfg, qs, ...rest } = t;
     store.set(slotKey(S.slot), rest);
+    if (S.slot === 'take') { keepAttemptFor(t.code, rest); takeCode = t.code; }
+  }
+  // The attempt this device kept for the quiz with this code, put back as the quiz being taken.
+  function restoreAttemptFor(code) {
+    const a = store.get(attemptKey(code), null);
+    if (!a || !a.code || a.code !== code) return false;
+    try {
+      const cfg = MQ.decodeQuiz(a.code);
+      const draw = singDraw(cfg, MQ.generateQuiz(cfg), a.pick);
+      if (!a.resp || a.resp.length !== draw.qs.length) return false;
+      S.slots.take = Object.assign(a, { cfg, qs: draw.qs });
+      takeCode = a.code;
+      return true;
+    } catch (e) { forgetAttemptFor(code); return false; }
   }
   function restoreAttempt() {
     ['take', 'practice'].forEach((slot) => {
@@ -16356,6 +16394,7 @@ svg.staff .nlabel { display: none; }
         const qs = draw.qs;
         if (!a.resp || a.resp.length !== qs.length) return;
         S.slots[slot] = Object.assign(a, { cfg, qs });
+        if (slot === 'take') takeCode = a.code;
       } catch (e) { store.del(slotKey(slot)); }
     });
   }
@@ -21244,9 +21283,19 @@ svg.staff .nlabel { display: none; }
     };
   }
 
+  // The part of the address after #, decoded. A link that was mangled on its way (a stray %, as some
+  // email and learning systems leave) is read as best it can be rather than stopping the page. A link
+  // that lost its # (…student.html?take=CODE) is read the same.
+  function hashText() {
+    let raw = location.hash.slice(1);
+    if (!raw && /^\?(take|grade|edit|open)=/.test(location.search)) raw = location.search.slice(1);
+    try { return decodeURIComponent(raw); } catch (e) { /* a stray % — drop it and try again */ }
+    const tidy = raw.replace(/%(?![0-9A-Fa-f]{2})/g, '');
+    try { return decodeURIComponent(tidy); } catch (e) { return tidy; }
+  }
   function hashParams() {
     const out = {};
-    decodeURIComponent(location.hash.slice(1)).split('&').forEach((kv) => {
+    hashText().split('&').forEach((kv) => {
       const i = kv.indexOf('=');
       if (i > 0) out[kv.slice(0, i)] = kv.slice(i + 1);
     });
@@ -21301,12 +21350,16 @@ svg.staff .nlabel { display: none; }
     main.replaceChildren();
     main.dataset.view = view;
     VIEWS[view](main);
-    try { history.replaceState(null, '', '#' + view); } catch (e) { /* sandboxed */ }
+    // Taking a quiz, the address keeps its code, so a reload, a restored tab or a bookmark opens this
+    // quiz — not whichever one the device saved last.
+    const at = view === 'take' && S.slot === 'take' && S.linkError ? 'take=' + S.linkError.code
+      : view === 'take' && S.slot === 'take' && S.take ? 'take=' + S.take.code : view;
+    try { history.replaceState(null, '', location.pathname + '#' + at); } catch (e) { /* sandboxed */ }
     store.set('view', view);
   }
   function init() {
     if (OWN_QUIZZES) {
-      const op = decodeURIComponent(location.hash.slice(1)).match(/^open=([0-9a-z]+)$/);
+      const op = hashText().match(/^open=([0-9a-z]+)$/);
       const e = op && savedQuiz(op[1]);
       if (e && e.mode !== MODE) { location.replace(e.page + '#open=' + e.qid); return; }
       if (e) {
@@ -21446,7 +21499,7 @@ svg.staff .nlabel { display: none; }
     }
     document.querySelectorAll('.nav button').forEach((b) => b.addEventListener('click', () => { S.linkError = null; go(b.dataset.view); }));
     let view = 'build';
-    const hash = decodeURIComponent(location.hash.slice(1));
+    const hash = hashText();
     // A quiz to edit: pasted into the Build tab (which reloads the page), or an #edit= link from
     // another Clefwork page.
     let editMsg = null;
@@ -21462,14 +21515,18 @@ svg.staff .nlabel { display: none; }
     }
     const m = editMsg ? null : hash.match(/^(take|grade)=([\s\S]+)$/);
     if (m && m[1] === 'take') {
-      // Anything after the code is named: &img=… carries an Analysis quiz's picture.
-      const [codePart, ...more] = m[2].split('&');
+      // Anything after the code is named: &img=… carries an Analysis quiz's picture. The code itself is
+      // the run of letters, digits, dashes and spaces after take= — whatever a link picked up after it
+      // (?utm_source=…, a full stop or bracket from the sentence it sat in) isn't part of it.
+      const [first, ...more] = m[2].split('&');
+      const codePart = (first.match(/^[0-9A-Za-z\s-]*/) || [''])[0];
       const extra = {};
       more.forEach((kv) => { const i = kv.indexOf('='); if (i > 0) extra[kv.slice(0, i)] = kv.slice(i + 1); });
       const clean = codePart.replace(/[^0-9A-Za-z]/g, '').toUpperCase();
       const moreImgs = [2, 3, 4, 5, 6].map((k) => extra['img' + k] || '');
       while (moreImgs.length && !moreImgs[moreImgs.length - 1]) moreImgs.pop();
-      if (!(S.take && S.take.code === clean)) openQuiz(codePart, { img: extra.img, more: moreImgs, link: true });
+      // The quiz in the link — carried on where it was left on this device, or opened fresh.
+      if (!(S.take && S.take.code === clean) && !restoreAttemptFor(clean)) openQuiz(codePart, { img: extra.img, more: moreImgs, link: true });
       else if (S.take.cfg.analysis) {
         // The same quiz, already under way: keep the link's pictures in case this device lost them.
         MQ.analysisScores(S.take.cfg.analysis).forEach((sc, k) => {
@@ -21488,6 +21545,14 @@ svg.staff .nlabel { display: none; }
     else if (VIEWS[hash]) view = hash;
     else if (S.take && S.take.started && !S.take.done) view = 'take';
     go(view);
+    // A quiz link (or any other Clefwork link) opened while this page is already open in the tab: the
+    // browser only changes what follows #, so start the page again with the new link.
+    window.addEventListener('hashchange', () => {
+      const now = hashText();
+      if (!/^(take|grade|edit|open)=/.test(now)) return;
+      if (S.view === 'take' && S.slot === 'take' && S.take && now === 'take=' + S.take.code) return;
+      location.reload();
+    });
     if (editMsg) toast(editMsg.msg, editMsg.tone);
     else if (S.openMsg) toast(S.openMsg, /isn’t saved/.test(S.openMsg) ? 'bad' : '');
     if (document.fonts && document.fonts.load) {
