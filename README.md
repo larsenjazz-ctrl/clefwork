@@ -249,6 +249,10 @@ dist/site/                            copies published to GitHub Pages
 
 Set `CLEFWORK_BASE` before building to change the address used in shared links.
 
+### Testing quiz codes with ties
+
+`node tests/quiz-codes.js` writes and reads back every kind of quiz that can have tied notes — Sight Singing (all its melodies, or a bank), melodic and rhythmic dictation — and checks each gives the same questions, ties and all.
+
 ### Testing interval naming
 
 `node tests/interval-naming.js` checks that the setting travels in the quiz code (alone, with a retake limit and with scale degrees), that quizzes which only write intervals keep their codes, that each printed pair really is the interval in the answer key, the marking, and that reports bring back what students chose.

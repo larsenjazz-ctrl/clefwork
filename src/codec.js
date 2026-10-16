@@ -957,6 +957,9 @@
           }
           if (((ext >= 4 && ext <= 8) || ext === 11 || ext === 13) && r.b.length > r.p && r.u(1)) {
             const rt = r.u(1), mt = r.u(1), withMel = ext === 5 || ext === 13 || deg7;
+            // A Sight Singing quiz has no rhythm block, so its rhythm settings are only the defaults —
+            // filled out here as the writer saw them (no automatic rhythms, no examples).
+            cfg.rhythm = MQ.rhythmSettings(cfg.rhythm);
             if (cfg.rhythm.auto.on) cfg.rhythm.auto.ties = rt;
             if (withMel && cfg.melody.auto.on) cfg.melody.auto.ties = mt;
             const items = tieTargets(cfg.rhythm, withMel ? cfg.melody : null, ext === 11 ? cfg.deg.mel : null);
