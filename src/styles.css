@@ -1278,3 +1278,21 @@ input.sg-range { flex: 1; min-width: 0; accent-color: var(--accent); height: 28p
 /* Clefwork Analysis: a pivot chord's panel — its Roman numeral in each key, and its chord symbol. */
 .an-pivot .an-pv-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
 .an-pv-label { min-width: 92px; font-size: 13px; font-weight: 700; color: var(--ink-2); }
+
+/* Clefwork Analysis: boxes of non-harmonic tones sit on top of any other box drawn over them, so a
+   student's click on a note always reaches them (their circles above, and never in the way) */
+.an-strip > .an-hl.is-nht { z-index: 2; }
+.an-strip > .an-ov { z-index: 3; }
+/* the builder: while circling notes in a box, the other boxes step back */
+.an-layer.is-circling .an-reg:not(.is-draft) { pointer-events: none; opacity: 0.45; }
+/* what the next box is for */
+.an-how-row { align-items: flex-start; }
+.an-toolbar { display: flex; flex-wrap: wrap; gap: 10px 16px; flex: 1; min-width: 0; }
+.an-tool-group { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.an-tool-where { font-size: 12px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: var(--muted); margin-right: 2px; }
+.an-tool { min-height: 34px; padding: 0 12px; border-radius: 8px; border: 1px solid var(--line-2); background: var(--surface); color: var(--ink-2); font: 600 14px/1 var(--f-body); cursor: pointer; }
+.an-tool:hover { border-color: var(--accent); color: var(--ink); }
+.an-tool[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+.an-tool-tip { margin: 0; padding: 8px 12px; border-radius: 8px; background: var(--surface-2); border: 1px solid var(--line); transition: background 0.2s, border-color 0.2s; }
+.an-tool-tip.is-nudged { background: var(--warn-soft); border-color: var(--warn); }
+.an-overlap-note { margin: 4px 0 0; }

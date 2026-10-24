@@ -1290,6 +1290,24 @@ input.sg-range { flex: 1; min-width: 0; accent-color: var(--accent); height: 28p
 /* Clefwork Analysis: a pivot chord's panel — its Roman numeral in each key, and its chord symbol. */
 .an-pivot .an-pv-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
 .an-pv-label { min-width: 92px; font-size: 13px; font-weight: 700; color: var(--ink-2); }
+
+/* Clefwork Analysis: boxes of non-harmonic tones sit on top of any other box drawn over them, so a
+   student's click on a note always reaches them (their circles above, and never in the way) */
+.an-strip > .an-hl.is-nht { z-index: 2; }
+.an-strip > .an-ov { z-index: 3; }
+/* the builder: while circling notes in a box, the other boxes step back */
+.an-layer.is-circling .an-reg:not(.is-draft) { pointer-events: none; opacity: 0.45; }
+/* what the next box is for */
+.an-how-row { align-items: flex-start; }
+.an-toolbar { display: flex; flex-wrap: wrap; gap: 10px 16px; flex: 1; min-width: 0; }
+.an-tool-group { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.an-tool-where { font-size: 12px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: var(--muted); margin-right: 2px; }
+.an-tool { min-height: 34px; padding: 0 12px; border-radius: 8px; border: 1px solid var(--line-2); background: var(--surface); color: var(--ink-2); font: 600 14px/1 var(--f-body); cursor: pointer; }
+.an-tool:hover { border-color: var(--accent); color: var(--ink); }
+.an-tool[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+.an-tool-tip { margin: 0; padding: 8px 12px; border-radius: 8px; background: var(--surface-2); border: 1px solid var(--line); transition: background 0.2s, border-color 0.2s; }
+.an-tool-tip.is-nudged { background: var(--warn-soft); border-color: var(--warn); }
+.an-overlap-note { margin: 4px 0 0; }
 :root{--logo-mark:url(data:image/png;base64,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)}@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--logo-mark:url(data:image/png;base64,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)}}:root[data-theme="dark"]{--logo-mark:url(data:image/png;base64,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)}
 </style>
 <div class="shell">
@@ -5098,7 +5116,32 @@ input.sg-range { flex: 1; min-width: 0; accent-color: var(--accent); height: 28p
     }
     if (start >= 0) bands.push({ y0: start, y1: lastInk + 1 });
     if (!bands.length) bands.push({ y0: 0, y1: h });
-    return bands.map((b) => ({ y0: b.y0 / h, y1: b.y1 / h }));
+    // Staff lines: rows inked across much of the picture (a line two pixels thick is still one line).
+    const lines = [];
+    for (let y = 0; y < h; y++) {
+      if (profile[y] <= w * 0.35) continue;
+      const last = lines[lines.length - 1];
+      if (last && y - last.y1 <= 1) last.y1 = y; else lines.push({ y0: y, y1: y });
+    }
+    const mid = (l) => (l.y0 + l.y1) / 2;
+    const gaps = lines.slice(1).map((l, i) => mid(l) - mid(lines[i])).sort((a, b) => a - b);
+    const space = gaps.length ? gaps[Math.floor(gaps.length / 2)] : 0;      // the usual distance between lines
+    // How many staves a band holds: a line more than a few spaces below the last starts a new staff.
+    const stavesIn = (b) => {
+      let n = 0, last = null;
+      lines.forEach((l) => { if (l.y0 < b.y0 || l.y1 >= b.y1) return; if (last == null || mid(l) - last > space * 2.5) n++; last = mid(l); });
+      return n;
+    };
+    let out = bands.map((b) => Object.assign(b, { staves: stavesIn(b) }));
+    // A band with no staff in it — lyrics, a line of printed analysis, a tempo mark — goes with the
+    // system above, so a box drawn under a staff, as Roman numeral and chord symbol boxes are meant to
+    // be, counts with that staff. (With no staff lines found at all, the bands stay as they are.)
+    if (lines.length >= 5) {
+      const merged = [];
+      out.forEach((b) => { const prev = merged[merged.length - 1]; if (!b.staves && prev && prev.staves) prev.y1 = b.y1; else merged.push(b); });
+      out = merged;
+    }
+    return out.map((b) => ({ y0: b.y0 / h, y1: b.y1 / h, staves: b.staves }));
   }
   function bandOf(r, bands) {
     const cy = r.y + r.h / 2;
@@ -5112,10 +5155,15 @@ input.sg-range { flex: 1; min-width: 0; accent-color: var(--accent); height: 28p
   // Reading order: system by system, left to right. Without systems, boxes that share a line do.
   function readingOrder(regions, bands) {
     if (bands && bands.length) {
-      // System by system; inside one (or two systems the picture runs together), line by line.
+      // System by system. One system — a staff, or a grand staff — reads left to right, whether a box
+      // sits on the notes or below the staff; a band holding more (two systems the picture runs
+      // together, or a staff it couldn't find) goes line by line.
       const by = new Map();
       regions.forEach((r) => { const k = bandOf(r, bands); if (!by.has(k)) by.set(k, []); by.get(k).push(r); });
-      return [].concat(...[...by.keys()].sort((a, b) => a - b).map((k) => readingOrder(by.get(k), null)));
+      return [].concat(...[...by.keys()].sort((a, b) => a - b).map((k) => {
+        const list = by.get(k), st = bands[k].staves;
+        return st && st <= 2 ? list.slice().sort((p, q) => p.x - q.x) : readingOrder(list, null);
+      }));
     }
     const rows = [];
     regions.slice().sort((a, b) => (a.y + a.h / 2) - (b.y + b.h / 2)).forEach((r) => {
@@ -18653,6 +18701,26 @@ svg.staff .nlabel { display: none; }
     return true;
   }
   // What stops linked boxes and boxes of non-harmonic tones from working, in words.
+  // Boxes drawn over a box of non-harmonic tones. Students can still circle the notes — those boxes
+  // are always on top — but the music is clearer when the other box goes below the staff.
+  function overlapNotes(a) {
+    const out = [];
+    let from = 0;
+    MQ.analysisScores(a).forEach((sc) => {
+      const R = sc.regions;
+      R.forEach((n, j) => {
+        if (n.ask !== 'nht') return;
+        R.forEach((r, i) => {
+          if (i === j || r.ask === 'nht') return;
+          const w = Math.min(r.x + r.w, n.x + n.w) - Math.max(r.x, n.x), hgt = Math.min(r.y + r.h, n.y + n.h) - Math.max(r.y, n.y);
+          if (w <= 0 || hgt <= 0 || w * hgt < 0.15 * Math.min(r.w * r.h, n.w * n.h)) return;
+          out.push(`Box ${from + i + 1} sits over box ${from + j + 1}’s notes. Students can still circle them, but the music is clearer with box ${from + i + 1} ${r.link || (R[i - 1] && R[i - 1].link) ? 'kept small, on part of its chord' : 'below the staff'}.`);
+        });
+      });
+      from += R.length;
+    });
+    return out;
+  }
   function analysisProblems(a) {
     const out = [];
     let from = 0;
@@ -18760,6 +18828,7 @@ svg.staff .nlabel { display: none; }
       if (S.aed) { toast(`Save or discard ${S.aed.index >= 0 ? 'box ' + (offset + S.aed.index + 1) : 'the new box'} first.`, 'bad'); return; }
       S.anScore = k;
       S.aorig = null;
+      S.anLink2 = false;
       const sc = MQ.analysisScores(a)[k];
       S.aimg = sc && sc.img ? null : undefined;
       go('build');
@@ -18849,9 +18918,59 @@ svg.staff .nlabel { display: none; }
             scores.length > 1 ? h('button', { type: 'button', class: 'btn btn-quiet sm an-del', onclick: (e) => removeScore(e.currentTarget) }, 'Remove this score') : null, status, file)),
         off ? h('p', { class: 'help' }, 'To change the detail or ink, upload the picture again.') : null,
         openKeyField(),
-        h('div', { class: 'an-how-row' }, h('p', { class: 'an-how' }, h('b', null, 'Drag a box'), ' around each chord or passage to ask about. You’ll choose what students write — a Roman numeral, a chord symbol, or the non-harmonic tones in it — then give the answer and save it.'), stage.zoomBtn),
+        h('div', { class: 'an-how-row' }, toolBar(), stage.zoomBtn),
+        toolTip(),
         stage.wrap, editor, list);
       setupDrawing();
+      syncTool();
+    }
+
+    // ---------- what the next box is for ----------
+    // The teacher chooses the kind of question first, then draws its box. Boxes students only read
+    // from — Roman numerals, chord symbols, key changes — go below the staff, so the notes stay clear;
+    // boxes students click on — non-harmonic tones, and the two chords of a linked pair — go on the
+    // music itself. The choice stays made for the next box.
+    function toolBar() {
+      const btn = (id, label) => h('button', { type: 'button', class: 'an-tool', 'aria-pressed': String(S.anTool === id), 'data-tool': id,
+        onclick: () => pickTool(id) }, label);
+      return h('div', { class: 'an-toolbar', role: 'toolbar', 'aria-label': 'What the next box is for' },
+        h('div', { class: 'an-tool-group' }, h('span', { class: 'an-tool-where' }, 'Below the staff'),
+          btn('roman', 'Roman numeral'), btn('symbol', 'Chord symbol'), btn('both', 'Both'), btn('pivot', 'Pivot chord'), btn('key', 'Key change')),
+        h('div', { class: 'an-tool-group' }, h('span', { class: 'an-tool-where' }, 'On the music'),
+          btn('nht', 'Non-harmonic tones'), btn('link', 'Linked chords')));
+    }
+    // (A function, so the picture's layout can place it before this part of the builder has run.)
+    function toolTip() { return toolTip.el || (toolTip.el = h('p', { class: 'an-how an-tool-tip', role: 'status' })); }
+    function syncTool() {
+      if (!body || !toolTip.el) return;
+      toolTip.el.classList.remove('is-nudged');
+      body.querySelectorAll('.an-tool').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.tool === S.anTool)));
+      const t = S.anTool;
+      toolTip.el.replaceChildren(...(!t
+        ? [h('b', null, 'Choose the kind of question first'), ' in the bar above, then drag a box on the picture for it.']
+        : t === 'nht'
+        ? [h('b', null, 'Draw this box on the music itself'), ', around the notes students will circle. Then click each non-harmonic tone inside it.']
+        : t === 'link'
+        ? (S.anLink2
+          ? [h('b', null, 'Now the second chord: '), 'draw a small box on part of it. Keep it off non-harmonic tones and anything else students will click on — a box over them gets in their way.']
+          : [h('b', null, 'Linked chords: '), 'draw a small box on part of the first chord, then one on part of the second. Keep the boxes off non-harmonic tones and anything else students will click on — a box over them gets in their way.'])
+        : [h('b', null, 'Draw the box below the staff'), `, under the ${t === 'key' ? 'chord where the key changes' : 'chord it is about'} — not over the notes. Students click the music itself to circle non-harmonic tones, and a box on top of the notes gets in their way.`]));
+    }
+    function pickTool(id) {
+      if (S.aed) { toast(`Save or discard ${S.aed.index >= 0 ? 'box ' + (offset + S.aed.index + 1) : 'the box you’re drawing'} first.`, 'bad'); return; }
+      if (id !== S.anTool) S.anLink2 = false;
+      S.anTool = id;
+      syncTool();
+    }
+    // A new box, already set up for the kind of question chosen.
+    function boxFor(tool, r) {
+      const ed = Object.assign({ index: -1, ask: 'roman', roman: '', symbol: '' }, r);
+      if (tool === 'symbol' || tool === 'both') ed.ask = tool;
+      if (tool === 'pivot') Object.assign(ed, { ask: 'pivot', roman2: '' });
+      if (tool === 'key') Object.assign(ed, { ask: 'key', keyIndex: -1, hide: 1, key: null, keyAsk: 0 });
+      if (tool === 'nht') Object.assign(ed, { ask: 'nht', nht: newNht() });
+      if (tool === 'link') Object.assign(ed, S.anLink2 ? { linkStep: 2 } : { link: 1, linkStep: 1 });
+      return ed;
     }
 
     // ---------- the key the music begins in ----------
@@ -18887,8 +19006,9 @@ svg.staff .nlabel { display: none; }
           if (!ghost) {
             if (Math.hypot((p.x - p0.x) * img.width, (p.y - p0.y) * img.height) < 6) return;
             if (!S.aed && cur.regions.length >= MQ.ANALYSIS_MAX) { toast(`A score can have up to ${MQ.ANALYSIS_MAX} boxes.`, 'bad'); stop(); return; }
+            if (!S.aed && !S.anTool) { toast('Choose what the box is for first — in the bar above the music.', 'bad'); toolTip().classList.add('is-nudged'); stop(); return; }
             ghost = h('div', { class: 'an-reg is-draft is-drawing' });
-            layer.querySelectorAll('.is-draft, .an-pop').forEach((x) => x.remove());
+            layer.querySelectorAll('.is-draft').forEach((x) => x.remove());
             layer.append(ghost);
             try { stage.setPointerCapture(ev.pointerId); } catch (err) { /* already released */ }
           }
@@ -18896,17 +19016,17 @@ svg.staff .nlabel { display: none; }
         };
         const up = (ev) => {
           stop();
-          if (!ghost) { if (S.aed && S.aed.ask === 'nht' && !S.aed.asking) placeCircle(at(ev)); return; }
+          if (!ghost) { if (S.aed && S.aed.ask === 'nht') placeCircle(at(ev)); return; }
           justDragged = true;
           setTimeout(() => (justDragged = false), 0);
           const r = rectTo(at(ev));
           if (r.w * img.width < 8 || r.h * img.height < 8) { redraw(); return; }
-          if (!S.aed) S.aed = { index: -1, ask: null, roman: '', symbol: '' };
-          Object.assign(S.aed, r);
-          if (!S.aed.ask) S.aed.asking = true;
+          const fresh = !S.aed;
+          if (fresh) S.aed = boxFor(S.anTool, r); else Object.assign(S.aed, r);
           redraw();
-          const first = layer.querySelector('.an-pop button') || editor.querySelector('input');
-          if (first) first.focus({ preventScroll: true });
+          if (fresh && S.aed.ask === 'nht') toast('Now click each non-harmonic tone inside the box to circle it.');
+          const first = S.aed.ask === 'nht' ? null : editor.querySelector('input:not([type=range]), select');
+          if (first) { first.focus({ preventScroll: true }); editor.scrollIntoView({ block: 'nearest' }); }
         };
         const stop = () => {
           stage.removeEventListener('pointermove', move);
@@ -19077,10 +19197,14 @@ svg.staff .nlabel { display: none; }
       // Boxes are numbered in reading order: system by system, left to right.
       cur.regions = MQ.readingOrder(all, S.aimg && S.aimg.bands);
       total();
+      const step = ed.linkStep;
       S.aed = null;
       changed();
       redraw();
-      toast(`Box ${offset + cur.regions.indexOf(box) + 1} saved`);
+      const n = offset + cur.regions.indexOf(box) + 1;
+      if (step === 1 && box.link) { S.anLink2 = true; syncTool(); toast(`Box ${n} saved — now draw a small box on part of the second chord.`); }
+      else if (step === 2) { S.anLink2 = false; syncTool(); toast(`Box ${n} saved — the two chords are linked.`); }
+      else toast(`Box ${n} saved`);
     }
     function removeBox(i, btn) {
       if (btn.dataset.sure !== '1') {
@@ -19097,39 +19221,10 @@ svg.staff .nlabel { display: none; }
       redraw();
       toast(`Box ${offset + i + 1} deleted`);
     }
-    function askPopover() {
-      const ed = S.aed;
-      // Below the box, unless it sits low on a tall picture and there's room above.
-      const H = stage.clientHeight;
-      const below = (1 - ed.y - ed.h) * H >= 150 || ed.y * H < 150;
-      const pick = (k) => {
-        ed.ask = k; ed.asking = false;
-        if (k === 'nht' && !ed.nht) ed.nht = newNht();
-        if (k === 'pivot' && ed.roman2 == null) ed.roman2 = '';
-        if (k === 'key') Object.assign(ed, { keyIndex: -1, hide: 1, key: null, keyAsk: 0 });
-        redraw();
-        const f = editor.querySelector('input:not([type=range]), select');
-        if (f && k !== 'nht') { f.focus({ preventScroll: true }); editor.scrollIntoView({ block: 'nearest' }); }
-        if (k === 'nht') toast('Now click each non-harmonic tone inside the box to circle it.');
-      };
-      const pop = h('div', { class: 'an-pop', role: 'dialog', 'aria-label': 'What is this box for?',
-        style: `left:max(0px, min(${pct(ed.x)}, calc(100% - 300px)));` + (below ? `top:calc(${pct(ed.y + ed.h)} + 8px)` : `bottom:calc(${pct(1 - ed.y)} + 8px)`) },
-        h('p', { class: 'an-pop-q' }, 'What should students do here?'),
-        h('div', { class: 'an-pop-row' },
-          h('button', { type: 'button', class: 'btn btn-primary sm', onclick: () => pick('roman') }, 'Roman numeral'),
-          h('button', { type: 'button', class: 'btn sm', onclick: () => pick('symbol') }, 'Chord symbol'),
-          h('button', { type: 'button', class: 'btn sm', onclick: () => pick('both') }, 'Both'),
-          h('button', { type: 'button', class: 'btn sm', onclick: () => pick('nht') }, 'Non-harmonic tones'),
-          h('button', { type: 'button', class: 'btn sm', onclick: () => pick('pivot') }, 'Pivot chord'),
-          h('button', { type: 'button', class: 'btn sm', onclick: () => pick('key') }, 'Key change')),
-        h('button', { type: 'button', class: 'btn-link', onclick: discard }, 'Cancel'));
-      pop.addEventListener('keydown', (e) => { if (e.key === 'Escape') discard(); });
-      pop.addEventListener('pointerdown', (e) => e.stopPropagation());
-      return pop;
-    }
     function drawStage() {
       if (!layer) return;
       layer.replaceChildren();
+      layer.classList.toggle('is-circling', !!(S.aed && S.aed.ask === 'nht'));
       // Linked boxes: a line from each to the next, on the music.
       const chains = MQ.analysisChains(cur.regions, a.override);
       const svg = document.createElementNS(SVGNS, 'svg');
@@ -19162,8 +19257,7 @@ svg.staff .nlabel { display: none; }
       });
       if (S.aed) layer.append(h('div', { class: 'an-reg is-draft' + (S.aed.ask === 'key' ? ' is-key' : ''), style: boxStyle(S.aed, S.aed.ask === 'key' ? KEY_COLOR : 'var(--accent)') },
         h('span', { class: 'an-reg-num' }, S.aed.ask === 'key' ? (S.aed.keyIndex >= 0 ? `Key ${kOffset + S.aed.keyIndex + 1}` : 'New key change') : S.aed.index >= 0 ? String(offset + S.aed.index + 1) : 'New')));
-      if (S.aed && S.aed.ask === 'nht' && S.aed.nht && !S.aed.asking) layer.append(...circleLayer(S.aed.nht, S.aed.nht.c, S.aed.nht.l, null, { color: 'var(--accent)', tags: 'kind', sel: S.aed.sel }));
-      if (S.aed && S.aed.asking) layer.append(askPopover());
+      if (S.aed && S.aed.ask === 'nht' && S.aed.nht) layer.append(...circleLayer(S.aed.nht, S.aed.nht.c, S.aed.nht.l, null, { color: 'var(--accent)', tags: 'kind', sel: S.aed.sel }));
     }
     // ---------- the editor for a box of non-harmonic tones ----------
     function nhtEditor(ed) {
@@ -19214,13 +19308,13 @@ svg.staff .nlabel { display: none; }
     function drawEditor() {
       if (!editor) return;
       const ed = S.aed;
-      if (!ed || ed.asking) { editor.replaceChildren(); return; }
+      if (!ed) { editor.replaceChildren(); return; }
       if (ed.ask === 'nht') { editor.replaceChildren(nhtEditor(ed)); return; }
       if (ed.ask === 'key') { editor.replaceChildren(keyEditor(ed)); return; }
       const want = MQ.ANALYSIS_ASKS[a.override] || '';
       // Linked from the box before (in reading order): this box's figures go on from its chord.
       const prev = ed.index > 0 ? cur.regions[ed.index - 1] : null;
-      const linkedIn = !!(prev && prev.link && prev.ask !== 'nht');
+      const linkedIn = ed.linkStep === 2 || !!(prev && prev.link && prev.ask !== 'nht');
       const pivot = ed.ask === 'pivot';
       const field = (k) => {
         const roman = k === 'r' || k === 'r2', key = k === 'r2' ? 'roman2' : roman ? 'roman' : 'symbol';
@@ -19265,7 +19359,7 @@ svg.staff .nlabel { display: none; }
           h('span', { class: 'help' }, 'Drag on the music to redraw this box.')),
         grp('Students write', seg('an-ed-ask', ['roman', 'symbol', 'both'].map((v) => ({ v, label: v === 'both' ? 'Both' : ASK_LABEL[v] })), ed.ask, (v) => { ed.ask = v; drawEditor(); })),
         h('div', { class: 'an-ed-fields' }, showR ? field('r') : null, showS ? field('s') : null),
-        linkedIn && ed.ask !== 'symbol' ? h('p', { class: 'help an-linked-note' }, `Linked from box ${offset + ed.index}: the same chord, so type just its figures here — 53 after V64, or 7 after V8.`) : null,
+        linkedIn && ed.ask !== 'symbol' ? h('p', { class: 'help an-linked-note' }, `Linked from ${ed.index > 0 ? `box ${offset + ed.index}` : 'the box before'}: the same chord, so type just its figures here — 53 after V64, or 7 after V8.`) : null,
         ed.ask !== 'symbol' ? toggle('an-ed-link', 'Linked to the next box', 'The same chord, its figures changing — as V 6–5 over 4–3, or I 9–8. Students type the numeral and figures in this box (V64) and just the figures in the next one (53), and a line joins the two.', ed.link, (v) => { ed.link = v ? 1 : 0; drawEditor(); }) : null,
         h('p', { class: 'help' }, 'If more than one answer is right, separate them with commas: I64, Cad64.'),
         h('div', { class: 'btn-row' },
@@ -19314,7 +19408,8 @@ svg.staff .nlabel { display: none; }
       const note = (ns, lacks, has) => h('p', { class: 'warn-note' },
         `${boxesText(ns)} ${ns.length > 1 ? 'have' : 'has'} no ${lacks}, so ${ns.length > 1 ? 'they ask' : 'it asks'} for the ${has} only. Edit ${ns.length > 1 ? 'them' : 'it'} to add one.`);
       warn.replaceChildren(...[m.roman.length ? note(m.roman, 'Roman numeral', 'chord symbol') : null, m.symbol.length ? note(m.symbol, 'chord symbol', 'Roman numeral') : null].filter(Boolean),
-        ...analysisProblems(a).map((t) => h('p', { class: 'warn-note' }, t)));
+        ...analysisProblems(a).map((t) => h('p', { class: 'warn-note' }, t)),
+        ...overlapNotes(a).map((t) => h('p', { class: 'help an-overlap-note' }, t)));
       menus.hidden = !MQ.analysisScores(a).some((sc) => sc.regions.some((r) => r.ask === 'nht'));
       keyTol.hidden = !MQ.analysisScores(a).some((sc) => sc.keys.some((m) => m.hide));
       if (MQ.analysisScores(a).some((sc) => sc.open.show === 2) && /\bkey\b/i.test(a.notes || '')) warn.append(h('p', { class: 'warn-note' }, 'Students are asked to identify the opening key, but your instructions mention a key — check they don’t give it away.'));

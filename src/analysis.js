@@ -561,7 +561,32 @@
     }
     if (start >= 0) bands.push({ y0: start, y1: lastInk + 1 });
     if (!bands.length) bands.push({ y0: 0, y1: h });
-    return bands.map((b) => ({ y0: b.y0 / h, y1: b.y1 / h }));
+    // Staff lines: rows inked across much of the picture (a line two pixels thick is still one line).
+    const lines = [];
+    for (let y = 0; y < h; y++) {
+      if (profile[y] <= w * 0.35) continue;
+      const last = lines[lines.length - 1];
+      if (last && y - last.y1 <= 1) last.y1 = y; else lines.push({ y0: y, y1: y });
+    }
+    const mid = (l) => (l.y0 + l.y1) / 2;
+    const gaps = lines.slice(1).map((l, i) => mid(l) - mid(lines[i])).sort((a, b) => a - b);
+    const space = gaps.length ? gaps[Math.floor(gaps.length / 2)] : 0;      // the usual distance between lines
+    // How many staves a band holds: a line more than a few spaces below the last starts a new staff.
+    const stavesIn = (b) => {
+      let n = 0, last = null;
+      lines.forEach((l) => { if (l.y0 < b.y0 || l.y1 >= b.y1) return; if (last == null || mid(l) - last > space * 2.5) n++; last = mid(l); });
+      return n;
+    };
+    let out = bands.map((b) => Object.assign(b, { staves: stavesIn(b) }));
+    // A band with no staff in it — lyrics, a line of printed analysis, a tempo mark — goes with the
+    // system above, so a box drawn under a staff, as Roman numeral and chord symbol boxes are meant to
+    // be, counts with that staff. (With no staff lines found at all, the bands stay as they are.)
+    if (lines.length >= 5) {
+      const merged = [];
+      out.forEach((b) => { const prev = merged[merged.length - 1]; if (!b.staves && prev && prev.staves) prev.y1 = b.y1; else merged.push(b); });
+      out = merged;
+    }
+    return out.map((b) => ({ y0: b.y0 / h, y1: b.y1 / h, staves: b.staves }));
   }
   function bandOf(r, bands) {
     const cy = r.y + r.h / 2;
@@ -575,10 +600,15 @@
   // Reading order: system by system, left to right. Without systems, boxes that share a line do.
   function readingOrder(regions, bands) {
     if (bands && bands.length) {
-      // System by system; inside one (or two systems the picture runs together), line by line.
+      // System by system. One system — a staff, or a grand staff — reads left to right, whether a box
+      // sits on the notes or below the staff; a band holding more (two systems the picture runs
+      // together, or a staff it couldn't find) goes line by line.
       const by = new Map();
       regions.forEach((r) => { const k = bandOf(r, bands); if (!by.has(k)) by.set(k, []); by.get(k).push(r); });
-      return [].concat(...[...by.keys()].sort((a, b) => a - b).map((k) => readingOrder(by.get(k), null)));
+      return [].concat(...[...by.keys()].sort((a, b) => a - b).map((k) => {
+        const list = by.get(k), st = bands[k].staves;
+        return st && st <= 2 ? list.slice().sort((p, q) => p.x - q.x) : readingOrder(list, null);
+      }));
     }
     const rows = [];
     regions.slice().sort((a, b) => (a.y + a.h / 2) - (b.y + b.h / 2)).forEach((r) => {

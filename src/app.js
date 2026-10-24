@@ -4910,6 +4910,26 @@
     return true;
   }
   // What stops linked boxes and boxes of non-harmonic tones from working, in words.
+  // Boxes drawn over a box of non-harmonic tones. Students can still circle the notes — those boxes
+  // are always on top — but the music is clearer when the other box goes below the staff.
+  function overlapNotes(a) {
+    const out = [];
+    let from = 0;
+    MQ.analysisScores(a).forEach((sc) => {
+      const R = sc.regions;
+      R.forEach((n, j) => {
+        if (n.ask !== 'nht') return;
+        R.forEach((r, i) => {
+          if (i === j || r.ask === 'nht') return;
+          const w = Math.min(r.x + r.w, n.x + n.w) - Math.max(r.x, n.x), hgt = Math.min(r.y + r.h, n.y + n.h) - Math.max(r.y, n.y);
+          if (w <= 0 || hgt <= 0 || w * hgt < 0.15 * Math.min(r.w * r.h, n.w * n.h)) return;
+          out.push(`Box ${from + i + 1} sits over box ${from + j + 1}’s notes. Students can still circle them, but the music is clearer with box ${from + i + 1} ${r.link || (R[i - 1] && R[i - 1].link) ? 'kept small, on part of its chord' : 'below the staff'}.`);
+        });
+      });
+      from += R.length;
+    });
+    return out;
+  }
   function analysisProblems(a) {
     const out = [];
     let from = 0;
@@ -5017,6 +5037,7 @@
       if (S.aed) { toast(`Save or discard ${S.aed.index >= 0 ? 'box ' + (offset + S.aed.index + 1) : 'the new box'} first.`, 'bad'); return; }
       S.anScore = k;
       S.aorig = null;
+      S.anLink2 = false;
       const sc = MQ.analysisScores(a)[k];
       S.aimg = sc && sc.img ? null : undefined;
       go('build');
@@ -5106,9 +5127,59 @@
             scores.length > 1 ? h('button', { type: 'button', class: 'btn btn-quiet sm an-del', onclick: (e) => removeScore(e.currentTarget) }, 'Remove this score') : null, status, file)),
         off ? h('p', { class: 'help' }, 'To change the detail or ink, upload the picture again.') : null,
         openKeyField(),
-        h('div', { class: 'an-how-row' }, h('p', { class: 'an-how' }, h('b', null, 'Drag a box'), ' around each chord or passage to ask about. You’ll choose what students write — a Roman numeral, a chord symbol, or the non-harmonic tones in it — then give the answer and save it.'), stage.zoomBtn),
+        h('div', { class: 'an-how-row' }, toolBar(), stage.zoomBtn),
+        toolTip(),
         stage.wrap, editor, list);
       setupDrawing();
+      syncTool();
+    }
+
+    // ---------- what the next box is for ----------
+    // The teacher chooses the kind of question first, then draws its box. Boxes students only read
+    // from — Roman numerals, chord symbols, key changes — go below the staff, so the notes stay clear;
+    // boxes students click on — non-harmonic tones, and the two chords of a linked pair — go on the
+    // music itself. The choice stays made for the next box.
+    function toolBar() {
+      const btn = (id, label) => h('button', { type: 'button', class: 'an-tool', 'aria-pressed': String(S.anTool === id), 'data-tool': id,
+        onclick: () => pickTool(id) }, label);
+      return h('div', { class: 'an-toolbar', role: 'toolbar', 'aria-label': 'What the next box is for' },
+        h('div', { class: 'an-tool-group' }, h('span', { class: 'an-tool-where' }, 'Below the staff'),
+          btn('roman', 'Roman numeral'), btn('symbol', 'Chord symbol'), btn('both', 'Both'), btn('pivot', 'Pivot chord'), btn('key', 'Key change')),
+        h('div', { class: 'an-tool-group' }, h('span', { class: 'an-tool-where' }, 'On the music'),
+          btn('nht', 'Non-harmonic tones'), btn('link', 'Linked chords')));
+    }
+    // (A function, so the picture's layout can place it before this part of the builder has run.)
+    function toolTip() { return toolTip.el || (toolTip.el = h('p', { class: 'an-how an-tool-tip', role: 'status' })); }
+    function syncTool() {
+      if (!body || !toolTip.el) return;
+      toolTip.el.classList.remove('is-nudged');
+      body.querySelectorAll('.an-tool').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.tool === S.anTool)));
+      const t = S.anTool;
+      toolTip.el.replaceChildren(...(!t
+        ? [h('b', null, 'Choose the kind of question first'), ' in the bar above, then drag a box on the picture for it.']
+        : t === 'nht'
+        ? [h('b', null, 'Draw this box on the music itself'), ', around the notes students will circle. Then click each non-harmonic tone inside it.']
+        : t === 'link'
+        ? (S.anLink2
+          ? [h('b', null, 'Now the second chord: '), 'draw a small box on part of it. Keep it off non-harmonic tones and anything else students will click on — a box over them gets in their way.']
+          : [h('b', null, 'Linked chords: '), 'draw a small box on part of the first chord, then one on part of the second. Keep the boxes off non-harmonic tones and anything else students will click on — a box over them gets in their way.'])
+        : [h('b', null, 'Draw the box below the staff'), `, under the ${t === 'key' ? 'chord where the key changes' : 'chord it is about'} — not over the notes. Students click the music itself to circle non-harmonic tones, and a box on top of the notes gets in their way.`]));
+    }
+    function pickTool(id) {
+      if (S.aed) { toast(`Save or discard ${S.aed.index >= 0 ? 'box ' + (offset + S.aed.index + 1) : 'the box you’re drawing'} first.`, 'bad'); return; }
+      if (id !== S.anTool) S.anLink2 = false;
+      S.anTool = id;
+      syncTool();
+    }
+    // A new box, already set up for the kind of question chosen.
+    function boxFor(tool, r) {
+      const ed = Object.assign({ index: -1, ask: 'roman', roman: '', symbol: '' }, r);
+      if (tool === 'symbol' || tool === 'both') ed.ask = tool;
+      if (tool === 'pivot') Object.assign(ed, { ask: 'pivot', roman2: '' });
+      if (tool === 'key') Object.assign(ed, { ask: 'key', keyIndex: -1, hide: 1, key: null, keyAsk: 0 });
+      if (tool === 'nht') Object.assign(ed, { ask: 'nht', nht: newNht() });
+      if (tool === 'link') Object.assign(ed, S.anLink2 ? { linkStep: 2 } : { link: 1, linkStep: 1 });
+      return ed;
     }
 
     // ---------- the key the music begins in ----------
@@ -5144,8 +5215,9 @@
           if (!ghost) {
             if (Math.hypot((p.x - p0.x) * img.width, (p.y - p0.y) * img.height) < 6) return;
             if (!S.aed && cur.regions.length >= MQ.ANALYSIS_MAX) { toast(`A score can have up to ${MQ.ANALYSIS_MAX} boxes.`, 'bad'); stop(); return; }
+            if (!S.aed && !S.anTool) { toast('Choose what the box is for first — in the bar above the music.', 'bad'); toolTip().classList.add('is-nudged'); stop(); return; }
             ghost = h('div', { class: 'an-reg is-draft is-drawing' });
-            layer.querySelectorAll('.is-draft, .an-pop').forEach((x) => x.remove());
+            layer.querySelectorAll('.is-draft').forEach((x) => x.remove());
             layer.append(ghost);
             try { stage.setPointerCapture(ev.pointerId); } catch (err) { /* already released */ }
           }
@@ -5153,17 +5225,17 @@
         };
         const up = (ev) => {
           stop();
-          if (!ghost) { if (S.aed && S.aed.ask === 'nht' && !S.aed.asking) placeCircle(at(ev)); return; }
+          if (!ghost) { if (S.aed && S.aed.ask === 'nht') placeCircle(at(ev)); return; }
           justDragged = true;
           setTimeout(() => (justDragged = false), 0);
           const r = rectTo(at(ev));
           if (r.w * img.width < 8 || r.h * img.height < 8) { redraw(); return; }
-          if (!S.aed) S.aed = { index: -1, ask: null, roman: '', symbol: '' };
-          Object.assign(S.aed, r);
-          if (!S.aed.ask) S.aed.asking = true;
+          const fresh = !S.aed;
+          if (fresh) S.aed = boxFor(S.anTool, r); else Object.assign(S.aed, r);
           redraw();
-          const first = layer.querySelector('.an-pop button') || editor.querySelector('input');
-          if (first) first.focus({ preventScroll: true });
+          if (fresh && S.aed.ask === 'nht') toast('Now click each non-harmonic tone inside the box to circle it.');
+          const first = S.aed.ask === 'nht' ? null : editor.querySelector('input:not([type=range]), select');
+          if (first) { first.focus({ preventScroll: true }); editor.scrollIntoView({ block: 'nearest' }); }
         };
         const stop = () => {
           stage.removeEventListener('pointermove', move);
@@ -5334,10 +5406,14 @@
       // Boxes are numbered in reading order: system by system, left to right.
       cur.regions = MQ.readingOrder(all, S.aimg && S.aimg.bands);
       total();
+      const step = ed.linkStep;
       S.aed = null;
       changed();
       redraw();
-      toast(`Box ${offset + cur.regions.indexOf(box) + 1} saved`);
+      const n = offset + cur.regions.indexOf(box) + 1;
+      if (step === 1 && box.link) { S.anLink2 = true; syncTool(); toast(`Box ${n} saved — now draw a small box on part of the second chord.`); }
+      else if (step === 2) { S.anLink2 = false; syncTool(); toast(`Box ${n} saved — the two chords are linked.`); }
+      else toast(`Box ${n} saved`);
     }
     function removeBox(i, btn) {
       if (btn.dataset.sure !== '1') {
@@ -5354,39 +5430,10 @@
       redraw();
       toast(`Box ${offset + i + 1} deleted`);
     }
-    function askPopover() {
-      const ed = S.aed;
-      // Below the box, unless it sits low on a tall picture and there's room above.
-      const H = stage.clientHeight;
-      const below = (1 - ed.y - ed.h) * H >= 150 || ed.y * H < 150;
-      const pick = (k) => {
-        ed.ask = k; ed.asking = false;
-        if (k === 'nht' && !ed.nht) ed.nht = newNht();
-        if (k === 'pivot' && ed.roman2 == null) ed.roman2 = '';
-        if (k === 'key') Object.assign(ed, { keyIndex: -1, hide: 1, key: null, keyAsk: 0 });
-        redraw();
-        const f = editor.querySelector('input:not([type=range]), select');
-        if (f && k !== 'nht') { f.focus({ preventScroll: true }); editor.scrollIntoView({ block: 'nearest' }); }
-        if (k === 'nht') toast('Now click each non-harmonic tone inside the box to circle it.');
-      };
-      const pop = h('div', { class: 'an-pop', role: 'dialog', 'aria-label': 'What is this box for?',
-        style: `left:max(0px, min(${pct(ed.x)}, calc(100% - 300px)));` + (below ? `top:calc(${pct(ed.y + ed.h)} + 8px)` : `bottom:calc(${pct(1 - ed.y)} + 8px)`) },
-        h('p', { class: 'an-pop-q' }, 'What should students do here?'),
-        h('div', { class: 'an-pop-row' },
-          h('button', { type: 'button', class: 'btn btn-primary sm', onclick: () => pick('roman') }, 'Roman numeral'),
-          h('button', { type: 'button', class: 'btn sm', onclick: () => pick('symbol') }, 'Chord symbol'),
-          h('button', { type: 'button', class: 'btn sm', onclick: () => pick('both') }, 'Both'),
-          h('button', { type: 'button', class: 'btn sm', onclick: () => pick('nht') }, 'Non-harmonic tones'),
-          h('button', { type: 'button', class: 'btn sm', onclick: () => pick('pivot') }, 'Pivot chord'),
-          h('button', { type: 'button', class: 'btn sm', onclick: () => pick('key') }, 'Key change')),
-        h('button', { type: 'button', class: 'btn-link', onclick: discard }, 'Cancel'));
-      pop.addEventListener('keydown', (e) => { if (e.key === 'Escape') discard(); });
-      pop.addEventListener('pointerdown', (e) => e.stopPropagation());
-      return pop;
-    }
     function drawStage() {
       if (!layer) return;
       layer.replaceChildren();
+      layer.classList.toggle('is-circling', !!(S.aed && S.aed.ask === 'nht'));
       // Linked boxes: a line from each to the next, on the music.
       const chains = MQ.analysisChains(cur.regions, a.override);
       const svg = document.createElementNS(SVGNS, 'svg');
@@ -5419,8 +5466,7 @@
       });
       if (S.aed) layer.append(h('div', { class: 'an-reg is-draft' + (S.aed.ask === 'key' ? ' is-key' : ''), style: boxStyle(S.aed, S.aed.ask === 'key' ? KEY_COLOR : 'var(--accent)') },
         h('span', { class: 'an-reg-num' }, S.aed.ask === 'key' ? (S.aed.keyIndex >= 0 ? `Key ${kOffset + S.aed.keyIndex + 1}` : 'New key change') : S.aed.index >= 0 ? String(offset + S.aed.index + 1) : 'New')));
-      if (S.aed && S.aed.ask === 'nht' && S.aed.nht && !S.aed.asking) layer.append(...circleLayer(S.aed.nht, S.aed.nht.c, S.aed.nht.l, null, { color: 'var(--accent)', tags: 'kind', sel: S.aed.sel }));
-      if (S.aed && S.aed.asking) layer.append(askPopover());
+      if (S.aed && S.aed.ask === 'nht' && S.aed.nht) layer.append(...circleLayer(S.aed.nht, S.aed.nht.c, S.aed.nht.l, null, { color: 'var(--accent)', tags: 'kind', sel: S.aed.sel }));
     }
     // ---------- the editor for a box of non-harmonic tones ----------
     function nhtEditor(ed) {
@@ -5471,13 +5517,13 @@
     function drawEditor() {
       if (!editor) return;
       const ed = S.aed;
-      if (!ed || ed.asking) { editor.replaceChildren(); return; }
+      if (!ed) { editor.replaceChildren(); return; }
       if (ed.ask === 'nht') { editor.replaceChildren(nhtEditor(ed)); return; }
       if (ed.ask === 'key') { editor.replaceChildren(keyEditor(ed)); return; }
       const want = MQ.ANALYSIS_ASKS[a.override] || '';
       // Linked from the box before (in reading order): this box's figures go on from its chord.
       const prev = ed.index > 0 ? cur.regions[ed.index - 1] : null;
-      const linkedIn = !!(prev && prev.link && prev.ask !== 'nht');
+      const linkedIn = ed.linkStep === 2 || !!(prev && prev.link && prev.ask !== 'nht');
       const pivot = ed.ask === 'pivot';
       const field = (k) => {
         const roman = k === 'r' || k === 'r2', key = k === 'r2' ? 'roman2' : roman ? 'roman' : 'symbol';
@@ -5522,7 +5568,7 @@
           h('span', { class: 'help' }, 'Drag on the music to redraw this box.')),
         grp('Students write', seg('an-ed-ask', ['roman', 'symbol', 'both'].map((v) => ({ v, label: v === 'both' ? 'Both' : ASK_LABEL[v] })), ed.ask, (v) => { ed.ask = v; drawEditor(); })),
         h('div', { class: 'an-ed-fields' }, showR ? field('r') : null, showS ? field('s') : null),
-        linkedIn && ed.ask !== 'symbol' ? h('p', { class: 'help an-linked-note' }, `Linked from box ${offset + ed.index}: the same chord, so type just its figures here — 53 after V64, or 7 after V8.`) : null,
+        linkedIn && ed.ask !== 'symbol' ? h('p', { class: 'help an-linked-note' }, `Linked from ${ed.index > 0 ? `box ${offset + ed.index}` : 'the box before'}: the same chord, so type just its figures here — 53 after V64, or 7 after V8.`) : null,
         ed.ask !== 'symbol' ? toggle('an-ed-link', 'Linked to the next box', 'The same chord, its figures changing — as V 6–5 over 4–3, or I 9–8. Students type the numeral and figures in this box (V64) and just the figures in the next one (53), and a line joins the two.', ed.link, (v) => { ed.link = v ? 1 : 0; drawEditor(); }) : null,
         h('p', { class: 'help' }, 'If more than one answer is right, separate them with commas: I64, Cad64.'),
         h('div', { class: 'btn-row' },
@@ -5571,7 +5617,8 @@
       const note = (ns, lacks, has) => h('p', { class: 'warn-note' },
         `${boxesText(ns)} ${ns.length > 1 ? 'have' : 'has'} no ${lacks}, so ${ns.length > 1 ? 'they ask' : 'it asks'} for the ${has} only. Edit ${ns.length > 1 ? 'them' : 'it'} to add one.`);
       warn.replaceChildren(...[m.roman.length ? note(m.roman, 'Roman numeral', 'chord symbol') : null, m.symbol.length ? note(m.symbol, 'chord symbol', 'Roman numeral') : null].filter(Boolean),
-        ...analysisProblems(a).map((t) => h('p', { class: 'warn-note' }, t)));
+        ...analysisProblems(a).map((t) => h('p', { class: 'warn-note' }, t)),
+        ...overlapNotes(a).map((t) => h('p', { class: 'help an-overlap-note' }, t)));
       menus.hidden = !MQ.analysisScores(a).some((sc) => sc.regions.some((r) => r.ask === 'nht'));
       keyTol.hidden = !MQ.analysisScores(a).some((sc) => sc.keys.some((m) => m.hide));
       if (MQ.analysisScores(a).some((sc) => sc.open.show === 2) && /\bkey\b/i.test(a.notes || '')) warn.append(h('p', { class: 'warn-note' }, 'Students are asked to identify the opening key, but your instructions mention a key — check they don’t give it away.'));
