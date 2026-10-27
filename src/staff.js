@@ -16,6 +16,8 @@
   const HEAD = '<path class="head" fill-rule="evenodd" d="M-7.6 0A7.6 5.4 0 1 0 7.6 0A7.6 5.4 0 1 0 -7.6 0ZM2.75 -3.93A4.8 2.6 -55 1 0 -2.75 3.93A4.8 2.6 -55 1 0 2.75 -3.93Z"/>';
   // A half note's head: smaller, tilted, with a narrow hole; its stem is drawn with the chord.
   const HALF_HEAD = '<g transform="rotate(-22)"><path class="head" fill-rule="evenodd" d="M-6.6 0A6.6 4.6 0 1 0 6.6 0A6.6 4.6 0 1 0 -6.6 0ZM-5.2 0A5.2 1.9 0 1 0 5.2 0A5.2 1.9 0 1 0 -5.2 0Z"/></g>';
+  // A quarter note's head: the half note's, filled.
+  const QUARTER_HEAD = '<g transform="rotate(-22)"><ellipse class="head" rx="6.6" ry="4.6"/></g>';
   const STEM = 35;
   const ACC = {
     1: '<path d="M-3.2 -12.5V11M2.6 -13.5V10" stroke="currentColor" stroke-width="1.3" fill="none"/><path d="M-5.6 -4L5.2 -7.2V-4.2L-5.6 -1ZM-5.6 4L5.2 0.8V3.8L-5.6 7Z" fill="currentColor"/>',
@@ -55,14 +57,25 @@
     constructor(host, opts) {
       // value 'half': half notes, one stem per staff for each chord. barEvery: a bar line after every
       // that many columns (two half notes to a 4/4 measure).
-      this.opts = Object.assign({ clef: 'treble', grand: false, keySig: 0, keyAware: false, chordLabels: null, barlines: false, barEvery: 1, value: 'whole', colW: null, columns: [], placed: null, readOnly: false, labels: false, reveal: null, revealPc: false, marks: null, onChange: null }, opts);
+      // stemMode (half notes): 'chord' one stem for each staff's notes; 'split' (one staff) the top note
+      // stem up and the others stem down; 'satb' (grand staff) soprano up and alto down in the treble,
+      // tenor up and bass down in the bass. Printed notes may name their voice (v: 'S', 'A', 'T', 'B' …),
+      // and a printed note with beat: 1 is a quarter note on the half note's second beat (the voice's
+      // first note then has dur: 'q'). fermatas: the columns with a fermata over them.
+      this.opts = Object.assign({ clef: 'treble', grand: false, keySig: 0, keyAware: false, chordLabels: null, barlines: false, barEvery: 1, value: 'whole', stemMode: 'chord', fermatas: null, colW: null, columns: [], placed: null, readOnly: false, labels: false, reveal: null, revealPc: false, marks: null, onChange: null }, opts);
       const o = this.opts;
       // `by` is the y of the bottom staff line; min/max bound note positions on that staff.
       this.staves = o.grand
         ? [{ clef: 'treble', by: 108, min: -6, max: 16, name: 'treble staff' }, { clef: 'bass', by: 228, min: -8, max: 14, name: 'bass staff' }]
         : [{ clef: o.clef, by: 132, min: -9, max: 17, name: '' }];
       this.staves.forEach((s) => (s.bottom = MQ.CLEFS[s.clef].bottom));
-      this.vbH = o.grand ? 292 : 206;
+      // extraBelow: room under the staff for long stems above the chord labels.
+      this.vbH = (o.grand ? 292 : 206) + (o.extraBelow || 0);
+      // A fermata over a high note's stem: everything moves down far enough to keep it clear of the
+      // chord symbols above the staff.
+      const fy = (o.fermatas || []).map((i) => this.fermataY(i)).filter((y) => y != null);
+      const room = fy.length ? Math.max(0, (o.chordLabels && o.chordLabels.top ? (o.grand ? 18 : 24) + 16 : 14) - Math.min(...fy)) : 0;
+      if (room) { this.staves.forEach((s) => (s.by += room)); this.vbH += room; }
       this.xs = o.grand ? 14 : 0; // room for the brace
       this.placed = o.placed || o.columns.map(() => []);
       this.sel = null;
@@ -78,6 +91,14 @@
     }
 
     // ---------- geometry ----------
+    // Where a column's fermata goes: above its highest printed note's stem, or over the staff.
+    fermataY(i) {
+      const c = this.opts.columns[i];
+      if (!c) return null;
+      const top = this.staves[0].by - 4 * G;
+      const high = c.given.filter((p) => this.stOf(p) === 0).map((p) => this.yOf(0, this.posOf(p)));
+      return Math.min(top - 20, high.length ? Math.min(...high) - STEM - 8 : top - 20);
+    }
     stOf(p) { return this.opts.grand ? p.st || 0 : 0; }
     stAt(y) { return this.opts.grand && y >= (this.staves[0].by + this.staves[1].by - 48) / 2 ? 1 : 0; }
     posAt(y, st) { const s = this.staves[st]; return Math.max(s.min, Math.min(s.max, Math.round((s.by - y) / HALF))); }
@@ -96,9 +117,38 @@
       const x0 = (ks ? 54 + ks * 11 + 8 : 60) + this.xs;
       const n = cols.length;
       const colW = this.opts.colW || (n >= 6 ? 46 : n >= 3 ? 56 : 76);
-      const W = Math.max(n ? 300 : 210, x0 + n * colW + 24);
-      const start = x0 + (W - 24 - x0 - n * colW) / 2;
-      return { W, colW, colX: cols.map((_, i) => start + colW * (i + 0.5)) };
+      // A column whose accidentals stack out past its left edge is widened on that side, so they never
+      // reach the bar line or the chord before. edges: each column's left edge, and the last one's right.
+      const pads = cols.map((_, i) => (this.opts.barlines ? this.accPad(i, colW) : 0));
+      const total = n * colW + pads.reduce((a, b) => a + b, 0);
+      const W = Math.max(n ? 300 : 210, x0 + total + 24);
+      let x = x0 + (W - 24 - x0 - total) / 2;
+      const colX = [], edges = [];
+      cols.forEach((_, i) => { edges.push(x); colX.push(x + pads[i] + colW / 2); x += colW + pads[i]; });
+      edges.push(x);
+      return { W, colW, colX, edges };
+    }
+    // How much wider a column must be on its left for its accidentals: they stack leftward from the note
+    // heads, one column of signs for each that would collide (as column() and columnVoiced() draw them).
+    accPad(i, colW) {
+      const c = this.opts.columns[i];
+      const notes = c.given.concat((this.placed[i] || []).filter(Boolean));
+      let need = 0;
+      const two = c.given.some((p) => p.beat === 1);
+      this.staves.forEach((_, st) => [0, 1].forEach((beat) => {
+        const accs = notes.filter((p) => this.stOf(p) === st && (p.beat || 0) === beat && this.shownAcc(p) != null)
+          .sort((a, b) => MQ.dia(b) - MQ.dia(a));
+        const placedAcc = [];
+        accs.forEach((p) => {
+          let lvl = 0;
+          while (placedAcc.some((o) => o.lvl === lvl && Math.abs(MQ.dia(o.p) - MQ.dia(p)) < 6)) lvl++;
+          placedAcc.push({ p, lvl });
+          // The sign's left edge, measured from the column's centre.
+          const reach = 25 + lvl * 11 + (this.shownAcc(p) === -2 ? 5 : 0) + (two && !beat ? 0.17 * colW : 0);
+          need = Math.max(need, reach);
+        });
+      }));
+      return need ? Math.max(0, Math.ceil(need - (colW / 2 - 3))) : 0;
     }
     editable() { return this.opts.columns.map((c, i) => (c.cap > 0 ? i : -1)).filter((i) => i >= 0); }
     nearestCol(x) {
@@ -309,7 +359,7 @@
       for (let L = 10; L <= pos; L += 2) s += `<line class="ledger" x1="-12" x2="12" y1="${(pos - L) * HALF}" y2="${(pos - L) * HALF}"/>`;
       const acc = this.shownAcc(n.p);
       if (acc != null) s += `<g transform="translate(${-19 - accLevel * 11 - extraX - (acc === -2 ? 5 : 0)} 0)">${ACC[acc]}</g>`;
-      s += this.opts.value === 'half' ? HALF_HEAD : HEAD;
+      s += n.p.dur === 'q' ? QUARTER_HEAD : this.opts.value === 'half' ? HALF_HEAD : HEAD;
       if (n.col != null) s += '<ellipse class="hit" rx="12" ry="8"/>';
       if (n.label) s += `<text class="nlabel" y="${pos >= 4 ? 26 : -16}" text-anchor="middle">${n.label}</text>`;
       return s + '</g>';
@@ -341,6 +391,56 @@
       return out;
     }
 
+    // A column whose printed notes have voices of their own (stemMode 'split' or 'satb'), or quarter
+    // notes on the second beat: the first beat a little left of centre, the second beat to its right.
+    columnVoiced(x, notes, colW) {
+      const two = notes.some((n) => n.p.beat === 1);
+      const at = (beat) => (two ? x + (beat ? 0.26 : -0.17) * colW : x);
+      let out = '';
+      this.staves.forEach((_, st) => {
+        [0, 1].forEach((beat) => {
+          const group = notes.filter((n) => this.stOf(n.p) === st && (n.p.beat || 0) === beat).sort((a, b) => MQ.dia(a.p) - MQ.dia(b.p));
+          if (!group.length) return;
+          let prev = null;
+          const accs = [];
+          group.forEach((n) => {
+            const d = MQ.dia(n.p);
+            n.shift = prev && d - prev.d === 1 && !prev.shift && prev.cls !== 'hover' ? 12.2 : 0;
+            prev = { d, shift: n.shift, cls: n.cls };
+            if (this.shownAcc(n.p) != null) accs.push(n);
+          });
+          accs.sort((a, b) => MQ.dia(b.p) - MQ.dia(a.p));
+          const placedAcc = [];
+          accs.forEach((n) => {
+            let lvl = 0;
+            while (placedAcc.some((o) => o.lvl === lvl && Math.abs(MQ.dia(o.p) - MQ.dia(n.p)) < 6)) lvl++;
+            n.lvl = lvl;
+            placedAcc.push({ p: n.p, lvl });
+          });
+          const xb = at(beat);
+          group.forEach((n) => (out += this.noteSVG(xb, n, n.shift, n.lvl || 0)));
+          if (this.opts.value !== 'half') return;
+          const stemmed = group.filter((n) => n.cls !== 'hover' && n.cls !== 'expected');
+          this.stemGroups(st, stemmed).forEach((g) => (out += g.dir ? this.stemTo(xb, st, g.notes, g.dir) : this.stem(xb, st, g.notes)));
+        });
+      });
+      return out;
+    }
+    // Which notes share a stem, and which way it points (0: the usual way for the chord).
+    stemGroups(st, group) {
+      const mode = this.opts.stemMode;
+      if (mode !== 'split' && mode !== 'satb') return [{ notes: group, dir: 0 }];
+      const top = group[group.length - 1], bottom = group[0];
+      const up = (n) => (n.p.v ? n.p.v === 'S' || (mode === 'satb' && st === 1 && n.p.v !== 'B') : st === 1 && mode === 'satb' ? n !== bottom : n === top);
+      const ups = group.filter(up), downs = group.filter((n) => !up(n));
+      return [{ notes: ups, dir: 1 }, { notes: downs, dir: -1 }].filter((g) => g.notes.length);
+    }
+    stemTo(x, st, group, dir) {
+      const pos = group.map((n) => this.posOf(n.p)), lo = Math.min(...pos), hi = Math.max(...pos);
+      if (dir > 0) return `<line class="stem" x1="${x + 6}" x2="${x + 6}" y1="${this.yOf(st, lo) - 1.5}" y2="${this.yOf(st, hi) - STEM}"/>`;
+      return `<line class="stem" x1="${x - 6}" x2="${x - 6}" y1="${this.yOf(st, hi) + 1.5}" y2="${this.yOf(st, lo) + STEM}"/>`;
+    }
+
     // One stem for a chord's notes on one staff: down when they sit mostly above the middle line, up
     // otherwise — and always up beside a second, whose upper note sits to the right of the stem.
     stem(x, st, group) {
@@ -353,14 +453,14 @@
 
     render() {
       const o = this.opts, xs = this.xs;
-      const { W, colW, colX } = this.layout();
+      const { W, colW, colX, edges } = this.layout();
       const top = this.staves[0].by - 4 * G, bottom = this.staves[this.staves.length - 1].by;
       this.svg.setAttribute('viewBox', `0 0 ${W} ${this.vbH}`);
       this.svg.style.maxWidth = Math.round(W * 1.75) + 'px';
       let s = '';
       if (!o.readOnly) {
         o.columns.forEach((c, i) => {
-          if (c.cap > 0) s += `<rect class="slot${this.hover && this.hover.col === i ? ' is-hover' : ''}" x="${colX[i] - colW / 2 + 5}" y="${top - 34}" width="${colW - 10}" height="${bottom - top + 68}" rx="9"/>`;
+          if (c.cap > 0) s += `<rect class="slot${this.hover && this.hover.col === i ? ' is-hover' : ''}" x="${edges[i] + 5}" y="${top - 34}" width="${edges[i + 1] - edges[i] - 10}" height="${bottom - top + 68}" rx="9"/>`;
         });
       }
       this.staves.forEach((st) => {
@@ -378,15 +478,22 @@
       const n = o.columns.length;
       if (o.barlines) for (let i = 0; i < n - 1; i++) {
         if ((i + 1) % (o.barEvery || 1)) continue;
-        const x = (colX[i] + colX[i + 1]) / 2;
+        const x = edges[i + 1];
         s += `<line class="sl" x1="${x}" x2="${x}" y1="${top}" y2="${bottom}"/>`;
       }
       if (o.chordLabels) {
         const { top: above, bottom: below } = o.chordLabels;
         (above || []).forEach((t, i) => (s += `<text class="clabel" x="${colX[i]}" y="${o.grand ? 18 : 24}" text-anchor="middle">${svgText(t)}</text>`));
         (below || []).forEach((t, i) => (s += `<text class="clabel" x="${colX[i]}" y="${this.vbH - (o.chordLabels.bottom2 ? 22 : 8)}" text-anchor="middle">${svgText(t)}</text>`));
-        (o.chordLabels.bottom2 || []).forEach((t, i) => (s += t ? `<text class="clabel is-small" x="${colX[i]}" y="${this.vbH - 6}" text-anchor="middle">${svgText(t)}</text>` : ''));
+        // A second row the same size as the first (a second key's numerals) when `even` is set.
+        (o.chordLabels.bottom2 || []).forEach((t, i) => (s += t ? `<text class="clabel${o.chordLabels.even ? '' : ' is-small'}" x="${colX[i]}" y="${this.vbH - 6}" text-anchor="middle">${svgText(t)}</text>` : ''));
       }
+      // A fermata over the top staff, above the highest note's stem: an arc with a dot under it.
+      (o.fermatas || []).forEach((i) => {
+        if (colX[i] == null) return;
+        const y = this.fermataY(i);
+        s += `<g class="fermata" transform="translate(${colX[i]} ${y})"><path d="M-9 0A9 8.5 0 0 1 9 0" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="0" cy="-2.2" r="1.7" fill="currentColor"/></g>`;
+      });
       const described = [];
       o.columns.forEach((c, i) => {
         const notes = [];
@@ -416,7 +523,7 @@
           const h = this.hover, hp = this.mk(h.st, h.pos, h.alt);
           notes.push({ p: hp, cls: 'hover', label: o.labels ? this.labelName(hp) : null });
         }
-        s += this.column(colX[i], notes);
+        s += o.stemMode !== 'chord' || c.given.some((p) => p.beat) ? this.columnVoiced(colX[i], notes, colW) : this.column(colX[i], notes);
       });
       this.svg.innerHTML = s;
       const name = o.grand ? 'Grand staff with treble and bass clefs' : MQ.CLEFS[o.clef].label + ' clef staff';

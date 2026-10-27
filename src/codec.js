@@ -460,6 +460,28 @@
     cfg.counts.block = asked;
   }
 
+  // ---------- Clefwork Harmony: cadences and modulations ----------
+  // The generator's version and every setting (see cadSettings in cadences.js; "both in every question",
+  // ask 4, is written as 0), how many questions the
+  // quiz asks, then the teacher's progressions: each one's cadence and modulation choices and its text.
+  const cadAscii = (t) => String(t).replace(/♭/g, 'b').replace(/♯/g, '#').replace(/°/g, 'o');
+  function writeCadBlock(w, cfg) {
+    const b = MQ.cadSettings(cfg.cad);
+    const list = b.src ? b.ex.filter(MQ.cadExerciseOk).slice(0, MQ.CAD_EX_MAX) : [];
+    w.u(b.gen, 3).u(b.src, 1).u(b.kinds, 10).u(b.size, 2).u(b.fill, 1).u(b.staff, 2).u(b.style, 1).u(b.stems, 1)
+      .u(b.keyMode, 2).u(b.keyMax, 3).u(b.len - 4, 3).u(b.ask % 4, 2).u(b.rn, 2).u(b.sym, 2).u(b.nht, 1)
+      .u(Math.min(MQ.CAD_MAX, (cfg.counts && cfg.counts.cadence) || 0), 5).u(list.length, 4);
+    list.forEach((e) => { w.u(e.cad, 3).u(e.mod, 3).strN(cadAscii(e.text), 200, 8); });
+  }
+  function readCadBlock(r, cfg) {
+    const b = { gen: r.u(3), src: r.u(1), kinds: r.u(10), size: r.u(2), fill: r.u(1), staff: r.u(2), style: r.u(1), stems: r.u(1),
+      keyMode: r.u(2), keyMax: r.u(3), len: r.u(3) + 4, ask: r.u(2) || 4, rn: r.u(2), sym: r.u(2), nht: r.u(1), ex: [] };
+    cfg.counts.cadence = r.u(5);
+    const n = r.u(4);
+    for (let i = 0; i < n; i++) b.ex.push({ cad: r.u(3), mod: r.u(3), text: r.strN(8) });
+    cfg.cad = MQ.cadSettings(b);
+  }
+
   function encodeQuiz(cfg) {
     const w = new Writer();
     // Version 2 added teacher-defined chords after the flags; version 3 adds how many to ask
@@ -587,6 +609,8 @@
     // carry it.
     // Extension 14: Clefwork Voice Leading, block chords — the retake limit (if any) behind a flag,
     // then the block-chord block. No other blocks.
+    // Extension 15: Clefwork Harmony, cadences and modulations — the retake limit (if any) behind a
+    // flag, then the cadence block. No other blocks. (The other Harmony questions are in the main code.)
     const an = MQ.analysisSettings(cfg.analysis);
     const regions = an.regions.slice(0, MQ.ANALYSIS_MAX);
     const limit = retakeLimit(cfg);
@@ -603,13 +627,14 @@
     const dgLib = !!dg && dg.src === 1 && dg.mel.length > 0;
     const sing = Math.min(31, (cfg.counts && cfg.counts.sing) || 0);
     const block = MQ.blockSettings && (cfg.counts && cfg.counts.block) > 0 && MQ.usableBlockExercises(cfg.block).length > 0;
+    const cad = !!MQ.cadSettings && (cfg.counts && cfg.counts.cadence) > 0;
     const graph = GRAPH_COUNTS.some((k) => cfg.counts && cfg.counts[k] > 0);
     const terms = TERM_COUNTS.some((k) => cfg.counts && cfg.counts[k] > 0);
     const anMore = an.more.length > 0 && (regions.length > 0 || an.more.some((m) => m.regions.length));
     const ivAsk = (cfg.counts && cfg.counts.interval) > 0 && (cfg.intervalAsk === 2 || cfg.intervalAsk === 3) ? cfg.intervalAsk : 0;
-    if (regions.length || an.img || limit != null || rhythm || melody || degrees || graph || terms || sing || block || ivAsk) {
+    if (regions.length || an.img || limit != null || rhythm || melody || degrees || graph || terms || sing || block || cad || ivAsk) {
       const q10 = (v) => Math.max(0, Math.min(1023, Math.round(v * 1023)));
-      const ext = block ? 14 : sing ? 13 : terms ? 10 : graph ? 9 : anMore ? 12 : grid ? 6 : degrees ? (dgLib ? 11 : dgMore ? 8 : 7) : melody ? 5 : rhythm ? 4 : limit != null ? 2 : 1;
+      const ext = cad ? 15 : block ? 14 : sing ? 13 : terms ? 10 : graph ? 9 : anMore ? 12 : grid ? 6 : degrees ? (dgLib ? 11 : dgMore ? 8 : 7) : melody ? 5 : rhythm ? 4 : limit != null ? 2 : 1;
       const deg8 = ext === 8 || ext === 11, deg7 = ext === 7 || deg8;
       w.u(ext, 8).u(an.override, 2).u(an.img ? 1 : 0, 1);
       if (an.img) w.u(an.img.hash >>> 0, 32);
@@ -668,6 +693,11 @@
         w.u(limit != null ? 1 : 0, 1);
         if (limit != null) w.u(limit, 5);
         writeBlockBlock(w, cfg);
+      }
+      if (ext === 15) {
+        w.u(limit != null ? 1 : 0, 1);
+        if (limit != null) w.u(limit, 5);
+        writeCadBlock(w, cfg);
       }
       if (ext === 13) {
         w.u(limit != null ? 1 : 0, 1);
@@ -934,6 +964,10 @@
             if (r.u(1)) cfg.retakes = r.u(5);
             readBlockBlock(r, cfg);
           }
+          if (ext === 15) {
+            if (r.u(1)) cfg.retakes = r.u(5);
+            readCadBlock(r, cfg);
+          }
           if (ext === 13) {
             if (r.u(1)) cfg.retakes = r.u(5);
             cfg.melody = readMelodyBlock(r);
@@ -1026,7 +1060,31 @@
     const c = { root: { step: r.u(3), alt: r.u(3) - 2 }, q: MQ.QUALITY_IDS[r.u(5)] || 'maj', delta: !!r.u(1), explicit: !!r.u(1) };
     return MQ.graphChordText(c);
   }
+  // Cadences and modulations: which parts were asked, then the notes of each chord, the numerals (and
+  // the pivot chord's numeral in the new key), the chord symbols, and each menu's choice (0 blank).
+  function writeCadAnswer(w, q, resp) {
+    const C = q.cad, R = resp || {}, n = Math.min(15, C.chords.length);
+    const rn = C.rn === 1 ? 1 : 0, sym = C.sym === 1 ? 1 : 0, piv = rn && C.pivot >= 0 ? 1 : 0;
+    w.u(C.write ? 1 : 0, 1).u(rn, 1).u(sym, 1).u(piv, 1).u(Math.min(7, C.dd.length), 3).u(n, 4);
+    if (C.write) writeCols(w, q, R.n);
+    for (let j = 0; j < n; j++) {
+      if (rn) writeText(w, R.r && R.r[j]);
+      if (sym) writeText(w, R.s && R.s[j]);
+    }
+    if (piv) { w.u(C.pivot, 4); writeText(w, R.p && R.p[C.pivot]); }
+    C.dd.slice(0, 7).forEach((d, i) => { const v = R.d && R.d[i]; w.u(v == null ? 0 : Math.min(15, v + 1), 4); });
+  }
+  function readCadAnswer(r) {
+    const write = r.u(1), rn = r.u(1), sym = r.u(1), piv = r.u(1), nd = r.u(3), n = r.u(4);
+    const out = { n: write ? readCols(r).value : null, r: [], s: [], p: [], d: [] };
+    for (let j = 0; j < n; j++) { out.r.push(rn ? readText(r) : ''); out.s.push(sym ? readText(r) : ''); }
+    if (piv) { const at = r.u(4); out.p[at] = readText(r); }
+    for (let i = 0; i < nd; i++) { const v = r.u(4); out.d.push(v ? v - 1 : null); }
+    return { kind: 'cadence', value: out };
+  }
+
   function writeAnswer(w, q, resp, plays) {
+    if (q.type === 'cadence') { writeCadAnswer(w, q, resp); return; }
     // Sight singing: the melody the student was given (its place in the bank), their tick, and how
     // they sang it — moved up or down by up to an octave, and read in the other clef (version 16).
     // Sight singing: the melody the student was given (its place in the bank), and their tick. How
@@ -1162,6 +1220,7 @@
     return { kind: 'staff', value: cols };
   }
   function readAnswer(r, type, ver) {
+    if (type === 'cadence') return readCadAnswer(r);
     if (type === 'ivname') { const a = r.u(3), b = r.u(4); return { kind: 'pick', value: [a ? a - 1 : null, b ? b - 1 : null] }; }
     if (type === 'sing') { const n = r.u(6); return { kind: 'sing', value: { n, done: !!r.u(1), tr: 0, bass: 0 } }; }
     if (type === 'term') {
@@ -1260,6 +1319,7 @@
   const answerLost = (q, a) => !!(q && q.colSpecs && a && a.kind !== 'staff');
   function answerFor(q, a) {
     if (!a || answerLost(q, a)) return null;
+    if (a.kind === 'cadence') return Object.assign({}, a.value, { n: a.value.n ? q.columns.map((c, i) => a.value.n[i] || []) : null });
     if (a.kind !== 'staff') return a.value;
     const cols = a.value.slice();
     return q.columns.map((c) => (c.cap > 0 ? cols.shift() || [] : []));
