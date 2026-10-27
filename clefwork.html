@@ -12756,9 +12756,38 @@ svg.staff .nlabel { display: none; }
       const x0 = (ks ? 54 + ks * 11 + 8 : 60) + this.xs;
       const n = cols.length;
       const colW = this.opts.colW || (n >= 6 ? 46 : n >= 3 ? 56 : 76);
-      const W = Math.max(n ? 300 : 210, x0 + n * colW + 24);
-      const start = x0 + (W - 24 - x0 - n * colW) / 2;
-      return { W, colW, colX: cols.map((_, i) => start + colW * (i + 0.5)) };
+      // A column whose accidentals stack out past its left edge is widened on that side, so they never
+      // reach the bar line or the chord before. edges: each column's left edge, and the last one's right.
+      const pads = cols.map((_, i) => (this.opts.barlines ? this.accPad(i, colW) : 0));
+      const total = n * colW + pads.reduce((a, b) => a + b, 0);
+      const W = Math.max(n ? 300 : 210, x0 + total + 24);
+      let x = x0 + (W - 24 - x0 - total) / 2;
+      const colX = [], edges = [];
+      cols.forEach((_, i) => { edges.push(x); colX.push(x + pads[i] + colW / 2); x += colW + pads[i]; });
+      edges.push(x);
+      return { W, colW, colX, edges };
+    }
+    // How much wider a column must be on its left for its accidentals: they stack leftward from the note
+    // heads, one column of signs for each that would collide (as column() and columnVoiced() draw them).
+    accPad(i, colW) {
+      const c = this.opts.columns[i];
+      const notes = c.given.concat((this.placed[i] || []).filter(Boolean));
+      let need = 0;
+      const two = c.given.some((p) => p.beat === 1);
+      this.staves.forEach((_, st) => [0, 1].forEach((beat) => {
+        const accs = notes.filter((p) => this.stOf(p) === st && (p.beat || 0) === beat && this.shownAcc(p) != null)
+          .sort((a, b) => MQ.dia(b) - MQ.dia(a));
+        const placedAcc = [];
+        accs.forEach((p) => {
+          let lvl = 0;
+          while (placedAcc.some((o) => o.lvl === lvl && Math.abs(MQ.dia(o.p) - MQ.dia(p)) < 6)) lvl++;
+          placedAcc.push({ p, lvl });
+          // The sign's left edge, measured from the column's centre.
+          const reach = 25 + lvl * 11 + (this.shownAcc(p) === -2 ? 5 : 0) + (two && !beat ? 0.17 * colW : 0);
+          need = Math.max(need, reach);
+        });
+      }));
+      return need ? Math.max(0, Math.ceil(need - (colW / 2 - 3))) : 0;
     }
     editable() { return this.opts.columns.map((c, i) => (c.cap > 0 ? i : -1)).filter((i) => i >= 0); }
     nearestCol(x) {
@@ -13063,14 +13092,14 @@ svg.staff .nlabel { display: none; }
 
     render() {
       const o = this.opts, xs = this.xs;
-      const { W, colW, colX } = this.layout();
+      const { W, colW, colX, edges } = this.layout();
       const top = this.staves[0].by - 4 * G, bottom = this.staves[this.staves.length - 1].by;
       this.svg.setAttribute('viewBox', `0 0 ${W} ${this.vbH}`);
       this.svg.style.maxWidth = Math.round(W * 1.75) + 'px';
       let s = '';
       if (!o.readOnly) {
         o.columns.forEach((c, i) => {
-          if (c.cap > 0) s += `<rect class="slot${this.hover && this.hover.col === i ? ' is-hover' : ''}" x="${colX[i] - colW / 2 + 5}" y="${top - 34}" width="${colW - 10}" height="${bottom - top + 68}" rx="9"/>`;
+          if (c.cap > 0) s += `<rect class="slot${this.hover && this.hover.col === i ? ' is-hover' : ''}" x="${edges[i] + 5}" y="${top - 34}" width="${edges[i + 1] - edges[i] - 10}" height="${bottom - top + 68}" rx="9"/>`;
         });
       }
       this.staves.forEach((st) => {
@@ -13088,7 +13117,7 @@ svg.staff .nlabel { display: none; }
       const n = o.columns.length;
       if (o.barlines) for (let i = 0; i < n - 1; i++) {
         if ((i + 1) % (o.barEvery || 1)) continue;
-        const x = (colX[i] + colX[i + 1]) / 2;
+        const x = edges[i + 1];
         s += `<line class="sl" x1="${x}" x2="${x}" y1="${top}" y2="${bottom}"/>`;
       }
       if (o.chordLabels) {
