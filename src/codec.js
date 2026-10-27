@@ -461,20 +461,21 @@
   }
 
   // ---------- Clefwork Harmony: cadences and modulations ----------
-  // The generator's version and every setting (see cadSettings in cadences.js), how many questions the
+  // The generator's version and every setting (see cadSettings in cadences.js; "both in every question",
+  // ask 4, is written as 0), how many questions the
   // quiz asks, then the teacher's progressions: each one's cadence and modulation choices and its text.
   const cadAscii = (t) => String(t).replace(/♭/g, 'b').replace(/♯/g, '#').replace(/°/g, 'o');
   function writeCadBlock(w, cfg) {
     const b = MQ.cadSettings(cfg.cad);
     const list = b.src ? b.ex.filter(MQ.cadExerciseOk).slice(0, MQ.CAD_EX_MAX) : [];
     w.u(b.gen, 3).u(b.src, 1).u(b.kinds, 10).u(b.size, 2).u(b.fill, 1).u(b.staff, 2).u(b.style, 1).u(b.stems, 1)
-      .u(b.keyMode, 2).u(b.keyMax, 3).u(b.len - 4, 3).u(b.ask, 2).u(b.rn, 2).u(b.sym, 2).u(b.nht, 1)
+      .u(b.keyMode, 2).u(b.keyMax, 3).u(b.len - 4, 3).u(b.ask % 4, 2).u(b.rn, 2).u(b.sym, 2).u(b.nht, 1)
       .u(Math.min(MQ.CAD_MAX, (cfg.counts && cfg.counts.cadence) || 0), 5).u(list.length, 4);
     list.forEach((e) => { w.u(e.cad, 3).u(e.mod, 3).strN(cadAscii(e.text), 200, 8); });
   }
   function readCadBlock(r, cfg) {
     const b = { gen: r.u(3), src: r.u(1), kinds: r.u(10), size: r.u(2), fill: r.u(1), staff: r.u(2), style: r.u(1), stems: r.u(1),
-      keyMode: r.u(2), keyMax: r.u(3), len: r.u(3) + 4, ask: r.u(2), rn: r.u(2), sym: r.u(2), nht: r.u(1), ex: [] };
+      keyMode: r.u(2), keyMax: r.u(3), len: r.u(3) + 4, ask: r.u(2) || 4, rn: r.u(2), sym: r.u(2), nht: r.u(1), ex: [] };
     cfg.counts.cadence = r.u(5);
     const n = r.u(4);
     for (let i = 0; i < n; i++) b.ex.push({ cad: r.u(3), mod: r.u(3), text: r.strN(8) });

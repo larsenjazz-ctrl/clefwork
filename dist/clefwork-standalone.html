@@ -4449,7 +4449,8 @@ input.sg-range { flex: 1; min-width: 0; accent-color: var(--accent); height: 28p
   // style (grand staff): 0 four-part chorale, 1 the root in the bass under a three-note block.
   // stems (one staff): 0 one stem a chord, 1 top note up and the others down.
   // keyMode 1 major, 2 minor, 3 both; keyMax: sharps or flats; len: chords in each progression.
-  // ask: 1 students write the chords, 2 they name the cadence or modulation, 3 a mix — about half of each.
+  // ask: 1 students write the chords, 2 they name the cadence or modulation, 3 a mix — about half the
+  // questions each, 4 both in every question (each question asks them to write the chords and name it).
   // rn, sym: Roman numerals and chord symbols — 0 printed, 1 students write them, 2 left out.
   // nht: printed music may have passing and neighbour tones, in quarter notes.
   // ex: the teacher's progressions — {text, cad (0 auto, else 1 + a cadence), mod (0 auto, 1 none, else 2 + a modulation)}.
@@ -4466,7 +4467,7 @@ input.sg-range { flex: 1; min-width: 0; accent-color: var(--accent); height: 28p
     b.keyMode = [1, 2, 3].includes(+b.keyMode) ? +b.keyMode : 1;
     b.keyMax = clamp(b.keyMax == null ? 3 : Math.round(+b.keyMax) || 0, 0, 7);
     b.len = clamp(b.len == null ? 6 : Math.round(+b.len) || 6, 4, CAD_CHORDS);
-    b.ask = [1, 2, 3].includes(+b.ask) ? +b.ask : 2;
+    b.ask = [1, 2, 3, 4].includes(+b.ask) ? +b.ask : 2;
     b.rn = [0, 1, 2].includes(+b.rn) ? +b.rn : 0;
     b.sym = [0, 1, 2].includes(+b.sym) ? +b.sym : 2;
     b.nht = b.nht ? 1 : 0;
@@ -4481,7 +4482,7 @@ input.sg-range { flex: 1; min-width: 0; accent-color: var(--accent); height: 28p
   }
   // What students do, with the one fix the choices need: writing the chords needs a printed name to go by.
   function cadTasks(b) {
-    const write = !!(b.ask & 1), ident = !!(b.ask & 2);
+    const write = b.ask === 1 || b.ask === 3 || b.ask === 4, ident = b.ask === 2 || b.ask === 3 || b.ask === 4;
     let rn = b.rn, sym = b.sym;
     if (write && rn !== 0 && sym !== 0) rn = 0;
     return { write, ident, rn, sym, fixed: rn !== b.rn };
@@ -11540,20 +11541,21 @@ svg.staff .nlabel { display: none; }
   }
 
   // ---------- Clefwork Harmony: cadences and modulations ----------
-  // The generator's version and every setting (see cadSettings in cadences.js), how many questions the
+  // The generator's version and every setting (see cadSettings in cadences.js; "both in every question",
+  // ask 4, is written as 0), how many questions the
   // quiz asks, then the teacher's progressions: each one's cadence and modulation choices and its text.
   const cadAscii = (t) => String(t).replace(/♭/g, 'b').replace(/♯/g, '#').replace(/°/g, 'o');
   function writeCadBlock(w, cfg) {
     const b = MQ.cadSettings(cfg.cad);
     const list = b.src ? b.ex.filter(MQ.cadExerciseOk).slice(0, MQ.CAD_EX_MAX) : [];
     w.u(b.gen, 3).u(b.src, 1).u(b.kinds, 10).u(b.size, 2).u(b.fill, 1).u(b.staff, 2).u(b.style, 1).u(b.stems, 1)
-      .u(b.keyMode, 2).u(b.keyMax, 3).u(b.len - 4, 3).u(b.ask, 2).u(b.rn, 2).u(b.sym, 2).u(b.nht, 1)
+      .u(b.keyMode, 2).u(b.keyMax, 3).u(b.len - 4, 3).u(b.ask % 4, 2).u(b.rn, 2).u(b.sym, 2).u(b.nht, 1)
       .u(Math.min(MQ.CAD_MAX, (cfg.counts && cfg.counts.cadence) || 0), 5).u(list.length, 4);
     list.forEach((e) => { w.u(e.cad, 3).u(e.mod, 3).strN(cadAscii(e.text), 200, 8); });
   }
   function readCadBlock(r, cfg) {
     const b = { gen: r.u(3), src: r.u(1), kinds: r.u(10), size: r.u(2), fill: r.u(1), staff: r.u(2), style: r.u(1), stems: r.u(1),
-      keyMode: r.u(2), keyMax: r.u(3), len: r.u(3) + 4, ask: r.u(2), rn: r.u(2), sym: r.u(2), nht: r.u(1), ex: [] };
+      keyMode: r.u(2), keyMax: r.u(3), len: r.u(3) + 4, ask: r.u(2) || 4, rn: r.u(2), sym: r.u(2), nht: r.u(1), ex: [] };
     cfg.counts.cadence = r.u(5);
     const n = r.u(4);
     for (let i = 0; i < n; i++) b.ex.push({ cad: r.u(3), mod: r.u(3), text: r.strN(8) });
@@ -22514,8 +22516,15 @@ svg.staff .nlabel { display: none; }
           'Every note of a chord sits on the one staff, in close position.'),
       h('div', { class: 'toggles' },
         toggle('cd-fill', 'Every note in large chords', grand ? 'Seventh and ninth chords keep all their notes — an extra inner voice in a chorale\'s V9, a fourth note in a block.' : 'Ninth chords keep their 5th as well.', b.fill, (v) => { b.fill = v ? 1 : 0; changed(); })),
-      grp('Students', seg('cd-ask', [{ v: 1, label: 'Write the chords' }, { v: 2, label: 'Name the cadence or modulation' }, { v: 3, label: 'A mix of both' }], b.ask, (v) => { b.ask = v; syncFix(); redraw(); }),
-        'A mix: about half the questions have students write the chords, the others name the cadence or modulation, in a different order for each quiz. Naming a modulation asks for its kind and the new key.'),
+      grp('What students do', seg('cd-ask', [
+        { v: 1, label: 'Write the chords', title: 'Every question: students write the chords on the staff.' },
+        { v: 2, label: 'Name the cadence or modulation', title: 'Every question: the music is printed and students name the cadence or modulation.' },
+        { v: 3, label: 'Mix: half write, half name', title: 'About half the questions ask students to write the chords; the others ask them to name the cadence or modulation.' },
+        { v: 4, label: 'Both in every question', title: 'Every question asks students to write the chords and then name the cadence or modulation.' },
+      ], b.ask, (v) => { b.ask = v; syncFix(); redraw(); }),
+        b.ask === 3 ? 'Mix: about half the questions ask students to write the chords and the other half to name the cadence or modulation — each question does one or the other, in a different order for each quiz.'
+          : b.ask === 4 ? 'Both in every question: students write the chords on the staff, then name the cadence or modulation of the same progression.'
+            : 'Naming a modulation asks for its kind and the new key.'),
       h('div', { class: 'row2' },
         grp('Roman numerals', seg('cd-rn', [{ v: 0, label: 'Printed' }, { v: 1, label: 'Students write them' }, { v: 2, label: 'Left out' }], b.rn, (v) => { b.rn = v; syncFix(); changed(); })),
         grp('Chord symbols', seg('cd-sym', [{ v: 0, label: 'Printed' }, { v: 1, label: 'Students write them' }, { v: 2, label: 'Left out' }], b.sym, (v) => { b.sym = v; syncFix(); changed(); }))),

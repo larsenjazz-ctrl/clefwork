@@ -7563,8 +7563,15 @@
           'Every note of a chord sits on the one staff, in close position.'),
       h('div', { class: 'toggles' },
         toggle('cd-fill', 'Every note in large chords', grand ? 'Seventh and ninth chords keep all their notes — an extra inner voice in a chorale\'s V9, a fourth note in a block.' : 'Ninth chords keep their 5th as well.', b.fill, (v) => { b.fill = v ? 1 : 0; changed(); })),
-      grp('Students', seg('cd-ask', [{ v: 1, label: 'Write the chords' }, { v: 2, label: 'Name the cadence or modulation' }, { v: 3, label: 'A mix of both' }], b.ask, (v) => { b.ask = v; syncFix(); redraw(); }),
-        'A mix: about half the questions have students write the chords, the others name the cadence or modulation, in a different order for each quiz. Naming a modulation asks for its kind and the new key.'),
+      grp('What students do', seg('cd-ask', [
+        { v: 1, label: 'Write the chords', title: 'Every question: students write the chords on the staff.' },
+        { v: 2, label: 'Name the cadence or modulation', title: 'Every question: the music is printed and students name the cadence or modulation.' },
+        { v: 3, label: 'Mix: half write, half name', title: 'About half the questions ask students to write the chords; the others ask them to name the cadence or modulation.' },
+        { v: 4, label: 'Both in every question', title: 'Every question asks students to write the chords and then name the cadence or modulation.' },
+      ], b.ask, (v) => { b.ask = v; syncFix(); redraw(); }),
+        b.ask === 3 ? 'Mix: about half the questions ask students to write the chords and the other half to name the cadence or modulation — each question does one or the other, in a different order for each quiz.'
+          : b.ask === 4 ? 'Both in every question: students write the chords on the staff, then name the cadence or modulation of the same progression.'
+            : 'Naming a modulation asks for its kind and the new key.'),
       h('div', { class: 'row2' },
         grp('Roman numerals', seg('cd-rn', [{ v: 0, label: 'Printed' }, { v: 1, label: 'Students write them' }, { v: 2, label: 'Left out' }], b.rn, (v) => { b.rn = v; syncFix(); changed(); })),
         grp('Chord symbols', seg('cd-sym', [{ v: 0, label: 'Printed' }, { v: 1, label: 'Students write them' }, { v: 2, label: 'Left out' }], b.sym, (v) => { b.sym = v; syncFix(); changed(); }))),

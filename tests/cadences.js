@@ -187,6 +187,27 @@ SETS.forEach((set, k) => {
   ok(qs.every((q) => q.cad.write !== q.cad.ident), 'each mixed question does one or the other');
 }));
 
+// "Both in every question": each question asks students to write the chords and name them; the
+// setting survives the quiz code.
+[3, 8].forEach((n) => {
+  const cfg = Object.assign(MQ.defaultConfig(), { seed: 99 + n });
+  Object.keys(cfg.counts).forEach((x) => (cfg.counts[x] = 0));
+  cfg.counts.cadence = n;
+  cfg.cad = MQ.cadSettings({ ask: 4, rn: 1, sym: 0, kinds: 0x3ff });
+  const qs = MQ.generateQuiz(cfg);
+  ok(qs.length === n && qs.every((q) => q.cad.write && q.cad.ident && q.cad.dd.length), 'both in every question');
+  const back = MQ.decodeQuiz(MQ.encodeQuiz(cfg));
+  ok(back.cad.ask === 4, 'the quiz code keeps “both in every question”', String(back.cad.ask));
+  ok(JSON.stringify(MQ.generateQuiz(back).map((q) => q.sig)) === JSON.stringify(qs.map((q) => q.sig)), 'and the same questions');
+});
+[1, 2, 3].forEach((ask) => {
+  const cfg = Object.assign(MQ.defaultConfig(), { seed: 5 });
+  Object.keys(cfg.counts).forEach((x) => (cfg.counts[x] = 0));
+  cfg.counts.cadence = 2;
+  cfg.cad = MQ.cadSettings({ ask });
+  ok(MQ.decodeQuiz(MQ.encodeQuiz(cfg)).cad.ask === ask, `the quiz code keeps ask ${ask}`);
+});
+
 // Written progressions as questions, through the quiz code.
 const wcfg = Object.assign(MQ.defaultConfig(), { seed: 4242 });
 Object.keys(wcfg.counts).forEach((x) => (wcfg.counts[x] = 0));

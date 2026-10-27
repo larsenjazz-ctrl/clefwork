@@ -64,7 +64,8 @@
   // style (grand staff): 0 four-part chorale, 1 the root in the bass under a three-note block.
   // stems (one staff): 0 one stem a chord, 1 top note up and the others down.
   // keyMode 1 major, 2 minor, 3 both; keyMax: sharps or flats; len: chords in each progression.
-  // ask: 1 students write the chords, 2 they name the cadence or modulation, 3 a mix — about half of each.
+  // ask: 1 students write the chords, 2 they name the cadence or modulation, 3 a mix — about half the
+  // questions each, 4 both in every question (each question asks them to write the chords and name it).
   // rn, sym: Roman numerals and chord symbols — 0 printed, 1 students write them, 2 left out.
   // nht: printed music may have passing and neighbour tones, in quarter notes.
   // ex: the teacher's progressions — {text, cad (0 auto, else 1 + a cadence), mod (0 auto, 1 none, else 2 + a modulation)}.
@@ -81,7 +82,7 @@
     b.keyMode = [1, 2, 3].includes(+b.keyMode) ? +b.keyMode : 1;
     b.keyMax = clamp(b.keyMax == null ? 3 : Math.round(+b.keyMax) || 0, 0, 7);
     b.len = clamp(b.len == null ? 6 : Math.round(+b.len) || 6, 4, CAD_CHORDS);
-    b.ask = [1, 2, 3].includes(+b.ask) ? +b.ask : 2;
+    b.ask = [1, 2, 3, 4].includes(+b.ask) ? +b.ask : 2;
     b.rn = [0, 1, 2].includes(+b.rn) ? +b.rn : 0;
     b.sym = [0, 1, 2].includes(+b.sym) ? +b.sym : 2;
     b.nht = b.nht ? 1 : 0;
@@ -96,7 +97,7 @@
   }
   // What students do, with the one fix the choices need: writing the chords needs a printed name to go by.
   function cadTasks(b) {
-    const write = !!(b.ask & 1), ident = !!(b.ask & 2);
+    const write = b.ask === 1 || b.ask === 3 || b.ask === 4, ident = b.ask === 2 || b.ask === 3 || b.ask === 4;
     let rn = b.rn, sym = b.sym;
     if (write && rn !== 0 && sym !== 0) rn = 0;
     return { write, ident, rn, sym, fixed: rn !== b.rn };
