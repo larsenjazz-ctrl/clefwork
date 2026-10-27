@@ -122,6 +122,8 @@
     // Added last, so the numbers report codes already use keep their meaning.
     // Intervals printed for students to name (the Intervals tab's "students name it" setting).
     { id: 'ivname', label: 'Name the Interval', blurb: 'Read an interval printed on the staff, its two notes stacked, and choose its quality and size.', est: 20, custom: true },
+    // Clefwork Harmony (see cadences.js).
+    { id: 'cadence', label: 'Cadences & Modulations', blurb: 'A progression of up to eight chords in half notes that ends with a cadence or modulates — students write the chords, name the cadence or modulation, or both.', est: 120, custom: true },
   ];
   const BUILT_IN = TYPES.filter((t) => !t.custom);
   const MAX_CUSTOM = 20, MAX_CUSTOM_NOTES = 6, MAX_VOICING_NOTES = 8;
@@ -177,7 +179,7 @@
       // Per-tab notes setting: 0 use the quiz setting, 1 print the helper note, 2 students write every note.
       helpOv: { interval: 0, chord: 0, custom: 2, voicing: 2, vprog: 2 },
       figpAsk: 1, // figured bass progression: 1 analyse, 2 spell, 3 both
-      counts: { place: 4, identify: 3, interval: 3, chord: 2, scale: 1, keysig: 2, custom: 0, voicing: 0, vprog: 0, progression: 0, figured: 0, figprog: 0, keys: 0, analysis: 0, rhythm: 0, melody: 0, degree: 0, cgtable: 0, cgtritone: 0, cgphrase: 0, tmdyn: 0, tmtempo: 0, tminst: 0, tmhdyn: 0, tmhtempo: 0, tmvocab: 0, sing: 0, block: 0 },
+      counts: { place: 4, identify: 3, interval: 3, chord: 2, scale: 1, keysig: 2, custom: 0, voicing: 0, vprog: 0, progression: 0, figured: 0, figprog: 0, keys: 0, analysis: 0, rhythm: 0, melody: 0, degree: 0, cgtable: 0, cgtritone: 0, cgphrase: 0, tmdyn: 0, tmtempo: 0, tminst: 0, tmhdyn: 0, tmhtempo: 0, tmvocab: 0, sing: 0, block: 0, cadence: 0 },
       ledger: 1,
       accMode: 3,
       intervals: maskOf(INTERVALS, ['M2', 'm3', 'M3', 'P4', 'P5', 'P8']),
@@ -231,6 +233,8 @@
       graph: null,
       // Clefwork Terms: which terms, instruments and listening tasks, and how many choices (see terms.js).
       terms: null,
+      // Clefwork Harmony, cadences and modulations: the progressions and how they're asked (see cadences.js).
+      cad: null,
       custom: [],
       customGrade: 0,
       voicings: [],
@@ -239,7 +243,7 @@
       flags: { shuffle: true, partial: true, feedback: false, labels: false, enharmonic: false, strictOctave: false, noHelpers: false },
     };
   }
-  const zeroCounts = () => ({ place: 0, identify: 0, interval: 0, chord: 0, scale: 0, keysig: 0, custom: 0, voicing: 0, vprog: 0, progression: 0, figured: 0, figprog: 0, keys: 0, analysis: 0, rhythm: 0, melody: 0, degree: 0, cgtable: 0, cgtritone: 0, cgphrase: 0, tmdyn: 0, tmtempo: 0, tminst: 0, tmhdyn: 0, tmhtempo: 0, tmvocab: 0, sing: 0 });
+  const zeroCounts = () => ({ place: 0, identify: 0, interval: 0, chord: 0, scale: 0, keysig: 0, custom: 0, voicing: 0, vprog: 0, progression: 0, figured: 0, figprog: 0, keys: 0, analysis: 0, rhythm: 0, melody: 0, degree: 0, cgtable: 0, cgtritone: 0, cgphrase: 0, tmdyn: 0, tmtempo: 0, tminst: 0, tmhdyn: 0, tmhtempo: 0, tmvocab: 0, sing: 0, cadence: 0 });
   const withCfg = (c, patch) => Object.assign(JSON.parse(JSON.stringify(c)), patch);
 
   const PRESETS = [
@@ -772,6 +776,7 @@
     if (MQ.termQuestions && MQ.TERM_COUNTS.some((k) => cfg.counts[k] > 0)) MQ.termQuestions(cfg).forEach((q) => qs.push(q));
     if (MQ.singQuestions && cfg.counts.sing) MQ.singQuestions(cfg).forEach((q) => qs.push(q));
     if (MQ.blockQuestions && cfg.counts.block) MQ.blockQuestions(cfg).forEach((q) => qs.push(q));
+    if (MQ.cadenceQuestions && cfg.counts.cadence) MQ.cadenceQuestions(cfg).forEach((q) => qs.push(q));
     if (cfg.flags.shuffle) shuffle(qs, rng);
     return qs;
   }
@@ -782,6 +787,7 @@
   // Returns, for each column, a boolean per placed note (true = that note is right).
   function markResponse(q, placed, cfg) {
     if (q.type === 'block') return MQ.markBlock(q, placed, cfg);
+    if (q.type === 'cadence') return MQ.markCadenceNotes(q, placed, cfg);
     if (q.colSpecs) return MQ.markProgSpell(q, placed, cfg);
     if (q.nameSpec) return q.bassPc ? MQ.markSpelled(q, placed, cfg) : MQ.markNames(q, placed, cfg);
     const enh = cfg.flags.enharmonic;
@@ -810,6 +816,7 @@
     if (q.type === 'degree') return MQ.gradeDegrees(q, response);
     if (q.type === 'rgrid') return MQ.gradeGrid(q, response);
     if (q.type === 'block') return MQ.gradeBlock(q, response, cfg);
+    if (q.type === 'cadence') return MQ.gradeCadence(q, response, cfg);
     if (MQ.isGraph && MQ.isGraph(q)) return MQ.gradeGraph(q, response, cfg);
     if (q.type === 'figured' || q.type === 'figprog') return MQ.gradeFigured(q, response, cfg);
     if (q.type === 'progression') return MQ.gradeProgression(q, response, cfg);
@@ -842,6 +849,7 @@
       : q.type === 'degree' ? MQ.hasDegreeAnswer(q, response)
       : q.type === 'rgrid' ? MQ.hasGridAnswer(q, response)
       : q.type === 'block' ? MQ.hasBlockAnswer(q, response)
+      : q.type === 'cadence' ? MQ.hasCadenceAnswer(q, response)
       : MQ.isGraph && MQ.isGraph(q) ? MQ.hasGraphAnswer(q, response)
       : q.type === 'figured' || q.type === 'figprog' ? MQ.hasFiguredAnswer(q, response)
       : q.colSpecs ? !!response && response.some((col) => col && col.some(Boolean))
@@ -862,6 +870,7 @@
     if (q.type === 'term') return MQ.describeTerm(q);
     if (q.type === 'sing') return MQ.describeSing(q);
     if (q.type === 'block') return MQ.describeBlock(q);
+    if (q.type === 'cadence') return MQ.describeCadence(q);
     if (q.symbolAnswers) return q.symbolAnswers.map((a) => a.shown).join('  ');
     if (q.symbolAnswer) return q.symbolAnswer.shown;
     if (q.type === 'ivname') return q.ivName.charAt(0).toUpperCase() + q.ivName.slice(1);

@@ -98,6 +98,7 @@
     }
     if (key === 'cgtable' || key === 'cgtritone' || key === 'cgphrase') return Math.min(MQ.GRAPH_MAX, cfg.counts[key] || 0);
     if (key === 'block') return Math.min(cfg.counts.block || 0, MQ.usableBlockExercises(cfg.block).length);
+    if (key === 'cadence') return Math.min(cfg.counts.cadence || 0, MQ.CAD_MAX, cfg.cad && cfg.cad.src ? MQ.usableCadExercises(cfg.cad).length : MQ.CAD_MAX);
     if (MQ.TERM_COUNTS.includes(key)) return Math.min(key === 'tmhdyn' || key === 'tmhtempo' ? MQ.TERMS_HEAR_MAX : MQ.TERMS_MAX, cfg.counts[key] || 0);
     const list = key === 'custom' ? cfg.custom || [] : cfg.voicings || [];
     const n = cfg.counts[key] == null ? list.length : cfg.counts[key];
@@ -105,7 +106,7 @@
   };
   const sumCounts = (cfg) => MQ.BUILT_IN.reduce((s, t) => s + (cfg.counts[t.id] || 0), 0) + listCount(cfg, 'custom') + listCount(cfg, 'voicing') + listCount(cfg, 'vprog') + listCount(cfg, 'progression')
     + listCount(cfg, 'keys') + listCount(cfg, 'analysis') + listCount(cfg, 'rhythm') + listCount(cfg, 'melody')
-    + Math.min(MQ.DEGREE_MAX, cfg.counts.degree || 0) + graphCount(cfg) + termCount(cfg) + listCount(cfg, 'sing') + listCount(cfg, 'block');
+    + Math.min(MQ.DEGREE_MAX, cfg.counts.degree || 0) + graphCount(cfg) + termCount(cfg) + listCount(cfg, 'sing') + listCount(cfg, 'block') + listCount(cfg, 'cadence');
   // Clefwork Chord Graph: its tables and phrases.
   const graphCount = (cfg) => listCount(cfg, 'cgtable') + listCount(cfg, 'cgtritone') + listCount(cfg, 'cgphrase');
   // Clefwork Terms: all five kinds of question, and the ones that are heard.
@@ -113,7 +114,8 @@
   const termHeard = (cfg) => listCount(cfg, 'tmhdyn') + listCount(cfg, 'tmhtempo');
   const usesGrand = (cfg) => (listCount(cfg, 'voicing') > 0 || listCount(cfg, 'vprog') > 0)
     || (listCount(cfg, 'progression') > 0 && cfg.progs.some((e) => e.staff === 'grand'))
-    || ((cfg.counts.chord || 0) > 0 && !!(cfg.chordStaff & 4) && !(cfg.v && cfg.v < 7));
+    || ((cfg.counts.chord || 0) > 0 && !!(cfg.chordStaff & 4) && !(cfg.v && cfg.v < 7))
+    || (listCount(cfg, 'cadence') > 0 && MQ.cadSettings(cfg.cad).staff === 2);
   const onlyKeys = (cfg) => !!(cfg.counts.keys && sumCounts(cfg) === cfg.counts.keys);
   const onlyAnalysis = (cfg) => !!(listCount(cfg, 'analysis') && sumCounts(cfg) === listCount(cfg, 'analysis'));
   const onlyRhythm = (cfg) => !!(listCount(cfg, 'rhythm') && sumCounts(cfg) === listCount(cfg, 'rhythm'));
@@ -122,6 +124,13 @@
   const onlyTerms = (cfg) => !!(termCount(cfg) && sumCounts(cfg) === termCount(cfg));
   const onlySing = (cfg) => !!(listCount(cfg, 'sing') && sumCounts(cfg) === listCount(cfg, 'sing'));
   const onlyBlock = (cfg) => !!(listCount(cfg, 'block') && sumCounts(cfg) === listCount(cfg, 'block'));
+  // The quiz builder's tabs are split in two tools: the basics in Clefwork, and harmony — voicings,
+  // progressions, figured bass, cadences and modulations — in Clefwork Harmony.
+  const BASIC_TABS = ['place', 'identify', 'degree', 'interval', 'chord', 'scale', 'keysig'];
+  const HARMONY_TABS = ['voicing', 'vprog', 'progression', 'figured', 'figprog', 'cadence'];
+  const harmonyCount = (cfg) => listCount(cfg, 'voicing') + listCount(cfg, 'vprog') + listCount(cfg, 'progression')
+    + (cfg.counts.figured || 0) + (cfg.counts.figprog || 0) + listCount(cfg, 'cadence');
+  const onlyHarmony = (cfg) => !!(harmonyCount(cfg) && sumCounts(cfg) === harmonyCount(cfg));
   // How many melodies one student sings, of a bank of this many.
   const singAsked = (cfg) => MQ.singCount(MQ.singSettings(cfg.sing), listCount(cfg, 'sing'));
   // Clefwork Rhythm quizzes are rhythmic dictation or rhythm grids.
@@ -147,8 +156,9 @@
   const TERMS = MODE === 'terms';                    // Clefwork Terms: dynamics, tempo and instruments, read and heard
   const SING = MODE === 'sing';                      // Clefwork Sight Singing: melodies students sing and record
   const VOICE = MODE === 'voice';                    // Clefwork Voice Leading: block chords on the grand staff
+  const HARMONY = MODE === 'harmony';                // Clefwork Harmony: voicings, progressions, figured bass, cadences
   const DICTATION = RHYTHM || MELODY;
-  const DRAFT = KEYS ? 'draft-keys' : ANALYSIS ? 'draft-analysis' : RHYTHM ? 'draft-rhythm' : MELODY ? 'draft-melody' : SING ? 'draft-sing' : GRAPH ? 'draft-graph' : TERMS ? 'draft-terms' : VOICE ? 'draft-voice' : 'draft';
+  const DRAFT = KEYS ? 'draft-keys' : ANALYSIS ? 'draft-analysis' : RHYTHM ? 'draft-rhythm' : MELODY ? 'draft-melody' : SING ? 'draft-sing' : GRAPH ? 'draft-graph' : TERMS ? 'draft-terms' : VOICE ? 'draft-voice' : HARMONY ? 'draft-harmony' : 'draft';
   // An Analysis quiz's pictures travel in its links, after the code: #take=CODE&img=…, and &img2=…
   // and so on for a quiz on more than one score.
   const withScore = (code) => {
@@ -208,6 +218,16 @@
     Object.keys(c.counts).forEach((k) => (c.counts[k] = 0));
     c.counts.keys = 10;
     c.title = 'Keys & Notes Check';
+    return c;
+  }
+  // Clefwork Harmony starts with cadences and modulations made by Clefwork.
+  function harmonyDefault() {
+    const c = MQ.defaultConfig();
+    Object.keys(c.counts).forEach((k) => (c.counts[k] = 0));
+    c.counts.cadence = 4;
+    c.title = 'Cadences & Modulations';
+    c.flags.shuffle = false;
+    c.cad = MQ.cadSettings(null);
     return c;
   }
   function analysisDefault() {
@@ -273,7 +293,7 @@
     return c;
   }
   // A new quiz in this tool, as the builder starts it.
-  const freshConfig = () => (KEYS ? keysDefault() : ANALYSIS ? analysisDefault() : RHYTHM ? rhythmDefault() : MELODY ? melodyDefault() : SING ? singDefault() : GRAPH ? graphDefault() : TERMS ? termsDefault() : VOICE ? blockDefault() : MQ.defaultConfig());
+  const freshConfig = () => (KEYS ? keysDefault() : ANALYSIS ? analysisDefault() : RHYTHM ? rhythmDefault() : MELODY ? melodyDefault() : SING ? singDefault() : GRAPH ? graphDefault() : TERMS ? termsDefault() : VOICE ? blockDefault() : HARMONY ? harmonyDefault() : MQ.defaultConfig());
   // The draft this tool keeps (or `saved`, a quiz from Your quizzes), brought up to date.
   function loadDraft(saved) {
     const d = saved || store.get(DRAFT, null);
@@ -1317,6 +1337,7 @@
   }
   function questionCard(q, cfg, o) {
     if (q.type === 'block') return blockCard(q, cfg, o);
+    if (q.type === 'cadence') return cadenceCard(q, cfg, o);
     if (q.type === 'sing') return singCard(q, cfg, o);
     if (q.type === 'term') return termCard(q, cfg, o);
     if (q.type === 'cgtable' || q.type === 'cgtritone') return graphTableCard(q, cfg, o);
@@ -1423,7 +1444,7 @@
         h('button', { type: 'button', class: 'btn btn-quiet sm', onclick: startNewQuiz }, 'Start a new quiz'),
         h('a', { class: 'btn btn-quiet sm', href: HOME + '#quizzes' }, 'Your quizzes')),
       STUDENT ? null : editQuizBox(),
-      KEYS ? keysPresets(cfg) : GRAPH ? graphPresets(cfg) : TERMS ? termPresets(cfg) : ANALYSIS || DICTATION || SING || VOICE ? null : h('div', { class: 'presets' }, h('span', { class: 'mini-label' }, STUDENT ? 'Presets' : 'Or start from a preset'),
+      KEYS ? keysPresets(cfg) : GRAPH ? graphPresets(cfg) : TERMS ? termPresets(cfg) : ANALYSIS || DICTATION || SING || VOICE || HARMONY ? null : h('div', { class: 'presets' }, h('span', { class: 'mini-label' }, STUDENT ? 'Presets' : 'Or start from a preset'),
         h('div', { class: 'preset-row' }, MQ.PRESETS.map((p) => h('button', { type: 'button', class: 'btn btn-quiet sm', onclick: () => {
           const keep = { custom: cfg.counts.custom, voicing: cfg.counts.voicing, progression: cfg.counts.progression };
           S.cfg = p.apply(S.cfg); Object.assign(S.cfg.counts, keep);
@@ -1523,6 +1544,7 @@
       voicing: () => [voicePanel(cfg, changed, 'vc', notesPick)],
       vprog: () => [voicePanel(cfg, changed, 'vp', notesPick)],
       progression: () => [progressionSection(cfg, changed)],
+      cadence: () => cadencePanel(cfg, changed),
       figured: () => [
         h('p', { class: 'help' }, 'Clefwork builds a chord on a scale degree of a key you choose, in root position or an inversion, and prints its key signature. Figures: 6 and 6/4 for triads; 7, 6/5, 4/3 and 4/2 for sevenths.'),
         h('div', { class: 'row2' },
@@ -1609,7 +1631,14 @@
       { id: 'voicing', label: 'Single Voiced Chords', tech: 'vc' }, { id: 'vprog', label: 'Voiced Progressions', tech: 'vp' },
       { id: 'progression', label: 'Chord Progressions', list: 'progs', pool: true },
       { id: 'figured', label: 'Figured Bass Chord' }, { id: 'figprog', label: 'Figured Bass Progression' },
+      { id: 'cadence', label: 'Cadences & Modulations', maxOf: () => (cfg.cad && cfg.cad.src ? MQ.usableCadExercises(cfg.cad).length : MQ.CAD_MAX) },
     ];
+    // Each teacher tool shows its own tabs (students practise with all of them). A quiz made before the
+    // tools were split keeps every tab it uses.
+    if (!STUDENT && !GRAPH && !TERMS) {
+      const mine = HARMONY ? HARMONY_TABS : BASIC_TABS;
+      for (let i = TABS.length - 1; i >= 0; i--) if (!mine.includes(TABS[i].id) && !(cfg.counts[TABS[i].id] > 0)) TABS.splice(i, 1);
+    }
     // Custom Chords is hidden while it is being reworked.
     for (let i = TABS.length - 1; i >= 0; i--) if (TABS[i].id === 'custom') TABS.splice(i, 1);
     cfg.counts.custom = 0;
@@ -1675,7 +1704,7 @@
       const len = t.pool ? Math.min(30, MQ.progPool(cfg).length) : t.list ? cfg[t.list].length : 0;
       if (t.list) cfg.counts[t.id] = Math.min(cfg.counts[t.id] || 0, len);
       const n = cfg.counts[t.id] || 0;
-      t.ctr.sync(n, t.list ? len : t.max || 30);
+      t.ctr.sync(n, t.list ? len : t.maxOf ? t.maxOf() : t.max || 30);
       t.card.classList.toggle('is-on', n > 0);
       t.panel.classList.toggle('is-off', n === 0 && (!t.list || len > 0));
       t.btn.querySelector('.qt-status').textContent = t.pool
@@ -1831,7 +1860,8 @@
         const est = Math.max(1, Math.round((MQ.BUILT_IN.reduce((s, t) => s + t.est * (cfg.counts[t.id] || 0), 0) + 40 * listCount(cfg, 'custom') + 55 * listCount(cfg, 'voicing') + 90 * listCount(cfg, 'vprog') + 70 * listCount(cfg, 'progression') + 15 * listCount(cfg, 'keys') + 30 * listCount(cfg, 'analysis') + 120 * listCount(cfg, 'rhythm') + 180 * listCount(cfg, 'melody') + 60 * Math.min(MQ.DEGREE_MAX, cfg.counts.degree || 0)
           + 150 * listCount(cfg, 'cgtable') + 180 * listCount(cfg, 'cgtritone') + 120 * listCount(cfg, 'cgphrase')
           + 15 * (termCount(cfg) - termHeard(cfg)) + 40 * termHeard(cfg) + 60 * singAsked(cfg)
-          + 25 * S.qs.reduce((n, q) => n + (q.type === 'block' ? q.blk.syms.length : 0), 0)) / 60));
+          + 25 * S.qs.reduce((n, q) => n + (q.type === 'block' ? q.blk.syms.length : 0), 0)
+          + S.qs.reduce((n, q) => n + (q.type === 'cadence' ? 20 * (q.cad.write ? q.cad.chords.length : 0) + 10 * q.cad.chords.length * ((q.cad.rn === 1 ? 1 : 0) + (q.cad.sym === 1 ? 1 : 0)) + 30 * q.cad.dd.length : 0), 0)) / 60));
         const sb = DICTATION && !SING ? dictation(cfg) : null;
         const dsc = !sb ? quizScoring(cfg, S.qs) : null;          // scale degrees scored by note or percent
         const outOf = quizTotal(cfg) ? ` · worth ${quizTotal(cfg)} point${quizTotal(cfg) === 1 ? '' : 's'}` : sb ? (sb.score === 'percent' ? ` · out of ${sb.outOf} points` : ` · out of ${rhythmNotes(S.qs)} notes`)
@@ -2374,6 +2404,7 @@
     { only: onlyGraph, mode: 'graph', page: 'graph.html', label: 'Clefwork Chord Graph' },
     { only: onlyTerms, mode: 'terms', page: 'terms.html', label: 'Clefwork Terms' },
     { only: onlyBlock, mode: 'voice', page: 'voice.html', label: 'Clefwork Voice Leading' },
+    { only: onlyHarmony, mode: 'harmony', page: 'harmony.html', label: 'Clefwork Harmony' },
   ];
   const appOf = (cfg) => APPS.find((a) => a.only(cfg)) || { mode: '', page: 'clefwork.html', label: 'Clefwork' };
   // A pasted code, a quiz link, a results link or a grade link — whichever it is, find the quiz code
@@ -2749,6 +2780,7 @@
     if (listCount(cfg, 'cgphrase')) types.push(`Musical phrases (${listCount(cfg, 'cgphrase')})`);
     MQ.TERM_TABS.forEach((tb) => { if (listCount(cfg, tb.id)) types.push(`${tb.label} (${listCount(cfg, tb.id)})`); });
     if (listCount(cfg, 'progression')) types.push(`Chord progressions (${listCount(cfg, 'progression')})`);
+    if (listCount(cfg, 'cadence')) types.push(`Cadences & modulations (${listCount(cfg, 'cadence')})`);
     if (listCount(cfg, 'rhythm')) types.push(`${gridQuiz(cfg) ? 'Rhythm grid' : 'Rhythmic dictation'} (${listCount(cfg, 'rhythm')} example${listCount(cfg, 'rhythm') > 1 ? 's' : ''})`);
     if (listCount(cfg, 'melody')) types.push(`Melodic dictation (${listCount(cfg, 'melody')} melod${listCount(cfg, 'melody') > 1 ? 'ies' : 'y'})`);
     if (listCount(cfg, 'sing')) types.push(`Sight singing (${t.qs.length} melod${t.qs.length > 1 ? 'ies' : 'y'} to record${singAsked(cfg) < listCount(cfg, 'sing') ? `, drawn from ${listCount(cfg, 'sing')}` : ''})`);
@@ -7155,13 +7187,13 @@
     const box = h('div');
     const wasFont = MQ.clefFont;
     if (o.drawnClefs) MQ.clefFont = false;
-    const st = new MQ.Staff(box, {
+    const st = new MQ.Staff(box, Object.assign({
       clef: q.clef, grand: !!q.grand, keySig: q.keySig || 0, keyAware: !!q.keyAware,
       columns: q.columns, readOnly: true, labels: false,
       chordLabels: q.chordLabels || null, barlines: !!q.chordLabels || q.type === 'figprog',
       colW: q.blk ? 66 : q.chordLabels ? 62 : null,
       value: q.blk && !q.blk.value ? 'half' : 'whole', barEvery: q.blk && !q.blk.value ? 2 : 1,
-    });
+    }, q.staffOpts || {}));
     MQ.clefFont = wasFont;
     const svg = st.svg;
     const view = (svg.getAttribute('viewBox') || '').split(/\s+/).map(Number);
@@ -7436,6 +7468,217 @@
 
 
   // ---------- results page: one student's report from a link, for SpeedGrader ----------
+  // ---------- Clefwork Harmony: cadences and modulations ----------
+  // The tab's settings: where the progressions come from, which cadences and modulations, the keys and
+  // chords, the staff, and what students do.
+  function cadencePanel(cfg, changed) {
+    const b = (cfg.cad = MQ.cadSettings(cfg.cad));
+    const fixNote = h('p', { class: 'warn-note' }, 'Students writing the chords need to know what to write: with Roman numerals and chord symbols both asked for, the Roman numerals are printed.');
+    const syncFix = () => (fixNote.hidden = !MQ.cadTasks(b).fixed);
+    syncFix();
+    const redraw = () => { changed(); go('build'); };
+    const srcPick = grp('Progressions', seg('cd-src', [{ v: 0, label: 'Made by Clefwork' }, { v: 1, label: 'Written by you' }], b.src, (v) => {
+      b.src = v;
+      if (v) cfg.counts.cadence = MQ.usableCadExercises(b).length;
+      redraw();
+    }));
+    const lenHelp = 'Modulations use at least six chords (a common-chord modulation, four).';
+    const made = b.src ? [] : [
+      grp('Cadences', chips('cd-cads', MQ.CADENCES, b.kinds & 0x3f, (m) => { b.kinds = (b.kinds & 0x3c0) | m; changed(); }, (x) => x.label, (x) => x.blurb, true),
+        'Each question ends with one of these. A Phrygian half cadence is always in a minor key.'),
+      grp('Modulations', chips('cd-mods', MQ.MODULATIONS, b.kinds >> 6, (m) => { b.kinds = (b.kinds & 0x3f) | (m << 6); changed(); }, (x) => x.label, (x) => x.blurb, true),
+        'Common-chord, phrase and sequential modulations go to a closely related key; a common-tone modulation to a major key a third away. Every kind you choose takes its turn.'),
+      grp('Chords in each progression', seg('cd-len', [4, 5, 6, 7, 8].map((v) => ({ v, label: String(v) })), b.len, (v) => { b.len = v; changed(); }), lenHelp),
+      h('div', { class: 'row2' },
+        grp('Key', seg('cd-key', [{ v: 1, label: 'Major' }, { v: 2, label: 'Minor' }, { v: 3, label: 'Both' }], b.keyMode, (v) => { b.keyMode = v; changed(); })),
+        grp('Key signatures up to', seg('cd-max', [0, 1, 2, 3, 4, 5, 6, 7].map((v) => ({ v, label: v === 0 ? 'None' : String(v) })), b.keyMax, (v) => { b.keyMax = v; changed(); }), 'Sharps or flats in the first key.')),
+      grp('Chords', seg('cd-size', [{ v: 0, label: 'Triads' }, { v: 1, label: 'Some sevenths' }, { v: 2, label: 'Full — more sevenths and V9' }], b.size, (v) => { b.size = v; changed(); }),
+        'Some sevenths: V7, ii7 and vii°7 in places. Full: also IV7 and vi7, and V9 in major keys. Tonic chords stay triads.'),
+    ];
+    // The teacher's own progressions.
+    const list = h('div', { class: 'bk-list' });
+    const syncCount = () => { cfg.counts.cadence = MQ.usableCadExercises(b).length; };
+    const addBtn = h('button', { type: 'button', class: 'btn sm', onclick: () => {
+      if (b.ex.length >= MQ.CAD_EX_MAX) return;
+      b.ex.push({ text: '', cad: 0, mod: 0 });
+      draw();
+      const inp = document.getElementById(`cd-ex-${b.ex.length - 1}`);
+      if (inp) inp.focus();
+      changed();
+    } }, '+ Add a progression');
+    const row = (e, i) => {
+      const status = h('p', { class: 'bk-status' });
+      const show = () => {
+        const p = MQ.cadExerciseProblems(e);
+        const bad = p.bad.length || p.tooMany || p.keysOver || p.noKey;
+        status.className = 'bk-status' + (bad || (p.unknown && !p.empty) ? ' warn-note' : ' fine');
+        const keyName = (k) => MQ.cadKeyText(k);
+        const what = [p.cad ? MQ.CADENCES.find((c) => c.id === p.cad).label : null,
+          p.mod ? `${MQ.MODULATIONS.find((m) => m.id === p.mod).label}${p.keys[1] ? ` to ${keyName(p.keys[1])}` : ''}` : null].filter(Boolean).join(' · ');
+        status.replaceChildren(p.empty ? 'Type the key and the Roman numerals — this progression is left out until it has some.'
+          : p.bad.length ? `Clefwork can’t read ${p.bad.map((x) => `“${x}”`).join(', ')} — try numerals like I, ii6, V65, vii°7, V7/V, a key like G: or a pivot like vi=G:ii. Until then this progression is left out.`
+            : p.tooMany ? `A progression can have up to ${MQ.CAD_CHORDS} chords — this one is left out until it has fewer.`
+              : p.keysOver ? 'A progression can change key once — this one is left out until it does.'
+                : p.noKey ? 'A modulation needs a second key — write it before its first chord, like G: — or choose None.'
+                  : `${keyName(p.keys[0])}, ${p.chords.length} chords. ${p.unknown ? 'Clefwork can’t tell which cadence this ends with — choose one, or it is only asked about its chords.' : what + '.'}`);
+      };
+      const inp = textIn(`cd-ex-${i}`, e.text, 200, 'e.g. C: I IV ii6 V7 I', (v) => { e.text = v; show(); syncCount(); changed(); });
+      inp.classList.add('bk-chords');
+      const cadSel = selectEl(`cd-cad-${i}`, [{ v: 0, label: 'Cadence: as written' }].concat(MQ.CADENCES.map((c, k) => ({ v: k + 1, label: c.label }))), e.cad, (v) => { e.cad = +v; show(); changed(); });
+      const modSel = selectEl(`cd-mod-${i}`, [{ v: 0, label: 'Modulation: as written' }, { v: 1, label: 'No modulation' }].concat(MQ.MODULATIONS.map((m, k) => ({ v: k + 2, label: m.label }))), e.mod, (v) => { e.mod = +v; show(); syncCount(); changed(); });
+      cadSel.setAttribute('aria-label', `Cadence of progression ${i + 1}`);
+      modSel.setAttribute('aria-label', `Modulation of progression ${i + 1}`);
+      const del = h('button', { type: 'button', class: 'btn btn-quiet sm', 'aria-label': `Remove progression ${i + 1}`, onclick: () => { b.ex.splice(i, 1); syncCount(); draw(); changed(); } }, 'Remove');
+      show();
+      return h('div', { class: 'bk-row' }, h('span', { class: 'bk-num', 'aria-hidden': 'true' }, String(i + 1)),
+        h('div', { class: 'bk-main' }, fld(`Progression ${i + 1}`, inp), h('div', { class: 'row2 cd-sels' }, cadSel, modSel), status),
+        h('div', { class: 'bk-side' }, del));
+    };
+    const draw = () => {
+      list.replaceChildren(...b.ex.map(row));
+      if (!b.ex.length) list.append(h('p', { class: 'empty' }, 'No progressions yet.'));
+      addBtn.disabled = b.ex.length >= MQ.CAD_EX_MAX;
+    };
+    const examples = h('details', { class: 'fine-details' }, h('summary', null, 'Examples to start from (Kostka & Payne, Tonal Harmony)'),
+      h('div', { class: 'btn-row cd-examples' }, CAD_EXAMPLES.map((x) => h('button', { type: 'button', class: 'btn btn-quiet sm', title: x.text, onclick: () => {
+        if (b.ex.length >= MQ.CAD_EX_MAX) { toast(`A quiz can hold up to ${MQ.CAD_EX_MAX} progressions.`, 'bad'); return; }
+        b.ex.push({ text: x.text, cad: 0, mod: 0 });
+        syncCount(); draw(); changed();
+        toast(`Added “${x.label}”`);
+      } }, x.label))));
+    const written = b.src ? [
+      h('p', { class: 'help' }, 'Start with the key — C: for C major, a: for A minor — then Roman numerals with figures: C: I IV ii6 V7 I. Write a new key before its first chord (C: I IV V I G: I ii6 V7 I), and a pivot chord as both numerals: C: I vi=G:ii V7 I. Applied chords work too: V7/V. Up to eight chords; Clefwork reads the cadence and the modulation, or you choose them.'),
+      list, h('div', { class: 'btn-row' }, addBtn), examples,
+    ] : [];
+    if (b.src) { draw(); syncCount(); }
+    const grand = b.staff === 2;
+    return [
+      h('p', { class: 'help' }, 'Two chords to a measure, voiced the way the textbook teaches: no parallel 5ths or octaves, the leading tone and 7ths resolved.'),
+      srcPick, ...made, ...written,
+      grp('Staff', seg('cd-staff', [{ v: 0, label: 'Treble clef' }, { v: 1, label: 'Bass clef' }, { v: 2, label: 'Grand staff' }], b.staff, (v) => { b.staff = v; redraw(); })),
+      grand
+        ? grp('On the grand staff', seg('cd-style', [{ v: 0, label: 'Four-part chorale (SATB)' }, { v: 1, label: 'Root + three-note block' }], b.style, (v) => { b.style = v; changed(); }),
+          'Chorale: soprano and alto in the treble clef, tenor and bass in the bass clef, each voice with its own stem. Block: the bass note in the bass clef under three notes close together in the treble clef.')
+        : grp('Stems', seg('cd-stems', [{ v: 0, label: 'One stem for each chord' }, { v: 1, label: 'Top note up, the others down' }], b.stems, (v) => { b.stems = v; changed(); }),
+          'Every note of a chord sits on the one staff, in close position.'),
+      h('div', { class: 'toggles' },
+        toggle('cd-fill', 'Every note in large chords', grand ? 'Seventh and ninth chords keep all their notes — an extra inner voice in a chorale\'s V9, a fourth note in a block.' : 'Ninth chords keep their 5th as well.', b.fill, (v) => { b.fill = v ? 1 : 0; changed(); })),
+      grp('Students', seg('cd-ask', [{ v: 1, label: 'Write the chords' }, { v: 2, label: 'Name the cadence or modulation' }, { v: 3, label: 'Both' }], b.ask, (v) => { b.ask = v; syncFix(); redraw(); }),
+        'Naming a modulation asks for its kind and the new key (unless the key is printed for students writing the chords).'),
+      h('div', { class: 'row2' },
+        grp('Roman numerals', seg('cd-rn', [{ v: 0, label: 'Printed' }, { v: 1, label: 'Students write them' }, { v: 2, label: 'Left out' }], b.rn, (v) => { b.rn = v; syncFix(); changed(); })),
+        grp('Chord symbols', seg('cd-sym', [{ v: 0, label: 'Printed' }, { v: 1, label: 'Students write them' }, { v: 2, label: 'Left out' }], b.sym, (v) => { b.sym = v; syncFix(); changed(); }))),
+      fixNote,
+      b.ask & 1 ? null : h('div', { class: 'toggles' },
+        toggle('cd-nht', 'Non-harmonic tones', 'Passing and neighbour tones in quarter notes, in a voice with a stem of its own — the soprano or bass of a chorale, the bass under a block, the top note when it is stemmed up on its own.', b.nht, (v) => { b.nht = v ? 1 : 0; changed(); })),
+      h('p', { class: 'help' }, 'Each part students answer is an equal share of the question: the chords on the staff (each chord’s notes, with the right one in the bass), the numerals, the symbols, and naming the cadence or modulation.'),
+    ];
+  }
+  // Progressions to start from, after the textbook's examples of each cadence and modulation.
+  const CAD_EXAMPLES = [
+    { label: 'PAC', text: 'D: I IV ii6 I64 V7 I' },
+    { label: 'IAC', text: 'F: I vi ii6 V I' },
+    { label: 'IAC (vii°6)', text: 'C: I IV vii°6 I' },
+    { label: 'Half cadence', text: 'G: I vi ii6 V' },
+    { label: 'Phrygian HC', text: 'a: i VI iv6 V' },
+    { label: 'Plagal', text: 'B♭: I ii6 V7 I IV I' },
+    { label: 'Deceptive', text: 'E♭: I IV V7 vi' },
+    { label: 'Common-chord', text: 'C: I IV vi=G:ii V7 I' },
+    { label: 'Common-chord (minor)', text: 'a: i iv i III=C:I ii6 V7 I' },
+    { label: 'Phrase', text: 'F: I ii6 V I C: I IV V7 I' },
+    { label: 'Sequential', text: 'C: I V65 I d: i V65 i' },
+    { label: 'Common-tone', text: 'C: I V7 I E: I IV V7 I' },
+  ];
+  // A cadence question: the progression on the staff (printed, or for students to write), boxes for the
+  // numerals and symbols asked for, and menus for naming the cadence or modulation.
+  let cdUid = 0;
+  function cadenceCard(q, cfg, o) {
+    const C = q.cad, uid = ++cdUid;
+    const src = (!o.keyMode && o.response && !Array.isArray(o.response) && o.response) || {};
+    const R = { n: src.n ? clonePlaced(src.n) : null, r: (src.r || []).slice(), p: (src.p || []).slice(), s: (src.s || []).slice(), d: (src.d || []).slice() };
+    const send = () => o.onResponse && o.onResponse({ n: R.n ? clonePlaced(R.n) : null, r: R.r.slice(), p: R.p.slice(), s: R.s.slice(), d: R.d.slice() });
+    const wrap = h('div', { class: 'qcard cd-card' + (o.compact ? ' is-compact' : '') });
+    wrap.append(h('div', { class: 'q-eyebrow' }, 'Cadences & Modulations', h('span', { class: 'q-clef' }, MQ.clefLabel(q.clef))));
+    wrap.append(h(o.compact ? 'h3' : 'h2', { class: 'q-text' }, q.text));
+    if (q.hint && !o.locked) wrap.append(h('p', { class: 'q-hint' }, q.hint));
+    const staffBox = h('div', { class: 'staff-box' });
+    wrap.append(staffBox);
+    const write = C.write && !o.keyMode;
+    if (write && !R.n) R.n = q.columns.map(() => []);
+    // The answer key shows every chord printed, with all its names.
+    const full = { top: C.symbols, bottom: C.rows.bottom, bottom2: C.rows.bottom2, even: true };
+    const staff = new MQ.Staff(staffBox, Object.assign({
+      clef: q.clef, grand: !!q.grand, keySig: q.keySig, keyAware: true, barlines: true, readOnly: !write || !!o.locked, labels: cfg.flags.labels,
+      columns: o.keyMode && C.write ? q.answer.map((notes) => ({ given: notes, cap: 0 })) : q.columns,
+      placed: write ? R.n : null, chordLabels: o.keyMode ? full : q.chordLabels,
+      reveal: write && o.reveal ? q.answer : null, revealPc: true,
+      marks: write && o.reveal ? MQ.markCadenceNotes(q, R.n, cfg) : null,
+      onChange: (pl) => { R.n = pl; send(); },
+    }, q.staffOpts, o.keyMode ? { stemMode: C.printStem } : {}));
+    staffBox.append(playButton(() => ({ chords: (write ? staff.pitches() : q.columns.map((c, i) => (c.given.length ? c.given : q.answer[i]).filter((p) => !p.beat))).filter((c) => c.length), dur: 1.2 }), 1, write ? 'your chords' : 'the progression'));
+    if (write && !o.locked) wrap.append(palette(staff));
+    const marks = o.reveal && !o.keyMode ? MQ.markCadence(q, R, cfg) : null;
+    // A box for each chord's numeral and symbol (and the pivot chord's numeral in the new key).
+    if (C.rn === 1 || C.sym === 1) {
+      const grid = h('div', { class: 'pg-answers', style: `--n:${C.chords.length}` });
+      C.chords.forEach((ch, i) => {
+        const cell = h('div', { class: 'pg-cell' }, h('span', { class: 'pg-num' }, 'Chord ' + (i + 1)));
+        const box = (k, label, ph, want, ok) => {
+          const inp = h('input', { type: 'text', class: 'pg-in', id: `cd-${uid}-${k}-${i}`, 'aria-label': `${label} for chord ${i + 1}`, placeholder: ph, autocomplete: 'off', autocapitalize: 'off', autocorrect: 'off', spellcheck: 'false', maxlength: 12 });
+          inp.value = o.keyMode ? want : R[k][i] || '';
+          const mark = k !== 's' ? markPicker(`cd-${uid}-m${k}-${i}`, inp, () => { R[k][i] = mark.full(); send(); }) : null;
+          if (o.locked || o.keyMode) { inp.disabled = true; if (mark) mark.sel.disabled = true; }
+          if (ok != null) inp.classList.add(ok ? 'is-right' : 'is-wrong');
+          inp.addEventListener('input', () => {
+            if (k === 's' && /^[a-g]/.test(inp.value)) {
+              const at = inp.selectionStart;
+              inp.value = inp.value[0].toUpperCase() + inp.value.slice(1);
+              try { inp.setSelectionRange(at, at); } catch (e) { /* not focused */ }
+            }
+            R[k][i] = mark ? mark.full() : inp.value;
+            send();
+          });
+          cell.append(inp);
+          if (mark) cell.append(mark.sel);
+          if (ok === false) cell.append(h('span', { class: 'pg-fix' }, accText(want)));
+        };
+        if (C.rn === 1) {
+          const first = ch.pivot ? C.rows.bottom[i] : C.rows.bottom[i] || C.rows.bottom2[i];
+          box('r', ch.pivot ? 'Roman numeral in the first key' : 'Roman numeral', ch.pivot ? 'Old key' : 'RN', first.replace(/^\S+: /, ''), marks ? marks.r[i] : null);
+          if (ch.pivot) box('p', 'Roman numeral in the new key', 'New key', C.rows.bottom2[i].replace(/^\S+: /, ''), marks ? marks.p : null);
+        }
+        if (C.sym === 1) box('s', 'Chord symbol', 'Symbol', C.symbols[i], marks ? marks.s[i] : null);
+        grid.append(cell);
+      });
+      wrap.append(grid);
+    }
+    // Naming the cadence or the modulation.
+    if (C.dd.length) {
+      const g = h('div', { class: 'dd-answers' });
+      C.dd.forEach((d, i) => {
+        const opts = [{ v: '', label: 'Choose…' }].concat(d.options.map((t, j) => ({ v: String(j), label: t })));
+        const sel = selectEl(`cd-${uid}-dd-${i}`, opts, o.keyMode ? String(d.answer) : R.d[i] == null ? '' : String(R.d[i]), (v) => { R.d[i] = v === '' ? null : +v; send(); });
+        if (o.locked || o.keyMode) sel.disabled = true;
+        if (marks) sel.classList.add(marks.d[i] ? 'is-right' : 'is-wrong');
+        g.append(h('label', { class: 'dd-cell' }, h('span', { class: 'mini-label' }, d.label), sel,
+          marks && !marks.d[i] ? h('span', { class: 'pg-fix' }, d.options[d.answer]) : null));
+      });
+      wrap.append(g);
+    }
+    if (C.nht.length && (o.reveal || o.keyMode)) {
+      const roles = { S: 'soprano', B: 'bass' };
+      wrap.append(h('p', { class: 'fine' }, 'Non-harmonic tones: ' + C.nht.map((x) => `a ${x.kind === 'passing' ? 'passing' : 'neighbour'} tone in the ${roles[x.v] || 'top voice'} after chord ${x.i + 1}`).join('; ') + '.'));
+    }
+    if (o.keyMode) wrap.append(h('p', { class: 'result is-key' }, h('strong', null, 'Answer: '), accText(MQ.describeAnswer(q, cfg))));
+    else if (o.reveal) {
+      const frac = MQ.gradeQuestion(q, R, cfg);
+      wrap.append(frac === 1
+        ? h('p', { class: 'result is-good', role: 'status' }, h('strong', null, 'Correct.'), ' ', accText(MQ.describeAnswer(q, cfg)))
+        : h('p', { class: 'result is-bad', role: 'status' }, h('strong', null, frac > 0 ? `Partly right — ${Math.round(frac * 100)}%.` : 'Not quite.'), ' The answer is ', h('b', null, accText(MQ.describeAnswer(q, cfg))), '.'));
+    }
+    return wrap;
+  }
+
   // ---------- Clefwork Voice Leading: block chords ----------
   // The builder: each exercise is a row of chord symbols and how many notes go in each block.
   function blockSections(cfg, changed, R) {
@@ -7749,6 +7992,15 @@
         h('li', null, h('b', null, '1'), ' Set the melodies — write them, let Clefwork make them, or take them from the library'),
         h('li', null, h('b', null, '2'), ' Students read each melody and record themselves singing it'),
         h('li', null, h('b', null, '3'), ' Recordings go to Canvas; the report code says who sang which melodies'));
+    }
+    if (HARMONY) {
+      const name = document.querySelector('.brand-name');
+      if (name) name.textContent = 'Clefwork Harmony';
+      document.title = 'Clefwork Harmony';
+      document.querySelector('.flow').replaceChildren(
+        h('li', null, h('b', null, '1'), ' Choose voicings, progressions, figured bass, cadences and modulations'),
+        h('li', null, h('b', null, '2'), ' Students write the chords, or name them, the cadence and the modulation'),
+        h('li', null, h('b', null, '3'), ' Students send back a report code — no accounts, no server'));
     }
     if (VOICE) {
       const name = document.querySelector('.brand-name');

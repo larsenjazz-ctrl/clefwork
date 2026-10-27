@@ -50,7 +50,17 @@
       const n = q.type === 'figprog' ? chordCount(q) : 1;
       return { kind: 'lines', items: Array.from({ length: n }, (_, i) => (n > 1 ? `Chord ${i + 1}` : 'Numeral and figures')) };
     }
-    if (q.type === 'progression' && q.prog && q.prog.answer !== 'spell') {
+    if (q.type === 'cadence') {
+      // The chords are written on the staff; numerals, symbols and the cadence or modulation on lines.
+      const C = q.cad, items = [];
+      C.chords.forEach((ch, i) => {
+        if (C.rn === 1) items.push(ch.pivot ? `Numeral ${i + 1} (both keys)` : `Numeral ${i + 1}`);
+        if (C.sym === 1) items.push(`Symbol ${i + 1}`);
+      });
+      C.dd.forEach((d) => items.push(d.label));
+      return items.length ? { kind: 'lines', items } : { kind: 'staff', items: [] };
+    }
+        if (q.type === 'progression' && q.prog && q.prog.answer !== 'spell') {
       const what = q.prog.answer === 'roman' ? 'Numeral' : q.prog.answer === 'symbol' ? 'Symbol' : 'Numeral and symbol';
       return { kind: 'lines', items: q.prog.chords.map((_, i) => `${what} ${i + 1}`) };
     }

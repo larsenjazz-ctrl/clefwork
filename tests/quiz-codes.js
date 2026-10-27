@@ -4,7 +4,7 @@
 // for rhythm settings that kind of quiz doesn't keep.) No dependencies; exits non-zero on any failure.
 const fs = require('fs'), path = require('path');
 const SRC = path.join(__dirname, '..', 'src') + '/';
-const files = ['theory', 'progressions', 'chords', 'figured', 'voicings', 'blockchords', 'keys', 'analysis', 'rhythm', 'rhythmgen', 'melody', 'melodygen', 'sing', 'degrees', 'chordgraph', 'vocab', 'terms', 'library-index', 'codec'];
+const files = ['theory', 'progressions', 'chords', 'figured', 'voicings', 'blockchords', 'cadences', 'keys', 'analysis', 'rhythm', 'rhythmgen', 'melody', 'melodygen', 'sing', 'degrees', 'chordgraph', 'vocab', 'terms', 'library-index', 'codec'];
 new Function(files.filter((f) => fs.existsSync(SRC + f + '.js')).map((f) => fs.readFileSync(SRC + f + '.js', 'utf8')).join('\n'))();
 const MQ = globalThis.MQ;
 
