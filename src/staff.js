@@ -71,6 +71,11 @@
       this.staves.forEach((s) => (s.bottom = MQ.CLEFS[s.clef].bottom));
       // extraBelow: room under the staff for long stems above the chord labels.
       this.vbH = (o.grand ? 292 : 206) + (o.extraBelow || 0);
+      // A fermata over a high note's stem: everything moves down far enough to keep it clear of the
+      // chord symbols above the staff.
+      const fy = (o.fermatas || []).map((i) => this.fermataY(i)).filter((y) => y != null);
+      const room = fy.length ? Math.max(0, (o.chordLabels && o.chordLabels.top ? (o.grand ? 18 : 24) + 16 : 14) - Math.min(...fy)) : 0;
+      if (room) { this.staves.forEach((s) => (s.by += room)); this.vbH += room; }
       this.xs = o.grand ? 14 : 0; // room for the brace
       this.placed = o.placed || o.columns.map(() => []);
       this.sel = null;
@@ -86,6 +91,14 @@
     }
 
     // ---------- geometry ----------
+    // Where a column's fermata goes: above its highest printed note's stem, or over the staff.
+    fermataY(i) {
+      const c = this.opts.columns[i];
+      if (!c) return null;
+      const top = this.staves[0].by - 4 * G;
+      const high = c.given.filter((p) => this.stOf(p) === 0).map((p) => this.yOf(0, this.posOf(p)));
+      return Math.min(top - 20, high.length ? Math.min(...high) - STEM - 8 : top - 20);
+    }
     stOf(p) { return this.opts.grand ? p.st || 0 : 0; }
     stAt(y) { return this.opts.grand && y >= (this.staves[0].by + this.staves[1].by - 48) / 2 ? 1 : 0; }
     posAt(y, st) { const s = this.staves[st]; return Math.max(s.min, Math.min(s.max, Math.round((s.by - y) / HALF))); }
@@ -449,8 +462,7 @@
       // A fermata over the top staff, above the highest note's stem: an arc with a dot under it.
       (o.fermatas || []).forEach((i) => {
         if (colX[i] == null) return;
-        const high = o.columns[i].given.filter((p) => this.stOf(p) === 0).map((p) => this.yOf(0, this.posOf(p)));
-        const y = Math.max(12, Math.min(top - 20, high.length ? Math.min(...high) - STEM - 8 : top - 20));
+        const y = this.fermataY(i);
         s += `<g class="fermata" transform="translate(${colX[i]} ${y})"><path d="M-9 0A9 8.5 0 0 1 9 0" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="0" cy="-2.2" r="1.7" fill="currentColor"/></g>`;
       });
       const described = [];

@@ -64,7 +64,7 @@
   // style (grand staff): 0 four-part chorale, 1 the root in the bass under a three-note block.
   // stems (one staff): 0 one stem a chord, 1 top note up and the others down.
   // keyMode 1 major, 2 minor, 3 both; keyMax: sharps or flats; len: chords in each progression.
-  // ask: 1 students write the chords, 2 they name the cadence or modulation, 3 both.
+  // ask: 1 students write the chords, 2 they name the cadence or modulation, 3 a mix — about half of each.
   // rn, sym: Roman numerals and chord symbols — 0 printed, 1 students write them, 2 left out.
   // nht: printed music may have passing and neighbour tones, in quarter notes.
   // ex: the teacher's progressions — {text, cad (0 auto, else 1 + a cadence), mod (0 auto, 1 none, else 2 + a modulation)}.
@@ -889,8 +889,17 @@
     const want = Math.min(CAD_MAX, (cfg.counts && cfg.counts.cadence) || 0);
     if (!want) return [];
     const rng = MQ.mulberry32((Math.imul((cfg.seed || 0) + 7, 2246822519) ^ 0xcad0) >>> 0);
+    // "A mix of both": half the questions (one more, when the number is odd, either way) have students
+    // write the chords and the others have them name the cadence or modulation, dealt in a shuffled order.
+    const asks = [];
+    for (let i = 0; i < want; i++) asks.push(b.ask === 3 ? (i % 2 ? 2 : 1) : b.ask);
+    if (b.ask === 3) {
+      if (want % 2 && rng() < 0.5) asks[want - 1] = 2;
+      for (let i = asks.length - 1; i > 0; i--) { const j = Math.floor(rng() * (i + 1)); [asks[i], asks[j]] = [asks[j], asks[i]]; }
+    }
+    const set = (i) => Object.assign({}, b, { ask: asks[i] });
     if (b.src) {
-      return usableCadExercises(b).slice(0, want).map((e, i) => cadenceQuestion(writtenCadence(e, b), b, i));
+      return usableCadExercises(b).slice(0, want).map((e, i) => cadenceQuestion(writtenCadence(e, b), set(i), i));
     }
     // Every kind the teacher chose takes its turn, in an order of its own for each quiz.
     let kinds = KINDS.filter((k, i) => b.kinds & (1 << i)).map((k) => k.id);
@@ -902,15 +911,15 @@
       for (let i = round.length - 1; i > 0; i--) { const j = Math.floor(rng() * (i + 1)); [round[i], round[j]] = [round[j], round[i]]; }
       order.push(...round);
     }
-    const t = cadTasks(b);
     const seen = new Set();
     return order.slice(0, want).map((kind, i) => {
+      const bi = set(i), t = cadTasks(bi);
       let q = null;
       for (let k = 0; k < 8; k++) {
         let made = isMod(kind) ? makeModulation(rng, b, kind, t.write) : makeCadence(rng, b, kind, t.write);
         // A modulation reads as the kind it was made to be (two phrases alike would be a sequence).
         for (let j = 0; j < 12 && isMod(kind) && made.mod && modulationOf(made.chords, made.keys) !== made.mod; j++) made = makeModulation(rng, b, kind, t.write);
-        q = cadenceQuestion(made, b, i);
+        q = cadenceQuestion(made, bi, i);
         if (!seen.has(q.sig)) break;
       }
       seen.add(q.sig);

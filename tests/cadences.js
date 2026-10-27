@@ -176,6 +176,17 @@ SETS.forEach((set, k) => {
 });
 ['pac', 'iac', 'hc', 'phc', 'plagal', 'dc', 'common', 'phrase', 'seq', 'ct'].forEach((k) => ok(seen[k] > 0, `made some ${k}`));
 
+// "A mix of both": about half the questions write the chords and half name the cadence or modulation.
+[4, 5, 6, 7, 10].forEach((n) => [11, 12, 13].forEach((seed) => {
+  const cfg = Object.assign(MQ.defaultConfig(), { seed });
+  Object.keys(cfg.counts).forEach((x) => (cfg.counts[x] = 0));
+  cfg.counts.cadence = n;
+  cfg.cad = MQ.cadSettings({ ask: 3, rn: 0, sym: 0, kinds: 0x3ff });
+  const qs = MQ.generateQuiz(cfg), w = qs.filter((q) => q.cad.write).length;
+  ok(Math.abs(w - (n - w)) <= 1, `${n} questions mixed half and half`, `${w} write, ${n - w} name`);
+  ok(qs.every((q) => q.cad.write !== q.cad.ident), 'each mixed question does one or the other');
+}));
+
 // Written progressions as questions, through the quiz code.
 const wcfg = Object.assign(MQ.defaultConfig(), { seed: 4242 });
 Object.keys(wcfg.counts).forEach((x) => (wcfg.counts[x] = 0));

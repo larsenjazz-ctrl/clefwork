@@ -4447,7 +4447,7 @@ input.sg-range { flex: 1; min-width: 0; accent-color: var(--accent); height: 28p
   // style (grand staff): 0 four-part chorale, 1 the root in the bass under a three-note block.
   // stems (one staff): 0 one stem a chord, 1 top note up and the others down.
   // keyMode 1 major, 2 minor, 3 both; keyMax: sharps or flats; len: chords in each progression.
-  // ask: 1 students write the chords, 2 they name the cadence or modulation, 3 both.
+  // ask: 1 students write the chords, 2 they name the cadence or modulation, 3 a mix — about half of each.
   // rn, sym: Roman numerals and chord symbols — 0 printed, 1 students write them, 2 left out.
   // nht: printed music may have passing and neighbour tones, in quarter notes.
   // ex: the teacher's progressions — {text, cad (0 auto, else 1 + a cadence), mod (0 auto, 1 none, else 2 + a modulation)}.
@@ -5272,8 +5272,17 @@ input.sg-range { flex: 1; min-width: 0; accent-color: var(--accent); height: 28p
     const want = Math.min(CAD_MAX, (cfg.counts && cfg.counts.cadence) || 0);
     if (!want) return [];
     const rng = MQ.mulberry32((Math.imul((cfg.seed || 0) + 7, 2246822519) ^ 0xcad0) >>> 0);
+    // "A mix of both": half the questions (one more, when the number is odd, either way) have students
+    // write the chords and the others have them name the cadence or modulation, dealt in a shuffled order.
+    const asks = [];
+    for (let i = 0; i < want; i++) asks.push(b.ask === 3 ? (i % 2 ? 2 : 1) : b.ask);
+    if (b.ask === 3) {
+      if (want % 2 && rng() < 0.5) asks[want - 1] = 2;
+      for (let i = asks.length - 1; i > 0; i--) { const j = Math.floor(rng() * (i + 1)); [asks[i], asks[j]] = [asks[j], asks[i]]; }
+    }
+    const set = (i) => Object.assign({}, b, { ask: asks[i] });
     if (b.src) {
-      return usableCadExercises(b).slice(0, want).map((e, i) => cadenceQuestion(writtenCadence(e, b), b, i));
+      return usableCadExercises(b).slice(0, want).map((e, i) => cadenceQuestion(writtenCadence(e, b), set(i), i));
     }
     // Every kind the teacher chose takes its turn, in an order of its own for each quiz.
     let kinds = KINDS.filter((k, i) => b.kinds & (1 << i)).map((k) => k.id);
@@ -5285,15 +5294,15 @@ input.sg-range { flex: 1; min-width: 0; accent-color: var(--accent); height: 28p
       for (let i = round.length - 1; i > 0; i--) { const j = Math.floor(rng() * (i + 1)); [round[i], round[j]] = [round[j], round[i]]; }
       order.push(...round);
     }
-    const t = cadTasks(b);
     const seen = new Set();
     return order.slice(0, want).map((kind, i) => {
+      const bi = set(i), t = cadTasks(bi);
       let q = null;
       for (let k = 0; k < 8; k++) {
         let made = isMod(kind) ? makeModulation(rng, b, kind, t.write) : makeCadence(rng, b, kind, t.write);
         // A modulation reads as the kind it was made to be (two phrases alike would be a sequence).
         for (let j = 0; j < 12 && isMod(kind) && made.mod && modulationOf(made.chords, made.keys) !== made.mod; j++) made = makeModulation(rng, b, kind, t.write);
-        q = cadenceQuestion(made, b, i);
+        q = cadenceQuestion(made, bi, i);
         if (!seen.has(q.sig)) break;
       }
       seen.add(q.sig);
@@ -12697,6 +12706,11 @@ svg.staff .nlabel { display: none; }
       this.staves.forEach((s) => (s.bottom = MQ.CLEFS[s.clef].bottom));
       // extraBelow: room under the staff for long stems above the chord labels.
       this.vbH = (o.grand ? 292 : 206) + (o.extraBelow || 0);
+      // A fermata over a high note's stem: everything moves down far enough to keep it clear of the
+      // chord symbols above the staff.
+      const fy = (o.fermatas || []).map((i) => this.fermataY(i)).filter((y) => y != null);
+      const room = fy.length ? Math.max(0, (o.chordLabels && o.chordLabels.top ? (o.grand ? 18 : 24) + 16 : 14) - Math.min(...fy)) : 0;
+      if (room) { this.staves.forEach((s) => (s.by += room)); this.vbH += room; }
       this.xs = o.grand ? 14 : 0; // room for the brace
       this.placed = o.placed || o.columns.map(() => []);
       this.sel = null;
@@ -12712,6 +12726,14 @@ svg.staff .nlabel { display: none; }
     }
 
     // ---------- geometry ----------
+    // Where a column's fermata goes: above its highest printed note's stem, or over the staff.
+    fermataY(i) {
+      const c = this.opts.columns[i];
+      if (!c) return null;
+      const top = this.staves[0].by - 4 * G;
+      const high = c.given.filter((p) => this.stOf(p) === 0).map((p) => this.yOf(0, this.posOf(p)));
+      return Math.min(top - 20, high.length ? Math.min(...high) - STEM - 8 : top - 20);
+    }
     stOf(p) { return this.opts.grand ? p.st || 0 : 0; }
     stAt(y) { return this.opts.grand && y >= (this.staves[0].by + this.staves[1].by - 48) / 2 ? 1 : 0; }
     posAt(y, st) { const s = this.staves[st]; return Math.max(s.min, Math.min(s.max, Math.round((s.by - y) / HALF))); }
@@ -13075,8 +13097,7 @@ svg.staff .nlabel { display: none; }
       // A fermata over the top staff, above the highest note's stem: an arc with a dot under it.
       (o.fermatas || []).forEach((i) => {
         if (colX[i] == null) return;
-        const high = o.columns[i].given.filter((p) => this.stOf(p) === 0).map((p) => this.yOf(0, this.posOf(p)));
-        const y = Math.max(12, Math.min(top - 20, high.length ? Math.min(...high) - STEM - 8 : top - 20));
+        const y = this.fermataY(i);
         s += `<g class="fermata" transform="translate(${colX[i]} ${y})"><path d="M-9 0A9 8.5 0 0 1 9 0" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="0" cy="-2.2" r="1.7" fill="currentColor"/></g>`;
       });
       const described = [];
@@ -22401,7 +22422,7 @@ svg.staff .nlabel { display: none; }
   // chords, the staff, and what students do.
   function cadencePanel(cfg, changed) {
     const b = (cfg.cad = MQ.cadSettings(cfg.cad));
-    const fixNote = h('p', { class: 'warn-note' }, 'Students writing the chords need to know what to write: with Roman numerals and chord symbols both asked for, the Roman numerals are printed.');
+    const fixNote = h('p', { class: 'warn-note' }, 'Students writing the chords need to know what to write: in those questions the Roman numerals are printed, even though you ask for both.');
     const syncFix = () => (fixNote.hidden = !MQ.cadTasks(b).fixed);
     syncFix();
     const redraw = () => { changed(); go('build'); };
@@ -22491,14 +22512,14 @@ svg.staff .nlabel { display: none; }
           'Every note of a chord sits on the one staff, in close position.'),
       h('div', { class: 'toggles' },
         toggle('cd-fill', 'Every note in large chords', grand ? 'Seventh and ninth chords keep all their notes — an extra inner voice in a chorale\'s V9, a fourth note in a block.' : 'Ninth chords keep their 5th as well.', b.fill, (v) => { b.fill = v ? 1 : 0; changed(); })),
-      grp('Students', seg('cd-ask', [{ v: 1, label: 'Write the chords' }, { v: 2, label: 'Name the cadence or modulation' }, { v: 3, label: 'Both' }], b.ask, (v) => { b.ask = v; syncFix(); redraw(); }),
-        'Naming a modulation asks for its kind and the new key (unless the key is printed for students writing the chords).'),
+      grp('Students', seg('cd-ask', [{ v: 1, label: 'Write the chords' }, { v: 2, label: 'Name the cadence or modulation' }, { v: 3, label: 'A mix of both' }], b.ask, (v) => { b.ask = v; syncFix(); redraw(); }),
+        'A mix: about half the questions have students write the chords, the others name the cadence or modulation, in a different order for each quiz. Naming a modulation asks for its kind and the new key.'),
       h('div', { class: 'row2' },
         grp('Roman numerals', seg('cd-rn', [{ v: 0, label: 'Printed' }, { v: 1, label: 'Students write them' }, { v: 2, label: 'Left out' }], b.rn, (v) => { b.rn = v; syncFix(); changed(); })),
         grp('Chord symbols', seg('cd-sym', [{ v: 0, label: 'Printed' }, { v: 1, label: 'Students write them' }, { v: 2, label: 'Left out' }], b.sym, (v) => { b.sym = v; syncFix(); changed(); }))),
       fixNote,
-      b.ask & 1 ? null : h('div', { class: 'toggles' },
-        toggle('cd-nht', 'Non-harmonic tones', 'Passing and neighbour tones in quarter notes, in a voice with a stem of its own — the soprano or bass of a chorale, the bass under a block, the top note when it is stemmed up on its own.', b.nht, (v) => { b.nht = v ? 1 : 0; changed(); })),
+      b.ask === 1 ? null : h('div', { class: 'toggles' },
+        toggle('cd-nht', 'Non-harmonic tones', 'In questions where the music is printed: passing and neighbour tones in quarter notes, in a voice with a stem of its own — the soprano or bass of a chorale, the bass under a block, the top note when it is stemmed up on its own.', b.nht, (v) => { b.nht = v ? 1 : 0; changed(); })),
       h('p', { class: 'help' }, 'Each part students answer is an equal share of the question: the chords on the staff (each chord’s notes, with the right one in the bass), the numerals, the symbols, and naming the cadence or modulation.'),
     ];
   }

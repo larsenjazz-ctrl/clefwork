@@ -7473,7 +7473,7 @@
   // chords, the staff, and what students do.
   function cadencePanel(cfg, changed) {
     const b = (cfg.cad = MQ.cadSettings(cfg.cad));
-    const fixNote = h('p', { class: 'warn-note' }, 'Students writing the chords need to know what to write: with Roman numerals and chord symbols both asked for, the Roman numerals are printed.');
+    const fixNote = h('p', { class: 'warn-note' }, 'Students writing the chords need to know what to write: in those questions the Roman numerals are printed, even though you ask for both.');
     const syncFix = () => (fixNote.hidden = !MQ.cadTasks(b).fixed);
     syncFix();
     const redraw = () => { changed(); go('build'); };
@@ -7563,14 +7563,14 @@
           'Every note of a chord sits on the one staff, in close position.'),
       h('div', { class: 'toggles' },
         toggle('cd-fill', 'Every note in large chords', grand ? 'Seventh and ninth chords keep all their notes — an extra inner voice in a chorale\'s V9, a fourth note in a block.' : 'Ninth chords keep their 5th as well.', b.fill, (v) => { b.fill = v ? 1 : 0; changed(); })),
-      grp('Students', seg('cd-ask', [{ v: 1, label: 'Write the chords' }, { v: 2, label: 'Name the cadence or modulation' }, { v: 3, label: 'Both' }], b.ask, (v) => { b.ask = v; syncFix(); redraw(); }),
-        'Naming a modulation asks for its kind and the new key (unless the key is printed for students writing the chords).'),
+      grp('Students', seg('cd-ask', [{ v: 1, label: 'Write the chords' }, { v: 2, label: 'Name the cadence or modulation' }, { v: 3, label: 'A mix of both' }], b.ask, (v) => { b.ask = v; syncFix(); redraw(); }),
+        'A mix: about half the questions have students write the chords, the others name the cadence or modulation, in a different order for each quiz. Naming a modulation asks for its kind and the new key.'),
       h('div', { class: 'row2' },
         grp('Roman numerals', seg('cd-rn', [{ v: 0, label: 'Printed' }, { v: 1, label: 'Students write them' }, { v: 2, label: 'Left out' }], b.rn, (v) => { b.rn = v; syncFix(); changed(); })),
         grp('Chord symbols', seg('cd-sym', [{ v: 0, label: 'Printed' }, { v: 1, label: 'Students write them' }, { v: 2, label: 'Left out' }], b.sym, (v) => { b.sym = v; syncFix(); changed(); }))),
       fixNote,
-      b.ask & 1 ? null : h('div', { class: 'toggles' },
-        toggle('cd-nht', 'Non-harmonic tones', 'Passing and neighbour tones in quarter notes, in a voice with a stem of its own — the soprano or bass of a chorale, the bass under a block, the top note when it is stemmed up on its own.', b.nht, (v) => { b.nht = v ? 1 : 0; changed(); })),
+      b.ask === 1 ? null : h('div', { class: 'toggles' },
+        toggle('cd-nht', 'Non-harmonic tones', 'In questions where the music is printed: passing and neighbour tones in quarter notes, in a voice with a stem of its own — the soprano or bass of a chorale, the bass under a block, the top note when it is stemmed up on its own.', b.nht, (v) => { b.nht = v ? 1 : 0; changed(); })),
       h('p', { class: 'help' }, 'Each part students answer is an equal share of the question: the chords on the staff (each chord’s notes, with the right one in the bass), the numerals, the symbols, and naming the cadence or modulation.'),
     ];
   }
