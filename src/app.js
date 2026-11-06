@@ -3116,6 +3116,8 @@
     return `${st.full} fully correct`;
   }
   function resultCell(it) {
+    if (it.dropped) return h('span', { class: 'res is-blank' }, '— Dropped, not counted');
+    if (it.credited) return h('span', { class: 'res is-good' }, '✓ Credit given to everyone');
     if (it.type === 'block' && it.notes != null) {
       if (!it.answered) return h('span', { class: 'res is-blank' }, '— Blank');
       if (!it.wrong) return h('span', { class: 'res is-good' }, `✓ ${it.notes} of ${it.notes} chords`);
@@ -3237,6 +3239,7 @@
       r.sealOk = r.quiz ? r.verifySeal(r.quiz.cfg) : null;
       // Block chords: the teacher's own marks, changed here and kept on this device.
       teachBlocks(r, () => { const y = window.scrollY; runGrade(host); window.scrollTo(0, y); });
+      applyFixes(r, () => { const y = window.scrollY; runGrade(host); window.scrollTo(0, y); });
       r.stats = MQ.reportStats(r);
     });
     host.replaceChildren();
@@ -3256,7 +3259,8 @@
       r.quiz ? chip('good', '✓ Quiz: ' + (r.quiz.cfg.title || 'untitled')) : chip('warn', 'Quiz not on this device — add its code to see questions'),
       r.sealOk === true ? chip('good', '✓ Seal verified') : r.sealOk === false ? chip('bad', '⚠ Seal doesn’t match — this code may have been edited') : null,
       attemptChip(r, chip),
-      r.teach && r.teach.changed ? chip('warn', `You changed the marks on ${r.teach.changed} chord${r.teach.changed === 1 ? '' : 's'}`) : null);
+      r.teach && r.teach.changed ? chip('warn', `You changed the marks on ${r.teach.changed} chord${r.teach.changed === 1 ? '' : 's'}`) : null,
+      r.fix && r.fix.count ? chip('warn', `Re-graded with your corrections: ${fmtPts(r.fix.before.points)}/${r.fix.before.n} → ${fmtPts(MQ.reportStats(r).points)}/${MQ.reportStats(r).n}`) : null);
   }
   // Which attempt this was, and a warning when it goes past the quiz's retake limit.
   function attemptChip(r, chip) {
@@ -3322,7 +3326,7 @@
       const cards = r.items.map((it, i) => {
         const q = qs[i];
         if (!q) return null;
-        const tone = it.credit === 7 ? 'is-right' : !it.answered ? 'is-blank' : it.credit > 0 ? 'is-part' : 'is-wrong';
+        const tone = it.dropped ? 'is-blank' : it.credit === 7 ? 'is-right' : !it.answered ? 'is-blank' : it.credit > 0 ? 'is-part' : 'is-wrong';
         const id = `ans-${r.quizId}-${i}`;
         jump.append(h('a', { href: '#' + id, class: 'qdot ' + tone, onclick: (e) => { e.preventDefault(); document.getElementById(id).scrollIntoView({ behavior: 'smooth', block: 'start' }); } }, String(i + 1)));
         // Without the key, show exactly what the student entered; the result sits in the heading.
@@ -3342,12 +3346,14 @@
             h('p', { class: 'warn-note' }, 'This answer couldn’t be shown. The score above is still right.'),
             o.showKey ? h('p', { class: 'result is-key' }, h('strong', null, 'Answer: '), MQ.describeAnswer(q, cfg)) : null);
         }
-        return h('section', { class: 'ans-card', id },
+        return h('section', { class: 'ans-card' + (it.dropped ? ' is-dropped' : ''), id },
           h('div', { class: 'ans-head' }, h('strong', null, `Question ${i + 1}`), resultCell(it), h('span', { class: 'ans-time' }, it.sec >= 63 ? '63+ s' : it.sec + ' s')),
+          r.fix && r.fix.set ? fixBar(r, i, q) : null,
           lost && it.answered ? h('p', { class: 'warn-note' }, 'This report was made before Clefwork saved the chords students write on the staff, so the notes for this question aren’t in the code. The score is right. Reports made from now on include them.') : null,
           card);
       }).filter(Boolean);
-      box.replaceChildren(jump, ...cards);
+      const fixNote = r.fix && r.fix.set ? h('p', { class: 'fine fix-note' }, 'Did a question go out with a mistake? Use the buttons under it to drop it, give everyone credit, or fix an Analysis box’s right answer. Corrections re-grade every student’s report for this quiz on this computer — report codes don’t change.') : null;
+      box.replaceChildren(fixNote || '', jump, ...cards);
     };
     if (o.openAnswers && !o.onOpen) { build(); return h('div', { class: 'ans-wrap' }, box); }
     // Chord Graph answers are tables and phrases, not notes on a staff.
@@ -7807,6 +7813,143 @@
         h('thead', null, h('tr', null, h('th', null, 'Chord'), h('th', null, T ? 'Clefwork’s marks' : 'Marks'), T ? h('th', null, 'Your grade') : null)),
         h('tbody', null, rows))));
   }
+  // ---------- correcting a quiz that's already out ----------
+  // When a quiz went out with a mistake, the teacher corrects it here and every report from it is
+  // re-marked from the answers the report carries: a question can be dropped (counted for no one), given
+  // to everyone, or — for an Analysis box — given the right answer. The corrections are kept on this
+  // device with the quiz (by its code), so report codes stay as they are and nothing goes online.
+  const FIXES = 'quiz-fixes';
+  const noFix = () => ({ drop: [], credit: [], ans: {} });
+  function quizFix(quiz) {
+    const f = (store.get(FIXES, {}) || {})[quiz.id];
+    return f && f.code === MQ.normalize(quiz.code) ? f : null;
+  }
+  // change: {drop: true | false}, {credit: true | false} or {ans: {r, r2, s} | null} for question i.
+  function saveFix(quiz, i, change) {
+    const all = store.get(FIXES, {}) || {};
+    const f = quizFix(quiz) || Object.assign(noFix(), { code: MQ.normalize(quiz.code), title: quiz.cfg.title || '' });
+    const mark = (list, on) => { const set = new Set(list); if (on) set.add(i); else set.delete(i); return [...set].sort((a, b) => a - b); };
+    if ('drop' in change) { f.drop = mark(f.drop, change.drop); if (change.drop) f.credit = mark(f.credit, false); }
+    if ('credit' in change) { f.credit = mark(f.credit, change.credit); if (change.credit) f.drop = mark(f.drop, false); }
+    if ('ans' in change) { if (change.ans) f.ans[i] = change.ans; else delete f.ans[i]; }
+    f.at = Date.now();
+    if (!f.drop.length && !f.credit.length && !Object.keys(f.ans).length) delete all[quiz.id]; else all[quiz.id] = f;
+    store.set(FIXES, all);
+  }
+  // Analysis boxes that ask for a Roman numeral or chord symbol can take a corrected answer.
+  const canFixAnswer = (q) => !!q && q.type === 'analysis' && ['roman', 'symbol', 'both', 'pivot'].includes(q.an.ask);
+  function withAnswer(q, a) {
+    const an = Object.assign({}, q.an);
+    if (a.r != null) an.roman = MQ.alternatives(a.r);
+    if (a.r2 != null) an.roman2 = MQ.alternatives(a.r2);
+    if (a.s != null) an.symbol = MQ.alternatives(a.s);
+    return Object.assign({}, q, { an });
+  }
+  // Folds the quiz's corrections into a report: its questions take the corrected answers, and its
+  // items are re-marked. redraw (null: corrections can't be changed here) shows the report again.
+  function applyFixes(r, redraw) {
+    r.fix = null;
+    if (!r.quiz || !r.quiz.code) return;
+    const quiz = r.quiz, f = quizFix(quiz);
+    r.fix = { f: f || noFix(), count: 0, before: null, set: redraw ? (i, change) => { saveFix(quiz, i, change); redraw(); } : null, quiz };
+    if (!f) return;
+    r.fix.before = MQ.reportStats(r);
+    r.quiz = Object.assign({}, quiz, { qs: quiz.qs.map((q, i) => (f.ans[i] && canFixAnswer(q) ? withAnswer(q, f.ans[i]) : q)) });
+    r.items.forEach((it, i) => {
+      const q = r.quiz.qs[i];
+      if (f.drop.includes(i)) { it.dropped = true; r.fix.count++; return; }
+      if (f.credit.includes(i)) {
+        it.credited = true;
+        it.credit = 7;
+        if (it.notes != null) { it.wrong = 0; if (it.pw != null) { it.pw = 0; it.rw = 0; } }
+        r.fix.count++;
+        return;
+      }
+      if (f.ans[i] && canFixAnswer(q) && r.answers && r.answers[i]) {
+        const frac = MQ.gradeQuestion(q, MQ.answerFor(q, r.answers[i]), r.quiz.cfg);
+        it.credit = frac === 1 ? 7 : r.partial ? Math.min(6, Math.round(frac * 7)) : 0;
+        r.fix.count++;
+      }
+    });
+  }
+  // A copy of an Analysis quiz with the corrected answers in its boxes, for the students who haven't
+  // taken it yet: {code, href} — href opens it in Clefwork Analysis, with its pictures, to share again.
+  function correctedAnalysis(r) {
+    const f = quizFix(r.fix.quiz);
+    if (!f || !Object.keys(f.ans).length) return null;
+    let cfg;
+    try { cfg = MQ.decodeQuiz(r.fix.quiz.code); } catch (e) { return null; }
+    const scores = MQ.analysisScores(cfg.analysis);
+    const regions = [].concat(...scores.map((sc) => sc.regions));
+    Object.keys(f.ans).forEach((i) => {
+      const q = r.fix.quiz.qs[i], a = f.ans[i];
+      const reg = canFixAnswer(q) ? regions[q.an.n] : null;
+      if (!reg) return;
+      if (a.r != null) reg.roman = a.r;
+      if (a.r2 != null) reg.roman2 = a.r2;
+      if (a.s != null) reg.symbol = a.s;
+    });
+    const code = MQ.normalize(MQ.encodeQuiz(cfg));
+    const imgs = scores.map((sc) => (sc.img && scoreData(sc.img.hash)) || '');
+    return { code, href: SITE ? SITE + 'analysis.html#edit=' + code + imgs.map((d, k) => (d ? `&img${k ? k + 1 : ''}=${d}` : '')).join('') : '' };
+  }
+  // Under a question in a report, for the teacher: drop it, give everyone credit, or fix its answer.
+  let fixUid = 0;
+  function fixBar(r, i, q) {
+    const f = r.fix.f, set = (change) => r.fix.set(i, change);
+    const dropped = f.drop.includes(i), credited = f.credit.includes(i), fixed = !!f.ans[i] && canFixAnswer(q);
+    const uid = ++fixUid;
+    const status = dropped ? 'Dropped for every student: this question isn’t counted in anyone’s score.'
+      : credited ? 'Every student gets full credit for this question.'
+        : fixed ? ['Right answer corrected to ', h('b', null, accText(MQ.describeAnswer(q, r.quiz.cfg))), ' — every student’s answer is marked again.'] : null;
+    const editor = h('div', { class: 'fix-edit', hidden: true });
+    const buttons = h('div', { class: 'btn-row fix-buttons' },
+      h('button', { type: 'button', class: 'btn btn-quiet sm', onclick: () => set({ drop: !dropped }) }, dropped ? 'Count this question again' : 'Drop this question'),
+      dropped ? null : h('button', { type: 'button', class: 'btn btn-quiet sm', onclick: () => set({ credit: !credited }) }, credited ? 'Take back the credit' : 'Give everyone credit'),
+      canFixAnswer(q) && !dropped && !credited ? (fixed
+        ? h('button', { type: 'button', class: 'btn btn-quiet sm', onclick: () => set({ ans: null }) }, 'Go back to the original answer')
+        : h('button', { type: 'button', class: 'btn btn-quiet sm', onclick: () => { editor.hidden = !editor.hidden; } }, 'Fix the right answer')) : null);
+    if (canFixAnswer(q) && !fixed) {
+      // The answer boxes, filled in with what the quiz has now; "or" between answers that are all right.
+      const ask = q.an.ask, parts = [];
+      if (ask !== 'symbol') parts.push(['r', ask === 'pivot' ? 'Roman numeral in the old key' : 'Roman numeral', q.an.roman]);
+      if (ask === 'pivot') parts.push(['r2', 'Roman numeral in the new key', q.an.roman2]);
+      if (ask !== 'roman' && (ask !== 'pivot' || q.an.symbol.length)) parts.push(['s', 'Chord symbol', q.an.symbol]);
+      const inputs = {};
+      const warn = h('p', { class: 'warn-note', hidden: true });
+      const fields = parts.map(([k, label, list]) => {
+        const inp = textIn(`fix-${uid}-${k}`, (list || []).join(' or '), 80, k === 's' ? 'e.g. Dmi7' : 'e.g. ii6', () => { warn.hidden = true; });
+        inputs[k] = inp;
+        return fld(label, inp);
+      });
+      const save = () => {
+        const a = {};
+        Object.keys(inputs).forEach((k) => (a[k] = inputs[k].value.trim()));
+        const bad = MQ.unreadableAnswers({ ask, roman: a.r || '', roman2: a.r2 || '', symbol: a.s || '' }, 0)
+          .filter((x) => !(q.an.link || q.an.linked) || x.part === 'symbol');
+        const empty = Object.keys(a).filter((k) => !a[k]);
+        if (empty.length) { warn.hidden = false; warn.textContent = 'Fill in every box — the right answer can’t be empty.'; return; }
+        if (bad.length) { warn.hidden = false; warn.textContent = `Clefwork can’t read ${bad.map((x) => `“${x.text}”`).join(', ')}. Try numerals like ii6, V7 or vii°7 and symbols like Dmi7.`; return; }
+        set({ ans: a });
+      };
+      editor.append(
+        h('p', { class: 'help' }, 'Type the answer the box should have had. Separate answers that are all right with “or” (ii or ii7).'),
+        h('div', { class: 'row2' }, ...fields), warn,
+        h('div', { class: 'btn-row' }, h('button', { type: 'button', class: 'btn btn-primary sm', onclick: save }, 'Save and re-grade every student'),
+          h('button', { type: 'button', class: 'btn btn-quiet sm', onclick: () => { editor.hidden = true; } }, 'Cancel')));
+    }
+    let copy = null;
+    if (fixed) {
+      const c = correctedAnalysis(r);
+      if (c) copy = h('p', { class: 'fine' }, 'Students who haven’t taken the quiz yet still have the old answer. ',
+        c.href ? h('a', { href: c.href, target: '_blank', rel: 'noopener' }, 'Open a corrected copy in Clefwork Analysis ↗') : 'Paste this code into Edit a quiz you already shared in Clefwork Analysis: ' + c.code,
+        ' — share its new link with them.');
+    }
+    return h('div', { class: 'fix-bar' + (status ? ' is-on' : '') },
+      status ? h('p', { class: 'fix-status' }, h('strong', null, 'Corrected. '), ...[].concat(status)) : null,
+      buttons, editor, copy);
+  }
+
   // The teacher's marks for one report: kept on this device by report code, and folded into the
   // report's scores. redraw (null: no changing marks here) shows the report again after a change.
   function teachBlocks(r, redraw) {
@@ -7883,6 +8026,8 @@
     r.sealOk = r.quiz ? r.verifySeal(r.quiz.cfg) : null;
     // Block chords: the teacher can change the marks only where the quiz was built (this device).
     teachBlocks(r, local ? () => { const y = window.scrollY; main.replaceChildren(); renderResults(main); window.scrollTo(0, y); } : null);
+    // Corrections to the quiz are kept with it, so they can be made here only where it was built.
+    applyFixes(r, local ? () => { const y = window.scrollY; main.replaceChildren(); renderResults(main); window.scrollTo(0, y); } : null);
     r.stats = MQ.reportStats(r);
     const showKey = !!(r.quiz && (local || r.quiz.cfg.flags.feedback));
     if (mismatch) wrap.append(h('section', { class: 'card notice is-bad' }, h('h3', null, 'The quiz in this link doesn’t match the report'), h('p', null, 'The score is shown, but the questions can’t be — the link may have been edited.')));

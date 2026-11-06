@@ -1296,3 +1296,12 @@ input.sg-range { flex: 1; min-width: 0; accent-color: var(--accent); height: 28p
 .an-tool-tip { margin: 0; padding: 8px 12px; border-radius: 8px; background: var(--surface-2); border: 1px solid var(--line); transition: background 0.2s, border-color 0.2s; }
 .an-tool-tip.is-nudged { background: var(--warn-soft); border-color: var(--warn); }
 .an-overlap-note { margin: 4px 0 0; }
+/* Correcting a quiz after it went out: the controls under each question in a report. */
+.fix-bar { margin: 0 0 12px; padding: 10px 12px; border: 1px dashed var(--line); border-radius: 10px; }
+.fix-bar.is-on { border-style: solid; border-color: var(--warn); background: var(--warn-soft); }
+.fix-bar .fix-status { margin: 0 0 8px; font-size: 14px; }
+.fix-bar .fix-buttons { margin: 0; }
+.fix-bar .fix-edit { margin-top: 10px; }
+.fix-bar .fine { margin: 8px 0 0; }
+.ans-card.is-dropped > :not(.ans-head):not(.fix-bar) { opacity: 0.55; }
+.fix-note { margin: 0 0 12px; }
