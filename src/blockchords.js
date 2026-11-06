@@ -320,7 +320,7 @@
         columns: roots.map((r) => ({ given: printed ? [r] : [], cap: N + 2 + (printed ? 0 : 1) })),
         chordLabels: { top: syms.map(shownSymbol) },
         answer: models.map((m, k) => (printed ? m : [roots[k]].concat(m))),
-        blk: { n: i, syms, voices: N, root: b.root, value: b.value, ninth: b.ninth, bottom: b.bottom, octave: b.octave },
+        blk: { n: i, ex: b.ex.indexOf(e), syms, voices: N, root: b.root, value: b.value, ninth: b.ninth, bottom: b.bottom, octave: b.octave },
         sig: 'bk' + i + syms.join('') + N + b.root, tags: syms.map((s) => 'bk:' + s),
       };
     });

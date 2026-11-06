@@ -226,6 +226,20 @@ The library window filters by kind, searches titles, composers and styles, plays
 
 The pieces are in `library/data.js` and the scores in `library/` (engraved hymns as gzipped SVG, piano pages as 1-bit PNG), loaded only when needed; a one-line-a-piece index is bundled so a Terms quiz chooses the same pieces everywhere. Pieces are only ever added, each with the library version it arrived in. `tools/library/` holds the scripts that build it and their sources (see its README).
 
+### Correcting a quiz that's already out
+
+When a quiz went out with a mistake — most often an Analysis box given the wrong answer (V where it should be ii) — the teacher fixes it in the grade checker, and every student's report is re-graded. Report codes don't change and nothing is stored online: each report already carries what the student entered, and the corrections are kept on the teacher's computer with the quiz.
+
+Open a report in **Grade reports** (with the quiz known on this computer, or its code pasted) and choose **See answers**. Under each question:
+
+- **Drop this question** — it counts for no one; scores are out of the questions left (a quiz with a total keeps its total).
+- **Give everyone credit** — every student gets it right.
+- **Fix the right answer** — for every question whose answer the teacher typed: Analysis boxes asking for a Roman numeral, chord symbol or pivot (answers that are all right separated by "or"); Chord Progressions the teacher wrote; Cadences & Modulations progressions the teacher wrote (with the cadence and modulation menus); and Block Chords exercises. A corrected progression keeps the same number of chords, so students' answers line up. Clefwork writes the correction into the teacher's entry, makes that question again, and marks every student's answer to it again. Students who haven't taken the quiz yet still have the old answer, so a link opens a corrected copy in the quiz's own tool (an Analysis quiz with its pictures) to share again.
+
+Each corrected report shows "Re-graded with your corrections" with its old and new scores, and the class summary, spreadsheet copy and Canvas score follow. The results page applies the corrections on the computer they were made on. Each change can be undone from the same place.
+
+`node tests/quiz-fixes.js` checks that a corrected answer re-marks the answer a report carries, how dropped and credited questions are scored, and that questions made from the teacher's entries can be found and made again in line with the quiz students took.
+
 ### Retakes
 
 Every Clefwork page ends a quiz with a **Retake quiz** button: the same quiz code, so the same questions, and a fresh start. Retakes are unlimited unless the teacher sets a limit under **Quiz rules** (none, or 1–10 retakes). The limit travels in the quiz code; quizzes without one keep exactly the codes they had.

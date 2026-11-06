@@ -1513,6 +1513,8 @@
   // What one question is worth and earned: a point, or with note scoring one point a note, less
   // one for each wrong note (never below nothing).
   function itemScore(it, sc) {
+    // A question the teacher dropped after the quiz went out counts for nothing either way.
+    if (it.dropped) return { pts: 0, max: 0, full: false };
     if (sc && it.notes != null) {
       if (!it.notes) return { pts: it.wrong ? 0 : 1, max: 1, full: !it.wrong };
       // A melody scored split: half a point for each pitch or rhythm mistake.
