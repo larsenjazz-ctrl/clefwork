@@ -234,11 +234,11 @@ Open a report in **Grade reports** (with the quiz known on this computer, or its
 
 - **Drop this question** — it counts for no one; scores are out of the questions left (a quiz with a total keeps its total).
 - **Give everyone credit** — every student gets it right.
-- **Fix the right answer** (Analysis boxes asking for a Roman numeral, chord symbol or pivot) — type the answer the box should have had (answers that are all right separated by "or"). Every student's answer to that box is marked again. Students who haven't taken the quiz yet still have the old answer, so a link opens a corrected copy in Clefwork Analysis, pictures and all, to share again.
+- **Fix the right answer** — for every question whose answer the teacher typed: Analysis boxes asking for a Roman numeral, chord symbol or pivot (answers that are all right separated by "or"); Chord Progressions the teacher wrote; Cadences & Modulations progressions the teacher wrote (with the cadence and modulation menus); and Block Chords exercises. A corrected progression keeps the same number of chords, so students' answers line up. Clefwork writes the correction into the teacher's entry, makes that question again, and marks every student's answer to it again. Students who haven't taken the quiz yet still have the old answer, so a link opens a corrected copy in the quiz's own tool (an Analysis quiz with its pictures) to share again.
 
 Each corrected report shows "Re-graded with your corrections" with its old and new scores, and the class summary, spreadsheet copy and Canvas score follow. The results page applies the corrections on the computer they were made on. Each change can be undone from the same place.
 
-`node tests/quiz-fixes.js` checks that a corrected answer re-marks the answer a report carries, and how dropped and credited questions are scored.
+`node tests/quiz-fixes.js` checks that a corrected answer re-marks the answer a report carries, how dropped and credited questions are scored, and that questions made from the teacher's entries can be found and made again in line with the quiz students took.
 
 ### Retakes
 

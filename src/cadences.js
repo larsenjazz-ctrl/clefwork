@@ -900,7 +900,12 @@
     }
     const set = (i) => Object.assign({}, b, { ask: asks[i] });
     if (b.src) {
-      return usableCadExercises(b).slice(0, want).map((e, i) => cadenceQuestion(writtenCadence(e, b), set(i), i));
+      // cad.ex: the teacher's progression it came from, so a later correction finds it.
+      return usableCadExercises(b).slice(0, want).map((e, i) => {
+        const q = cadenceQuestion(writtenCadence(e, b), set(i), i);
+        q.cad.ex = b.ex.indexOf(e);
+        return q;
+      });
     }
     // Every kind the teacher chose takes its turn, in an order of its own for each quiz.
     let kinds = KINDS.filter((k, i) => b.kinds & (1 << i)).map((k) => k.id);

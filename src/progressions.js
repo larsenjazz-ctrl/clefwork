@@ -418,7 +418,8 @@
           if (!seen.has(sig)) { seen.add(sig); break; }
         }
       }
-      return progressionQuestion(e, chords, cfg);
+      // src: the teacher's entry it came from, so a correction made after the quiz went out finds it.
+      return Object.assign(progressionQuestion(e, chords, cfg), { src: cfg.progs.indexOf(e) });
     });
   }
 

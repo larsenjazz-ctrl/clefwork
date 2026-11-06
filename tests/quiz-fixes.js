@@ -48,5 +48,28 @@ const pct = { items: [{ credit: 7 }, { credit: 0 }, { credit: 0, dropped: true }
 st = MQ.reportStats(pct);
 ok(st.n === 10 && Math.abs(st.points - 5) < 1e-9, 'a total-points quiz rescales over the questions left', `${st.points}/${st.n}`);
 
+// Questions made from the teacher's own entries say which entry, so a correction can find it, and the
+// quiz made again from the corrected entry lines up with the one students took.
+const base = () => { const c = MQ.defaultConfig(); Object.keys(c.counts).forEach((k) => (c.counts[k] = 0)); c.flags.shuffle = true; return c; };
+const kd = MQ.makeKey('major', 0, null, 'harmonic');
+const mixed = base();
+mixed.progs = [{ kind: 'auto', staff: 'treble', key: kd, len: 4, sevenths: 0, deceptive: 0, qcount: 1 },
+  { kind: 'written', staff: 'treble', key: kd, voicing: 'closed', chords: MQ.parseProgressionText('I IV V I', kd).chords }];
+mixed.counts.progression = 2;
+mixed.counts.interval = 3;
+const mq = MQ.generateQuiz(MQ.decodeQuiz(MQ.encodeQuiz(mixed)));
+const wq = mq.find((q) => q.type === 'progression' && q.src === 1);
+ok(!!wq, 'a written progression knows its entry');
+const fixedCfg = MQ.decodeQuiz(MQ.encodeQuiz(mixed));
+fixedCfg.progs[1].chords = MQ.parseProgressionText('C Dmi G C', kd).chords;
+const mq2 = MQ.generateQuiz(fixedCfg);
+ok(mq2.length === mq.length && mq2.every((q, i) => q.type === mq[i].type && (q.type !== 'progression' || q.src !== 1 || q.prog.romans.join() === 'I,ii,V,I')),
+  'the corrected quiz lines up, with the corrected chords', mq2.map((q) => q.type).join());
+ok(mq2.every((q, i) => q === undefined || q.type !== 'interval' || q.sig === mq[i].sig), 'the other questions stay as they were');
+const cq = MQ.cadenceQuestions({ seed: 1, counts: { cadence: 2 }, cad: MQ.cadSettings({ src: 1, ex: [{ text: 'C: I X' }, { text: 'C: I IV V7 vi' }] }) });
+ok(cq.length === 1 && cq[0].cad.ex === 1, 'a written cadence knows its entry (an unreadable one before it is skipped)', JSON.stringify(cq.map((q) => q.cad.ex)));
+const bq = MQ.blockQuestions({ counts: { block: 2 }, flags: {}, block: MQ.blockSettings({ ex: [{ chords: '' }, { chords: 'Dmi7 G7 C7' }] }) });
+ok(bq.length === 1 && bq[0].blk.ex === 1, 'a block exercise knows its entry', JSON.stringify(bq.map((q) => q.blk.ex)));
+
 console.log(`${passes} passed, ${fails} failed.`);
 process.exit(fails ? 1 : 0);
