@@ -647,7 +647,9 @@
     const terms = TERM_COUNTS.some((k) => cfg.counts && cfg.counts[k] > 0);
     const anMore = an.more.length > 0 && (regions.length > 0 || an.more.some((m) => m.regions.length));
     const ivAsk = (cfg.counts && cfg.counts.interval) > 0 && (cfg.intervalAsk === 2 || cfg.intervalAsk === 3) ? cfg.intervalAsk : 0;
-    if (regions.length || an.img || limit != null || rhythm || melody || degrees || graph || terms || sing || block || cad || nht || ivAsk) {
+    // How many of the quiz's questions each student gets (0: all of them) — the last block, behind a flag.
+    const pick = Math.max(0, Math.min(127, cfg.pick | 0));
+    if (regions.length || an.img || limit != null || rhythm || melody || degrees || graph || terms || sing || block || cad || nht || ivAsk || pick) {
       const q10 = (v) => Math.max(0, Math.min(1023, Math.round(v * 1023)));
       // Extension 16: Clefwork Harmony with non-harmonic tones — the cadence block as extension 15 writes it
       // (possibly empty), then the non-harmonic tone block.
@@ -755,18 +757,20 @@
       const keys = anScores.some((sc) => sc.keys && sc.keys.length);
       const opens = anScores.some((sc) => sc.open && sc.open.show > 0);
       const extras = keys || opens || anRegs.some((g) => g.link || g.ask === 'nht' || g.ask === 'pivot');
-      if (extras || ivAsk) {
+      if (extras || ivAsk || pick) {
         if (((ext >= 4 && ext <= 8) || ext === 11 || ext === 13) && !tiesWritten) w.u(0, 1);
         w.u(extras ? 1 : 0, 1);
       }
       if (extras) {
         writeAnalysisExtras(w, an, anRegs);
         if (keys) writeKeyChanges(w, an, anScores);
-        else if (opens || ivAsk) w.u(0, 1);
+        else if (opens || ivAsk || pick) w.u(0, 1);
         if (opens) writeOpenKeys(w, anScores);
-        else if (ivAsk) w.u(0, 1);
+        else if (ivAsk || pick) w.u(0, 1);
       }
       if (ivAsk) w.u(1, 1).u(ivAsk, 2);
+      else if (pick) w.u(0, 1);
+      if (pick) w.u(1, 1).u(pick, 7);
     }
     return pack(KIND_QUIZ, w.b);
   }
@@ -1026,6 +1030,7 @@
             cfg.counts.analysis = MQ.analysisRegionCount(an);
           }
           if (r.b.length > r.p && r.u(1)) cfg.intervalAsk = r.u(2) || 1;
+          if (r.b.length > r.p && r.u(1)) cfg.pick = r.u(7);
         }
         const sum = (b) => MQ.TECHNIQUES.reduce((n, t) => n + ((b.tech && b.tech[t.id]) || 0), 0);
         cfg.counts.voicing = sum(cfg.vc);
@@ -1458,6 +1463,13 @@
         w.u(pv.length, 7);
         pv.forEach((k) => { w.u(k, 7); writeText(w, ans.resp[k].r2); });
       }
+      // Then the draw: which of the quiz's questions this student was given, when not all of them.
+      const draw = Array.isArray(report.draw) ? report.draw.slice(0, 127) : null;
+      if (draw && draw.length) {
+        begin(5);
+        w.u(draw.length, 7);
+        draw.forEach((k) => w.u(Math.min(127, k), 7));
+      }
     }
     return pack(KIND_REPORT, w.b, sealKey(cfg, qid));
   }
@@ -1534,6 +1546,11 @@
           const a = rep.answers[k];
           if (a && a.kind === 'text' && a.value) a.value.r2 = r2;
         }
+      }
+      rep.draw = null;
+      if (ver >= 15 && rep.answers && r.b.length > r.p && r.u(1)) {
+        rep.draw = [];
+        for (let j = 0, n = r.u(7); j < n; j++) rep.draw.push(r.u(7));
       }
       // True when the seal matches the quiz this report claims to belong to.
       rep.verifySeal = (cfg) => seal16(bitsToBytes(restBits), sealKey(cfg, rep.quizId)) === seal;

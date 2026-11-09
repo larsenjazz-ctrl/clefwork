@@ -244,6 +244,10 @@ Each corrected report shows "Re-graded with your corrections" with its old and n
 
 `node tests/quiz-fixes.js` checks that a corrected answer re-marks the answer a report carries, how dropped and credited questions are scored, and that questions made from the teacher's entries can be found and made again in line with the quiz students took.
 
+### A draw of the questions
+
+In every tool but Clefwork Analysis (whose boxes are one score) the quiz rules have **Questions each student gets**. Left empty, everyone gets every question. Set to a number, the quiz becomes a bank: when a student starts, Clefwork draws that many of its questions at random for them, in the quiz's order, and keeps the draw if they reload. The report code records which questions they had, so grading, the answer key and corrections line up with their draw (corrections are kept by the whole quiz's numbering). A retake draws again. Sight Singing keeps its own setting for the melodies, and the Non-Harmonic Tones tab its own for its examples; a quiz-wide draw applies on top of those. The setting travels at the end of the quiz code; codes without it mean all the questions.
+
 ### Retakes
 
 Every Clefwork page ends a quiz with a **Retake quiz** button: the same quiz code, so the same questions, and a fresh start. Retakes are unlimited unless the teacher sets a limit under **Quiz rules** (none, or 1–10 retakes). The limit travels in the quiz code; quizzes without one keep exactly the codes they had.

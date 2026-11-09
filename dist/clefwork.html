@@ -13300,7 +13300,9 @@ svg.staff .nlabel { display: none; }
     const terms = TERM_COUNTS.some((k) => cfg.counts && cfg.counts[k] > 0);
     const anMore = an.more.length > 0 && (regions.length > 0 || an.more.some((m) => m.regions.length));
     const ivAsk = (cfg.counts && cfg.counts.interval) > 0 && (cfg.intervalAsk === 2 || cfg.intervalAsk === 3) ? cfg.intervalAsk : 0;
-    if (regions.length || an.img || limit != null || rhythm || melody || degrees || graph || terms || sing || block || cad || nht || ivAsk) {
+    // How many of the quiz's questions each student gets (0: all of them) — the last block, behind a flag.
+    const pick = Math.max(0, Math.min(127, cfg.pick | 0));
+    if (regions.length || an.img || limit != null || rhythm || melody || degrees || graph || terms || sing || block || cad || nht || ivAsk || pick) {
       const q10 = (v) => Math.max(0, Math.min(1023, Math.round(v * 1023)));
       // Extension 16: Clefwork Harmony with non-harmonic tones — the cadence block as extension 15 writes it
       // (possibly empty), then the non-harmonic tone block.
@@ -13408,18 +13410,20 @@ svg.staff .nlabel { display: none; }
       const keys = anScores.some((sc) => sc.keys && sc.keys.length);
       const opens = anScores.some((sc) => sc.open && sc.open.show > 0);
       const extras = keys || opens || anRegs.some((g) => g.link || g.ask === 'nht' || g.ask === 'pivot');
-      if (extras || ivAsk) {
+      if (extras || ivAsk || pick) {
         if (((ext >= 4 && ext <= 8) || ext === 11 || ext === 13) && !tiesWritten) w.u(0, 1);
         w.u(extras ? 1 : 0, 1);
       }
       if (extras) {
         writeAnalysisExtras(w, an, anRegs);
         if (keys) writeKeyChanges(w, an, anScores);
-        else if (opens || ivAsk) w.u(0, 1);
+        else if (opens || ivAsk || pick) w.u(0, 1);
         if (opens) writeOpenKeys(w, anScores);
-        else if (ivAsk) w.u(0, 1);
+        else if (ivAsk || pick) w.u(0, 1);
       }
       if (ivAsk) w.u(1, 1).u(ivAsk, 2);
+      else if (pick) w.u(0, 1);
+      if (pick) w.u(1, 1).u(pick, 7);
     }
     return pack(KIND_QUIZ, w.b);
   }
@@ -13679,6 +13683,7 @@ svg.staff .nlabel { display: none; }
             cfg.counts.analysis = MQ.analysisRegionCount(an);
           }
           if (r.b.length > r.p && r.u(1)) cfg.intervalAsk = r.u(2) || 1;
+          if (r.b.length > r.p && r.u(1)) cfg.pick = r.u(7);
         }
         const sum = (b) => MQ.TECHNIQUES.reduce((n, t) => n + ((b.tech && b.tech[t.id]) || 0), 0);
         cfg.counts.voicing = sum(cfg.vc);
@@ -14111,6 +14116,13 @@ svg.staff .nlabel { display: none; }
         w.u(pv.length, 7);
         pv.forEach((k) => { w.u(k, 7); writeText(w, ans.resp[k].r2); });
       }
+      // Then the draw: which of the quiz's questions this student was given, when not all of them.
+      const draw = Array.isArray(report.draw) ? report.draw.slice(0, 127) : null;
+      if (draw && draw.length) {
+        begin(5);
+        w.u(draw.length, 7);
+        draw.forEach((k) => w.u(Math.min(127, k), 7));
+      }
     }
     return pack(KIND_REPORT, w.b, sealKey(cfg, qid));
   }
@@ -14187,6 +14199,11 @@ svg.staff .nlabel { display: none; }
           const a = rep.answers[k];
           if (a && a.kind === 'text' && a.value) a.value.r2 = r2;
         }
+      }
+      rep.draw = null;
+      if (ver >= 15 && rep.answers && r.b.length > r.p && r.u(1)) {
+        rep.draw = [];
+        for (let j = 0, n = r.u(7); j < n; j++) rep.draw.push(r.u(7));
       }
       // True when the seal matches the quiz this report claims to belong to.
       rep.verifySeal = (cfg) => seal16(bitsToBytes(restBits), sealKey(cfg, rep.quizId)) === seal;
@@ -18565,6 +18582,10 @@ svg.staff .nlabel { display: none; }
     const RETAKES = [{ v: 'u', label: 'Unlimited' }, { v: 0, label: 'None — one attempt' }, { v: 1, label: '1 retake' }, { v: 2, label: '2 retakes' },
       { v: 3, label: '3 retakes' }, { v: 5, label: '5 retakes' }, { v: 10, label: '10 retakes' }];
     const retakeIn = selectEl('q-retakes', RETAKES, cfg.retakes == null ? 'u' : cfg.retakes, (v) => { cfg.retakes = v === 'u' ? null : +v; changed(); });
+    // A draw: each student gets so many of the quiz's questions, chosen at random for them.
+    const pickIn = h('input', { type: 'number', id: 'q-pick', min: 0, max: 127, inputmode: 'numeric', placeholder: 'All of them' });
+    pickIn.value = cfg.pick || '';
+    pickIn.addEventListener('change', () => { const v = Math.max(0, Math.min(127, Math.round(+pickIn.value || 0))); pickIn.value = v || ''; cfg.pick = v; changed(); });
     // Total points: the same number Set up in Canvas asks for, so the two always agree.
     const totalIn = h('input', { type: 'number', id: 'q-total', min: 0, max: 1000, inputmode: 'numeric', placeholder: 'e.g. 10' });
     totalIn.value = cfg.canvasPts || '';
@@ -18572,6 +18593,7 @@ svg.staff .nlabel { display: none; }
     form.append(sec('rules', 'Quiz rules', null,
       h('div', { class: 'row2' }, fld('Time limit in minutes', timeIn, '0 means no limit. The quiz submits itself when time runs out.'),
         STUDENT ? null : fld('Retakes', retakeIn, 'Students can retake the quiz to improve their score — the same questions each time. Each report shows its attempt number.')),
+      STUDENT || ANALYSIS || SING ? null : fld('Questions each student gets', pickIn, 'Leave empty for all of them. Set a number and the quiz becomes a bank: each student is drawn that many of its questions at random, in the quiz’s order. The report says which, and a retake draws again.'),
       STUDENT ? null : h('div', { class: 'row2' }, fld('Total points', totalIn,
         'Leave empty to count a point for each question (or note, chord or answer). Set a total and every score is the student’s share of it: 80% of a 10-point quiz is 8, however many ways a question can be marked. Canvas uses the same total.')),
       h('div', { class: 'toggles' },
@@ -18684,7 +18706,7 @@ svg.staff .nlabel { display: none; }
         const outOf = quizTotal(cfg) ? ` · worth ${quizTotal(cfg)} point${quizTotal(cfg) === 1 ? '' : 's'}` : sb ? (sb.score === 'percent' ? ` · out of ${sb.outOf} points` : ` · out of ${rhythmNotes(S.qs)} notes`)
           : dsc ? ` · out of ${fmtPts(MQ.reportStats({ items: S.qs.map((q) => ({ type: q.type, clef: q.clef, credit: 7, answered: true, sec: 0, notes: q.type === 'degree' ? q.deg.notes.length : MQ.isGraph(q) ? MQ.graphPoints(q) : q.type === 'block' ? q.blk.syms.length : q.type === 'nht' ? q.nh.spots.length : undefined, wrong: 0 })), scoring: dsc }).n)} ${VOICE ? 'chords' : 'points'}` : '';
         const noun = MELODY || SING ? (total === 1 ? 'melody' : 'melodies') : `${RHYTHM ? 'example' : GRAPH ? 'worksheet' : VOICE ? 'exercise' : 'question'}${total === 1 ? '' : 's'}`;
-        const each = SING && singAsked(cfg) < total ? ` (each student sings ${singAsked(cfg)})` : nhAsked(cfg) ? ` (each student gets ${nhAsked(cfg)} of the ${listCount(cfg, 'nht')} non-harmonic tone examples)` : '';
+        const each = SING && singAsked(cfg) < total ? ` (each student sings ${singAsked(cfg)})` : !ANALYSIS && cfg.pick > 0 && cfg.pick < total ? ` (each student gets ${cfg.pick} of them)` : nhAsked(cfg) ? ` (each student gets ${nhAsked(cfg)} of the ${listCount(cfg, 'nht')} non-harmonic tone examples)` : '';
         R.summary.replaceChildren(h('b', null, STUDENT ? 'Your practice' : cfg.title || 'Untitled quiz'), ` — ${total} ${noun}${each} · ${clefsText(cfg)}${outOf} · about ${est} min${cfg.timeLimit ? ` · ${cfg.timeLimit}-minute limit` : ''}`);
       }
       if (R.scoreInfo) R.scoreInfo.textContent = total ? rhythmScoreText(cfg, S.qs) : '';
@@ -19289,12 +19311,22 @@ svg.staff .nlabel { display: none; }
   function singDraw(cfg, qs, pick) {
     if (!qs.length) return { qs, pick: null };
     let list = null;
-    if (qs[0].type === 'sing') list = (Array.isArray(pick) && pick.length ? pick : MQ.singPick(cfg, qs.length)).filter((i) => qs[i]);
-    else if (qs.some((q) => q.type === 'nht') && MQ.nhPick) {
+    const given = Array.isArray(pick) && pick.length;
+    if (given) list = pick.filter((i) => qs[i]);
+    else if (qs[0].type === 'sing') list = MQ.singPick(cfg, qs.length).filter((i) => qs[i]);
+    else {
       // Non-harmonic tones drawn from a bank: every other question is kept, in order.
-      list = Array.isArray(pick) && pick.length ? pick.filter((i) => qs[i]) : MQ.nhPick(cfg, qs);
-      if (list && list.length === qs.length) list = null;
+      if (qs.some((q) => q.type === 'nht') && MQ.nhPick) list = MQ.nhPick(cfg, qs);
+      // Then the quiz-wide draw: so many of the questions for each student, kept in the quiz's order.
+      const want = cfg.pick | 0;
+      const base = list || qs.map((_, i) => i);
+      if (want > 0 && want < base.length) {
+        const bag = base.slice();
+        for (let i = bag.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [bag[i], bag[j]] = [bag[j], bag[i]]; }
+        list = bag.slice(0, want).sort((a, b) => a - b);
+      }
     }
+    if (list && list.length === qs.length) list = null;
     return { qs: list && list.length ? list.map((i) => qs[i]) : qs, pick: list && list.length ? list : null };
   }
 
@@ -19642,6 +19674,7 @@ svg.staff .nlabel { display: none; }
           ? h('div', null, h('dt', null, 'Uses'), h('dd', null, 'Grand staff, piano'))
           : h('div', null, h('dt', null, 'Clefs'), h('dd', null, [cfg.clefs & 1 ? 'Treble' : null, cfg.clefs & 2 ? 'Bass' : null, usesGrand(cfg) ? 'Grand staff' : null].filter(Boolean).join(', ')))),
       h('p', { class: 'types-line' }, types.join(' · ')),
+      t.pick && t.qs[0].type !== 'sing' ? h('p', { class: 'an-notes' }, `This quiz holds ${MQ.generateQuiz(cfg).length} questions. ${t.qs.length} of them were drawn for you.`) : null,
       quizTotal(cfg) && !onlySing(cfg) ? h('p', { class: 'an-notes' }, `This quiz is worth ${quizTotal(cfg)} point${quizTotal(cfg) === 1 ? '' : 's'}. Your score is your share of everything it marks.`) : null,
       onlyAnalysis(cfg) && cfg.analysis.notes ? h('p', { class: 'an-notes' }, accText(cfg.analysis.notes)) : null,
       listCount(cfg, 'rhythm') || listCount(cfg, 'melody') ? h('p', { class: 'an-notes rh-intro' }, rhythmIntro(cfg, t.qs)) : null,
@@ -19801,7 +19834,7 @@ svg.staff .nlabel { display: none; }
     });
     t.report = {
       name: t.name, submittedAt: Date.now(), totalSec: t.secs.reduce((a, b) => a + b, 0), partial, items, attempt: t.attempt || 1,
-      scoring: quizScoring(t.cfg, t.qs),
+      scoring: quizScoring(t.cfg, t.qs), draw: t.pick || null,
     };
     if (!t.practice && !t.preview) recordAttempt(t.code, MQ.reportStats(t.report).pct);
     // The report code also carries what the student entered, so the teacher can see it on the staff.
@@ -19997,9 +20030,12 @@ svg.staff .nlabel { display: none; }
   function singReportQuiz(r) {
     if (!r.quiz || !r.answers || !r.items.length) return r.quiz;
     const bank = r.quiz.qs;
+    const drawn = (qs, draw) => (qs.every(Boolean) ? Object.assign({}, r.quiz, { qs, bank, draw }) : r.quiz);
+    // Reports since the draw was recorded say which questions of the quiz the student had.
+    if (r.draw && r.draw.length === r.items.length) return drawn(r.draw.map((i) => bank[i] || null), r.draw.slice());
     if (r.items.every((it) => it.type === 'sing')) {
       const qs = r.answers.map((a) => (a && a.value ? bank.find((q) => q.sing && q.sing.n === a.value.n) : null) || null);
-      return qs.every(Boolean) ? Object.assign({}, r.quiz, { qs }) : r.quiz;
+      return drawn(qs, qs.map((q) => bank.indexOf(q)));
     }
     // Non-harmonic tones drawn from a bank: each report item names its example, and the other
     // questions follow in the quiz's order.
@@ -20011,10 +20047,14 @@ svg.staff .nlabel { display: none; }
         const a = r.answers[i];
         return (a && a.value && bank.find((q) => q.type === 'nht' && q.nh.n === a.value.n)) || null;
       });
-      return qs.every(Boolean) ? Object.assign({}, r.quiz, { qs }) : r.quiz;
+      return drawn(qs, qs.map((q) => bank.indexOf(q)));
     }
     return r.quiz;
   }
+  // A report's question i is question at(quiz, i) of the whole quiz, when the student had a draw of them.
+  // Corrections are kept by the whole quiz's numbering, so they reach every student's draw.
+  const bankAt = (quiz, i) => (quiz && quiz.draw ? quiz.draw[i] : i);
+  const bankOf = (quiz) => (quiz && quiz.bank) || quiz.qs;
   function knownQuizzes(extra) {
     const out = [], seen = new Set();
     const add = (code, source) => {
@@ -24675,7 +24715,8 @@ svg.staff .nlabel { display: none; }
     return f && f.code === MQ.normalize(quiz.code) ? f : null;
   }
   // change: {drop: true | false}, {credit: true | false} or {ans: {r, r2, s} | null} for question i.
-  function saveFix(quiz, i, change) {
+  function saveFix(quiz, pos, change) {
+    const i = bankAt(quiz, pos);
     const all = store.get(FIXES, {}) || {};
     const f = quizFix(quiz) || Object.assign(noFix(), { code: MQ.normalize(quiz.code), title: quiz.cfg.title || '' });
     const mark = (list, on) => { const set = new Set(list); if (on) set.add(i); else set.delete(i); return [...set].sort((a, b) => a - b); };
@@ -24702,7 +24743,7 @@ svg.staff .nlabel { display: none; }
     const cfg = MQ.decodeQuiz(quiz.code);
     const regions = cfg.analysis ? [].concat(...MQ.analysisScores(cfg.analysis).map((sc) => sc.regions)) : [];
     Object.keys(f.ans).forEach((i) => {
-      const q = quiz.qs[i], a = f.ans[i], kind = fixKind(q, quiz.cfg);
+      const q = bankOf(quiz)[i], a = f.ans[i], kind = fixKind(q, quiz.cfg);
       if (kind === 'analysis') {
         const reg = regions[q.an.n];
         if (!reg) return;
@@ -24734,29 +24775,30 @@ svg.staff .nlabel { display: none; }
     r.fix = { f: f || noFix(), count: 0, before: null, broken: false, set: redraw ? (i, change) => { saveFix(quiz, i, change); redraw(); } : null, quiz };
     if (!f) return;
     r.fix.before = MQ.reportStats(r);
-    const fixedAt = Object.keys(f.ans).map(Number).filter((i) => fixKind(quiz.qs[i], quiz.cfg));
+    const bank = bankOf(quiz);
+    const fixedAt = Object.keys(f.ans).map(Number).filter((i) => fixKind(bank[i], quiz.cfg));
     if (fixedAt.length) {
       let qs2 = null;
       try {
         const cfg2 = fixedConfig(quiz, f);
         qs2 = MQ.generateQuiz(cfg2);
         // The corrected quiz must line up with the one students took, question for question.
-        if (qs2.length !== quiz.qs.length || qs2.some((q, i) => q.type !== quiz.qs[i].type)) qs2 = null;
+        if (qs2.length !== bank.length || qs2.some((q, i) => q.type !== bank[i].type)) qs2 = null;
       } catch (e) { qs2 = null; }
-      if (qs2) r.quiz = Object.assign({}, quiz, { qs: quiz.qs.map((q, i) => (fixedAt.includes(i) ? qs2[i] : q)) });
+      if (qs2) r.quiz = Object.assign({}, quiz, { qs: quiz.qs.map((q, i) => (fixedAt.includes(bankAt(quiz, i)) ? qs2[bankAt(quiz, i)] : q)) });
       else r.fix.broken = true;
     }
     r.items.forEach((it, i) => {
-      const q = r.quiz.qs[i];
-      if (f.drop.includes(i)) { it.dropped = true; r.fix.count++; return; }
-      if (f.credit.includes(i)) {
+      const q = r.quiz.qs[i], bi = bankAt(quiz, i);
+      if (f.drop.includes(bi)) { it.dropped = true; r.fix.count++; return; }
+      if (f.credit.includes(bi)) {
         it.credited = true;
         it.credit = 7;
         if (it.notes != null) { it.wrong = 0; if (it.pw != null) { it.pw = 0; it.rw = 0; } }
         r.fix.count++;
         return;
       }
-      if (fixedAt.includes(i) && !r.fix.broken && r.answers && r.answers[i]) {
+      if (fixedAt.includes(bi) && !r.fix.broken && r.answers && r.answers[i]) {
         const resp = MQ.answerFor(q, r.answers[i]);
         const frac = MQ.gradeQuestion(q, resp, r.quiz.cfg);
         it.credit = frac === 1 ? 7 : r.partial ? Math.min(6, Math.round(frac * 7)) : 0;
@@ -24828,9 +24870,9 @@ svg.staff .nlabel { display: none; }
   let fixUid = 0;
   function fixBar(r, i, q) {
     const f = r.fix.f, set = (change) => r.fix.set(i, change);
-    const cfg = r.fix.quiz.cfg, orig = r.fix.quiz.qs[i];
+    const cfg = r.fix.quiz.cfg, bi = bankAt(r.fix.quiz, i), orig = bankOf(r.fix.quiz)[bi];
     const canFix = !!fixKind(orig, cfg);
-    const dropped = f.drop.includes(i), credited = f.credit.includes(i), fixed = !!f.ans[i] && canFix;
+    const dropped = f.drop.includes(bi), credited = f.credit.includes(bi), fixed = !!f.ans[bi] && canFix;
     const uid = ++fixUid;
     const status = dropped ? 'Dropped for every student: this question isn’t counted in anyone’s score.'
       : credited ? 'Every student gets full credit for this question.'
