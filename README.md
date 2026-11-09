@@ -12,7 +12,7 @@ Music theory quizzes that run entirely in the browser — no server, no accounts
 - **Clefwork Sight Singing:** [sing.html](https://larsenjazz-ctrl.github.io/clefwork/sing.html) — the same melodies, read instead of heard: students sing each one and record themselves, and hand the recordings in on Canvas.
 - **Clefwork Chord Graph:** [graph.html](https://larsenjazz-ctrl.github.io/clefwork/graph.html) — the chord graph as worksheets: diatonic progression tables, tritone substitution graphs, and phrases in Roman numerals checked against the graph's rules.
 - **Clefwork Terms:** [terms.html](https://larsenjazz-ctrl.github.io/clefwork/terms.html) — musical terms, multiple choice: dynamics, tempo markings and instrument families, and hearing the dynamics and tempo of a generated melody.
-- **Clefwork Voice Leading:** [voice.html](https://larsenjazz-ctrl.github.io/clefwork/voice.html) — block chords: students write a block voicing for each chord symbol on the grand staff, and every chord is marked by the textbook's rules for block voicings. The teacher sees what the student wrote and Clefwork's marks, and can accept or reject any chord.
+- **Clefwork Voice Leading:** [voice.html](https://larsenjazz-ctrl.github.io/clefwork/voice.html) — block chords: students write a block voicing for each chord symbol on the grand staff, and every chord is marked by the textbook's rules for block voicings. The teacher sees what the student wrote and Clefwork's marks, and can accept or reject any chord. Non-harmonic tones: Clefwork writes a progression in four voices and adds passing tones, suspensions and the other figures from the textbook, highlighted and lettered; students name each one from a menu.
 - **Canvas pages:** [take.html](https://larsenjazz-ctrl.github.io/clefwork/take.html) takes one quiz and ends with a results link to hand in; [results.html](https://larsenjazz-ctrl.github.io/clefwork/results.html) shows one student's results from that link.
 
 ## How it works
@@ -189,6 +189,8 @@ Every chord is a point. Students who may check their answers see each chord's ma
 
 The answer key shows one good block for each chord — the one the rules like best, near the middle of the treble staff.
 
+The second section is **non-harmonic tones**. Clefwork writes a progression of 4, 6 or 8 chords in a major or minor key (up to the number of sharps or flats the teacher allows), voices it in four parts by the common-practice rules (the part-writing engine), and adds one to four non-harmonic tones of the kinds the teacher chooses, as the course textbook classifies them by approach, resolution and accent: passing tones, accented passing tones, chromatic passing tones, neighbor tones, chromatic (raised lower) neighbors, suspensions — named 9–8, 7–6, 4–3, or 2–3 in the bass — retardations, appoggiaturas, escape tones, anticipations and pedal points. Two voices may take the same figure at once (double suspensions, passing tones in thirds) or different figures at once, when the teacher turns those on. Each example is one question: the four voices on the grand staff in 4/4, two chords a measure, with every non-harmonic tone coloured, ringed and lettered, the Roman numerals (with the key) under the music and/or the chord symbols above it, and a play button. Under the music each letter has a menu — the kinds the quiz asks for, or every kind — and each lettered note is an equal share of the question, or a point of its own, or a share of a total. The answer key names each letter. On paper the example prints two measures a line with a blank for each letter.
+
 ### The library
 
 Public-domain pieces to use as musical examples, in three kinds — **solo melodies**, **piano**, and **several instruments or voices** — each marked as one that can be heard (its notes are in the library) and/or one with a score picture:
@@ -240,7 +242,7 @@ dist/clefwork-melody*.html            Clefwork Melody
 dist/clefwork-sing*.html              Clefwork Sight Singing
 dist/clefwork-graph*.html             Clefwork Chord Graph
 dist/clefwork-terms*.html             Clefwork Terms
-dist/clefwork-voice*.html             Clefwork Voice Leading
+dist/clefwork-voice*.html             Clefwork Voice Leading (block chords, non-harmonic tones)
 dist/site/library/                    the library's pieces and score pictures (copied from library/)
 dist/clefwork-take-standalone.html    Canvas: take one quiz
 dist/clefwork-results-standalone.html Canvas: one student's results

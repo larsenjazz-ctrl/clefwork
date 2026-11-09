@@ -120,6 +120,13 @@
       if (name === 'translate') mul([1, 0, 0, 1, v[0] || 0, v[1] || 0]);
       else if (name === 'scale') mul([v[0] == null ? 1 : v[0], 0, 0, v[1] == null ? v[0] : v[1], 0, 0]);
       else if (name === 'matrix') mul(v);
+      else if (name === 'rotate') {
+        // rotate(angle [cx cy]) — the tilted noteheads of the four-voice staff.
+        const a = ((v[0] || 0) * Math.PI) / 180, c = Math.cos(a), s = Math.sin(a), cx = v[1] || 0, cy = v[2] || 0;
+        if (cx || cy) mul([1, 0, 0, 1, cx, cy]);
+        mul([c, s, -s, c, 0, 0]);
+        if (cx || cy) mul([1, 0, 0, 1, -cx, -cy]);
+      }
       return '';
     });
     return m;

@@ -459,6 +459,18 @@
     cfg.block = MQ.blockSettings(b);
     cfg.counts.block = asked;
   }
+  // Clefwork Voice Leading's non-harmonic tones (extension 15): the settings that make the examples, how
+  // many to ask, and what students see and choose from.
+  function writeNhtBlock(w, cfg) {
+    const s = MQ.nhSettings(cfg.nht);
+    w.u(s.gen, 3).u(Math.min(MQ.NH_MAX, (cfg.counts && cfg.counts.nht) || 0), 5).u(s.length / 2 - 2, 2).u(s.mode, 2).u(s.maxSig, 3).u(s.per - 1, 2)
+      .u(s.kinds, 12).u(s.dbl, 1).u(s.mix, 1).u(s.susNames, 1).u(s.show, 2).u(s.menu, 1).u(s.hear, 1).u(DEGREE_SCORES.indexOf(s.score), 2).u(s.outOf, 10);
+  }
+  function readNhtBlock(r, cfg) {
+    const gen = r.u(3), n = r.u(5);
+    cfg.nht = MQ.nhSettings({ gen, length: (r.u(2) + 2) * 2, mode: r.u(2), maxSig: r.u(3), per: r.u(2) + 1, kinds: r.u(12), dbl: r.u(1), mix: r.u(1), susNames: r.u(1), show: r.u(2), menu: r.u(1), hear: r.u(1), score: DEGREE_SCORES[r.u(2)] || 'question', outOf: r.u(10) });
+    cfg.counts.nht = n;
+  }
 
   function encodeQuiz(cfg) {
     const w = new Writer();
@@ -603,13 +615,16 @@
     const dgLib = !!dg && dg.src === 1 && dg.mel.length > 0;
     const sing = Math.min(31, (cfg.counts && cfg.counts.sing) || 0);
     const block = MQ.blockSettings && (cfg.counts && cfg.counts.block) > 0 && MQ.usableBlockExercises(cfg.block).length > 0;
+    const nht = !!MQ.nhSettings && (cfg.counts && cfg.counts.nht) > 0;
     const graph = GRAPH_COUNTS.some((k) => cfg.counts && cfg.counts[k] > 0);
     const terms = TERM_COUNTS.some((k) => cfg.counts && cfg.counts[k] > 0);
     const anMore = an.more.length > 0 && (regions.length > 0 || an.more.some((m) => m.regions.length));
     const ivAsk = (cfg.counts && cfg.counts.interval) > 0 && (cfg.intervalAsk === 2 || cfg.intervalAsk === 3) ? cfg.intervalAsk : 0;
-    if (regions.length || an.img || limit != null || rhythm || melody || degrees || graph || terms || sing || block || ivAsk) {
+    if (regions.length || an.img || limit != null || rhythm || melody || degrees || graph || terms || sing || block || nht || ivAsk) {
       const q10 = (v) => Math.max(0, Math.min(1023, Math.round(v * 1023)));
-      const ext = block ? 14 : sing ? 13 : terms ? 10 : graph ? 9 : anMore ? 12 : grid ? 6 : degrees ? (dgLib ? 11 : dgMore ? 8 : 7) : melody ? 5 : rhythm ? 4 : limit != null ? 2 : 1;
+      // Extension 15: Clefwork Voice Leading with non-harmonic tones — the block chords as extension 14
+      // writes them (possibly none), then the non-harmonic tone block.
+      const ext = nht ? 15 : block ? 14 : sing ? 13 : terms ? 10 : graph ? 9 : anMore ? 12 : grid ? 6 : degrees ? (dgLib ? 11 : dgMore ? 8 : 7) : melody ? 5 : rhythm ? 4 : limit != null ? 2 : 1;
       const deg8 = ext === 8 || ext === 11, deg7 = ext === 7 || deg8;
       w.u(ext, 8).u(an.override, 2).u(an.img ? 1 : 0, 1);
       if (an.img) w.u(an.img.hash >>> 0, 32);
@@ -664,10 +679,11 @@
           examples.forEach((ex) => writeExample(w, ex, grid));
         }
       }
-      if (ext === 14) {
+      if (ext === 14 || ext === 15) {
         w.u(limit != null ? 1 : 0, 1);
         if (limit != null) w.u(limit, 5);
         writeBlockBlock(w, cfg);
+        if (ext === 15) writeNhtBlock(w, cfg);
       }
       if (ext === 13) {
         w.u(limit != null ? 1 : 0, 1);
@@ -930,9 +946,10 @@
             cfg.rhythm = MQ.rhythmSettings(rh);
             cfg.counts.rhythm = rh.auto ? rh.auto.count : rh.examples.length;
           }
-          if (ext === 14) {
+          if (ext === 14 || ext === 15) {
             if (r.u(1)) cfg.retakes = r.u(5);
             readBlockBlock(r, cfg);
+            if (ext === 15) readNhtBlock(r, cfg);
           }
           if (ext === 13) {
             if (r.u(1)) cfg.retakes = r.u(5);
@@ -1057,6 +1074,13 @@
       }
       return;
     }
+    if (q.type === 'nht') {
+      // Non-harmonic tones: how many lettered notes, then each choice (0 blank, else its kind + 1).
+      const list = MQ.cleanNh(q, resp).slice(0, 31);
+      w.u(list.length, 5);
+      list.forEach((v) => w.u(v < 0 ? 0 : v + 1, 4));
+      return;
+    }
     if (q.type === 'degree') {
       // Scale degrees: how many notes, then each note's number (0 blank, 1–7).
       const list = MQ.cleanDegrees(q, resp).slice(0, 127);
@@ -1177,6 +1201,11 @@
       const n = r.u(4), sym = r.u(1), out = { r: [], s: [] };
       for (let j = 0; j < n; j++) { out.r.push(readText(r)); out.s.push(sym ? readGraphText(r) : ''); }
       return { kind: 'text', value: out };
+    }
+    if (type === 'nht') {
+      const n = r.u(5), list = [];
+      for (let j = 0; j < n; j++) list.push(r.u(4) - 1);
+      return { kind: 'nht', value: list };
     }
     if (type === 'degree') {
       const n = r.u(7), list = [];
@@ -1299,7 +1328,8 @@
       report.items.forEach((it) => {
         // (Scale degrees too, when scored by note. No report has both kinds, so earlier reports read the same.)
         // (Block chords too: how many chords, and how many broke a rule.)
-        if (it.type === 'rhythm' || it.type === 'melody' || it.type === 'rgrid' || it.type === 'degree' || it.type === 'block') w.u(n9(it.notes), 9).u(n9(it.wrong), 9);
+        // (Non-harmonic tones too: lettered notes, and how many were wrong.)
+        if (it.type === 'rhythm' || it.type === 'melody' || it.type === 'rgrid' || it.type === 'degree' || it.type === 'block' || it.type === 'nht') w.u(n9(it.notes), 9).u(n9(it.wrong), 9);
         // Chord Graph: points, and points lost in halves (a right root can earn half).
         if (GRAPH_COUNTS.includes(it.type)) w.u(n9(it.notes), 9).u(n9(Math.round((it.wrong || 0) * 2)), 9);
         if (it.type === 'melody') w.u(n9(it.pw), 9).u(n9(it.rw), 9);
@@ -1404,7 +1434,7 @@
       if (ver >= 11 && r.u(1)) {
         rep.scoring = { mode: r.u(1) ? 'percent' : 'notes', outOf: r.u(10), split: ver >= 12 ? r.u(1) : 0 };
         rep.items.forEach((it) => {
-          if (it.type === 'rhythm' || it.type === 'rgrid' || it.type === 'degree' || it.type === 'block' || (it.type === 'melody' && ver >= 12)) { it.notes = r.u(9); it.wrong = r.u(9); }
+          if (it.type === 'rhythm' || it.type === 'rgrid' || it.type === 'degree' || it.type === 'block' || it.type === 'nht' || (it.type === 'melody' && ver >= 12)) { it.notes = r.u(9); it.wrong = r.u(9); }
           if (GRAPH_COUNTS.includes(it.type)) { it.notes = r.u(9); it.wrong = r.u(9) / 2; }
           if (it.type === 'melody' && ver >= 12) { it.pw = r.u(9); it.rw = r.u(9); }
         });
@@ -1489,6 +1519,7 @@
       noted: !!sc && rep.items.some((it) => it.notes != null), notes: sc ? max : 0, wrong: sc ? rep.items.reduce((s, it) => s + (it.wrong || 0), 0) : 0, mode: sc ? sc.mode : null,
       graph: rep.items.some((it) => GRAPH_COUNTS.includes(it.type)),    // Chord Graph: answers, not notes
       block: rep.items.some((it) => it.type === 'block'),                 // block chords: chords, not notes
+      nh: rep.items.some((it) => it.type === 'nht'),                      // non-harmonic tones: lettered notes
       byType: by('type'), byClef: by('clef'),
       avgSec: count ? rep.items.reduce((s, it) => s + it.sec, 0) / count : 0,
       slowest,

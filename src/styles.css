@@ -1296,3 +1296,16 @@ input.sg-range { flex: 1; min-width: 0; accent-color: var(--accent); height: 28p
 .an-tool-tip { margin: 0; padding: 8px 12px; border-radius: 8px; background: var(--surface-2); border: 1px solid var(--line); transition: background 0.2s, border-color 0.2s; }
 .an-tool-tip.is-nudged { background: var(--warn-soft); border-color: var(--warn); }
 .an-overlap-note { margin: 4px 0 0; }
+
+/* ---------- Clefwork Voice Leading: non-harmonic tones ---------- */
+.nh-pic { background: #fff; border-radius: 8px; color: #000; padding: 2px 0; }
+.nh-pic svg { display: block; width: 100%; height: auto; }
+.nh-pic-wrap { max-width: 100%; }
+.nh-staff .clef-glyph { font-family: 'Noto Music', 'Bravura Text', 'Apple Symbols', 'Segoe UI Symbol', serif; fill: currentColor; }
+.nh-staff .sacc { font-family: 'Noto Music', serif; font-weight: 400; }
+.nh-staff .nh-rn, .nh-staff .nh-sym, .nh-staff .nh-time { font-family: Georgia, 'Times New Roman', serif; }
+.nh-staff .nh-tag { font-family: var(--f-mono); }
+.nh-staff .nh-tag.is-sel, .nh-staff .nh-ring.is-sel { filter: drop-shadow(0 0 2px rgba(47, 63, 191, 0.6)); }
+.nh-answers .dg-box select { width: auto; min-width: 150px; text-align: left; text-align-last: left; font: 600 14px var(--f-body); padding: 4px 8px; }
+.nh-chart td.nh-abbr { font: 700 13px var(--f-mono); white-space: nowrap; }
+.nh-chart td { font-size: 14px; }

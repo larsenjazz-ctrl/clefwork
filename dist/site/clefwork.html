@@ -1307,6 +1307,19 @@ input.sg-range { flex: 1; min-width: 0; accent-color: var(--accent); height: 28p
 .an-tool-tip { margin: 0; padding: 8px 12px; border-radius: 8px; background: var(--surface-2); border: 1px solid var(--line); transition: background 0.2s, border-color 0.2s; }
 .an-tool-tip.is-nudged { background: var(--warn-soft); border-color: var(--warn); }
 .an-overlap-note { margin: 4px 0 0; }
+
+/* ---------- Clefwork Voice Leading: non-harmonic tones ---------- */
+.nh-pic { background: #fff; border-radius: 8px; color: #000; padding: 2px 0; }
+.nh-pic svg { display: block; width: 100%; height: auto; }
+.nh-pic-wrap { max-width: 100%; }
+.nh-staff .clef-glyph { font-family: 'Noto Music', 'Bravura Text', 'Apple Symbols', 'Segoe UI Symbol', serif; fill: currentColor; }
+.nh-staff .sacc { font-family: 'Noto Music', serif; font-weight: 400; }
+.nh-staff .nh-rn, .nh-staff .nh-sym, .nh-staff .nh-time { font-family: Georgia, 'Times New Roman', serif; }
+.nh-staff .nh-tag { font-family: var(--f-mono); }
+.nh-staff .nh-tag.is-sel, .nh-staff .nh-ring.is-sel { filter: drop-shadow(0 0 2px rgba(47, 63, 191, 0.6)); }
+.nh-answers .dg-box select { width: auto; min-width: 150px; text-align: left; text-align-last: left; font: 600 14px var(--f-body); padding: 4px 8px; }
+.nh-chart td.nh-abbr { font: 700 13px var(--f-mono); white-space: nowrap; }
+.nh-chart td { font-size: 14px; }
 :root{--logo-mark:url(data:image/png;base64,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)}@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--logo-mark:url(data:image/png;base64,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)}}:root[data-theme="dark"]{--logo-mark:url(data:image/png;base64,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)}
 </style>
 <div class="shell">
@@ -1455,6 +1468,8 @@ input.sg-range { flex: 1; min-width: 0; accent-color: var(--accent); height: 28p
     // Added last, so the numbers report codes already use keep their meaning.
     // Intervals printed for students to name (the Intervals tab's "students name it" setting).
     { id: 'ivname', label: 'Name the Interval', blurb: 'Read an interval printed on the staff, its two notes stacked, and choose its quality and size.', est: 20, custom: true },
+    // Clefwork Voice Leading (see nht.js): non-harmonic tones in four-part writing.
+    { id: 'nht', label: 'Non-Harmonic Tones', blurb: 'A progression in four voices with its non-harmonic tones highlighted and lettered; students name each one — passing tone, suspension, appoggiatura…', est: 90, custom: true },
   ];
   const BUILT_IN = TYPES.filter((t) => !t.custom);
   const MAX_CUSTOM = 20, MAX_CUSTOM_NOTES = 6, MAX_VOICING_NOTES = 8;
@@ -2105,6 +2120,7 @@ input.sg-range { flex: 1; min-width: 0; accent-color: var(--accent); height: 28p
     if (MQ.termQuestions && MQ.TERM_COUNTS.some((k) => cfg.counts[k] > 0)) MQ.termQuestions(cfg).forEach((q) => qs.push(q));
     if (MQ.singQuestions && cfg.counts.sing) MQ.singQuestions(cfg).forEach((q) => qs.push(q));
     if (MQ.blockQuestions && cfg.counts.block) MQ.blockQuestions(cfg).forEach((q) => qs.push(q));
+    if (MQ.nhQuestions && cfg.counts.nht) MQ.nhQuestions(cfg).forEach((q) => qs.push(q));
     if (cfg.flags.shuffle) shuffle(qs, rng);
     return qs;
   }
@@ -2143,6 +2159,7 @@ input.sg-range { flex: 1; min-width: 0; accent-color: var(--accent); height: 28p
     if (q.type === 'degree') return MQ.gradeDegrees(q, response);
     if (q.type === 'rgrid') return MQ.gradeGrid(q, response);
     if (q.type === 'block') return MQ.gradeBlock(q, response, cfg);
+    if (q.type === 'nht') return MQ.gradeNh(q, response);
     if (MQ.isGraph && MQ.isGraph(q)) return MQ.gradeGraph(q, response, cfg);
     if (q.type === 'figured' || q.type === 'figprog') return MQ.gradeFigured(q, response, cfg);
     if (q.type === 'progression') return MQ.gradeProgression(q, response, cfg);
@@ -2175,6 +2192,7 @@ input.sg-range { flex: 1; min-width: 0; accent-color: var(--accent); height: 28p
       : q.type === 'degree' ? MQ.hasDegreeAnswer(q, response)
       : q.type === 'rgrid' ? MQ.hasGridAnswer(q, response)
       : q.type === 'block' ? MQ.hasBlockAnswer(q, response)
+      : q.type === 'nht' ? MQ.hasNhAnswer(q, response)
       : MQ.isGraph && MQ.isGraph(q) ? MQ.hasGraphAnswer(q, response)
       : q.type === 'figured' || q.type === 'figprog' ? MQ.hasFiguredAnswer(q, response)
       : q.colSpecs ? !!response && response.some((col) => col && col.some(Boolean))
@@ -2195,6 +2213,7 @@ input.sg-range { flex: 1; min-width: 0; accent-color: var(--accent); height: 28p
     if (q.type === 'term') return MQ.describeTerm(q);
     if (q.type === 'sing') return MQ.describeSing(q);
     if (q.type === 'block') return MQ.describeBlock(q);
+    if (q.type === 'nht') return MQ.describeNh(q);
     if (q.symbolAnswers) return q.symbolAnswers.map((a) => a.shown).join('  ');
     if (q.symbolAnswer) return q.symbolAnswer.shown;
     if (q.type === 'ivname') return q.ivName.charAt(0).toUpperCase() + q.ivName.slice(1);
@@ -4372,6 +4391,1524 @@ input.sg-range { flex: 1; min-width: 0; accent-color: var(--accent); height: 28p
     blockSettings, parseBlockSymbol, splitBlockChords: splitChords, blockSymbolShown: shownSymbol, blockExerciseProblems: exerciseProblems,
     blockExerciseOk: exerciseOk, usableBlockExercises: usableExercises, blockChordPlan: chordPlan, checkBlockChord: checkChord,
     modelBlock, blockQuestions, compareBlock, gradeBlock, hasBlockAnswer, markBlock, describeBlock, blockDegLabel: degLabel,
+  });
+})(typeof window !== 'undefined' ? window : globalThis);
+/* Clefwork Part Writing — four-part (SATB) voice leading.
+   - Chords from Roman numerals with inversion figures (V65, vii°7, ii6 …) and secondary chords (V7/V).
+   - The rules a teacher can switch on one by one, gathered into a Traditional and a Contemporary preset.
+   - A checker that lists every broken rule, chord by chord and move by move.
+   - A solver that writes a good answer (dynamic programming over every voicing of every chord).
+   - The exercise generator: phrases and short resolutions, labelled with chord symbols, Roman numerals,
+     figured bass, or any mix of them.
+   Voices are numbered from the top: 0 soprano, 1 alto, 2 tenor, 3 bass — or, over a bass (for extended
+   chords), four upper voices 0–3 and the bass 4. A voicing is an array of pitches {step, oct, alt}, one per
+   voice, with null where nothing is written yet. Everything lives on MQ.PW. */
+(function (root) {
+  'use strict';
+  const MQ = root.MQ;
+  const { dia, midi, transpose, pcName, fullName } = MQ;
+  const PW = (MQ.PW = {});
+
+  const pc = (p) => ({ step: p.step, alt: p.alt });
+  const samePc = (a, b) => !!a && !!b && a.step === b.step && a.alt === b.alt;
+  const at4 = (p) => ({ step: p.step, oct: 4, alt: p.alt });
+  const mod = (n, m) => ((n % m) + m) % m;
+  const cap = (s) => s.charAt(0).toUpperCase() + s.slice(1);
+  const NOTE = (p) => pcName(p);
+
+  // ---------- keys ----------
+  // A key: {mode 'major' | 'minor', tonic {step, alt}, fifths}. Any tonic works, even past seven sharps
+  // (a secondary chord's key can go there). Minor keys use the natural minor scale; the raised leading
+  // tone comes from the chord qualities (V, vii°).
+  const MAJOR_SEMIS = [0, 2, 4, 5, 7, 9, 11], MINOR_SEMIS = [0, 2, 3, 5, 7, 8, 10];
+  const FIFTHS_OF = [0, 2, 4, -1, 1, 3, 5];
+  function makeKey(tonic, mode) {
+    return { mode, tonic: pc(tonic), fifths: FIFTHS_OF[tonic.step] + 7 * tonic.alt - (mode === 'minor' ? 3 : 0) };
+  }
+  // The key with this many sharps (+) or flats (−).
+  function keyOfSignature(fifths, mode) {
+    let t = { step: 0, oct: 4, alt: 0 };
+    for (let i = 0; i < Math.abs(fifths); i++) t = transpose(t, 5, 7, fifths > 0 ? 1 : -1);
+    if (mode === 'minor') t = transpose(t, 3, 3, -1);
+    return makeKey(t, mode);
+  }
+  const degree = (kd, deg) => {
+    const d = mod(deg, 7);
+    return pc(transpose(at4(kd.tonic), d + 1, (kd.mode === 'minor' ? MINOR_SEMIS : MAJOR_SEMIS)[d], 1));
+  };
+  const leadingTone = (kd) => pc(transpose(at4(kd.tonic), 2, 1, -1));
+  const keyName = (kd) => NOTE(kd.tonic) + (kd.mode === 'minor' ? ' minor' : ' major');
+  // What the key signature does to each letter: +1 sharp, −1 flat.
+  function sigAlts(fifths) {
+    const a = [0, 0, 0, 0, 0, 0, 0];
+    const SH = [3, 0, 4, 1, 5, 2, 6], FL = [6, 2, 5, 1, 4, 0, 3];
+    for (let i = 0; i < Math.abs(fifths); i++) {
+      const s = (fifths > 0 ? SH : FL)[i % 7];
+      a[s] += fifths > 0 ? 1 : -1;
+    }
+    return a;
+  }
+
+  // ---------- chords ----------
+  // A chord: {label (its Roman numeral as text), symbol, root, tones (pitch classes from the root up),
+  //   degs (1 3 5 7 9 11 13 for each tone; 4 for a sus fourth, 6 for an added sixth), names, req (the tones
+  //   four voices must have), inv (which tone is in the bass), seventh, sev (the seventh's index or −1),
+  //   fam (what the chord is: 'maj', 'dom7', 'min7' …), ext (sixths, ninths and up, alterations and sus
+  //   chords: their missing notes follow the required-notes rule), key (the key it's heard in), home,
+  //   deg, fn ('T' tonic, 'D' dominant), disp (the Roman numeral in pieces, for drawing)}.
+  const NUMS = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII'];
+  // figure → [inversion, seventh chord?]
+  const FIGS = { '': [0, false], 6: [1, false], 64: [2, false], 7: [0, true], 65: [1, true], 43: [2, true], 42: [3, true], 2: [3, true] };
+  const FIG_STACK = { '': [], 6: ['6'], 64: ['6', '4'], 7: ['7'], 65: ['6', '5'], 43: ['4', '3'], 42: ['4', '2'], 2: ['4', '2'] };
+  // The diatonic chords: [triad, seventh chord] on each degree. Minor uses V and vii° from harmonic minor.
+  const DIATONIC = {
+    major: [['maj', 'maj7'], ['min', 'min7'], ['min', 'min7'], ['maj', 'maj7'], ['maj', 'dom7'], ['min', 'min7'], ['dim', 'hdim7']],
+    minor: [['min', 'min7'], ['dim', 'hdim7'], ['maj', 'maj7'], ['min', 'min7'], ['maj', 'dom7'], ['maj', 'maj7'], ['dim', 'dim7']],
+  };
+  const clean = (s) => String(s || '').trim().replace(/♭/g, 'b').replace(/♯/g, '#').replace(/[º˚]/g, '°').replace(/Ø/g, 'ø')
+    .replace(/\s+/g, '').replace(/[()]/g, '').replace(/(\d)\/(\d)/g, '$1$2');
+  const NUM_RE = /^([b#]?)(VII|VI|IV|V|III|II|I|vii|vi|iv|v|iii|ii|i)(°|o|ø|\+|maj|ma|M)?(\d{0,2})((?:[b#](?:5|9|11|13))*)(sus4?)?$/;
+  const DEG_NAME = { 1: 'root', 3: 'third', 4: 'fourth', 5: 'fifth', 6: 'sixth', 7: 'seventh', 9: 'ninth', 11: 'eleventh', 13: 'thirteenth' };
+  const SIGN = (a) => a.replace('b', '♭').replace('#', '♯');
+  const LOW_FAMS = ['min', 'min7', 'min6', 'dim', 'dim7', 'hdim7'];
+
+  // The members of a triad or seventh chord from the root up, as pitch classes.
+  function membersOf(rootPc, q) {
+    const qd = MQ.QUALITIES.find((x) => x.id === q);
+    return [pc(rootPc)].concat(qd.tones.map(([n, s]) => pc(transpose(at4(rootPc), n, s, 1))));
+  }
+  // A triad or seventh chord: root, third and seventh are needed; the fifth may go in root position.
+  function plainChord(rootPc, q, inv) {
+    const tones = membersOf(rootPc, q);
+    const degs = [1, 3, 5, 7].slice(0, tones.length);
+    return { root: pc(rootPc), q, fam: q, tones, degs, names: degs.map((d) => DEG_NAME[d]), req: degs.map((d) => d !== 5),
+      inv, ext: false, symbol: MQ.symbolOf({ root: rootPc, q, bass: inv ? tones[inv] : null }) };
+  }
+  // A chord from Clefwork's voicing model (MQ.makeChord, MQ.parseVoiceSymbol). Plain triads and sevenths
+  // become plain chords. Anything bigger keeps, in four voices: the third (or sus fourth), the seventh (or
+  // added sixth), every altered note, the highest plain extension, and the root when it's in the bass or
+  // there's room for it. The fifth and lower extensions are optional. Returns null when the bass isn't in the chord.
+  function fromVoicing(vc) {
+    const has7 = vc.has.includes(7), s7 = vc.semis[7];
+    const extra = vc.alts.filter((a) => !(vc.quality === 'aug' && a === '#5') && !(vc.quality === 'dim' && a === 'b5'));
+    // A slash chord's bass outside the chord (F/G, D/C) is a note of its own, for the bass only.
+    const slashOut = !!vc.bass && !MQ.chordTones(vc).some((t) => samePc(t.p, vc.bass));
+    const big = slashOut || vc.quality === 'sus' || vc.has.some((d) => d === 6 || d > 7);
+    let q = null;
+    if (!big) {
+      if (vc.quality === 'dim') q = has7 ? (s7 === 9 ? 'dim7' : 'hdim7') : 'dim';
+      else if (vc.quality === 'aug') q = has7 || extra.length ? null : 'aug';
+      else if (vc.quality === 'min') q = extra.join() === 'b5' ? (has7 && s7 === 10 ? 'hdim7' : 'dim') : extra.length ? null : has7 ? (s7 === 10 ? 'min7' : null) : 'min';
+      else q = extra.length ? null : !has7 ? 'maj' : s7 === 11 ? 'maj7' : 'dom7';
+    }
+    if (q) {
+      const ch = plainChord(vc.root, q, 0);
+      if (vc.bass) { ch.inv = ch.tones.findIndex((t) => samePc(t, vc.bass)); if (ch.inv < 0) return null; ch.symbol = MQ.symbolOf({ root: vc.root, q, bass: ch.inv ? vc.bass : null }); }
+      return ch;
+    }
+    const list = MQ.chordTones(vc);
+    const tones = list.map((t) => pc(t.p));
+    const degs = list.map((t) => (t.deg === 3 && vc.quality === 'sus' ? 4 : t.deg));
+    const altOf = list.map((t) => extra.find((a) => +a.slice(1) === t.deg) || '');
+    const fam = vc.quality === 'sus' ? (has7 ? 'dom7sus' : 'sus')
+      : vc.has.includes(6) && !has7 ? (vc.quality === 'min' ? 'min6' : 'maj6')
+        : vc.quality === 'dim' ? (has7 ? (s7 === 9 ? 'dim7' : 'hdim7') : 'dim')
+          : vc.quality === 'min' ? (vc.alts.includes('b5') ? (has7 ? 'hdim7' : 'dim') : has7 ? 'min7' : 'min')
+            : has7 ? (s7 === 11 ? 'maj7' : 'dom7') : vc.quality === 'aug' ? 'aug' : 'maj';
+    if (slashOut) { tones.push(pc(vc.bass)); degs.push(0); altOf.push(''); }
+    const inv = vc.bass ? tones.findIndex((t) => samePc(t, vc.bass)) : 0;
+    const plainTop = [13, 11, 9].find((d) => degs.some((x, i) => x === d && !altOf[i]));
+    const majorThird = !LOW_FAMS.includes(fam);
+    const req = degs.map((d, i) => d > 0 && (d === 7 || d === 6 || d === 4 || !!altOf[i] || d === plainTop
+      || (d === 5 && (vc.quality === 'aug' || vc.quality === 'dim'))
+      // A plain eleventh above a major third takes the third's place.
+      || (d === 3 && !(plainTop === 11 && majorThird))));
+    req[0] = true;
+    const needs = () => req.filter(Boolean).length + (req[inv] ? 0 : 1);
+    if (inv && needs() > 4) req[0] = false;    // no room: the root drops out (a rootless voicing)
+    const ch = { root: pc(vc.root), q: null, fam, tones, degs, req, inv, ext: true, alts: extra.map(SIGN),
+      // Two alterations of one degree (♭9 and ♯9) don't fit Clefwork's chord model or four voices.
+      tooMany: new Set(extra.map((a) => a.slice(1))).size < extra.length,
+      names: degs.map((d, i) => (altOf[i] ? SIGN(altOf[i]) : d ? DEG_NAME[d] : 'bass note')), symbol: MQ.chordSymbolOf(vc) };
+    ch.needs = needs();
+    return ch;
+  }
+  // What the numeral says about an extended chord: 9, 13, M9, 7♭9, 7sus4, add6 …
+  function extText(ch) {
+    const nat = (d) => ch.degs.some((x, i) => x === d && !ch.names[i].match(/[♭♯]/));
+    let t = nat(13) ? '13' : nat(11) ? '11' : nat(9) ? '9' : ch.degs.includes(7) ? '7' : ch.degs.includes(6) ? 'add6' : '';
+    if (ch.fam === 'maj7') t = 'M' + t;
+    if (ch.fam === 'sus' || ch.fam === 'dom7sus') t += 'sus4';
+    return t + (ch.alts || []).join('');
+  }
+  // The Roman numeral of any chord in a key, in pieces for drawing: {pre, num, mark, figs, sec, slash}.
+  function romanDisp(ch, kd) {
+    const deg = mod(ch.root.step - kd.tonic.step, 7);
+    let shift = ch.root.alt - degree(kd, deg).alt;
+    if (kd.mode === 'minor' && deg === 6 && shift === 1 && ['dim', 'dim7', 'hdim7'].includes(ch.fam)) shift = 0;
+    const num = LOW_FAMS.includes(ch.fam) ? NUMS[deg].toLowerCase() : NUMS[deg];
+    let mark = { dim: '°', dim7: '°', hdim7: 'ø', aug: '+' }[ch.fam] || '';
+    let figs;
+    if (ch.ext) figs = extText(ch) ? [extText(ch)] : [];
+    else {
+      figs = FIG_STACK[ch.degs.includes(7) ? ['7', '65', '43', '42'][ch.inv] : ['', '6', '64'][ch.inv]].slice();
+      if (ch.fam === 'maj7' && !(shift === 0 && DIATONIC[kd.mode][deg][1] === 'maj7')) mark = 'M';
+    }
+    return { pre: shift < 0 ? '♭'.repeat(-shift) : '♯'.repeat(shift), num, mark, figs, sec: '',
+      slash: ch.ext && ch.inv ? '/' + NOTE(ch.tones[ch.inv]) : '' };
+  }
+  const labelText = (d) => d.pre + d.num + d.mark + d.figs.join('') + d.sec + (d.slash || '');
+  // Key, function and the rest, once the notes are known.
+  function finish(ch, kd, home, disp) {
+    ch.key = kd;
+    ch.home = home;
+    ch.deg = mod(ch.root.step - kd.tonic.step, 7);
+    ch.sev = ch.degs.indexOf(7);
+    ch.seventh = ch.sev >= 0;
+    const lt = leadingTone(kd);
+    ch.fn = samePc(ch.root, kd.tonic) ? 'T'
+      : (ch.deg === 4 && (ch.fam === 'maj' || ch.fam === 'dom7') && samePc(ch.root, degree(kd, 4))) || (ch.deg === 6 && ['dim', 'dim7', 'hdim7'].includes(ch.fam) && samePc(ch.root, lt)) ? 'D'
+        : '';
+    ch.disp = disp || romanDisp(ch, kd);
+    ch.label = labelText(ch.disp);
+    return planesOf(ch);
+  }
+  // One numeral in a key → a chord (key not yet attached) with its drawn form, or null.
+  function readNumeral(str, kd, bass) {
+    const m = str.match(NUM_RE);
+    if (!m) return null;
+    const [, pre, num, rawMark, figRaw, altRaw, sus] = m;
+    const mark = rawMark === 'o' ? '°' : rawMark === 'maj' || rawMark === 'ma' ? 'M' : rawMark || '';
+    const upper = num === num.toUpperCase();
+    const deg = NUMS.indexOf(num.toUpperCase());
+    if ((mark === '°' || mark === 'ø') && upper) return null;
+    const base = degree(kd, deg);
+    let alt = base.alt + (pre === '#' ? 1 : pre === 'b' ? -1 : 0);
+    const dimFam = mark === '°' || mark === 'ø';
+    // In minor, vii° and viiø7 are built on the raised leading tone.
+    if (!pre && kd.mode === 'minor' && deg === 6 && dimFam) alt += 1;
+    const rootPc = { step: base.step, alt };
+    const alts = altRaw ? altRaw.match(/[b#](?:5|9|11|13)/g) : [];
+    // Ninths and up, alterations and sus chords go through the voicing model.
+    if (alts.length || sus || ['9', '11', '13'].includes(figRaw)) {
+      if (figRaw && !['7', '9', '11', '13'].includes(figRaw)) return null;
+      const size = { '': 'triad', 7: 'seventh', 9: 'ninth', 11: 'eleventh', 13: 'thirteenth' }[figRaw];
+      const quality = sus ? 'sus' : mark === '°' ? 'dim' : mark === 'ø' ? 'min' : mark === '+' ? 'aug' : upper ? 'maj' : 'min';
+      const majorSeventh = mark === 'M' || (upper && !mark && DIATONIC[kd.mode][deg][0] === 'maj' && DIATONIC[kd.mode][deg][1] === 'maj7');
+      const vc = MQ.makeChord(rootPc, quality, size, { majorSeventh, alts: mark === 'ø' ? alts.concat('b5') : alts, bass });
+      const ch = fromVoicing(vc);
+      return ch ? { ch } : null;
+    }
+    let fig = figRaw;
+    if (!(fig in FIGS)) return null;
+    if (mark === 'ø' && !FIGS[fig][1]) { if (fig) return null; fig = '7'; }
+    let [inv, seventh] = FIGS[fig];
+    let q;
+    if (mark === '°') q = seventh ? 'dim7' : 'dim';
+    else if (mark === 'ø') q = 'hdim7';
+    else if (mark === '+') { if (seventh) return null; q = 'aug'; }
+    else if (mark === 'M') { if (!upper) return null; q = seventh ? 'maj7' : 'maj'; }
+    else if (upper) q = seventh ? (DIATONIC[kd.mode][deg][1] === 'maj7' && DIATONIC[kd.mode][deg][0] === 'maj' ? 'maj7' : 'dom7') : 'maj';
+    else q = seventh ? 'min7' : 'min';
+    const ch = plainChord(rootPc, q, inv);
+    // A slash bass names the inversion instead: IV/A is IV6.
+    if (bass) {
+      if (fig) return null;
+      ch.inv = ch.tones.findIndex((t) => samePc(t, bass));
+      if (ch.inv < 0) return null;
+      ch.symbol = MQ.symbolOf({ root: rootPc, q, bass: ch.inv ? bass : null });
+      return { ch };
+    }
+    const shownMark = mark === 'M' ? (seventh ? 'M' : '') : mark;
+    return { ch, disp: { pre: pre === 'b' ? '♭' : pre === '#' ? '♯' : '', num, mark: shownMark, figs: FIG_STACK[fig], sec: '', slash: '' } };
+  }
+  // A chord symbol ("G7/B", "Dmi9", "G7(♭9)") or a Roman numeral with figures, maybe secondary ("V65/V")
+  // or over a named bass ("V9/B") → a chord, or null.
+  function parseChord(label, home) {
+    const raw = String(label || '').trim();
+    if (!raw) return null;
+    if (/^[A-G]/.test(raw)) {
+      const vc = MQ.parseVoiceSymbol(raw);
+      const ch = vc && fromVoicing(vc);
+      if (!ch) return null;
+      ch.fromSymbol = true;
+      return finish(ch, home, home);
+    }
+    const parts = clean(raw).split('/');
+    let bass = null;
+    const last = parts[parts.length - 1];
+    if (parts.length > 1 && /^[A-G][#b]?$/.test(last)) {
+      bass = { step: 'CDEFGAB'.indexOf(last[0]), alt: last[1] === '#' ? 1 : last[1] === 'b' ? -1 : 0 };
+      parts.pop();
+    }
+    if (parts.length > 2) return null;
+    let kd = home, sec = '';
+    if (parts.length === 2) {
+      const tgt = readNumeral(parts[1], home);
+      if (!tgt || tgt.ch.ext || tgt.ch.seventh || tgt.ch.inv || !['maj', 'min'].includes(tgt.ch.fam)) return null;
+      kd = makeKey(tgt.ch.root, tgt.ch.fam === 'min' ? 'minor' : 'major');
+      sec = '/' + tgt.disp.pre + tgt.disp.num;
+    }
+    const n = readNumeral(parts[0], kd, bass);
+    if (!n || n.ch.tones.some((t) => Math.abs(t.alt) > 2)) return null;
+    const disp = Object.assign(n.disp || romanDisp(n.ch, kd), { sec });
+    return finish(n.ch, kd, home, disp);
+  }
+  // Chord symbols don't say what a chromatic chord does, so one that moves like a secondary dominant
+  // (D7 to G in C) or leading-tone chord (F♯°7 to G) is heard and labelled that way: V7/V, vii°7/V.
+  function tonicize(chords, home) {
+    const sig = sigAlts(home.fifths);
+    chords.forEach((ch, i) => {
+      const next = chords[i + 1];
+      if (!ch || !ch.fromSymbol || ch.fn === 'D' || !next || !['maj', 'min', 'maj7', 'min7', 'maj6', 'min6', 'dom7'].includes(next.fam)) return;
+      if (!ch.tones.some((t) => t.alt !== sig[t.step])) return;
+      const K = makeKey(next.root, ['min', 'min7', 'min6'].includes(next.fam) ? 'minor' : 'major');
+      const dom = ['maj', 'dom7'].includes(ch.fam) && samePc(ch.root, degree(K, 4));
+      const lt = ['dim', 'dim7', 'hdim7'].includes(ch.fam) && samePc(ch.root, leadingTone(K));
+      if (!dom && !lt) return;
+      const tgt = romanDisp(plainChord(next.root, ['min', 'min7', 'min6'].includes(next.fam) ? 'min' : 'maj', 0), home);
+      finish(ch, K, home, Object.assign(romanDisp(ch, K), { sec: '/' + tgt.pre + tgt.num }));
+    });
+    return chords;
+  }
+  const sameHarmony = (a, b) => samePc(a.root, b.root) && a.fam === b.fam;
+  const isTonicOf = (ch, kd) => samePc(ch.root, kd.tonic) && ['maj', 'min', 'maj7', 'min7', 'maj6', 'min6'].includes(ch.fam);
+  const isSubmediantOf = (ch, kd) => samePc(ch.root, degree(kd, 5)) && ['maj', 'min', 'maj7', 'min7'].includes(ch.fam);
+  const memberOf = (ch, p) => (p ? ch.tones.findIndex((t) => samePc(t, p)) : null);
+  // Notes never doubled: sevenths, and in extended chords the sixth, sus fourth, extensions and altered notes.
+  const noDouble = (ch, i) => ch.degs[i] === 7 || (ch.ext && (ch.degs[i] >= 9 || ch.degs[i] === 6 || ch.degs[i] === 4 || /[♭♯]/.test(ch.names[i])));
+  const pcNum = (p) => mod(midi(at4(p)), 12);
+  const toneList = (ch) => ch.tones.filter((t, i) => ch.degs[i] > 0).map(NOTE).join(' ');
+
+  // ---------- figured bass ----------
+  // The figures under a bass note: the usual abbreviation for the inversion, with an accidental on any
+  // interval above the bass whose note isn't in the key signature. An accidental on its own means the third.
+  // Extended chords list the notes the voices above the bass need (ninths and up as 9, 11, 13 in root
+  // position); an unaltered third goes without saying, and so does the bass doubled at the octave.
+  const accFor = (t, sig) => {
+    const d = t.alt - sig[t.step];
+    return !d ? '' : d > 0 ? (t.alt === 0 ? '♮' : t.alt === 2 ? '𝄪' : '♯') : (t.alt === 0 ? '♮' : t.alt === -2 ? '𝄫' : '♭');
+  };
+  function figuresFor(ch) {
+    const sig = sigAlts(ch.home.fifths);
+    const bass = ch.tones[ch.inv];
+    if (ch.ext) {
+      const figs = [];
+      ch.tones.forEach((t, i) => {
+        if (i === ch.inv || !ch.req5[i]) return;
+        let iv = mod(t.step - bass.step, 7) + 1;
+        if (iv === 1) return;
+        if (ch.inv === 0 && ch.degs[i] >= 9) iv = ch.degs[i];
+        figs.push({ iv, acc: accFor(t, sig) });
+      });
+      return figs.filter((f) => !(f.iv === 3 && !f.acc && figs.length > 1)).sort((x, y) => y.iv - x.iv)
+        .map((f) => (f.iv === 3 && f.acc ? f.acc : f.acc + f.iv));
+    }
+    const shown = FIG_STACK[ch.seventh ? ['7', '65', '43', '42'][ch.inv] : ['', '6', '64'][ch.inv]].slice();
+    const accs = {};
+    ch.tones.forEach((t, i) => {
+      if (i === ch.inv) return;
+      const iv = mod(t.step - bass.step, 7) + 1;
+      if (accFor(t, sig)) accs[iv] = accFor(t, sig);
+    });
+    const out = shown.map((f) => (accs[f] ? accs[f] + f : f));
+    Object.keys(accs).map(Number).filter((iv) => !shown.includes(String(iv))).forEach((iv) => {
+      out.push(iv === 3 ? accs[iv] : accs[iv] + iv);
+    });
+    // Largest interval on top; a lone accidental (the third) goes at the bottom.
+    const val = (f) => (/\d/.test(f) ? +f.replace(/\D/g, '') : 3);
+    return out.sort((a, b) => val(b) - val(a));
+  }
+
+  // ---------- the rules ----------
+  const RULES = [
+    { id: 'notes', group: 'chord', label: 'Right notes', blurb: 'Every note belongs to the chord and is spelled the chord’s way.' },
+    { id: 'bass', group: 'chord', label: 'Right bass note', blurb: 'The bass is the chord member the inversion asks for.' },
+    { id: 'complete', group: 'chord', label: 'Complete chords', blurb: 'Root, third and seventh are all there. Only a root-position chord may leave out its fifth, by doubling (or tripling) the root. Extended chords keep the third, seventh, altered notes and top extension.' },
+    { id: 'doubleLT', group: 'chord', label: 'Leading tone not doubled', blurb: 'Never double the leading tone of a dominant chord.' },
+    { id: 'doubleSeventh', group: 'chord', label: 'Sevenths and tensions not doubled', blurb: 'Never double a chord’s seventh, or the ninth, eleventh, thirteenth or altered notes of an extended chord.' },
+    { id: 'doubling', group: 'chord', label: 'Preferred doublings', blurb: 'Double the root of a root-position triad (the third of vi after V is fine), and the bass of a six-four chord.' },
+    { id: 'melodyClash', group: 'chord', label: 'No minor ninth under the melody', blurb: 'The top voice isn’t a half step (a minor ninth) above another note of the chord — a ♭9 above the root is the one exception. So no root on top of a major seventh chord, no seventh on top of a thirteenth chord.' },
+    { id: 'range', group: 'space', label: 'Voice ranges', blurb: 'Soprano C4–G5, alto G3–C5, tenor C3–G4, bass E2–C4.' },
+    { id: 'spacing', group: 'space', label: 'Spacing', blurb: 'No more than an octave between soprano and alto, or between alto and tenor.' },
+    { id: 'crossing', group: 'space', label: 'No voice crossing', blurb: 'Each voice stays at or below the voice above it.' },
+    { id: 'overlap', group: 'space', label: 'No overlapping', blurb: 'A voice doesn’t move past the note its neighbour just sang.' },
+    { id: 'parallel', group: 'motion', label: 'No parallel fifths or octaves', blurb: 'Two voices a perfect fifth, octave or unison apart don’t move the same way to the same interval.' },
+    { id: 'contrary', group: 'motion', label: 'No fifths or octaves by contrary motion', blurb: 'The same intervals reached by contrary motion count too.' },
+    { id: 'direct', group: 'motion', label: 'No direct fifths or octaves', blurb: 'The outer voices don’t move the same way into a perfect fifth or octave with a leap in the soprano.' },
+    { id: 'unequal', group: 'motion', label: 'No unequal fifths with the bass', blurb: 'A diminished fifth doesn’t move to a perfect fifth against the bass.' },
+    { id: 'crossRelation', group: 'motion', label: 'No cross relations', blurb: 'When the next chord alters a note (B♭ to B♮), the same voice makes that half step, not another voice.' },
+    { id: 'melodic', group: 'motion', label: 'Singable lines', blurb: 'No augmented leaps and nothing wider than an octave. A leap of a seventh is a warning.' },
+    { id: 'smooth', group: 'motion', label: 'Smooth inner voices', blurb: 'Alto and tenor move by common tone, by step, or by a leap of a fourth at most.' },
+    { id: 'closest', group: 'motion', label: 'Shortest path', blurb: 'Keep common tones and move the upper voices to the nearest notes of the next chord. The bass may jump as much as it likes.' },
+    { id: 'leadingTone', group: 'resolve', label: 'Leading tone resolves', blurb: 'From a dominant chord to its tonic, the leading tone rises to the tonic. In an inner voice it may fall to the fifth after V or V7, and it may stay put as the seventh of IM7.' },
+    { id: 'seventh', group: 'resolve', label: 'Sevenths resolve down', blurb: 'A chord’s seventh steps down into the next chord, or stays put when the next chord has it too (in V4/3–I6 it may step up).' },
+    { id: 'guideLow', group: 'voicing', label: 'Thirds and sevenths low', blurb: 'In chords with a seventh (or sixth), the third and seventh sit below the octave, fifth, ninth, eleventh and thirteenth.' },
+    { id: 'noNinths', group: 'voicing', label: 'No ninths between voices', blurb: 'No two upper voices are a ninth apart — except the root and the ninth.' },
+    { id: 'layerSevenths', group: 'voicing', label: 'Sevenths between the layers', blurb: 'Ideally a low note has a high note a seventh above it: the third up to the ninth, the seventh up to the thirteenth.' },
+    { id: 'cad64', group: 'resolve', label: 'Cadential six-four resolves', blurb: 'In I6/4–V the notes a sixth and a fourth above the bass step down.' },
+  ];
+  const GROUPS = [
+    { id: 'chord', label: 'The chords' }, { id: 'space', label: 'Ranges and spacing' },
+    { id: 'motion', label: 'Motion' }, { id: 'resolve', label: 'Resolutions' },
+    { id: 'voicing', label: 'Voicings over a bass (extended chords)' },
+  ];
+  const PRESETS = [
+    { id: 'traditional', label: 'Traditional',
+      blurb: 'Common-practice SATB rules: parallels, doublings, and resolving tendency tones.',
+      rules: RULES.map((r) => r.id).filter((id) => id !== 'closest') },
+    { id: 'contemporary', label: 'Contemporary',
+      blurb: 'Harmony in Contemporary Music: complete chords, and upper voices that move as little as possible. The bass is free.',
+      rules: ['notes', 'bass', 'complete', 'doubleSeventh', 'melodyClash', 'range', 'spacing', 'crossing', 'smooth', 'closest', 'guideLow', 'noNinths', 'layerSevenths'] },
+  ];
+
+  // ---------- textures ----------
+  // Two ways to write the parts. SATB: soprano, alto, tenor and bass. Over a bass (used whenever an exercise
+  // has extended or altered chords): the bass alone at the bottom — the root, or the inversion's or slash
+  // chord's bass in its place — and four voices above it, one for each plane of the chord.
+  const TEXTURES = {
+    satb: { id: 'satb', n: 4, names: ['soprano', 'alto', 'tenor', 'bass'],
+      ranges: [[60, 79], [55, 72], [48, 67], [40, 60]], text: ['C4–G5', 'G3–C5', 'C3–G4', 'E2–C4'] },
+    voicing: { id: 'voicing', n: 5, names: ['top voice', 'second voice', 'third voice', 'fourth voice', 'bass'],
+      ranges: [[62, 81], [57, 77], [55, 74], [55, 70], [36, 55]], text: ['D4–A5', 'A3–F5', 'G3–D5', 'G3–B♭4', 'C2–G3'] },
+  };
+  const texOf = (n) => (n === 5 ? TEXTURES.voicing : TEXTURES.satb);
+  // The four upper voices over a bass take one note from each plane: the 3 plane (third, or sus fourth),
+  // the 7 plane (seventh or sixth; the octave in a triad), the 5 plane (a thirteenth or eleventh before
+  // the fifth) and the 9 plane (a ninth, else the octave). A plain eleventh over a major third is the sus
+  // fourth and the third goes. When the bass is a chord note other than the root, the root takes its plane.
+  // Sets ch.req5 (the notes the upper voices need), ch.needs5 (how many upper voices that takes; 5 when
+  // a plane would need two altered notes or tensions), ch.role5 (per tone: 'low' for the 3 and 7 planes,
+  // 'high' for the 5 and 9 planes and octaves, 'both' for a root filling one of each) and ch.layer7 (some low
+  // note has a high note a seventh above it, so a voicing can have a seventh between its layers).
+  function planesOf(ch) {
+    const all = ch.degs.map((d, i) => i).filter((i) => ch.degs[i] > 0);
+    const altered = (i) => /[♭♯]/.test(ch.names[i]);
+    let p3 = all.filter((i) => ch.degs[i] === 3 || ch.degs[i] === 4);
+    const p7 = all.filter((i) => ch.degs[i] === 7 || ch.degs[i] === 6);
+    let p5 = all.filter((i) => [5, 11, 13].includes(ch.degs[i]));
+    const p9 = all.filter((i) => ch.degs[i] === 9);
+    const nat11 = p5.find((i) => ch.degs[i] === 11 && !altered(i));
+    if (nat11 != null && !LOW_FAMS.includes(ch.fam) && p3.length && ch.degs[p3[0]] === 3) { p3 = [nat11]; p5 = p5.filter((i) => i !== nat11); }
+    const rank = (i) => (ch.degs[i] >= 11 ? (altered(i) ? 0 : ch.degs[i] === 13 ? 1 : 2) : altered(i) || ch.req[i] ? 3 : 4);
+    p5.sort((a, b) => rank(a) - rank(b));
+    p9.sort((a, b) => (altered(a) ? 0 : 1) - (altered(b) ? 0 : 1));
+    // Two notes that both have to sound in one plane won't fit.
+    const crowded = (p, must) => p.slice(1).some(must);
+    const over = crowded(p5, (i) => altered(i) || ch.degs[i] >= 11) || crowded(p9, altered);
+    const bassTone = ch.inv >= 0 && ch.degs[ch.inv] > 0 ? ch.inv : -1;
+    const sub = (i) => (i != null && i === bassTone && bassTone !== 0 ? 0 : i);
+    const low = [sub(p3[0]), sub(p7.length ? p7[0] : 0)], high = [sub(p5[0]), sub(p9.length ? p9[0] : 0)];
+    const need = new Set(low.concat(high).filter((i) => i != null));
+    ch.req5 = ch.tones.map((t, i) => need.has(i));
+    ch.needs5 = over || ch.tooMany ? 5 : need.size;
+    const role = ch.tones.map(() => null);
+    const put = (i, r) => { if (i != null) role[i] = role[i] && role[i] !== r ? 'both' : r; };
+    low.forEach((i) => put(i, 'low'));
+    high.forEach((i) => put(i, 'high'));
+    ch.degs.forEach((d, i) => { if (!role[i] && d > 0) role[i] = [3, 4, 6, 7].includes(d) ? 'low' : 'high'; });
+    ch.role5 = role;
+    ch.layer7 = role.some((r, l) => r && r !== 'high' && role.some((q, h) => q && q !== 'low' && h !== l && mod(ch.tones[h].step - ch.tones[l].step, 7) === 6));
+    return ch;
+  }
+
+  // Interval helpers. perfect(hi, lo) → 5, 8 (octave or unison) or 0.
+  const gen = (hi, lo) => dia(hi) - dia(lo);
+  const semis = (hi, lo) => midi(hi) - midi(lo);
+  function perfect(hi, lo) {
+    const g = mod(gen(hi, lo), 7), s = mod(semis(hi, lo), 12);
+    return g === 4 && s === 7 ? 5 : g === 0 && s === 0 ? 8 : 0;
+  }
+  const dimFifth = (hi, lo) => mod(gen(hi, lo), 7) === 4 && mod(semis(hi, lo), 12) === 6;
+  // The largest major or perfect interval of each size (0 unison, 1 second … 7 octave).
+  const NATURAL = [0, 2, 4, 5, 7, 9, 11, 12];
+  const IV_NAMES = ['unison', 'second', 'third', 'fourth', 'fifth', 'sixth', 'seventh', 'octave'];
+  const bassOnly = (ch, i) => ch.degs[i] === 0;
+  // Which notes a column's voicing needs, and which voices count for it: over a bass, only the upper voices.
+  const reqOf = (ch, n) => (n === 5 ? ch.req5 : ch.req);
+  const counted = (V) => (V.length === 5 ? V.slice(0, 4) : V);
+
+  // Over a bass, three habits of good voicings, checked once all four upper voices are written:
+  // thirds and sevenths low (in chords with a seventh or sixth), no ninths between voices but the root and
+  // the ninth (in every chord), and ideally a seventh between a low note and a high note (where the chord
+  // has one to offer).
+  function voicingIssues(ch, V, on, push) {
+    const U = V.slice(0, 4), names = TEXTURES.voicing.names;
+    if (!U.every(Boolean)) return;
+    const m = U.map((p) => memberOf(ch, p));
+    if (m.some((x) => x < 0)) return;
+    const role = (v) => ch.role5[m[v]];
+    const what = (v) => `${names[v]}’s ${NOTE(U[v])} (the ${ch.names[m[v]]})`;
+    if (on.has('guideLow') && ch.degs.some((d) => d === 7 || d === 6)) {
+      let hit = null;
+      for (let i = 0; i < 4 && !hit; i++) for (let j = i + 1; j < 4 && !hit; j++) if (role(i) === 'low' && role(j) === 'high') hit = [i, j];
+      if (hit) push('guideLow', 'warn', [hit[1], hit[0]], () => `The ${what(hit[1])} is below the ${what(hit[0])}. Keep the third and seventh low, with the octave, fifth, ninth, eleventh and thirteenth above them.`);
+    }
+    if (on.has('noNinths')) {
+      for (let i = 0; i < 4; i++) {
+        for (let j = i + 1; j < 4; j++) {
+          if (gen(U[i], U[j]) !== 8 || (ch.degs[m[j]] === 1 && ch.degs[m[i]] === 9)) continue;
+          push('noNinths', 'error', [i, j], () => `A ninth between the ${what(j)} and the ${what(i)}. Only the root and the ninth may be a ninth apart.`);
+        }
+      }
+    }
+    if (on.has('layerSevenths') && ch.layer7 && ![2, 3].some((l) => [0, 1].some((h) => gen(U[h], U[l]) === 6))) {
+      push('layerSevenths', 'warn', [0, 1, 2, 3], () => `No seventh between the low notes (${NOTE(U[3])}, ${NOTE(U[2])}) and the high notes (${NOTE(U[1])}, ${NOTE(U[0])}). Ideally a low note has a high note a seventh above it — the third up to the ninth, or the seventh up to the thirteenth.`);
+    }
+  }
+  // The top voice can't sit a half step (a minor ninth, in any octave) above another note of the chord —
+  // except a ♭9 above the root. One issue per chord.
+  function melodyIssues(ch, V, push) {
+    const top = V[0], names = texOf(V.length).names;
+    if (!top) return;
+    const mt = memberOf(ch, top);
+    for (let v = 1; v < V.length; v++) {
+      const p = V[v];
+      if (!p || midi(top) <= midi(p) || mod(midi(top) - midi(p), 12) !== 1) continue;
+      const mp = memberOf(ch, p);
+      if (mt >= 0 && mp >= 0 && ch.degs[mt] === 9 && ch.degs[mp] === 1) continue;
+      push('melodyClash', 'error', [0, v], () => `The ${names[0]}’s ${NOTE(top)}${mt >= 0 ? ` (the ${ch.names[mt]})` : ''} is a minor ninth above the ${names[v]}’s ${NOTE(p)}${mp >= 0 ? ` (the ${ch.names[mp]})` : ''}. Only a ♭9 above the root may sit a half step above a note of the chord — choose another note for the ${names[0]}.`);
+      return;
+    }
+  }
+  // What a voicing's chord-by-chord habits cost: {err, warn} counts for the voicing rules over a bass and
+  // the melody rule.
+  function voicingScore(ch, V, on) {
+    const sc = { err: 0, warn: 0 };
+    const count = (rule, sev) => (sev === 'error' ? sc.err++ : sc.warn++);
+    if (V.length === 5) voicingIssues(ch, V, on, count);
+    if (on.has('melodyClash')) melodyIssues(ch, V, count);
+    return sc;
+  }
+
+  // ---------- checking ----------
+  // An issue: {rule, sev 'error' | 'warn', col, to (the next column, for moves), voices [indices], text}.
+  // V is one column's voicing (4 voices, or 5 over a bass); on is a Set of rule ids. Texts are functions so
+  // the solver, which only counts issues, never builds them.
+  function chordIssues(ch, V, col, on, prev, own, out) {
+    const T = texOf(V.length), names = T.names, n = V.length, b = n - 1;
+    const push = (rule, sev, voices, text) => out.push({ rule, sev, col, voices, text: text() });
+    const pair = (i, j) => `the ${names[i]} and the ${names[j]}`;
+    const mem = V.map((p) => memberOf(ch, p));
+    if (on.has('notes')) {
+      V.forEach((p, v) => {
+        if (!p || !own[v] || (mem[v] >= 0 && !(v < b && bassOnly(ch, mem[v])))) return;
+        const enh = ch.tones.find((t, i) => !bassOnly(ch, i) && pcNum(t) === pcNum(p));
+        push('notes', 'error', [v], () => (enh
+          ? `The ${names[v]}’s ${NOTE(p)} should be spelled ${NOTE(enh)}.`
+          : `The ${names[v]}’s ${NOTE(p)} isn’t in the chord (${toneList(ch)}).`));
+      });
+    }
+    if (on.has('bass') && V[b] && own[b] && mem[b] >= 0 && mem[b] !== ch.inv) {
+      push('bass', 'error', [b], () => `The bass should be the ${ch.names[ch.inv]} (${NOTE(ch.tones[ch.inv])}) — the bass has the ${ch.names[mem[b]]}.`);
+    }
+    const full = V.every(Boolean) && mem.every((m) => m >= 0);
+    if (full) {
+      const cm = counted(mem);
+      const count = ch.tones.map(() => 0);
+      cm.forEach((m) => count[m]++);
+      const req = reqOf(ch, n);
+      if (on.has('complete')) {
+        const missing = ch.tones.map((t, i) => i).filter((i) => req[i] && !count[i]);
+        if (missing.length) push('complete', 'error', [], () => `The chord has no ${missing.map((i) => ch.names[i]).join(' or ')} (${missing.map((i) => NOTE(ch.tones[i])).join(', ')})${n === 5 ? ' above the bass' : ''}.`);
+        else if (n === 4 && !ch.ext && !count[2]) {
+          const okOmit = ch.inv === 0 && count[0] >= (ch.seventh ? 2 : 3);
+          if (!okOmit) push('complete', 'warn', [], () => (ch.inv === 0
+            ? `No fifth (${NOTE(ch.tones[2])}). If you leave it out, ${ch.seventh ? 'double' : 'triple'} the root instead.`
+            : `No fifth (${NOTE(ch.tones[2])}) — an inverted chord should be complete.`));
+        }
+      }
+      const lt = ch.fn === 'D' ? leadingTone(ch.key) : null;
+      if (on.has('doubleLT') && lt) {
+        const vs = V.map((p, v) => (samePc(p, lt) ? v : -1)).filter((v) => v >= 0);
+        if (vs.length > 1) push('doubleLT', 'error', vs, () => `The leading tone (${NOTE(lt)}) is doubled — it has to rise to the tonic, so double another note.`);
+      }
+      if (on.has('doubleSeventh')) {
+        const all = ch.tones.map(() => 0);
+        mem.forEach((m) => all[m]++);
+        all.forEach((c, i) => {
+          if (c > 1 && noDouble(ch, i)) push('doubleSeventh', 'error', mem.map((m, v) => (m === i ? v : -1)).filter((v) => v >= 0), () => `The ${ch.names[i]} (${NOTE(ch.tones[i])}) is doubled.`);
+        });
+      }
+      if (on.has('doubling') && n === 4 && !ch.seventh && !ch.ext) {
+        const dbl = count.findIndex((c) => c >= 2);
+        const vs = (m) => mem.map((x, v) => (x === m ? v : -1)).filter((v) => v >= 0);
+        const deceptive = prev && prev.fn === 'D' && isSubmediantOf(ch, prev.key);
+        if (ch.inv === 0 && ['maj', 'min'].includes(ch.q) && dbl === 1 && count[0] < 2 && !deceptive) {
+          push('doubling', 'warn', vs(1), () => `In a root-position triad, double the root (${NOTE(ch.tones[0])}) rather than the third.`);
+        }
+        if (ch.inv === 2 && count[2] < 2) push('doubling', 'warn', vs(dbl), () => `In a six-four chord, double the bass (${NOTE(ch.tones[2])}).`);
+      }
+    }
+    if (n === 5) voicingIssues(ch, V, on, push);
+    if (on.has('melodyClash')) melodyIssues(ch, V, push);
+    if (on.has('range')) {
+      V.forEach((p, v) => {
+        if (!p || !own[v]) return;
+        const m = midi(p), r = T.ranges[v];
+        if (m < r[0] || m > r[1]) push('range', 'warn', [v], () => `The ${names[v]}’s ${fullName(p)} is ${m < r[0] ? 'below' : 'above'} its range (${T.text[v]}).`);
+      });
+    }
+    if (on.has('spacing')) {
+      for (let i = 0; i < n - 2; i++) {
+        if (V[i] && V[i + 1] && semis(V[i], V[i + 1]) > 12) push('spacing', 'error', [i, i + 1], () => `More than an octave between ${pair(i, i + 1)}.`);
+      }
+    }
+    if (on.has('crossing')) {
+      for (let i = 0; i < n - 1; i++) {
+        if (V[i] && V[i + 1] && semis(V[i], V[i + 1]) < 0) push('crossing', 'error', [i, i + 1], () => `The ${names[i + 1]} is above the ${names[i]}.`);
+      }
+    }
+  }
+
+  // One move, from column col (chord a, voicing A) to the next (chord b, voicing B).
+  function moveIssues(a, b, A, B, col, on, out, quick) {
+    const n = A.length, bass = n - 1, names = texOf(n).names;
+    const push = (rule, sev, voices, text) => out.push({ rule, sev, col, to: col + 1, voices, text: quick ? '' : text() });
+    const pair = (i, j) => `the ${names[i]} and the ${names[j]}`;
+    const both = (v) => A[v] && B[v];
+    const dir = (v) => Math.sign(midi(B[v]) - midi(A[v]));
+    for (let i = 0; i < n; i++) {
+      for (let j = i + 1; j < n; j++) {
+        if (!both(i) || !both(j)) continue;
+        const k1 = perfect(A[i], A[j]), k2 = perfect(B[i], B[j]);
+        if (k1 && k1 === k2 && (!samePc(A[i], B[i]) || !samePc(A[j], B[j]))) {
+          const di = dir(i), dj = dir(j);
+          const what = () => (k1 === 5 ? 'fifths' : semis(A[i], A[j]) === 0 && semis(B[i], B[j]) === 0 ? 'unisons' : 'octaves');
+          const notes = () => `${NOTE(A[i])}–${NOTE(A[j])} to ${NOTE(B[i])}–${NOTE(B[j])}`;
+          if (di && di === dj && on.has('parallel')) push('parallel', 'error', [i, j], () => `Parallel ${what()} between ${pair(i, j)} (${notes()}).`);
+          else if (di && di === -dj && on.has('contrary')) push('contrary', 'error', [i, j], () => `${cap(what())} by contrary motion between ${pair(i, j)} (${notes()}).`);
+        } else if (i === 0 && j === bass && on.has('direct') && k2 && k1 !== k2) {
+          const di = dir(0), dj = dir(bass);
+          if (di && di === dj && Math.abs(gen(B[0], A[0])) > 1) {
+            push('direct', 'error', [0, bass], () => `Direct ${k2 === 5 ? 'fifths' : 'octaves'} in the outer voices: they move the same way into a ${k2 === 5 ? 'fifth' : 'octave'} and the ${names[0]} leaps.`);
+          }
+        }
+        if (j === bass && on.has('unequal') && dimFifth(A[i], A[j]) && perfect(B[i], B[j]) === 5) {
+          push('unequal', 'warn', [i, j], () => `Unequal fifths: a diminished fifth to a perfect fifth between ${pair(i, j)}.`);
+        }
+      }
+    }
+    if (on.has('crossRelation')) {
+      for (let v = 0; v < n; v++) {
+        for (let w = 0; w < n; w++) {
+          if (v === w || !A[v] || !B[w] || A[v].step !== B[w].step || A[v].alt === B[w].alt) continue;
+          // Fine when the voice that had the note makes the half step itself.
+          if (B[v] && B[v].step === A[v].step && B[v].alt === B[w].alt) continue;
+          push('crossRelation', 'warn', [v, w], () => `Cross relation: ${NOTE(A[v])} in the ${names[v]}, then ${NOTE(B[w])} in the ${names[w]}. Let the ${names[v]} move ${NOTE(A[v])}–${NOTE(B[w])} itself.`);
+        }
+      }
+    }
+    if (on.has('overlap')) {
+      for (let v = 0; v < n - 1; v++) {
+        if (!both(v) || !both(v + 1)) continue;
+        if (midi(B[v + 1]) > midi(A[v])) push('overlap', 'warn', [v, v + 1], () => `The ${names[v + 1]} moves above where the ${names[v]} just was.`);
+        else if (midi(B[v]) < midi(A[v + 1])) push('overlap', 'warn', [v, v + 1], () => `The ${names[v]} moves below where the ${names[v + 1]} just was.`);
+      }
+    }
+    for (let v = 0; v < n; v++) {
+      if (!both(v)) continue;
+      const g = Math.abs(gen(B[v], A[v])), s = Math.abs(semis(B[v], A[v]));
+      if (on.has('melodic')) {
+        if (s > 12) push('melodic', 'error', [v], () => `The ${names[v]} leaps more than an octave (${fullName(A[v])} to ${fullName(B[v])}).`);
+        else if (g >= 1 && g <= 6 && s > NATURAL[g]) push('melodic', 'error', [v], () => `The ${names[v]} moves by an augmented ${IV_NAMES[g]} (${NOTE(A[v])} to ${NOTE(B[v])}).`);
+        else if (g === 6) push('melodic', 'warn', [v], () => `The ${names[v]} leaps a seventh (${NOTE(A[v])} to ${NOTE(B[v])}).`);
+      }
+      if (on.has('smooth') && v > 0 && v < bass && s > 5) {
+        push('smooth', 'warn', [v], () => `The ${names[v]} leaps a ${IV_NAMES[Math.min(g, 7)]} — inner voices move by common tone, step, or a small leap.`);
+      }
+    }
+    // Tendency tones.
+    if (!sameHarmony(a, b)) {
+      if (on.has('leadingTone') && a.fn === 'D') {
+        const K = a.key, lt = leadingTone(K);
+        const toTonic = isTonicOf(b, K), deceptive = isSubmediantOf(b, K);
+        if (toTonic || deceptive) {
+          for (let v = 0; v < n; v++) {
+            if (!both(v) || !samePc(A[v], lt)) continue;
+            if (samePc(B[v], K.tonic) && semis(B[v], A[v]) === 1) continue;
+            // It may stay where it is when the tonic chord has it too (the seventh of IM7).
+            if (toTonic && semis(B[v], A[v]) === 0 && memberOf(b, B[v]) >= 0) continue;
+            // An inner voice may fall to the fifth of the tonic chord after V or V7 (not after vii°).
+            const frustrated = v > 0 && v < bass && toTonic && a.deg === 4 && samePc(B[v], degree(K, 4)) && semis(B[v], A[v]) < 0 && semis(B[v], A[v]) >= -4;
+            if (frustrated) continue;
+            push('leadingTone', 'error', [v], () => `The leading tone (${NOTE(lt)}) in the ${names[v]} should rise to the tonic (${NOTE(K.tonic)}).`);
+          }
+        }
+      }
+      if (on.has('seventh') && a.seventh) {
+        for (let v = 0; v < n; v++) {
+          if (!both(v) || memberOf(a, A[v]) !== a.sev) continue;
+          const g = gen(B[v], A[v]);
+          if (g === -1) continue;
+          // Held as a common tone of the next chord (IM7 to V7: the seventh stays as V7's third).
+          if (semis(B[v], A[v]) === 0 && memberOf(b, B[v]) >= 0) continue;
+          const v43 = a.fam === 'dom7' && !a.ext && a.inv === 2 && isTonicOf(b, a.key) && b.inv === 1 && g === 1;
+          if (v43) continue;
+          push('seventh', 'error', [v], () => `The seventh (${NOTE(A[v])}) in the ${names[v]} should step down.`);
+        }
+      }
+    }
+    if (on.has('cad64') && isTonicOf(a, a.key) && !a.ext && a.inv === 2 && !a.seventh && b.fn === 'D' && b.deg === 4 && b.inv === 0) {
+      for (let v = 0; v < bass; v++) {
+        if (!both(v)) continue;
+        const m = memberOf(a, A[v]);
+        if ((m === 0 || m === 1) && gen(B[v], A[v]) !== -1) {
+          push('cad64', 'error', [v], () => `In the cadential six-four, the ${names[v]}’s ${NOTE(A[v])} (the ${m === 0 ? 'fourth' : 'sixth'} above the bass) should step down.`);
+        }
+      }
+    }
+  }
+
+  // Every way to voice one chord. fixed: [p|null] per voice (4, or 5 over a bass), notes that can't change.
+  // Only voicings that keep the order of the voices, keep the spacing, and have the needed notes without
+  // doubling the leading tone, the seventh or a tension. Over a bass the upper voices never share a note.
+  function voicingsOf(ch, fixed, opts) {
+    const o = opts || {};
+    const n = fixed.length, b = n - 1, T = texOf(n);
+    const req = reqOf(ch, n);
+    const lt = ch.fn === 'D' ? leadingTone(ch.key) : null;
+    const choices = fixed.map((f, v) => {
+      if (f) return [f];
+      const out = [];
+      ch.tones.forEach((t, i) => {
+        if (v === b ? i !== ch.inv : bassOnly(ch, i)) return;
+        for (let oct = 1; oct <= 6; oct++) {
+          const p = { step: t.step, oct, alt: t.alt };
+          const m = midi(p);
+          if (m >= T.ranges[v][0] && m <= T.ranges[v][1]) out.push(p);
+        }
+      });
+      return out;
+    });
+    const out = [];
+    const ok = (V) => {
+      const mem = V.map((p) => memberOf(ch, p));
+      if (mem.some((m) => m < 0) && !o.loose) return;
+      if (!o.loose) {
+        const count = ch.tones.map(() => 0);
+        counted(mem).forEach((m) => count[m]++);
+        if (req.some((r, i) => r && !count[i])) return;
+        if (n === 4 && !ch.ext && !count[2] && !(ch.inv === 0 && count[0] >= (ch.seventh ? 2 : 3))) return;
+        const all = ch.tones.map(() => 0);
+        mem.forEach((m) => all[m]++);
+        if (all.some((c, i) => c > 1 && noDouble(ch, i))) return;
+        if (lt && V.filter((p) => samePc(p, lt)).length > 1) return;
+      }
+      out.push(V.slice());
+    };
+    // Voices from the bottom up, each at or above the one below (strictly above, among the upper voices
+    // over a bass), within an octave of it where spacing asks.
+    const V = new Array(n);
+    const place = (v) => {
+      if (v < 0) { ok(V); return; }
+      choices[v].forEach((p) => {
+        if (v < b) {
+          const below = midi(V[v + 1]), m = midi(p);
+          if (m < below || (n === 5 && v < b - 1 && m === below) || (n === 5 && v === b - 1 && m <= below)) return;
+          if (v < b - 1 && m - below > 12) return;
+        }
+        V[v] = p;
+        place(v - 1);
+      });
+    };
+    place(b);
+    return out;
+  }
+
+  // The checker. ex: an exercise; placed: per column [p|null] per voice, for the voices the student writes.
+  // Returns {issues, missing: [{col, voices}]}.
+  function check(ex, placed, rules) {
+    const on = rules instanceof Set ? rules : new Set(rules);
+    const issues = [], missing = [];
+    const cols = ex.chords.map((ch, c) => voicingAt(ex, placed, c));
+    ex.chords.forEach((ch, c) => {
+      const own = ex.given[c].map((p) => !p);
+      const gap = cols[c].map((p, v) => (p ? -1 : v)).filter((v) => v >= 0);
+      if (gap.length) missing.push({ col: c, voices: gap });
+      chordIssues(ch, cols[c], c, on, c ? ex.chords[c - 1] : null, own, issues);
+      if (c) moveIssues(ex.chords[c - 1], ch, cols[c - 1], cols[c], c - 1, on, issues);
+    });
+    if (on.has('closest')) {
+      const n = ex.given[0].length, b = n - 1, up = [...Array(b).keys()];
+      for (let c = 1; c < ex.chords.length; c++) {
+        const A = cols[c - 1], B = cols[c];
+        if (!up.every((v) => A[v] && B[v]) || !B[b]) continue;
+        const fixed = ex.given[c].slice();
+        fixed[b] = B[b];
+        const moved = (V) => up.reduce((s, v) => s + Math.abs(midi(V[v]) - midi(A[v])), 0);
+        const opts = voicingsOf(ex.chords[c], fixed).filter((V) => !voicingScore(ex.chords[c], V, on).err);
+        if (!opts.length) continue;
+        const best = Math.min(...opts.map(moved)), now = moved(B);
+        if (now > best + 2) {
+          issues.push({ rule: 'closest', sev: 'warn', col: c - 1, to: c, voices: up,
+            text: `The upper voices move ${now} half steps in all; they could move as few as ${best}. Keep common tones and take the nearest notes of the next chord.` });
+        }
+      }
+    }
+    const order = { error: 0, warn: 1 };
+    issues.sort((x, y) => x.col - y.col || (x.to != null) - (y.to != null) || order[x.sev] - order[y.sev]);
+    return { issues, missing };
+  }
+  // A column's voices: the printed notes, plus what the student wrote.
+  function voicingAt(ex, placed, c) {
+    return ex.given[c].map((g, v) => g || ((placed && placed[c]) || [])[v] || null);
+  }
+
+  // ---------- the solver ----------
+  // The best voicing of a whole exercise, by dynamic programming over every voicing of every chord.
+  // Each chord costs something for its doubling and range, each move for the rules it breaks (an error
+  // 1000, a warning 30) plus how far the voices travel — much more so when the rules ask for the shortest
+  // path. opts: {fixed (per column), rules, rng (to vary the answer), melody (shape the top voice into a tune)}.
+  // Over a bass, the bass line is placed first: each chord's bass note in the octave that keeps it smooth.
+  const STRICT = new Set(RULES.map((r) => r.id).filter((id) => id !== 'closest'));
+  function staticCost(ch, V, prev, rules) {
+    let cost = 0;
+    const n = V.length, T = texOf(n);
+    const mem = V.map((p) => memberOf(ch, p));
+    const count = ch.tones.map(() => 0);
+    mem.forEach((m) => count[m]++);
+    if (n === 4) {
+      const deceptive = prev && prev.fn === 'D' && isSubmediantOf(ch, prev.key);
+      if (!ch.seventh && !ch.ext) {
+        if (ch.inv === 0 && count[1] > 1) cost += deceptive ? 0 : 24;
+        if (ch.inv === 0 && count[2] > 1) cost += 8;
+        if (deceptive && count[1] < 2) cost += 10;
+        if (ch.inv === 2 && count[2] < 2) cost += 40;
+      }
+      if (!ch.ext && !count[2]) cost += 14;
+      for (let v = 0; v < 3; v++) if (midi(V[v]) === midi(V[v + 1])) cost += 6;
+    } else {
+      // Voicings take up as little room as they can, and keep the voicing rules that are on.
+      cost += Math.max(0, midi(V[0]) - midi(V[3]) - 12) * 0.8;
+
+    }
+    V.forEach((p, v) => { const r = T.ranges[v], mid = (r[0] + r[1]) / 2; cost += Math.max(0, Math.abs(midi(p) - mid) - 5) * 0.6; });
+    // The chord-by-chord rules that are on: the voicing habits over a bass, and the melody rule.
+    if (rules) { const sc = voicingScore(ch, V, rules); cost += sc.err * 1000 + sc.warn * 80; }
+    return cost;
+  }
+  function moveCost(a, b, A, B, rules, melody) {
+    const out = [];
+    moveIssues(a, b, A, B, 0, rules, out, true);
+    let cost = 0;
+    out.forEach((it) => (cost += it.sev === 'error' ? 1000 : 30));
+    const n = A.length, w = rules.has('closest') ? 8 : 1;
+    for (let v = 0; v < n - 1; v++) cost += Math.abs(midi(B[v]) - midi(A[v])) * w;
+    cost += Math.abs(midi(B[n - 1]) - midi(A[n - 1])) * 0.25;
+    if (melody) {
+      const s = Math.abs(midi(B[0]) - midi(A[0]));
+      if (s === 0) cost += 5;
+      if (s > 4) cost += (s - 4) * 2;
+    }
+    return cost;
+  }
+  // The bass line over a bass: each chord's bass note in the octave that leaps least, near the middle of the range.
+  function bassLine(chords, fixed) {
+    const [lo, hi] = TEXTURES.voicing.ranges[4];
+    const opts = chords.map((ch, c) => {
+      if (fixed[c] && fixed[c][4]) return [fixed[c][4]];
+      const t = ch.tones[ch.inv], out = [];
+      for (let oct = 1; oct <= 4; oct++) { const p = { step: t.step, oct, alt: t.alt }; if (midi(p) >= lo && midi(p) <= hi) out.push(p); }
+      return out;
+    });
+    const own = (p) => Math.abs(midi(p) - 47) * 0.5 + Math.max(0, 40 - midi(p)) * 2;
+    let cost = opts[0].map(own);
+    const back = [null];
+    for (let c = 1; c < opts.length; c++) {
+      const next = [], from = [];
+      opts[c].forEach((p) => {
+        let best = Infinity, arg = 0;
+        opts[c - 1].forEach((q, i) => {
+          const leap = Math.abs(midi(p) - midi(q));
+          const x = cost[i] + leap + (leap > 7 ? (leap - 7) * 3 : 0);
+          if (x < best) { best = x; arg = i; }
+        });
+        next.push(best + own(p));
+        from.push(arg);
+      });
+      cost = next;
+      back.push(from);
+    }
+    let j = cost.indexOf(Math.min(...cost));
+    const line = [];
+    for (let c = opts.length - 1; c >= 0; c--) { line[c] = opts[c][j]; if (c) j = back[c][j]; }
+    return line;
+  }
+  function solve(ex, opts) {
+    const o = opts || {};
+    const rules = o.rules ? new Set(o.rules) : STRICT;
+    const n = ex.given ? ex.given[0].length : 4;
+    let fixed = ex.chords.map((ch, c) => ((o.fixed && o.fixed[c]) || new Array(n).fill(null)).slice());
+    if (n === 5) {
+      const line = bassLine(ex.chords, fixed);
+      fixed.forEach((f, c) => (f[4] = f[4] || line[c]));
+    }
+    const cands = ex.chords.map((ch, c) => voicingsOf(ch, fixed[c]));
+    if (cands.some((list) => !list.length)) return null;
+    const noise = (list) => list.map(() => (o.rng ? o.rng() * 10 : 0));
+    const nz0 = noise(cands[0]);
+    let prevCost = cands[0].map((V, i) => staticCost(ex.chords[0], V, null, rules) + nz0[i]);
+    const back = [null];
+    const melody = o.melody && !rules.has('closest');
+    for (let c = 1; c < cands.length; c++) {
+      const a = ex.chords[c - 1], b = ex.chords[c];
+      const nz = noise(cands[c]);
+      const last = c === cands.length - 1;
+      const cost = [], from = [];
+      cands[c].forEach((B, j) => {
+        let best = Infinity, arg = -1;
+        cands[c - 1].forEach((A, i) => {
+          if (prevCost[i] >= best) return;
+          const x = prevCost[i] + moveCost(a, b, A, B, rules, melody);
+          if (x < best) { best = x; arg = i; }
+        });
+        let own = staticCost(b, B, a, rules) + nz[j];
+        // A tune ends on the tonic when the phrase ends on the tonic chord.
+        if (melody && last && isTonicOf(b, b.home) && !samePc(B[0], b.home.tonic)) own += 12;
+        cost.push(best + own);
+        from.push(arg);
+      });
+      prevCost = cost;
+      back.push(from);
+    }
+    let j = prevCost.indexOf(Math.min(...prevCost));
+    const total = prevCost[j];
+    const out = [];
+    for (let c = cands.length - 1; c >= 0; c--) {
+      out[c] = cands[c][j].map((p) => ({ ...p }));
+      if (c) j = back[c][j];
+    }
+    return { voices: out, cost: total };
+  }
+
+  // ---------- exercises ----------
+  // What's printed: the voices given (gives) and, separately, how the chords are labelled (LABELS).
+  const TYPES = [
+    { id: 'bass', label: 'Write the upper voices', gives: [3], blurb: 'The bass is given. Write the soprano, alto and tenor.' },
+    { id: 'roman', label: 'Write all four voices', gives: [], blurb: 'Only the chords are given. Write every voice, bass included.' },
+    { id: 'soprano', label: 'Harmonize a soprano', gives: [0], blurb: 'The melody is given. Write the alto, tenor and bass.' },
+    { id: 'resolve', label: 'Resolve the chords', gives: [3], blurb: 'The first chord is written out. Write the next one, two or three chords over the given bass.' },
+  ];
+  const LABELS = [
+    { id: 'symbols', label: 'Chord symbols', short: 'chord symbols' },
+    { id: 'roman', label: 'Roman numerals', short: 'Roman numerals' },
+    { id: 'figures', label: 'Figured bass', short: 'figured bass' },
+  ];
+  // Figures only make sense under a printed bass line.
+  const labelsWork = (type, show) => show.length > 0 && !(show.length === 1 && show[0] === 'figures' && !TYPES.find((t) => t.id === type).gives.includes(3));
+  // Phrases are built from these pieces, written for a major key (minor keys translate them):
+  // a tonic opening, maybe a predominant, a dominant, and a cadence.
+  const OPEN = [['I'], ['I'], ['I', 'I6'], ['I', 'V6', 'I'], ['I', 'V65', 'I'], ['I', 'V43', 'I6'], ['I', 'vii°6', 'I6'],
+    ['I', 'IV', 'I'], ['I', 'IV64', 'I'], ['I', 'V42', 'I6'], ['I', 'V', 'I'], ['I', 'V7', 'I']];
+  const PRE = [[], ['IV'], ['IV'], ['ii6'], ['ii6'], ['ii'], ['ii65'], ['ii7'], ['IV', 'ii6'], ['vi', 'IV'], ['vi', 'ii6'], ['vi', 'ii'], ['vi', 'ii65'], ['IV6', 'ii65']];
+  const DOM = [['V'], ['V'], ['V7'], ['V7'], ['I64', 'V'], ['I64', 'V7'], ['V/V', 'V'], ['V65/V', 'V'], ['vii°7/V', 'V'], ['V7/V', 'V']];
+  // Short exercises: a resolution or a cadence, two to four chords.
+  const SHORT_EX = [
+    ['V', 'I'], ['V7', 'I'], ['V65', 'I'], ['V43', 'I'], ['V43', 'I6'], ['V42', 'I6'], ['vii°6', 'I'], ['vii°6', 'I6'], ['V', 'vi'], ['V7', 'vi'],
+    ['IV', 'V', 'I'], ['ii6', 'V', 'I'], ['ii', 'V', 'I'], ['ii65', 'V7', 'I'], ['ii7', 'V7', 'I'], ['IV', 'V7', 'I'],
+    ['I64', 'V', 'I'], ['I64', 'V7', 'I'], ['ii6', 'I64', 'V', 'I'], ['IV', 'I64', 'V7', 'I'], ['IV', 'I'], ['I', 'IV64', 'I'],
+    ['I', 'V65', 'I'], ['I', 'vii°6', 'I6'], ['I', 'V43', 'I6'],
+    ['V/V', 'V', 'I'], ['V7/V', 'V', 'I'], ['V65/V', 'V', 'I'], ['vii°7/V', 'V', 'I'], ['V7/IV', 'IV', 'V', 'I'], ['V7/vi', 'vi'], ['V7/ii', 'ii', 'V', 'I'],
+    { minor: ['iv6', 'V'] }, { minor: ['vii°7', 'I'] }, { minor: ['vii°65', 'I6'] }, { minor: ['vii°43', 'I6'] },
+  ];
+  // Major-key numerals → minor-key numerals.
+  // A root-position ii° is avoided, so iv takes its place.
+  const TO_MINOR = { I: 'i', I6: 'i6', I64: 'i64', IV: 'iv', IV6: 'iv6', IV64: 'iv64', ii: 'iv', ii6: 'ii°6', ii7: 'iiø7', ii65: 'iiø65', vi: 'VI', iii: 'III' };
+  const minorOf = (lab) => {
+    const [main, sec] = lab.split('/');
+    const t = (x) => TO_MINOR[x] || x;
+    return sec ? `${main}/${t(sec)}` : t(main);
+  };
+  // What a numeral asks for: sevenths, inversions, six-fours, secondary chords.
+  function tagsOf(lab) {
+    const fig = (lab.split('/')[0].match(/\d+$/) || [''])[0];
+    return { sev: /7|65|43|42/.test(fig) || lab.includes('ø'), inv: ['6', '65', '43', '42'].includes(fig), six4: fig === '64', sec: lab.includes('/') };
+  }
+  const allowed = (labs, s) => labs.every((lab) => {
+    const t = tagsOf(lab);
+    return (!t.sev || s.sevenths) && (!t.inv || s.inversions) && (!t.six4 || s.sixFour) && (!t.sec || s.secondary);
+  });
+  const pick = (rng, list) => list[Math.floor(rng() * list.length)];
+  // With extensions or alterations on, some root-position chords take a ninth, eleventh or thirteenth
+  // (V9, V13, ii9, IM9 …) or an altered note on the dominant (V7♭9, V7♯11 …) — at least one per exercise.
+  function enrich(labels, s, rng, mode) {
+    const optsFor = (lab, i) => {
+      const out = [];
+      const last = i === labels.length - 1;
+      if (lab === 'V' || lab === 'V7') {
+        if (s.extensions && mode === 'major') out.push('V9', 'V13');
+        if (s.alterations) out.push(...(mode === 'major' ? ['V7b9', 'V7#9', 'V7b13', 'V7#5', 'V7#11'] : ['V7b9', 'V7b13', 'V7#9']));
+      } else if (s.extensions && mode === 'major') {
+        if (lab === 'ii' || lab === 'ii7') out.push('ii9', 'ii11');
+        if (lab === 'IV') out.push('IVM9');
+        if (lab === 'vi') out.push('vi9');
+        if (lab === 'I' && last) out.push('IM9');
+      } else if (s.extensions) {
+        if (lab === 'iv') out.push('iv9');
+        if (lab === 'i' && last) out.push('i9');
+      }
+      return out;
+    };
+    const opts = labels.map(optsFor);
+    const out = labels.map((lab, i) => (opts[i].length && rng() < 0.5 ? pick(rng, opts[i]) : lab));
+    const can = opts.map((o, i) => i).filter((i) => opts[i].length);
+    if (can.length && out.every((lab, i) => lab === labels[i])) { const i = pick(rng, can); out[i] = pick(rng, opts[i]); }
+    return out;
+  }
+  // A phrase of exactly n chords (3 to 8): opening, predominant, dominant, then a cadence on I — or a
+  // half cadence on V, or a deceptive cadence on vi followed by another predominant–dominant–tonic.
+  function phrase(rng, n, s) {
+    const opens = OPEN.filter((x) => allowed(x, s)), pres = PRE.filter((x) => allowed(x, s)), doms = DOM.filter((x) => allowed(x, s));
+    let best = null;
+    for (let tries = 0; tries < 5000 && !best; tries++) {
+      const r = rng();
+      let seq;
+      if (r < 0.12 && n >= 4) seq = [...pick(rng, opens), ...pick(rng, pres), ...pick(rng, doms.filter((d) => d[d.length - 1] === 'V'))];
+      else if (r < 0.24 && n >= 6) seq = [...pick(rng, opens), ...pick(rng, pres), ...pick(rng, doms), 'vi', ...pick(rng, pres.filter((p) => p.length && p[0] !== 'vi')), ...pick(rng, doms), 'I'];
+      else seq = [...pick(rng, opens), ...pick(rng, pres), ...pick(rng, doms), 'I'];
+      if (seq.length !== n) continue;
+      if (seq.some((x, i) => i && x === seq[i - 1])) continue;
+      best = seq;
+    }
+    return best;
+  }
+
+
+  // ---------- every chord a seventh, extended or altered ----------
+  // The notes a key lends its chords' tensions: its scale (natural minor), plus the leading tone in minor.
+  const keyPcs = (kd) => [0, 1, 2, 3, 4, 5, 6].map((d) => degree(kd, d)).concat(kd.mode === 'minor' ? [leadingTone(kd)] : []);
+  // The shapes each kind of chord can take. Extended shapes only add notes of the chord's key (so iii in a
+  // major key, whose ninth would be chromatic, stays a seventh chord); altered ones are the dominant
+  // alterations and the major ninth ♯11 (E B D F♯ over C). Chords with no altered shape take an extended one.
+  const SHAPES = {
+    extended: {
+      dom: [['ninth'], ['thirteenth'], ['seventh', ['b9']], ['seventh', ['b13']]],
+      maj: [['ninth'], ['thirteenth']],
+      min: [['ninth'], ['eleventh']],
+    },
+    altered: {
+      dom: [['seventh', ['b9']], ['seventh', ['#9']], ['seventh', ['#11']], ['seventh', ['b13']], ['seventh', ['#5']]],
+      maj: [['ninth', ['#11']]],
+    },
+  };
+  function kindOf(ch) {
+    if (ch.fam === 'dom7' || (ch.fam === 'maj' && ch.fn === 'D')) return 'dom';
+    if (ch.fam === 'maj' || ch.fam === 'maj7') return 'maj';
+    if (ch.fam === 'min' || ch.fam === 'min7') return 'min';
+    return null;
+  }
+  // The chord as a seventh chord: V → V7, I → IM7, ii → ii7, vii° → viiø7 (vii°7 in minor) …, same bass.
+  function asSeventh(ch) {
+    if (ch.ext || ch.seventh) return ch;
+    const pcs = keyPcs(ch.key);
+    const k = kindOf(ch);
+    const q = k === 'dom' ? 'dom7' : k === 'maj' ? 'maj7' : k === 'min' ? 'min7'
+      : ch.fam === 'dim' ? (ch.key.mode === 'minor' && ch.fn === 'D' ? 'dim7' : 'hdim7') : null;
+    if (!q) return ch;
+    let use = q;
+    // A major chord whose major seventh isn't in the key takes the dominant seventh instead (VII in minor).
+    if (q === 'maj7' && !pcs.some((p) => samePc(p, membersOf(ch.root, 'maj7')[3]))) use = 'dom7';
+    const out = plainChord(ch.root, use, ch.inv);
+    return finish(out, ch.key, ch.home, Object.assign(romanDisp(out, ch.key), { sec: ch.disp.sec }));
+  }
+  function recolour(chords, mode, rng) {
+    return chords.map((ch) => {
+      const seventh = asSeventh(ch);
+      if (mode === 'sevenths') return seventh;
+      const k = kindOf(ch);
+      const pcs = keyPcs(ch.key);
+      const base = MQ.chordTones(MQ.makeChord(ch.root, k === 'min' ? 'min' : 'maj', 'seventh', { majorSeventh: seventh.fam === 'maj7' })).map((t) => t.p);
+      const build = ([size, alts]) => {
+        const vc = MQ.makeChord(ch.root, k === 'min' ? 'min' : 'maj', size, { majorSeventh: seventh.fam === 'maj7', alts: alts || [], bass: ch.inv ? ch.tones[ch.inv] : null });
+        const out = fromVoicing(vc);
+        return out ? { out, added: MQ.chordTones(vc).map((t) => t.p).filter((p) => !base.some((b) => samePc(b, p))) } : null;
+      };
+      const tryShapes = (list, diatonic) => (list || []).map(build).filter((x) => x && (!diatonic || x.added.every((p) => pcs.some((q) => samePc(p, q)))));
+      let opts = mode === 'altered' ? tryShapes(SHAPES.altered[k], false) : [];
+      if (!opts.length) opts = tryShapes(SHAPES.extended[k], true);
+      opts = opts.filter((x) => { planesOf(Object.assign(x.out, { key: ch.key })); return x.out.needs5 <= 4; });
+      if (!opts.length) return seventh;
+      const got = pick(rng, opts).out;
+      return finish(got, ch.key, ch.home, Object.assign(romanDisp(got, ch.key), { sec: ch.disp.sec }));
+    });
+  }
+
+  // Why a teacher's progression can't be voiced: the first chord that won't fit the ranges, or the first
+  // pair of chords that can't be joined, with the rules that get in the way.
+  function troubleSpot(chords, rules) {
+    const n = chords.some((ch) => ch.ext) ? 5 : 4;
+    const bad = chords.findIndex((ch) => !voicingsOf(ch, new Array(n).fill(null)).length);
+    if (bad >= 0) return `Chord ${bad + 1} (${chords[bad].label}) can’t be voiced within the voice ranges.`;
+    for (let c = 0; c + 1 < chords.length; c++) {
+      const n = chords.some((ch) => ch.ext) ? 5 : 4;
+      const pair = { chords: chords.slice(c, c + 2), given: [new Array(n).fill(null), new Array(n).fill(null)] };
+      const sol = solve(pair, { rules });
+      if (sol && sol.cost < 1000) continue;
+      const why = sol ? [...new Set(check(pair, sol.voices, rules).issues.filter((x) => x.sev === 'error').map((x) => RULES.find((r) => r.id === x.rule).label))] : [];
+      return `Chords ${c + 1}–${c + 2} (${chords[c].label} to ${chords[c + 1].label}) can’t be joined without breaking a rule that’s on${why.length ? ': ' + why.join(', ') : ''}.`;
+    }
+    return 'These chords can’t be voiced without breaking one of the rules that are on — check the progression.';
+  }
+
+  // settings: {type, length, mode 'major' | 'minor' | 'either', maxSig, sevenths, inversions, sixFour,
+  //   secondary, extensions, alterations, every ('mixed', or make every chord 'sevenths', 'extended' or
+  //   'altered'), custom (Roman numerals and/or chord symbols typed by the teacher),
+  //   fifths (a fixed key signature, or null),
+  //   rules (the ones the student is held to), show (the labels students see: ids from LABELS)}.
+  // Returns an exercise {type, key, chords, given, answer, figures, show} or {error}. Exercises whose
+  // model answer can't avoid a warning are passed over when another try does better.
+  function generate(settings, rng) {
+    const s = Object.assign({ type: 'bass', length: 4, mode: 'major', maxSig: 3, sevenths: true, inversions: true, sixFour: true, secondary: false, extensions: false, alterations: false, every: 'mixed', custom: '', fifths: null, rules: null, show: ['roman'] }, settings);
+    // Every chord a seventh, extended or altered: six-four chords (triads by nature) are left out.
+    const ps = s.every === 'mixed' ? s : Object.assign({}, s, { sevenths: true, sixFour: false });
+    if (!labelsWork(s.type, s.show)) return { error: 'Figured bass needs the bass line printed. Add chord symbols or Roman numerals, or choose an exercise that gives the bass.' };
+    rng = rng || Math.random;
+    const rules = s.rules ? new Set(s.rules) : STRICT;
+    let best = null, bestWarn = Infinity, lastChords = null;
+    const typed = s.custom && s.custom.trim() ? s.custom.trim().split(/[\s,|]+/).filter(Boolean) : null;
+    // Typed chord symbols are real pitches, so in a random key they set the key: the last symbol's chord.
+    const lastSym = typed && s.fifths == null ? typed.slice().reverse().find((t) => /^[A-G]/.test(t)) : null;
+    const symVc = lastSym ? MQ.parseVoiceSymbol(lastSym) : null;
+    for (let attempt = 0; attempt < 40 && bestWarn > 0; attempt++) {
+      let mode = s.mode === 'either' ? (rng() < 0.5 ? 'major' : 'minor') : s.mode;
+      // In a random key, typed numerals pick the mode themselves: I means major, i minor.
+      const tonic = typed && s.fifths == null ? typed.find((t) => /^[Ii](?![IiVv])/.test(t)) : null;
+      if (tonic) mode = tonic[0] === 'i' ? 'minor' : 'major';
+      const fifths = s.fifths != null ? s.fifths : Math.floor(rng() * (2 * s.maxSig + 1)) - s.maxSig;
+      const key = symVc ? makeKey(symVc.root, symVc.quality === 'min' ? 'minor' : 'major') : keyOfSignature(fifths, mode);
+      let labels;
+      if (typed) labels = typed;
+      else if (s.type === 'resolve') {
+        const list = SHORT_EX.map((x) => (Array.isArray(x) ? { labs: x } : { labs: x.minor, only: 'minor' }))
+          .filter((x) => (!x.only || x.only === mode) && allowed(x.labs, ps));
+        if (!list.length) return { error: 'No short exercises fit these settings. Turn on more chord kinds.' };
+        labels = pick(rng, list).labs;
+        if (mode === 'minor') labels = labels.map(minorOf);
+      } else {
+        labels = phrase(rng, Math.max(3, Math.min(8, s.length)), ps);
+        if (!labels) return { error: 'Couldn’t build a phrase of that length with these settings.' };
+        if (mode === 'minor') labels = labels.map(minorOf);
+      }
+      if (!typed && s.every === 'mixed' && (s.extensions || s.alterations)) labels = enrich(labels, s, rng, mode);
+      let chords = tonicize(labels.map((lab) => parseChord(lab, key)), key);
+      if (!typed && s.every !== 'mixed' && chords.every(Boolean)) chords = recolour(chords, s.every, rng);
+      const bad = labels.filter((lab, i) => !chords[i]);
+      if (bad.length) return { error: `Couldn’t read ${bad.map((b) => `“${b}”`).join(', ')}. Write Roman numerals like I, ii6, V65 or V7/V, or chord symbols like C, F/A, G7/B or G7(♭9).` };
+      // Extended and altered chords are written over a bass: the bass placed for the student, four voices above.
+      const texture = chords.some((ch) => ch && ch.ext) ? TEXTURES.voicing : TEXTURES.satb;
+      const n = texture.n;
+      const crowded = texture.n === 5 && chords.find((ch) => ch.needs5 > 4);
+      if (crowded) return { error: `${crowded.symbol} needs more than four different notes above the bass — too many for four voices.` };
+      // Asked for extended or altered chords: look for a progression that has a place for one.
+      if (!typed && s.every === 'mixed' && (s.extensions || s.alterations) && !chords.some((ch) => ch.ext) && attempt < 30) continue;
+      const ex = { type: s.type, key, chords, texture: texture.id, given: chords.map(() => new Array(n).fill(null)) };
+      lastChords = chords;
+      const sol = solve(ex, { rng, melody: true, rules });
+      if (!sol || sol.cost >= 1000) {
+        if (s.custom && s.custom.trim() && attempt > 4) break;
+        continue;
+      }
+      ex.answer = sol.voices;
+      // Which voices are printed: the type's (its bass is the last voice), and over a bass always the bass.
+      const gives = TYPES.find((t) => t.id === s.type).gives.map((v) => (v === 3 ? n - 1 : v)).concat(n === 5 ? [n - 1] : []);
+      ex.given = sol.voices.map((V, c) => V.map((p, v) => ((s.type === 'resolve' && c === 0) || gives.includes(v) ? { ...p } : null)));
+      ex.show = LABELS.map((l) => l.id).filter((id) => s.show.includes(id));
+      ex.figures = chords.map(figuresFor);
+      const warns = check(ex, ex.answer, rules).issues.length;
+      if (warns < bestWarn) { best = ex; bestWarn = warns; }
+    }
+    if (best) return best;
+    if (s.custom && s.custom.trim() && lastChords) return { error: troubleSpot(lastChords, rules) };
+    if (s.every === 'extended' || s.every === 'altered') return { error: `Couldn’t find a progression of ${s.every} chords that keeps every rule that’s on. Try fewer chords, or the Contemporary preset.` };
+    return { error: 'Couldn’t make an exercise with these settings. Try again or change a setting.' };
+  }
+
+  Object.assign(PW, {
+    TEXTURES, texOf, RULES, GROUPS, PRESETS, TYPES, LABELS, labelsWork,
+    makeKey, keyOfSignature, keyName, sigAlts, degree, leadingTone, parseChord, figuresFor, membersOf,
+    check, voicingAt, voicingsOf, solve, generate, chordIssues, moveIssues,
+  });
+})(typeof window !== 'undefined' ? window : globalThis);
+/* Clefwork Voice Leading — Non-Harmonic Tones. Clefwork writes a short progression in four voices
+   (the part-writing engine, MQ.PW, voices it by the common-practice rules), two chords to a bar of 4/4
+   in half notes, then adds non-harmonic tones the way the course textbook classifies them (Harmony in
+   Contemporary Music, "Non-Harmonic Tones"): by how a note is approached, how it is left, and where it
+   falls in the beat.
+     Passing tone (PT)             step → step, same direction, between the beats
+     Accented passing tone (APT)   the same, landing on the chord change
+     Chromatic passing tone (CPT)  a half step filling in a whole step
+     Neighbor tone (NT)            step away and back, between the beats
+     Chromatic neighbor (CN)       a lower neighbor raised to a half step
+     Suspension (SUS)              held over into the new chord, resolving down by step — named 9–8, 7–6,
+                                   4–3 by its intervals above the bass; 2–3 when the bass is suspended
+     Retardation (RET)             held over, resolving up by step
+     Appoggiatura (APP)            leapt to on the beat, left by step the other way
+     Escape tone (ET)              step away, then a leap the other way, between the beats
+     Anticipation (ANT)            the next chord's note arriving early
+     Pedal point (PED)             the bass held while the chord above it changes
+   Each non-harmonic tone is highlighted and lettered; students choose what it is from a menu. Two voices
+   may take a figure at the same time (double suspensions, passing tones in thirds), or two different
+   figures may sound together, when the teacher allows it.
+   Time is counted in eighth notes: a chord lasts SPAN = 4. A voice's notes over one chord are a segment
+   {durs (eighths, adding up to 4), notes (pitches), tie (per note: tied over from the note before it)}.
+   cfg.nht holds the settings; cfg.counts.nht is how many examples the quiz asks. */
+(function (root) {
+  'use strict';
+  const MQ = (root.MQ = root.MQ || {});
+  const { dia, midi } = MQ;
+  const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
+  const mod = (n, m) => ((n % m) + m) % m;
+  const NH_MAX = 15;             // examples in a quiz
+  const SPAN = 4;                 // eighths in a chord
+  const MAX_SPOTS = 8;            // lettered notes in an example (a–h)
+  const LETTERS = 'abcdefgh';
+
+  // What a student can answer. The order never changes: report codes store the index.
+  // pick: a kind the teacher can ask for; sus: a suspension named by its intervals, which stands in for
+  // SUS when the teacher asks for suspensions by name.
+  const KINDS = [
+    { id: 'PT', name: 'Passing tone', pick: true, how: 'Step → step, same direction. Between the beats.' },
+    { id: 'APT', name: 'Accented passing tone', pick: true, how: 'A passing tone that lands on the beat, as the chord changes.' },
+    { id: 'CPT', name: 'Chromatic passing tone', pick: true, how: 'A half step filling in a whole step.' },
+    { id: 'NT', name: 'Neighbor tone', pick: true, how: 'Step away from a note and back to it. Between the beats.' },
+    { id: 'CN', name: 'Chromatic neighbor tone', pick: true, how: 'A lower neighbor raised to sit a half step below its note.' },
+    { id: 'SUS', name: 'Suspension', pick: true, how: 'Held (tied) over from the chord before, then down a step. On the beat.' },
+    { id: 'RET', name: 'Retardation', pick: true, how: 'Held over from the chord before, then up a step. On the beat.' },
+    { id: 'APP', name: 'Appoggiatura', pick: true, how: 'Leapt to on the beat, left by step the other way.' },
+    { id: 'ET', name: 'Escape tone', pick: true, how: 'Step away, then a leap the other way. Between the beats.' },
+    { id: 'ANT', name: 'Anticipation', pick: true, how: 'The next chord’s note, arriving early.' },
+    { id: 'PED', name: 'Pedal point', pick: true, how: 'The bass holds its note while the chord above it changes.' },
+    { id: '9–8', name: '9–8 suspension', sus: true },
+    { id: '7–6', name: '7–6 suspension', sus: true },
+    { id: '4–3', name: '4–3 suspension', sus: true },
+    { id: '2–3', name: '2–3 suspension (bass)', sus: true },
+  ];
+  const PICKS = KINDS.filter((k) => k.pick);
+  const SUS_KINDS = KINDS.map((k, i) => (k.sus ? i : -1)).filter((i) => i >= 0);
+  const kindIndex = (id) => KINDS.findIndex((k) => k.id === id);
+  const pickMask = (ids) => ids.reduce((m, id) => m | (1 << PICKS.findIndex((k) => k.id === id)), 0);
+  const DEFAULT_KINDS = pickMask(['PT', 'NT', 'SUS', 'APP', 'ET', 'ANT']);
+  const kindLabel = (i) => (KINDS[i].sus ? KINDS[i].name : `${KINDS[i].name} (${KINDS[i].id})`);
+
+  // length: chords in an example (4, 6 or 8 — two to a bar); mode: 1 major, 2 minor, 3 either; maxSig: up
+  // to this many sharps or flats; per: non-harmonic tones in an example (1–4); kinds: a mask over PICKS;
+  // dbl: two voices may take the same figure at once; mix: two different figures may sound together;
+  // susNames: suspensions are named by their intervals (9–8, 7–6, 4–3, 2–3) rather than just "suspension";
+  // show: the chord labels students see — 0 none, 1 Roman numerals, 2 chord symbols, 3 both; menu: 0 the
+  // menu lists the kinds this quiz asks for, 1 every kind; hear: students may play the example; score:
+  // 'question' (each example one question), 'notes' (each tone a point), 'percent' (share of outOf);
+  // gen: the generator's version, so a quiz code keeps its examples.
+  function nhSettings(s) {
+    s = s || {};
+    s.gen = clamp(s.gen | 0 || 1, 1, 7);
+    s.length = [4, 6, 8].includes(s.length) ? s.length : 6;
+    s.mode = clamp(s.mode | 0 || 1, 1, 3);
+    s.maxSig = clamp(s.maxSig == null ? 3 : s.maxSig | 0, 0, 7);
+    s.per = clamp(s.per | 0 || 3, 1, 4);
+    s.kinds = s.kinds == null ? DEFAULT_KINDS : s.kinds & ((1 << PICKS.length) - 1);
+    if (!s.kinds) s.kinds = DEFAULT_KINDS;
+    s.dbl = s.dbl ? 1 : 0;
+    s.mix = s.mix ? 1 : 0;
+    s.susNames = s.susNames == null ? 1 : s.susNames ? 1 : 0;
+    s.show = clamp(s.show == null ? 1 : s.show | 0, 0, 3);
+    s.menu = s.menu ? 1 : 0;
+    s.hear = s.hear == null ? 1 : s.hear ? 1 : 0;
+    if (!['question', 'notes', 'percent'].includes(s.score)) s.score = 'question';
+    s.outOf = clamp(Math.round(s.outOf || 100), 1, 1000);
+    return s;
+  }
+  const kindOn = (s, id) => !!(s.kinds & (1 << PICKS.findIndex((k) => k.id === id)));
+  // The menu students choose from: KINDS indices, in order, with the named suspensions in SUS's place.
+  function menuOf(s) {
+    const out = [];
+    PICKS.forEach((k, i) => {
+      if (!s.menu && !(s.kinds & (1 << i))) return;
+      if (k.id === 'SUS' && s.susNames) SUS_KINDS.forEach((j) => out.push(j));
+      else out.push(kindIndex(k.id));
+    });
+    return out;
+  }
+  // What a spot's answer is, given the settings: a named suspension, or plain SUS.
+  const answerOf = (s, kind) => kindIndex(KINDS[kindIndex(kind)].sus && !s.susNames ? 'SUS' : kind);
+
+  // ---------- pitches ----------
+  const same = (a, b) => !!a && !!b && a.step === b.step && a.oct === b.oct && a.alt === b.alt;
+  const gen = (a, b) => dia(b) - dia(a);
+  const semi = (a, b) => midi(b) - midi(a);
+  const isStep = (a, b) => Math.abs(gen(a, b)) === 1 && Math.abs(semi(a, b)) >= 1 && Math.abs(semi(a, b)) <= 2;
+  const inChord = (ch, p) => ch.tones.some((t, i) => ch.degs[i] > 0 && t.step === p.step && t.alt === p.alt);
+  const inChordPc = (ch, p) => ch.tones.some((t, i) => ch.degs[i] > 0 && mod(midi({ step: t.step, oct: 4, alt: t.alt }) - midi(p), 12) === 0);
+  const P = (p) => ({ step: p.step, oct: p.oct, alt: p.alt });
+  const half = (p) => ({ durs: [SPAN], notes: [P(p)], tie: [false] });
+  const seg = (durs, notes, tie) => ({ durs: durs.slice(), notes: notes.map(P), tie: tie ? tie.slice() : durs.map(() => false) });
+  const shuffle = (list, rng) => { const a = list.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(rng() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+  const pick = (rng, list) => list[Math.floor(rng() * list.length)];
+  // The diatonic note a step above (dir 1) or below (−1) p, spelled the way the chords around it spell that
+  // letter, else the key signature's way.
+  function stepFrom(p, dir, kd, chords) {
+    const d = MQ.fromDia(dia(p) + dir);
+    let alt = MQ.PW.sigAlts(kd.fifths)[d.step];
+    for (const ch of chords) {
+      const t = ch && ch.tones.find((x, i) => ch.degs[i] > 0 && x.step === d.step);
+      if (t) { alt = t.alt; break; }
+    }
+    return { step: d.step, oct: d.oct, alt };
+  }
+  // p raised or lowered a half step, keeping its letter (null past a double sharp or flat).
+  const chroma = (p, dir) => (Math.abs(p.alt + dir) > 2 ? null : { step: p.step, oct: p.oct, alt: p.alt + dir });
+  const inRange = (v, p) => { const r = MQ.PW.TEXTURES.satb.ranges[v]; return midi(p) >= r[0] && midi(p) <= r[1]; };
+
+  // ---------- candidates ----------
+  // Every place a figure fits the voiced progression. A candidate: {kind, voice, cols (the chords whose
+  // segment it rewrites), segs ({col: segment}), spots ([{col, k}]: which notes are the figure), t (the
+  // eighth the figure starts on, in its first column)}.
+  function candidates(ex, s, rng) {
+    const V = ex.answer, C = ex.chords, n = C.length, kd = ex.key;
+    const on = (id) => kindOn(s, id);
+    const out = [];
+    const add = (kind, voice, col, sg, k, t) => out.push({ kind, voice, cols: [col], segs: { [col]: sg }, spots: [{ col, k }], t });
+    for (let i = 0; i < n; i++) {
+      for (let v = 0; v < 4; v++) {
+        const p = V[i][v], ch = C[i];
+        const q = i + 1 < n ? V[i + 1][v] : null, nx = C[i + 1];
+        if (!q) continue;
+        const d = gen(p, q);
+        // Passing tones fill a third (one) or a fourth (two).
+        if (on('PT') && Math.abs(d) === 2) {
+          const x = stepFrom(p, Math.sign(d), kd, [ch, nx]);
+          if (!inChord(ch, x) && isStep(p, x) && isStep(x, q) && inRange(v, x)) add('PT', v, i, seg([2, 2], [p, x]), 1, 2);
+        }
+        if (on('PT') && Math.abs(d) === 3) {
+          const x1 = stepFrom(p, Math.sign(d), kd, [ch, nx]), x2 = stepFrom(x1, Math.sign(d), kd, [ch, nx]);
+          if (!inChord(ch, x1) && !inChord(ch, x2) && isStep(p, x1) && isStep(x1, x2) && isStep(x2, q) && inRange(v, x1) && inRange(v, x2)) {
+            out.push({ kind: 'PT', voice: v, cols: [i], segs: { [i]: seg([2, 1, 1], [p, x1, x2]) }, spots: [{ col: i, k: 1 }, { col: i, k: 2 }], t: 2 });
+          }
+        }
+        // An accented passing tone lands on the next chord, a step from both sides.
+        if (on('APT') && Math.abs(d) === 2) {
+          const x = stepFrom(p, Math.sign(d), kd, [nx, ch]);
+          if (!inChord(nx, x) && isStep(p, x) && isStep(x, q) && inRange(v, x)) add('APT', v, i + 1, seg([2, 2], [x, q]), 0, 0);
+        }
+        // A chromatic passing tone splits a whole step.
+        if (on('CPT') && Math.abs(d) === 1 && Math.abs(semi(p, q)) === 2) {
+          const x = semi(p, q) > 0 ? chroma(p, 1) : chroma(p, -1);
+          if (x && !inChordPc(ch, x)) add('CPT', v, i, seg([2, 2], [p, x]), 1, 2);
+        }
+        // Neighbors decorate a held note. The bass goes down first; the upper voices try both ways.
+        if (on('NT') && same(p, q)) {
+          const dirs = v === 3 ? [-1, 1] : rng() < 0.5 ? [1, -1] : [-1, 1];
+          for (const dd of dirs) {
+            const x = stepFrom(p, dd, kd, [ch, nx]);
+            if (!inChord(ch, x) && isStep(p, x) && inRange(v, x)) { add('NT', v, i, seg([2, 2], [p, x]), 1, 2); break; }
+          }
+        }
+        // A chromatic neighbor: the lower neighbor raised to a half step, when the scale's is a whole step.
+        if (on('CN') && same(p, q)) {
+          const lo = stepFrom(p, -1, kd, [ch, nx]);
+          if (semi(lo, p) === 2) {
+            const x = chroma(lo, 1);
+            if (x && !inChordPc(ch, x) && inRange(v, x)) add('CN', v, i, seg([2, 2], [p, x]), 1, 2);
+          }
+        }
+        // Suspensions and retardations: the note held over into the next chord, where it's dissonant,
+        // then resolving by step. The resolution isn't already sounding in another upper voice.
+        if (!inChord(nx, p) && isStep(p, q)) {
+          const bass = V[i + 1][3];
+          const doubled = V[i + 1].slice(0, 3).some((u, w) => w !== v && u.step === q.step && u.alt === q.alt);
+          if (on('SUS') && d === -1 && v < 3 && !doubled) {
+            const iv = mod(gen(bass, p), 7);
+            const fig = iv === 3 ? '4–3' : iv === 6 ? '7–6' : iv === 1 && semi(bass, p) > 12 ? '9–8' : null;
+            if (fig) add(fig, v, i + 1, seg([2, 2], [p, q], [true, false]), 0, 0);
+          }
+          if (on('SUS') && d === -1 && v === 3 && V[i + 1].slice(0, 3).some((u) => mod(gen(p, u), 7) === 1)) {
+            add('2–3', 3, i + 1, seg([2, 2], [p, q], [true, false]), 0, 0);
+          }
+          if (on('RET') && d === 1 && v < 3 && !doubled) add('RET', v, i + 1, seg([2, 2], [p, q], [true, false]), 0, 0);
+        }
+        // An appoggiatura: leapt to on the beat, then a step the other way to the chord note.
+        if (on('APP')) {
+          for (const dd of shuffle([1, -1], rng)) {
+            const x = stepFrom(q, dd, kd, [nx, ch]);
+            if (!inChord(nx, x) && isStep(x, q) && Math.abs(gen(p, x)) >= 2 && Math.sign(gen(p, x)) === dd && inRange(v, x)) {
+              add('APP', v, i + 1, seg([2, 2], [x, q]), 0, 0);
+              break;
+            }
+          }
+        }
+        // An escape tone: a step away from the line, then a leap the other way to the next note.
+        if (on('ET') && d !== 0 && Math.abs(d) <= 3) {
+          const x = stepFrom(p, -Math.sign(d), kd, [ch, nx]);
+          if (!inChord(ch, x) && isStep(p, x) && Math.abs(gen(x, q)) >= 2 && inRange(v, x)) add('ET', v, i, seg([3, 1], [p, x]), 1, 3);
+        }
+        // An anticipation: the next chord's note, early.
+        if (on('ANT') && d !== 0 && !inChord(ch, q)) add('ANT', v, i, seg([3, 1], [p, q]), 1, 3);
+      }
+      // A pedal point: the bass of this chord held under the next, which doesn't contain it, and on into
+      // the chord after, whose bass it is again.
+      if (on('PED') && i + 2 < n) {
+        const b = V[i][3];
+        if (midi(V[i + 2][3]) === midi(b) && !inChord(C[i + 1], b) && midi(b) < midi(V[i + 1][2]) - 2) {
+          out.push({ kind: 'PED', voice: 3, cols: [i + 1, i + 2], segs: { [i + 1]: seg([SPAN], [b], [true]), [i + 2]: seg([SPAN], [b], [true]) }, spots: [{ col: i + 1, k: 0 }], t: 0 });
+        }
+      }
+    }
+    return out;
+  }
+  // Whether the voices still keep their order (no crossing, no unison between neighbours) at every
+  // eighth of a column, with these segments in place of the plain half notes.
+  function fits(V, col, segsAt) {
+    const at = (v, t) => {
+      const sg = segsAt[v] || half(V[col][v]);
+      let acc = 0;
+      for (let k = 0; k < sg.durs.length; k++) { acc += sg.durs[k]; if (t < acc) return sg.notes[k]; }
+      return sg.notes[sg.notes.length - 1];
+    };
+    for (let t = 0; t < SPAN; t++) {
+      for (let v = 0; v < 3; v++) if (midi(at(v, t)) <= midi(at(v + 1, t))) return false;
+    }
+    return true;
+  }
+  const segsOf = (cands, col) => { const m = {}; cands.forEach((c) => { if (c.segs[col]) m[c.voice] = c.segs[col]; }); return m; };
+  // Up to `want` lettered notes: a pair of figures at once when the teacher allows it, then one figure at
+  // a time, as many kinds as fit, never two in neighbouring chords of the same voice.
+  function choose(ex, s, want, rng) {
+    const all = candidates(ex, s, rng).filter((c) => c.cols.every((col) => fits(ex.answer, col, { [c.voice]: c.segs[col] })));
+    const bag = shuffle(all, rng);
+    const used = new Set(), chosen = [];
+    let count = 0;
+    const key = (col, v) => col + ':' + v;
+    const free = (c) => c.cols.every((col) => [col - 1, col, col + 1].every((cc) => !used.has(key(cc, c.voice))) && !used.has('col:' + col));
+    const take = (list) => {
+      list.forEach((c) => { c.cols.forEach((col) => { used.add(key(col, c.voice)); used.add('col:' + col); }); chosen.push(c); count += c.spots.length; });
+    };
+    // Pairs: two single-chord figures in the same chord, in different voices, that keep the voices in order.
+    if ((s.dbl || s.mix) && want >= 2 && rng() < 0.75) {
+      const singles = bag.filter((c) => c.cols.length === 1 && c.kind !== '2–3');
+      const pairs = [];
+      singles.forEach((a, i) => singles.slice(i + 1).forEach((b) => {
+        if (a.cols[0] !== b.cols[0] || a.voice === b.voice) return;
+        const dbl = a.kind === b.kind || (KINDS[kindIndex(a.kind)].sus && KINDS[kindIndex(b.kind)].sus);
+        if (dbl ? !s.dbl || a.t !== b.t : !s.mix) return;
+        if (!fits(ex.answer, a.cols[0], { [a.voice]: a.segs[a.cols[0]], [b.voice]: b.segs[b.cols[0]] })) return;
+        pairs.push([a, b]);
+      }));
+      if (pairs.length) take(pick(rng, pairs));
+    }
+    // Then singles, a new kind first.
+    const kinds = shuffle([...new Set(bag.map((c) => c.kind))], rng);
+    kinds.forEach((k) => {
+      if (count >= want) return;
+      const c = bag.find((x) => x.kind === k && free(x) && count + x.spots.length <= MAX_SPOTS);
+      if (c) take([c]);
+    });
+    bag.forEach((c) => { if (count < want && free(c) && count + c.spots.length <= MAX_SPOTS) take([c]); });
+    return chosen;
+  }
+
+  // ---------- an example ----------
+  // Returns {key, chords, segs, spots} or null.
+  function makeExample(s, rng) {
+    const PW = MQ.PW;
+    let best = null;
+    const mode = s.mode === 1 ? 'major' : s.mode === 2 ? 'minor' : 'either';
+    for (let attempt = 0; attempt < 6; attempt++) {
+      const ex = PW.generate({ type: 'roman', length: s.length, mode, maxSig: s.maxSig, sevenths: true, inversions: true, sixFour: true, secondary: false, every: 'mixed', show: ['roman'] }, rng);
+      if (!ex || ex.error || ex.texture !== 'satb') continue;
+      const chosen = choose(ex, s, s.per, rng);
+      const count = chosen.reduce((n, c) => n + c.spots.length, 0);
+      const kinds = new Set(chosen.map((c) => c.kind)).size;
+      if (!best || count > best.count || (count === best.count && kinds > best.kinds)) best = { ex, chosen, count, kinds };
+      if (count >= s.per) break;
+    }
+    if (!best || !best.count) return null;
+    const { ex, chosen } = best;
+    const segs = ex.answer.map((V) => V.map(half));
+    const paren = new Set();
+    chosen.forEach((c) => {
+      Object.entries(c.segs).forEach(([col, sg]) => (segs[+col][c.voice] = seg(sg.durs, sg.notes, sg.tie)));
+      if (c.kind === 'PED') paren.add(c.cols[0]);
+    });
+    const tAt = (sg, k) => sg.durs.slice(0, k).reduce((a, b) => a + b, 0);
+    const spots = [];
+    chosen.forEach((c) => c.spots.forEach((sp) => spots.push({ col: sp.col, voice: c.voice, k: sp.k, kind: c.kind, t: tAt(segs[sp.col][c.voice], sp.k) })));
+    spots.sort((a, b) => a.col - b.col || a.t - b.t || a.voice - b.voice);
+    spots.forEach((sp) => { sp.ans = answerOf(s, sp.kind); delete sp.t; });
+    const chords = ex.chords.map((ch, i) => ({ rn: Object.assign({}, ch.disp), sym: ch.symbol, paren: paren.has(i) }));
+    return { key: { fifths: ex.key.fifths, mode: ex.key.mode, tonic: { step: ex.key.tonic.step, alt: ex.key.tonic.alt }, name: PW.keyName(ex.key) }, chords, segs, spots };
+  }
+
+  // The questions, made from the quiz's seed (so every student gets the same examples) — and kept, so the
+  // builder doesn't redo them at every change of another setting.
+  const cache = new Map();
+  function nhQuestions(cfg) {
+    const n = clamp((cfg.counts && cfg.counts.nht) | 0, 0, NH_MAX);
+    if (!n || !MQ.PW) return [];
+    const s = nhSettings(cfg.nht);
+    const keyOf = JSON.stringify([cfg.seed, n, s.gen, s.length, s.mode, s.maxSig, s.per, s.kinds, s.dbl, s.mix]);
+    let list = cache.get(keyOf);
+    if (!list) {
+      list = [];
+      for (let k = 0; k < n; k++) {
+        const rng = MQ.mulberry32(((cfg.seed >>> 0) ^ Math.imul(k + 1, 0x9e3779b1) ^ 0x0ac3e5) >>> 0);
+        let ex = null;
+        for (let tries = 0; tries < 4 && !ex; tries++) ex = makeExample(s, rng);
+        if (ex) list.push(ex);
+      }
+      if (cache.size > 40) cache.clear();
+      cache.set(keyOf, list);
+    }
+    const menu = menuOf(s);
+    return list.map((ex, k) => {
+      const spots = ex.spots.map((sp) => Object.assign({}, sp, { ans: answerOf(s, sp.kind) }));
+      // Every answer is on the menu, even one the teacher turned off after the examples were made.
+      const m = menu.slice();
+      spots.forEach((sp) => { if (!m.includes(sp.ans)) m.push(sp.ans); });
+      m.sort((a, b) => a - b);
+      const pairs = spots.some((a, i) => spots.some((b, j) => j !== i && a.col === b.col && a.voice !== b.voice));
+      return {
+        type: 'nht', clef: 'grand', grand: true,
+        text: `Name each highlighted non-harmonic tone${spots.length > 1 ? ` (${LETTERS[0]}–${LETTERS[spots.length - 1]})` : ''}.`,
+        hint: `In ${ex.key.name}, four voices, two chords a measure. Find the chord first, then choose what each lettered note is.` + (pairs ? ' Two voices may take a figure at the same time.' : ''),
+        nh: { key: ex.key, chords: ex.chords, segs: ex.segs, spots, menu: m, show: s.show, hear: s.hear },
+        sig: 'nh' + k, tags: [],
+      };
+    });
+  }
+
+  // ---------- answers ----------
+  // A response is one choice per lettered note, in order: a KINDS index, or −1 for blank.
+  const cleanNh = (q, resp) => q.nh.spots.map((_, j) => { const v = resp && resp[j]; return typeof v === "number" && v >= 0 && v < KINDS.length ? v | 0 : -1; });
+  const markNh = (q, resp) => { const r = cleanNh(q, resp); return q.nh.spots.map((sp, j) => r[j] === sp.ans); };
+  const gradeNh = (q, resp) => { const n = q.nh.spots.length; return n ? markNh(q, resp).filter(Boolean).length / n : 1; };
+  const hasNhAnswer = (q, resp) => cleanNh(q, resp).some((v) => v >= 0);
+  const compareNh = (q, resp) => { const mk = markNh(q, resp); return { notes: mk.length, wrong: mk.filter((x) => !x).length }; };
+  const describeNh = (q) => q.nh.spots.map((sp, j) => `${LETTERS[j]}: ${KINDS[sp.ans].name}`).join(' · ');
+
+  // ---------- playback ----------
+  // Sound events for MQ.Audio.sequence: every voice's notes in rhythm (tied notes sound once).
+  // eighth: seconds per eighth note.
+  function nhEvents(nh, eighth) {
+    const events = [];
+    for (let v = 0; v < 4; v++) {
+      let last = null;
+      nh.segs.forEach((col, c) => {
+        const sg = col[v];
+        let t = c * SPAN;
+        sg.notes.forEach((p, k) => {
+          const d = sg.durs[k], m = midi(p);
+          if (sg.tie[k] && last && last.midi === m && last.end === t) { last.dur += d; last.end = t + d; }
+          else { last = { at: t, dur: d, midi: m, end: t + d }; events.push(last); }
+          t += d;
+        });
+      });
+    }
+    return { events: events.map((e) => ({ at: e.at * eighth, dur: e.dur * eighth * 0.95, midi: e.midi, voice: 'piano', vel: 0.22 })), total: nh.segs.length * SPAN * eighth };
+  }
+
+  Object.assign(MQ, {
+    NH_MAX, NH_SPAN: SPAN, NH_KINDS: KINDS, NH_PICKS: PICKS, NH_LETTERS: LETTERS, nhKindLabel: kindLabel, nhSettings, nhMenu: menuOf,
+    nhQuestions, cleanNh, markNh, gradeNh, hasNhAnswer, compareNh, describeNh, nhEvents,
   });
 })(typeof window !== 'undefined' ? window : globalThis);
 /* Clefwork Keys — one note, shown one way and answered another: on the grand staff, as a
@@ -9214,6 +10751,13 @@ input.sg-range { flex: 1; min-width: 0; accent-color: var(--accent); height: 28p
       if (name === 'translate') mul([1, 0, 0, 1, v[0] || 0, v[1] || 0]);
       else if (name === 'scale') mul([v[0] == null ? 1 : v[0], 0, 0, v[1] == null ? v[0] : v[1], 0, 0]);
       else if (name === 'matrix') mul(v);
+      else if (name === 'rotate') {
+        // rotate(angle [cx cy]) — the tilted noteheads of the four-voice staff.
+        const a = ((v[0] || 0) * Math.PI) / 180, c = Math.cos(a), s = Math.sin(a), cx = v[1] || 0, cy = v[2] || 0;
+        if (cx || cy) mul([1, 0, 0, 1, cx, cy]);
+        mul([c, s, -s, c, 0, 0]);
+        if (cx || cy) mul([1, 0, 0, 1, -cx, -cy]);
+      }
       return '';
     });
     return m;
@@ -9539,6 +11083,8 @@ input.sg-range { flex: 1; min-width: 0; accent-color: var(--accent); height: 28p
     }
     // Scale degrees: a short blank for each numbered note (n1, n2 …), several to a line.
     if (q.type === 'degree') return { kind: 'lines', narrow: true, items: q.deg.notes.map((_, i) => 'n' + (i + 1)) };
+    // Non-harmonic tones: a blank for each lettered note (a, b …).
+    if (q.type === 'nht') return { kind: 'lines', items: q.nh.spots.map((_, i) => MQ.NH_LETTERS[i]) };
     if (q.choices) return { kind: 'choices', items: q.choices.slice() };
     if (q.dropdowns) return { kind: 'lines', items: q.dropdowns.map((d, i) => d.label || `Answer ${i + 1}`) };
     if (q.symbolAnswers) return { kind: 'lines', items: q.symbolAnswers.map((_, i) => `Chord ${i + 1}`) };
@@ -10514,6 +12060,18 @@ svg.staff .nlabel { display: none; }
     cfg.block = MQ.blockSettings(b);
     cfg.counts.block = asked;
   }
+  // Clefwork Voice Leading's non-harmonic tones (extension 15): the settings that make the examples, how
+  // many to ask, and what students see and choose from.
+  function writeNhtBlock(w, cfg) {
+    const s = MQ.nhSettings(cfg.nht);
+    w.u(s.gen, 3).u(Math.min(MQ.NH_MAX, (cfg.counts && cfg.counts.nht) || 0), 5).u(s.length / 2 - 2, 2).u(s.mode, 2).u(s.maxSig, 3).u(s.per - 1, 2)
+      .u(s.kinds, 12).u(s.dbl, 1).u(s.mix, 1).u(s.susNames, 1).u(s.show, 2).u(s.menu, 1).u(s.hear, 1).u(DEGREE_SCORES.indexOf(s.score), 2).u(s.outOf, 10);
+  }
+  function readNhtBlock(r, cfg) {
+    const gen = r.u(3), n = r.u(5);
+    cfg.nht = MQ.nhSettings({ gen, length: (r.u(2) + 2) * 2, mode: r.u(2), maxSig: r.u(3), per: r.u(2) + 1, kinds: r.u(12), dbl: r.u(1), mix: r.u(1), susNames: r.u(1), show: r.u(2), menu: r.u(1), hear: r.u(1), score: DEGREE_SCORES[r.u(2)] || 'question', outOf: r.u(10) });
+    cfg.counts.nht = n;
+  }
 
   function encodeQuiz(cfg) {
     const w = new Writer();
@@ -10658,13 +12216,16 @@ svg.staff .nlabel { display: none; }
     const dgLib = !!dg && dg.src === 1 && dg.mel.length > 0;
     const sing = Math.min(31, (cfg.counts && cfg.counts.sing) || 0);
     const block = MQ.blockSettings && (cfg.counts && cfg.counts.block) > 0 && MQ.usableBlockExercises(cfg.block).length > 0;
+    const nht = !!MQ.nhSettings && (cfg.counts && cfg.counts.nht) > 0;
     const graph = GRAPH_COUNTS.some((k) => cfg.counts && cfg.counts[k] > 0);
     const terms = TERM_COUNTS.some((k) => cfg.counts && cfg.counts[k] > 0);
     const anMore = an.more.length > 0 && (regions.length > 0 || an.more.some((m) => m.regions.length));
     const ivAsk = (cfg.counts && cfg.counts.interval) > 0 && (cfg.intervalAsk === 2 || cfg.intervalAsk === 3) ? cfg.intervalAsk : 0;
-    if (regions.length || an.img || limit != null || rhythm || melody || degrees || graph || terms || sing || block || ivAsk) {
+    if (regions.length || an.img || limit != null || rhythm || melody || degrees || graph || terms || sing || block || nht || ivAsk) {
       const q10 = (v) => Math.max(0, Math.min(1023, Math.round(v * 1023)));
-      const ext = block ? 14 : sing ? 13 : terms ? 10 : graph ? 9 : anMore ? 12 : grid ? 6 : degrees ? (dgLib ? 11 : dgMore ? 8 : 7) : melody ? 5 : rhythm ? 4 : limit != null ? 2 : 1;
+      // Extension 15: Clefwork Voice Leading with non-harmonic tones — the block chords as extension 14
+      // writes them (possibly none), then the non-harmonic tone block.
+      const ext = nht ? 15 : block ? 14 : sing ? 13 : terms ? 10 : graph ? 9 : anMore ? 12 : grid ? 6 : degrees ? (dgLib ? 11 : dgMore ? 8 : 7) : melody ? 5 : rhythm ? 4 : limit != null ? 2 : 1;
       const deg8 = ext === 8 || ext === 11, deg7 = ext === 7 || deg8;
       w.u(ext, 8).u(an.override, 2).u(an.img ? 1 : 0, 1);
       if (an.img) w.u(an.img.hash >>> 0, 32);
@@ -10719,10 +12280,11 @@ svg.staff .nlabel { display: none; }
           examples.forEach((ex) => writeExample(w, ex, grid));
         }
       }
-      if (ext === 14) {
+      if (ext === 14 || ext === 15) {
         w.u(limit != null ? 1 : 0, 1);
         if (limit != null) w.u(limit, 5);
         writeBlockBlock(w, cfg);
+        if (ext === 15) writeNhtBlock(w, cfg);
       }
       if (ext === 13) {
         w.u(limit != null ? 1 : 0, 1);
@@ -10985,9 +12547,10 @@ svg.staff .nlabel { display: none; }
             cfg.rhythm = MQ.rhythmSettings(rh);
             cfg.counts.rhythm = rh.auto ? rh.auto.count : rh.examples.length;
           }
-          if (ext === 14) {
+          if (ext === 14 || ext === 15) {
             if (r.u(1)) cfg.retakes = r.u(5);
             readBlockBlock(r, cfg);
+            if (ext === 15) readNhtBlock(r, cfg);
           }
           if (ext === 13) {
             if (r.u(1)) cfg.retakes = r.u(5);
@@ -11112,6 +12675,13 @@ svg.staff .nlabel { display: none; }
       }
       return;
     }
+    if (q.type === 'nht') {
+      // Non-harmonic tones: how many lettered notes, then each choice (0 blank, else its kind + 1).
+      const list = MQ.cleanNh(q, resp).slice(0, 31);
+      w.u(list.length, 5);
+      list.forEach((v) => w.u(v < 0 ? 0 : v + 1, 4));
+      return;
+    }
     if (q.type === 'degree') {
       // Scale degrees: how many notes, then each note's number (0 blank, 1–7).
       const list = MQ.cleanDegrees(q, resp).slice(0, 127);
@@ -11232,6 +12802,11 @@ svg.staff .nlabel { display: none; }
       const n = r.u(4), sym = r.u(1), out = { r: [], s: [] };
       for (let j = 0; j < n; j++) { out.r.push(readText(r)); out.s.push(sym ? readGraphText(r) : ''); }
       return { kind: 'text', value: out };
+    }
+    if (type === 'nht') {
+      const n = r.u(5), list = [];
+      for (let j = 0; j < n; j++) list.push(r.u(4) - 1);
+      return { kind: 'nht', value: list };
     }
     if (type === 'degree') {
       const n = r.u(7), list = [];
@@ -11354,7 +12929,8 @@ svg.staff .nlabel { display: none; }
       report.items.forEach((it) => {
         // (Scale degrees too, when scored by note. No report has both kinds, so earlier reports read the same.)
         // (Block chords too: how many chords, and how many broke a rule.)
-        if (it.type === 'rhythm' || it.type === 'melody' || it.type === 'rgrid' || it.type === 'degree' || it.type === 'block') w.u(n9(it.notes), 9).u(n9(it.wrong), 9);
+        // (Non-harmonic tones too: lettered notes, and how many were wrong.)
+        if (it.type === 'rhythm' || it.type === 'melody' || it.type === 'rgrid' || it.type === 'degree' || it.type === 'block' || it.type === 'nht') w.u(n9(it.notes), 9).u(n9(it.wrong), 9);
         // Chord Graph: points, and points lost in halves (a right root can earn half).
         if (GRAPH_COUNTS.includes(it.type)) w.u(n9(it.notes), 9).u(n9(Math.round((it.wrong || 0) * 2)), 9);
         if (it.type === 'melody') w.u(n9(it.pw), 9).u(n9(it.rw), 9);
@@ -11459,7 +13035,7 @@ svg.staff .nlabel { display: none; }
       if (ver >= 11 && r.u(1)) {
         rep.scoring = { mode: r.u(1) ? 'percent' : 'notes', outOf: r.u(10), split: ver >= 12 ? r.u(1) : 0 };
         rep.items.forEach((it) => {
-          if (it.type === 'rhythm' || it.type === 'rgrid' || it.type === 'degree' || it.type === 'block' || (it.type === 'melody' && ver >= 12)) { it.notes = r.u(9); it.wrong = r.u(9); }
+          if (it.type === 'rhythm' || it.type === 'rgrid' || it.type === 'degree' || it.type === 'block' || it.type === 'nht' || (it.type === 'melody' && ver >= 12)) { it.notes = r.u(9); it.wrong = r.u(9); }
           if (GRAPH_COUNTS.includes(it.type)) { it.notes = r.u(9); it.wrong = r.u(9) / 2; }
           if (it.type === 'melody' && ver >= 12) { it.pw = r.u(9); it.rw = r.u(9); }
         });
@@ -11544,6 +13120,7 @@ svg.staff .nlabel { display: none; }
       noted: !!sc && rep.items.some((it) => it.notes != null), notes: sc ? max : 0, wrong: sc ? rep.items.reduce((s, it) => s + (it.wrong || 0), 0) : 0, mode: sc ? sc.mode : null,
       graph: rep.items.some((it) => GRAPH_COUNTS.includes(it.type)),    // Chord Graph: answers, not notes
       block: rep.items.some((it) => it.type === 'block'),                 // block chords: chords, not notes
+      nh: rep.items.some((it) => it.type === 'nht'),                      // non-harmonic tones: lettered notes
       byType: by('type'), byClef: by('clef'),
       avgSec: count ? rep.items.reduce((s, it) => s + it.sec, 0) / count : 0,
       slowest,
@@ -11988,6 +13565,222 @@ svg.staff .nlabel { display: none; }
   MQ.clefSVG = clefSVG;
   MQ.keySigDias = keySigDias;
 })(window);
+/* Clefwork Voice Leading — the picture of a non-harmonic tone example: four voices on the grand staff in
+   4/4, two chords a bar, half notes split into quarters and eighths where a voice takes a figure, with
+   beams, dots and ties. Soprano and alto share the treble staff (stems up and down), tenor and bass the
+   bass staff. The non-harmonic tones are coloured, ringed and lettered — the letters above the music for
+   the treble voices and below it for the bass voices — and the chord symbols sit above, the Roman
+   numerals below. Drawn with plain shapes (paths, lines, circles, text) so it prints and exports.
+   A long example is drawn a line at a time: build() takes a range of chords. */
+(function (root) {
+  'use strict';
+  const MQ = root.MQ;
+  const NS = 'http://www.w3.org/2000/svg';
+  const G = 12, HALF = 6, STEM = 34, EW = 24, SPAN = 4;
+  const TREBLE_BY = 120, BASS_BY = 246;
+  const STAFF = [0, 0, 1, 1], UP = [true, false, true, false];
+  const SHARP_STEPS = [3, 0, 4, 1, 5, 2, 6], FLAT_STEPS = [6, 2, 5, 1, 4, 0, 3];
+  const r1 = (n) => Math.round(n * 10) / 10;
+  const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;');
+  const accSpan = (s) => esc(s).replace(/([♯♭♮𝄪𝄫])/g, '<tspan class="sacc">$1</tspan>');
+  const FILLED = '<g transform="rotate(-22)"><path class="head" fill="currentColor" d="M-6.6 0A6.6 4.6 0 1 0 6.6 0A6.6 4.6 0 1 0 -6.6 0Z"/></g>';
+  const OPEN = '<g transform="rotate(-22)"><path class="head" fill="currentColor" fill-rule="evenodd" d="M-6.6 0A6.6 4.6 0 1 0 6.6 0A6.6 4.6 0 1 0 -6.6 0ZM-5.2 0A5.2 1.9 0 1 0 5.2 0A5.2 1.9 0 1 0 -5.2 0Z"/></g>';
+  const STAVES = [{ clef: 'treble', by: TREBLE_BY, bottom: MQ.CLEFS.treble.bottom }, { clef: 'bass', by: BASS_BY, bottom: MQ.CLEFS.bass.bottom }];
+  const posOf = (p, st) => MQ.dia(p) - STAVES[st].bottom;
+  const yOf = (st, pos) => STAVES[st].by - pos * HALF;
+  // What the key signature does to each letter.
+  function sigAlts(f) {
+    const a = [0, 0, 0, 0, 0, 0, 0];
+    (f > 0 ? SHARP_STEPS.slice(0, f) : FLAT_STEPS.slice(0, -f)).forEach((s) => (a[s] = f > 0 ? 1 : -1));
+    return a;
+  }
+  // "C:" for C major, "a:" for A minor.
+  const keyTag = (key) => { const n = MQ.pcName(key.tonic); return (key.mode === 'minor' ? n.charAt(0).toLowerCase() + n.slice(1) : n) + ':'; };
+
+  // nh: a question's nh ({key, chords, segs, spots, show}). opts: from/to (the chords drawn, to exclusive),
+  // showTime (the 4/4), letters (true: letter the spots), marks (per spot: true, false or null), print,
+  // color (the highlight colour), sel (a spot index to emphasise). Returns {inner, W, H, top}.
+  function build(nh, opts) {
+    const o = Object.assign({ from: 0, to: nh.segs.length, showTime: true, letters: true, marks: null, print: false, color: '#2f3fbf', sel: -1 }, opts);
+    const from = o.from, to = Math.min(nh.segs.length, o.to), n = to - from;
+    const showSym = (nh.show & 2) !== 0, showRn = (nh.show & 1) !== 0;
+    const ks = nh.key.fifths || 0, nks = Math.abs(ks);
+    const topTags = nh.spots.some((sp) => sp.voice < 2), botTags = nh.spots.some((sp) => sp.voice >= 2);
+    // Rows: chord symbols, then the treble letters, above the music; the bass letters, then the Roman
+    // numerals, below it.
+    const symY = 16, tagTopY = showSym ? 40 : 20;
+    const top = 0;
+    const tagBotY = BASS_BY + 66;
+    const rnY = (botTags ? tagBotY + 24 : BASS_BY + 70);
+    const H = showRn ? rnY + 16 : botTags ? tagBotY + 8 : BASS_BY + 56;
+    const x0 = 14 + (nks ? 56 + nks * 11 + 10 : 62) + (o.showTime ? 26 : 0) + 10;
+    const colW = SPAN * EW + 20;
+    const W = x0 + n * colW + 10;
+    const noteX = (col, t) => x0 + (col - from) * colW + 12 + t * EW;
+    const sTop = TREBLE_BY - 4 * G, sBot = BASS_BY;
+    let s = '';
+    // Staves, clefs, key signatures, the time signature, bar lines, the brace.
+    STAVES.forEach((st) => {
+      for (let i = 0; i < 5; i++) s += `<line class="sl" x1="18" x2="${r1(W - 4)}" y1="${st.by - i * G}" y2="${st.by - i * G}" stroke="currentColor" stroke-width="1.1"/>`;
+      s += `<g class="clef">${MQ.clefSVG(st.clef, st.by, 22)}</g>`;
+      MQ.keySigDias(ks, st.clef).forEach((d, k) => {
+        s += `<g class="ks" transform="translate(${70 + k * 11} ${st.by - (d - st.bottom) * HALF})">${MQ.ACC_SVG[ks > 0 ? 1 : -1]}</g>`;
+      });
+      if (o.showTime) {
+        const tx = x0 - 20;
+        s += `<text class="nh-time" x="${tx}" y="${st.by - 25}" font-size="22" font-weight="bold" text-anchor="middle" fill="currentColor">4</text><text class="nh-time" x="${tx}" y="${st.by - 1}" font-size="22" font-weight="bold" text-anchor="middle" fill="currentColor">4</text>`;
+      }
+    });
+    s += `<line class="sl" x1="18" x2="18" y1="${sTop}" y2="${sBot}" stroke="currentColor" stroke-width="1.1"/>`;
+    for (let c = from + 1; c < to; c++) {
+      if ((c % 2) || c === to) continue;
+      const x = x0 + (c - from) * colW - 6;
+      s += `<line class="sl" x1="${r1(x)}" x2="${r1(x)}" y1="${sTop}" y2="${sBot}" stroke="currentColor" stroke-width="1.1"/>`;
+    }
+    if (to === nh.segs.length) s += `<line class="sl" x1="${r1(W - 9)}" x2="${r1(W - 9)}" y1="${sTop}" y2="${sBot}" stroke="currentColor" stroke-width="1.1"/><rect class="nh-final" x="${r1(W - 6)}" y="${sTop}" width="3.5" height="${sBot - sTop}" fill="currentColor"/>`;
+    else s += `<line class="sl" x1="${r1(W - 4)}" x2="${r1(W - 4)}" y1="${sTop}" y2="${sBot}" stroke="currentColor" stroke-width="1.1"/>`;
+    const m = (sTop + sBot) / 2;
+    s += `<path class="brace" fill="currentColor" d="M17 ${sTop}C7 ${sTop + 30} 16 ${m - 40} 6 ${m}C16 ${m + 40} 7 ${sBot - 30} 17 ${sBot}C12 ${sBot - 30} 20 ${m + 40} 9.5 ${m}C20 ${m - 40} 12 ${sTop + 30} 17 ${sTop}Z"/>`;
+    // Chord labels.
+    if (showRn && from === 0) s += `<text class="nh-rn nh-key" x="24" y="${rnY}" font-size="15" font-weight="bold" fill="currentColor">${accSpan(keyTag(nh.key))}</text>`;
+    for (let c = from; c < to; c++) {
+      const ch = nh.chords[c], x = noteX(c, 0);
+      if (showSym && ch.sym) s += `<text class="nh-sym" x="${r1(x)}" y="${symY}" font-size="14" font-weight="bold" text-anchor="middle" fill="currentColor">${accSpan(ch.sym)}</text>`;
+      if (showRn && ch.rn) s += rnSVG(x, rnY, ch.rn, ch.paren);
+    }
+    // The notes: every voice's segments in this range, placed in time.
+    const items = [];
+    for (let c = from; c < to; c++) {
+      for (let v = 0; v < 4; v++) {
+        const sg = nh.segs[c][v];
+        let t = 0;
+        sg.notes.forEach((p, k) => {
+          const spot = nh.spots.findIndex((sp) => sp.col === c && sp.voice === v && sp.k === k);
+          items.push({ c, v, k, t, d: sg.durs[k], p, tie: !!sg.tie[k], spot, st: STAFF[v], pos: posOf(p, STAFF[v]) });
+          t += sg.durs[k];
+        });
+      }
+    }
+    items.forEach((it) => { it.y = yOf(it.st, it.pos); it.dx = 0; it.x = noteX(it.c, it.t); });
+    // Two voices a second apart at the same moment: the upper one moves right.
+    items.forEach((a) => {
+      if (a.v % 2) return;
+      const b = items.find((x) => x.c === a.c && x.v === a.v + 1 && x.t <= a.t && a.t < x.t + x.d);
+      if (b && MQ.dia(a.p) - MQ.dia(b.p) === 1) { a.dx = 12.5; a.x += a.dx; }
+    });
+    // Accidentals: only what the key signature, and earlier notes on that line or space in the measure on
+    // that staff, don't already say. A tied note repeats its accidental silently.
+    const sig = sigAlts(ks);
+    const state = [{}, {}];
+    let bar = -1;
+    items.slice().sort((a, b) => a.c - b.c || a.t - b.t || a.v - b.v).forEach((it) => {
+      const thisBar = Math.floor(it.c / 2);
+      if (thisBar !== bar) { bar = thisBar; state[0] = {}; state[1] = {}; }
+      const key = MQ.dia(it.p), was = key in state[it.st] ? state[it.st][key] : sig[it.p.step];
+      it.acc = it.tie || it.p.alt === was ? null : it.p.alt;
+      state[it.st][key] = it.p.alt;
+    });
+    // Eighths beamed in pairs within a beat.
+    const beams = [];
+    items.forEach((a) => {
+      if (a.d !== 1 || a.t % 2) return;
+      const b = items.find((x) => x.c === a.c && x.v === a.v && x.t === a.t + 1 && x.d === 1);
+      if (b) { a.beam = b.beam = true; beams.push([a, b]); }
+    });
+    const color = (it) => {
+      if (it.spot < 0) return '';
+      const mk = o.marks && it.spot < o.marks.length ? o.marks[it.spot] : null;
+      return mk === true ? ' is-right' : mk === false ? ' is-wrong' : ' is-spot';
+    };
+    const fillOf = (it) => (o.print || it.spot < 0 ? 'currentColor' : o.marks && o.marks[it.spot] === true ? '#137a4b' : o.marks && o.marks[it.spot] === false ? '#bf3139' : o.color);
+    // Ties, under the notes.
+    for (let v = 0; v < 4; v++) {
+      const line = items.filter((x) => x.v === v).sort((a, b) => a.c - b.c || a.t - b.t);
+      const dir = UP[v] ? 1 : -1;
+      line.forEach((it, i) => {
+        if (!it.tie) return;
+        const y = it.y + dir * 6;
+        const x1 = i ? line[i - 1].x + 6 : it.x - 24, x2 = it.x - 6;
+        s += `<path class="tie" fill="none" stroke="currentColor" stroke-width="1.5" d="M${r1(x1)} ${r1(y)} C${r1(x1 + 8)} ${r1(y + dir * 9)} ${r1(x2 - 8)} ${r1(y + dir * 9)} ${r1(x2)} ${r1(y)}"/>`;
+      });
+      // A note at the end of this line tied into the next line.
+      const last = line[line.length - 1];
+      if (last && to < nh.segs.length) {
+        const next = nh.segs[to][v];
+        if (next && next.tie[0]) { const y = last.y + dir * 6; s += `<path class="tie" fill="none" stroke="currentColor" stroke-width="1.5" d="M${r1(last.x + 6)} ${r1(y)} C${r1(last.x + 14)} ${r1(y + dir * 9)} ${r1(last.x + 20)} ${r1(y + dir * 9)} ${r1(last.x + 26)} ${r1(y)}"/>`; }
+      }
+    }
+    const stemEnd = new Map();
+    beams.forEach(([a, b]) => {
+      const up = UP[a.v];
+      const y = up ? Math.min(a.y, b.y) - STEM : Math.max(a.y, b.y) + STEM;
+      stemEnd.set(a, y); stemEnd.set(b, y);
+      const xa = a.x + (up ? 6.1 : -6.1), xb = b.x + (up ? 6.1 : -6.1), th = up ? 4.5 : -4.5;
+      s += `<path class="beam" fill="currentColor" d="M${r1(xa - 0.65)} ${r1(y)} L${r1(xb + 0.65)} ${r1(y)} L${r1(xb + 0.65)} ${r1(y + th)} L${r1(xa - 0.65)} ${r1(y + th)} Z"/>`;
+    });
+    items.forEach((it) => {
+      const up = UP[it.v], pos = it.pos;
+      let g = `<g class="note nh-note${color(it)}" transform="translate(${r1(it.x)} ${r1(it.y)})" style="color:${fillOf(it)}">`;
+      for (let L = -2; L >= pos; L -= 2) g += `<line class="ledger" x1="-11" x2="11" y1="${(pos - L) * HALF}" y2="${(pos - L) * HALF}" stroke="currentColor" stroke-width="1.3"/>`;
+      for (let L = 10; L <= pos; L += 2) g += `<line class="ledger" x1="-11" x2="11" y1="${(pos - L) * HALF}" y2="${(pos - L) * HALF}" stroke="currentColor" stroke-width="1.3"/>`;
+      if (it.acc != null) g += `<g transform="translate(${-18 - it.dx - (it.acc === -2 ? 5 : 0)} 0)">${MQ.ACC_SVG[it.acc]}</g>`;
+      if (it.spot >= 0) g += `<circle class="nh-ring${o.sel === it.spot ? ' is-sel' : ''}" cx="0" cy="0" r="10" fill="none" stroke="currentColor" stroke-width="${o.sel === it.spot ? 2.2 : 1.2}"/>`;
+      g += it.d >= 4 ? OPEN : FILLED;
+      if (it.d === 3) g += `<circle class="dot" cx="11.5" cy="${pos % 2 === 0 ? -3 : 0}" r="1.9" fill="currentColor"/>`;
+      const end = stemEnd.has(it) ? stemEnd.get(it) - it.y : up ? -STEM : STEM;
+      g += up ? `<line class="stem" x1="6.1" x2="6.1" y1="-1.5" y2="${r1(end)}" stroke="currentColor" stroke-width="1.3"/>` : `<line class="stem" x1="-6.1" x2="-6.1" y1="1.5" y2="${r1(end)}" stroke="currentColor" stroke-width="1.3"/>`;
+      if (it.d === 1 && !it.beam) g += up ? `<path class="flag" fill="currentColor" d="M6.1 ${-STEM}C6.1 ${-STEM + 6} 16.1 ${-STEM + 9} 14.7 ${-STEM + 20}C15.3 ${-STEM + 12.5} 9.1 ${-STEM + 10.5} 6.1 ${-STEM + 9.5}Z"/>`
+        : `<path class="flag" fill="currentColor" d="M-6.1 ${STEM}C-6.1 ${STEM - 6} 3.9 ${STEM - 9} 2.5 ${STEM - 20}C3.1 ${STEM - 12.5} -3.1 ${STEM - 10.5} -6.1 ${STEM - 9.5}Z"/>`;
+      s += g + '</g>';
+    });
+    // The letters, in rows above and below the music; two at the same place move apart.
+    if (o.letters) {
+      const placed = [[], []];
+      nh.spots.forEach((sp, j) => {
+        if (sp.col < from || sp.col >= to) return;
+        const it = items.find((x) => x.spot === j);
+        if (!it) return;
+        const row = sp.voice < 2 ? 0 : 1;
+        let x = it.x - it.dx;
+        while (placed[row].some((px) => Math.abs(px - x) < 15)) x += 15;
+        placed[row].push(x);
+        const y = row ? tagBotY : tagTopY;
+        s += `<text class="nh-tag${color(it)}${o.sel === j ? ' is-sel' : ''}" x="${r1(x)}" y="${y}" font-size="14" font-weight="bold" text-anchor="middle" fill="${fillOf(it)}">${MQ.NH_LETTERS[j]}</text>`;
+      });
+    }
+    return { inner: s, W: r1(W), H, top, x0, colW, noteX };
+  }
+  // A Roman numeral with its figures stacked beside it — in parentheses over a pedal point.
+  function rnSVG(x, y, d, paren) {
+    const figs = d.figs || [];
+    let t = `<text class="nh-rn" x="${r1(x)}" y="${y}" font-size="15" font-weight="bold" text-anchor="middle" fill="currentColor">${paren ? '(' : ''}${accSpan(d.pre)}${esc(d.num)}${d.mark ? `<tspan class="nh-mark">${esc(d.mark)}</tspan>` : ''}`;
+    if (figs.length === 1) t += `<tspan class="nh-fig" font-size="10" dy="-7">${accSpan(figs[0])}</tspan>`;
+    if (figs.length === 2) t += `<tspan class="nh-fig" font-size="10" dy="-7">${esc(figs[0])}</tspan><tspan class="nh-fig" font-size="10" dx="-6.3" dy="11">${esc(figs[1])}</tspan>`;
+    const tail = (d.sec || '') + (paren ? ')' : '');
+    if (tail) t += `<tspan dy="${figs.length === 2 ? -4 : figs.length === 1 ? 7 : 0}">${accSpan(tail)}</tspan>`;
+    return t + '</text>';
+  }
+
+  // The lines of an example: ranges of chords, up to `per` a line (two bars).
+  function lines(nh, per) {
+    const n = nh.segs.length, out = [];
+    for (let a = 0; a < n; a += per) out.push([a, Math.min(n, a + per)]);
+    return out;
+  }
+  // The picture for paper: one line of the example as a standalone SVG, {svg, markup, wIn, hIn}.
+  function nhArt(nh, range, opts) {
+    const was = MQ.clefFont;
+    if (opts && opts.drawnClefs) MQ.clefFont = false;
+    const b = build(nh, { from: range[0], to: range[1], showTime: range[0] === 0, print: true, letters: true });
+    MQ.clefFont = was;
+    const markup = `<svg xmlns="${NS}" class="nh-art" viewBox="0 ${b.top} ${b.W} ${b.H}" width="${b.W}" height="${b.H}" style="color:#000">${b.inner}</svg>`;
+    const svg = new DOMParser().parseFromString(markup, 'image/svg+xml').documentElement;
+    const hIn = ((opts && opts.height) || 1.25) * 1.55 * (b.H / 330);
+    return { svg, markup, wIn: (b.W / b.H) * hIn, hIn };
+  }
+
+  Object.assign(MQ, { nhMarkup: build, nhLines: lines, nhArt });
+})(typeof window !== 'undefined' ? window : globalThis);
 /* Clefwork Rhythm — the one-line staff. Draws a rhythm in one or two parts (stems up, and stems
    down) with beams, flags, dots, rests, triplet brackets and ties, and lets students and teachers write
    one: a caret marks where the next note goes, a clicked note is selected and can be replaced.
@@ -13888,6 +15681,7 @@ svg.staff .nlabel { display: none; }
     }
     if (key === 'cgtable' || key === 'cgtritone' || key === 'cgphrase') return Math.min(MQ.GRAPH_MAX, cfg.counts[key] || 0);
     if (key === 'block') return Math.min(cfg.counts.block || 0, MQ.usableBlockExercises(cfg.block).length);
+    if (key === 'nht') return Math.min(MQ.NH_MAX, cfg.counts.nht || 0);
     if (MQ.TERM_COUNTS.includes(key)) return Math.min(key === 'tmhdyn' || key === 'tmhtempo' ? MQ.TERMS_HEAR_MAX : MQ.TERMS_MAX, cfg.counts[key] || 0);
     const list = key === 'custom' ? cfg.custom || [] : cfg.voicings || [];
     const n = cfg.counts[key] == null ? list.length : cfg.counts[key];
@@ -13895,7 +15689,7 @@ svg.staff .nlabel { display: none; }
   };
   const sumCounts = (cfg) => MQ.BUILT_IN.reduce((s, t) => s + (cfg.counts[t.id] || 0), 0) + listCount(cfg, 'custom') + listCount(cfg, 'voicing') + listCount(cfg, 'vprog') + listCount(cfg, 'progression')
     + listCount(cfg, 'keys') + listCount(cfg, 'analysis') + listCount(cfg, 'rhythm') + listCount(cfg, 'melody')
-    + Math.min(MQ.DEGREE_MAX, cfg.counts.degree || 0) + graphCount(cfg) + termCount(cfg) + listCount(cfg, 'sing') + listCount(cfg, 'block');
+    + Math.min(MQ.DEGREE_MAX, cfg.counts.degree || 0) + graphCount(cfg) + termCount(cfg) + listCount(cfg, 'sing') + listCount(cfg, 'block') + listCount(cfg, 'nht');
   // Clefwork Chord Graph: its tables and phrases.
   const graphCount = (cfg) => listCount(cfg, 'cgtable') + listCount(cfg, 'cgtritone') + listCount(cfg, 'cgphrase');
   // Clefwork Terms: all five kinds of question, and the ones that are heard.
@@ -13912,6 +15706,8 @@ svg.staff .nlabel { display: none; }
   const onlyTerms = (cfg) => !!(termCount(cfg) && sumCounts(cfg) === termCount(cfg));
   const onlySing = (cfg) => !!(listCount(cfg, 'sing') && sumCounts(cfg) === listCount(cfg, 'sing'));
   const onlyBlock = (cfg) => !!(listCount(cfg, 'block') && sumCounts(cfg) === listCount(cfg, 'block'));
+  // Clefwork Voice Leading: block chords and non-harmonic tones, nothing else.
+  const onlyVoice = (cfg) => !!((listCount(cfg, 'block') || listCount(cfg, 'nht')) && sumCounts(cfg) === listCount(cfg, 'block') + listCount(cfg, 'nht'));
   // How many melodies one student sings, of a bank of this many.
   const singAsked = (cfg) => MQ.singCount(MQ.singSettings(cfg.sing), listCount(cfg, 'sing'));
   // Clefwork Rhythm quizzes are rhythmic dictation or rhythm grids.
@@ -14397,6 +16193,9 @@ svg.staff .nlabel { display: none; }
     } else if (frac > 0 && q.type === 'progression') {
       const need = MQ.progAnswerCount(q);
       lead = `Partly right — ${Math.round(frac * need)} of ${need} answers.`;
+    } else if (frac > 0 && q.type === 'nht') {
+      const need = q.nh.spots.length;
+      lead = `Partly right — ${Math.round(frac * need)} of ${need} notes.`;
     } else if (frac > 0 && q.type === 'degree') {
       const need = q.deg.notes.length;
       lead = `Partly right — ${Math.round(frac * need)} of ${need} notes.`;
@@ -15107,6 +16906,7 @@ svg.staff .nlabel { display: none; }
   }
   function questionCard(q, cfg, o) {
     if (q.type === 'block') return blockCard(q, cfg, o);
+    if (q.type === 'nht') return nhCard(q, cfg, o);
     if (q.type === 'sing') return singCard(q, cfg, o);
     if (q.type === 'term') return termCard(q, cfg, o);
     if (q.type === 'cgtable' || q.type === 'cgtritone') return graphTableCard(q, cfg, o);
@@ -15227,7 +17027,7 @@ svg.staff .nlabel { display: none; }
     if (MELODY || SING) form.append(...melodySections(cfg, changed, R));
     if (GRAPH) form.append(graphKeysSection(cfg, changed));
     if (TERMS) form.append(termChoicesSection(cfg, changed));
-    if (VOICE) form.append(...blockSections(cfg, changed, R));
+    if (VOICE) form.append(...blockSections(cfg, changed, R), ...nhSections(cfg, changed, R));
     if (!KEYS && !ANALYSIS && !DICTATION && !GRAPH && !TERMS && !SING && !VOICE) form.append(sec('staff', 'Staff & notes', 'Applies to every question type.',
       h('div', { class: 'row2' },
         grp('Clefs', chips('q-clefs', [{ label: 'Treble' }, { label: 'Bass' }, { label: 'Grand staff' }], cfg.clefs, (m) => { cfg.clefs = m; changed(); }, (x) => x.label), 'Each tab can override this.'),
@@ -15621,11 +17421,11 @@ svg.staff .nlabel { display: none; }
         const est = Math.max(1, Math.round((MQ.BUILT_IN.reduce((s, t) => s + t.est * (cfg.counts[t.id] || 0), 0) + 40 * listCount(cfg, 'custom') + 55 * listCount(cfg, 'voicing') + 90 * listCount(cfg, 'vprog') + 70 * listCount(cfg, 'progression') + 15 * listCount(cfg, 'keys') + 30 * listCount(cfg, 'analysis') + 120 * listCount(cfg, 'rhythm') + 180 * listCount(cfg, 'melody') + 60 * Math.min(MQ.DEGREE_MAX, cfg.counts.degree || 0)
           + 150 * listCount(cfg, 'cgtable') + 180 * listCount(cfg, 'cgtritone') + 120 * listCount(cfg, 'cgphrase')
           + 15 * (termCount(cfg) - termHeard(cfg)) + 40 * termHeard(cfg) + 60 * singAsked(cfg)
-          + 25 * S.qs.reduce((n, q) => n + (q.type === 'block' ? q.blk.syms.length : 0), 0)) / 60));
+          + 25 * S.qs.reduce((n, q) => n + (q.type === 'block' ? q.blk.syms.length : 0), 0) + 90 * listCount(cfg, 'nht')) / 60));
         const sb = DICTATION && !SING ? dictation(cfg) : null;
         const dsc = !sb ? quizScoring(cfg, S.qs) : null;          // scale degrees scored by note or percent
         const outOf = quizTotal(cfg) ? ` · worth ${quizTotal(cfg)} point${quizTotal(cfg) === 1 ? '' : 's'}` : sb ? (sb.score === 'percent' ? ` · out of ${sb.outOf} points` : ` · out of ${rhythmNotes(S.qs)} notes`)
-          : dsc ? ` · out of ${fmtPts(MQ.reportStats({ items: S.qs.map((q) => ({ type: q.type, clef: q.clef, credit: 7, answered: true, sec: 0, notes: q.type === 'degree' ? q.deg.notes.length : MQ.isGraph(q) ? MQ.graphPoints(q) : q.type === 'block' ? q.blk.syms.length : undefined, wrong: 0 })), scoring: dsc }).n)} ${VOICE ? 'chords' : 'points'}` : '';
+          : dsc ? ` · out of ${fmtPts(MQ.reportStats({ items: S.qs.map((q) => ({ type: q.type, clef: q.clef, credit: 7, answered: true, sec: 0, notes: q.type === 'degree' ? q.deg.notes.length : MQ.isGraph(q) ? MQ.graphPoints(q) : q.type === 'block' ? q.blk.syms.length : q.type === 'nht' ? q.nh.spots.length : undefined, wrong: 0 })), scoring: dsc }).n)} ${VOICE && !listCount(cfg, 'nht') ? 'chords' : 'points'}` : '';
         const noun = MELODY || SING ? (total === 1 ? 'melody' : 'melodies') : `${RHYTHM ? 'example' : GRAPH ? 'worksheet' : VOICE ? 'exercise' : 'question'}${total === 1 ? '' : 's'}`;
         const each = SING && singAsked(cfg) < total ? ` (each student sings ${singAsked(cfg)})` : '';
         R.summary.replaceChildren(h('b', null, STUDENT ? 'Your practice' : cfg.title || 'Untitled quiz'), ` — ${total} ${noun}${each} · ${clefsText(cfg)}${outOf} · about ${est} min${cfg.timeLimit ? ` · ${cfg.timeLimit}-minute limit` : ''}`);
@@ -16542,6 +18342,8 @@ svg.staff .nlabel { display: none; }
     if (listCount(cfg, 'rhythm')) types.push(`${gridQuiz(cfg) ? 'Rhythm grid' : 'Rhythmic dictation'} (${listCount(cfg, 'rhythm')} example${listCount(cfg, 'rhythm') > 1 ? 's' : ''})`);
     if (listCount(cfg, 'melody')) types.push(`Melodic dictation (${listCount(cfg, 'melody')} melod${listCount(cfg, 'melody') > 1 ? 'ies' : 'y'})`);
     if (listCount(cfg, 'sing')) types.push(`Sight singing (${t.qs.length} melod${t.qs.length > 1 ? 'ies' : 'y'} to record${singAsked(cfg) < listCount(cfg, 'sing') ? `, drawn from ${listCount(cfg, 'sing')}` : ''})`);
+    if (listCount(cfg, 'block')) types.push(`Block chords (${listCount(cfg, 'block')} exercise${listCount(cfg, 'block') > 1 ? 's' : ''})`);
+    if (listCount(cfg, 'nht')) types.push(`Non-harmonic tones (${listCount(cfg, 'nht')} example${listCount(cfg, 'nht') > 1 ? 's' : ''})`);
     if (listCount(cfg, 'analysis')) {
       const asks = MQ.analysisQuestions(cfg).map((q) => q.an.ask);
       const kinds = [asks.some((a) => a === 'roman' || a === 'both') ? 'Roman numerals' : null, asks.some((a) => a === 'symbol' || a === 'both') ? 'chord symbols' : null,
@@ -16559,6 +18361,8 @@ svg.staff .nlabel { display: none; }
         // A quiz of only Keys questions is on the grand staff and the piano, whatever the clef setting.
         onlyBlock(cfg)
           ? h('div', null, h('dt', null, 'Uses'), h('dd', null, `Grand staff, ${MQ.blockSettings(cfg.block).value ? 'whole' : 'half'} notes`))
+          : onlyVoice(cfg)
+          ? h('div', null, h('dt', null, 'Uses'), h('dd', null, 'Grand staff, four voices'))
           : onlySing(cfg)
           ? h('div', null, h('dt', null, 'Uses'), h('dd', null, 'Your voice and a recorder'))
           : onlyTerms(cfg)
@@ -16704,6 +18508,9 @@ svg.staff .nlabel { display: none; }
       const g = MQ.graphSettings(cfg.graph);
       return g.score === 'question' ? null : { mode: g.score === 'percent' ? 'percent' : 'notes', outOf: g.outOf, split: 0 };
     }
+    // Non-harmonic tones: every lettered note a point, or their share of a total, when the teacher chose that.
+    const nh = MQ.nhSettings(cfg.nht);
+    if (nh.score !== 'question' && qs.some((q) => q.type === 'nht')) return { mode: nh.score, outOf: nh.outOf, split: 0 };
     const d = MQ.degreeSettings(cfg.deg);
     return d.score !== 'question' && qs.some((q) => q.type === 'degree') ? { mode: d.score, outOf: d.outOf, split: 0 } : null;
   }
@@ -16726,6 +18533,7 @@ svg.staff .nlabel { display: none; }
       if (q.type === 'degree') Object.assign(it, MQ.compareDegrees(q, t.resp[i]));
       if (MQ.isGraph(q)) Object.assign(it, MQ.compareGraph(q, t.resp[i], t.cfg));
       if (q.type === 'block') { const c = MQ.compareBlock(q, t.resp[i], t.cfg); it.notes = c.notes; it.wrong = c.wrong; }
+      if (q.type === 'nht') Object.assign(it, MQ.compareNh(q, t.resp[i]));
       return it;
     });
     t.report = {
@@ -16868,7 +18676,7 @@ svg.staff .nlabel { display: none; }
   }
   // "3 wrong notes" for note-scored questions, or "12 fully correct" for the rest.
   function scoreNote(st) {
-    if (st.noted && st.block) return `${fmtPts(st.notes - st.wrong)} of ${st.notes} chords right`;
+    if (st.noted && (st.block || st.nh)) return `${fmtPts(st.notes - st.wrong)} of ${st.notes} ${st.block && !st.nh ? 'chords' : st.nh && !st.block ? 'notes' : 'answers'} right`;
     if (st.noted && st.graph) return `${fmtPts(st.notes - st.wrong)} of ${st.notes} answers right`;
     if (st.noted) return `${st.wrong} wrong note${st.wrong === 1 ? '' : 's'} of ${st.notes}`;
     return `${st.full} fully correct`;
@@ -16907,7 +18715,7 @@ svg.staff .nlabel { display: none; }
         h('td', { class: 'num' }, String(i + 1)),
         h('td', null, it.type === 'sing' ? (q ? `Melody ${q.sing.n + 1}` : 'A melody') : q ? q.text : typeOf(it.type).label),
         h('td', null, it.type === 'sing' ? 'Sung' : it.type === 'analysis' ? 'Score' : it.type === 'rhythm' ? 'Rhythm' : it.type === 'rgrid' ? 'Grid' : it.type === 'cgphrase' ? 'Phrase' : MQ.GRAPH_TYPES.includes(it.type) ? 'Table' : it.type === 'term' ? (q && q.tm ? MQ.termCat(q) : 'Terms') : MQ.CLEFS[it.clef].label),
-        key ? h('td', { class: 'ans' + (q && (q.mel || q.rh || q.cg || q.ph || q.blk) ? ' is-long' : '') },
+        key ? h('td', { class: 'ans' + (q && (q.mel || q.rh || q.cg || q.ph || q.blk || q.nh) ? ' is-long' : '') },
           it.type === 'sing' && q ? accText(MQ.singSungText(q.mel, rep.answers && rep.answers[i] ? rep.answers[i].value : null))
             : q ? (q.cg ? graphAnswer(q) : q.ph ? accText(MQ.describeAnswer(q, quiz.cfg)) : MQ.describeAnswer(q, quiz.cfg)) : '') : null,
         h('td', null, resultCell(it)),
@@ -17053,8 +18861,8 @@ svg.staff .nlabel { display: none; }
       h('dl', { class: 'facts' },
         sung
           ? h('div', null, h('dt', null, 'Melodies'), h('dd', null, String(st.count)))
-          : st.noted && st.block
-          ? h('div', null, h('dt', null, 'Chords right'), h('dd', null, `${fmtPts(st.notes - st.wrong)} of ${st.notes}`))
+          : st.noted && (st.block || st.nh)
+          ? h('div', null, h('dt', null, st.block && !st.nh ? 'Chords right' : st.nh && !st.block ? 'Notes right' : 'Answers right'), h('dd', null, `${fmtPts(st.notes - st.wrong)} of ${st.notes}`))
           : st.noted && st.graph
           ? h('div', null, h('dt', null, 'Answers right'), h('dd', null, `${fmtPts(st.notes - st.wrong)} of ${st.notes}`))
           : st.noted
@@ -17193,6 +19001,11 @@ svg.staff .nlabel { display: none; }
         }
         if (q.type === 'block') {
           it.notes = q.blk.syms.length;
+          it.wrong = !it.answered ? it.notes : Math.min(it.notes, Math.round(it.notes * (1 - skill) * rng() * 1.6));
+          it.credit = it.wrong ? Math.min(6, Math.round(((it.notes - it.wrong) / Math.max(1, it.notes)) * 7)) : 7;
+        }
+        if (q.type === 'nht') {
+          it.notes = q.nh.spots.length;
           it.wrong = !it.answered ? it.notes : Math.min(it.notes, Math.round(it.notes * (1 - skill) * rng() * 1.6));
           it.credit = it.wrong ? Math.min(6, Math.round(((it.notes - it.wrong) / Math.max(1, it.notes)) * 7)) : 7;
         }
@@ -18088,7 +19901,7 @@ svg.staff .nlabel { display: none; }
     wrap.append(h(o.compact ? 'h3' : 'h2', { class: 'q-text' }, q.text));
     const pic = h('div', { class: 'an-crop-host' });
     wrap.append(pic);
-    if (q.an.ask === 'nht') return nhtCard(q, cfg, o, wrap, pic);
+    if (q.an.ask === 'nht') return nhCard(q, cfg, o, wrap, pic);
     if (q.an.ask === 'key') return keyCard(q, cfg, o, wrap, pic);
     if (q.an.ask === 'open') {
       const v = o.response || {}, ok = MQ.gradeAnalysis(q, v) === 1, reveal = !!o.reveal && !o.keyMode;
@@ -18155,7 +19968,7 @@ svg.staff .nlabel { display: none; }
   }
   // A box of non-harmonic tones, on its own: the student's circles (marked once checked, with what they
   // missed dashed), or the teacher's in an answer key, and what each one was named.
-  function nhtCard(q, cfg, o, wrap, pic) {
+  function nhCard(q, cfg, o, wrap, pic) {
     const T = q.an.nht, resp = o.response || {}, mine = { c: resp.c || [], l: resp.l || [] };
     const key = !!o.keyMode, reveal = !!o.reveal && !key;
     const cmp = MQ.compareNHT(q, mine);
@@ -20991,6 +22804,7 @@ svg.staff .nlabel { display: none; }
     return { svg, markup, wIn: (vb[2] / vb[3]) * hIn, hIn };
   }
   function exportArt(q, opts) {
+    if (q.type === 'nht') return nhPrintArt(q, opts);
     if (q.type === 'sing') return singPrintArt(q, opts);
     if (q.type === 'term') return termPrintArt(q);
     if (MQ.isGraph(q)) return graphPrintArt(q);
@@ -21383,6 +23197,103 @@ svg.staff .nlabel { display: none; }
     };
   }
 
+  // ---------- Clefwork Voice Leading: non-harmonic tones ----------
+  // The builder: how many examples, how they're made, which figures, and what students see and choose from.
+  function nhSections(cfg, changed, R) {
+    const s = (cfg.nht = MQ.nhSettings(cfg.nht));
+    const ctr = counter('nh-count', 'non-harmonic tone', (v) => { cfg.counts.nht = v; changed(); });
+    ctr.sync(cfg.counts.nht || 0, MQ.NH_MAX);
+    const outIn = h('input', { type: 'number', id: 'nh-out', min: 1, max: 1000, inputmode: 'numeric', value: s.outOf });
+    outIn.addEventListener('change', () => { s.outOf = Math.max(1, Math.min(1000, Math.round(+outIn.value || 100))); outIn.value = s.outOf; changed(); });
+    const outFld = fld('Total points', outIn, 'The score is the share of lettered notes answered correctly, times this total.');
+    outFld.hidden = s.score !== 'percent';
+    const chart = h('div', { class: 'table-wrap' }, h('table', { class: 'qtable nh-chart' },
+      h('thead', null, h('tr', null, h('th', null, 'Name'), h('th', null, 'Abbr.'), h('th', null, 'How it moves'))),
+      h('tbody', null, ...MQ.NH_PICKS.map((k) => h('tr', null, h('td', null, k.name), h('td', { class: 'nh-abbr' }, k.id), h('td', null, k.how))))));
+    return [
+      sec('nh', 'Non-harmonic tones', 'Clefwork writes a progression in four voices by the voice-leading rules, then adds non-harmonic tones to it. Each one is highlighted and lettered on the music; students name it from a menu.',
+        h('div', { class: 'row2' },
+          grp('Examples in the quiz', ctr, 'Each example is one question, made from the quiz’s seed — every student sees the same ones.'),
+          grp('Non-harmonic tones in each example', seg('nh-per', [1, 2, 3, 4].map((v) => ({ v, label: String(v) })), s.per, (v) => { s.per = v; changed(); }), 'As many as fit the chords; a pair of figures at once may add one.')),
+        h('div', { class: 'row2' },
+          grp('Chords in each example', seg('nh-len', [4, 6, 8].map((v) => ({ v, label: `${v} chords` })), s.length, (v) => { s.length = v; changed(); }), 'Two chords a measure, in half notes.'),
+          grp('Keys', seg('nh-mode', [{ v: 1, label: 'Major' }, { v: 2, label: 'Minor' }, { v: 3, label: 'Both' }], s.mode, (v) => { s.mode = v; changed(); }))),
+        grp('Sharps or flats, up to', seg('nh-sig', [0, 1, 2, 3, 4, 5, 6, 7].map((v) => ({ v, label: String(v) })), s.maxSig, (v) => { s.maxSig = v; changed(); })),
+        grp('Kinds of non-harmonic tones', chips('nh-kinds', MQ.NH_PICKS, s.kinds, (m) => { s.kinds = m; changed(); }, (k) => k.name, (k) => k.how),
+          'Clefwork puts in the kinds that fit each progression, trying for every kind you choose across the quiz. Suspensions come as 9–8, 7–6, 4–3, and 2–3 in the bass.'),
+        h('div', { class: 'toggles' },
+          toggle('nh-dbl', 'Two voices at once', 'Double suspensions, passing tones in thirds or sixths, double neighbors — the same figure in two voices at the same time.', s.dbl, (v) => { s.dbl = v ? 1 : 0; changed(); }),
+          toggle('nh-mix', 'Different figures at once', 'Two voices take different figures in the same chord — a suspension in the alto under a passing tone in the soprano.', s.mix, (v) => { s.mix = v ? 1 : 0; changed(); })),
+        h('p', { class: 'help' }, 'The textbook’s chart, as the menu names them:'),
+        chart),
+      sec('nh-ask', 'What students see and answer', 'The chords are labelled so students can find the harmony first, and each lettered note has a menu.',
+        grp('Chord labels', seg('nh-show', [{ v: 1, label: 'Roman numerals' }, { v: 2, label: 'Chord symbols' }, { v: 3, label: 'Both' }, { v: 0, label: 'None' }], s.show, (v) => { s.show = v; changed(); }), 'Roman numerals sit under the bass staff with the key; chord symbols sit above the music. Over a pedal point the numeral is in parentheses.'),
+        h('div', { class: 'toggles' },
+          toggle('nh-sus', 'Name suspensions by their intervals', 'The menu offers 9–8, 7–6, 4–3 and 2–3 (bass) suspensions instead of one “Suspension”.', s.susNames, (v) => { s.susNames = v ? 1 : 0; changed(); }),
+          toggle('nh-menu', 'The menu lists every kind', 'Not just the kinds this quiz asks for — students can’t narrow it down from the menu.', s.menu, (v) => { s.menu = v ? 1 : 0; changed(); }),
+          toggle('nh-hear', 'Students can hear the example', 'A play button sounds the four voices in rhythm.', s.hear, (v) => { s.hear = v ? 1 : 0; changed(); })),
+        grp('Scoring', seg('nh-score', [{ v: 'question', label: 'Each example is one question' }, { v: 'notes', label: 'Each note is a point' }, { v: 'percent', label: 'Percent of a total' }], s.score, (v) => { s.score = v; outFld.hidden = v !== 'percent'; changed(); }),
+          'With note or percent scoring, an example is worth a point for each lettered note; block chord exercises in the same quiz count a point a chord.'),
+        outFld),
+    ];
+  }
+  // A non-harmonic tone example: the four voices on the grand staff, two bars a line, and a menu for each
+  // lettered note under its line. Focusing a menu rings its note on the music.
+  let nhUid = 0;
+  function nhCard(q, cfg, o) {
+    const N = q.nh, uid = ++nhUid;
+    const reveal = !!o.reveal && !o.keyMode;
+    const resp = o.keyMode ? N.spots.map((sp) => sp.ans) : MQ.cleanNh(q, o.response);
+    const marks = reveal ? MQ.markNh(q, resp) : null;
+    const wrap = h('div', { class: 'qcard nh-card' + (o.compact ? ' is-compact' : '') });
+    wrap.append(h('div', { class: 'q-eyebrow' }, typeOf(q.type).label, h('span', { class: 'q-clef' }, `${N.key.name} · 4/4 · four voices`)));
+    wrap.append(h(o.compact ? 'h3' : 'h2', { class: 'q-text' }, q.text));
+    if (q.hint && !o.locked && !o.keyMode) wrap.append(h('p', { class: 'q-hint' }, q.hint));
+    if (N.hear && !o.keyMode) {
+      wrap.append(h('div', { class: 'btn-row dg-hear' },
+        h('button', { type: 'button', class: 'btn sm', onclick: () => { const pe = MQ.nhEvents(N, 0.34); if (!MQ.Audio.sequence(pe.events, { total: pe.total })) toast('This browser can’t play sound.', 'bad'); } }, '♪ Hear the example'),
+        h('button', { type: 'button', class: 'btn btn-quiet sm', onclick: () => MQ.Audio.stop() }, 'Stop')));
+    }
+    const opts = [{ v: -1, label: '— what is it? —' }].concat(N.menu.map((k) => ({ v: k, label: MQ.nhKindLabel(k) })));
+    // Two bars a line (one on a phone), with that line's menus under it.
+    const per = window.innerWidth < 640 ? 2 : 4;
+    const lines = h('div', { class: 'dg-lines' });
+    MQ.nhLines(N, per).forEach(([a, b]) => {
+      const pic = h('div', { class: 'nh-pic' });
+      const spots = N.spots.map((sp, j) => (sp.col >= a && sp.col < b ? j : -1)).filter((j) => j >= 0);
+      const row = h('div', { class: 'dg-answers nh-answers' });
+      let sel = -1;
+      const paint = () => {
+        const bld = MQ.nhMarkup(N, { from: a, to: b, showTime: a === 0, marks, sel });
+        pic.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="nh-staff" viewBox="0 ${bld.top} ${bld.W} ${bld.H}" role="img" aria-label="Chords ${a + 1} to ${b}${spots.length ? `, notes ${spots.map((j) => MQ.NH_LETTERS[j]).join(', ')}` : ''}">${bld.inner}</svg>`;
+      };
+      spots.forEach((j) => {
+        const id = `nh-${uid}-${j}`;
+        const selEl = selectEl(id, opts, resp[j], (v) => { resp[j] = +v; if (o.onResponse) o.onResponse(resp.slice()); });
+        selEl.setAttribute('aria-label', `Note ${MQ.NH_LETTERS[j]}: what is it?`);
+        selEl.addEventListener('focus', () => { sel = j; paint(); });
+        selEl.addEventListener('blur', () => { sel = -1; paint(); });
+        if (o.locked || o.keyMode) selEl.disabled = true;
+        const cell = h('div', { class: 'dg-box nh-box' }, h('label', { class: 'dg-n', for: id }, MQ.NH_LETTERS[j]), selEl);
+        if (marks) {
+          cell.classList.add(marks[j] ? 'is-right' : 'is-wrong');
+          if (!marks[j]) cell.append(h('span', { class: 'dg-fix', title: 'The answer' }, '→ ' + MQ.NH_KINDS[N.spots[j].ans].name));
+        }
+        row.append(cell);
+      });
+      paint();
+      lines.append(h('div', { class: 'dg-line' }, h('div', { class: 'dg-pic-wrap nh-pic-wrap' }, pic), spots.length ? row : null));
+    });
+    wrap.append(lines);
+    if (o.keyMode) wrap.append(h('p', { class: 'result is-key' }, h('strong', null, 'Answer: '), MQ.describeAnswer(q, cfg)));
+    else if (o.reveal) wrap.append(resultLine(q, cfg, resp));
+    return wrap;
+  }
+  // On paper: the example two bars a line, its non-harmonic tones ringed and lettered to match the blanks.
+  function nhPrintArt(q, opts) {
+    return MQ.nhLines(q.nh, 4).map((range) => MQ.nhArt(q.nh, range, { height: opts && opts.height, drawnClefs: opts && opts.drawnClefs }));
+  }
+
   // The part of the address after #, decoded. A link that was mangled on its way (a stray %, as some
   // email and learning systems leave) is read as best it can be rather than stopping the page. A link
   // that lost its # (…student.html?take=CODE) is read the same.
@@ -21545,9 +23456,9 @@ svg.staff .nlabel { display: none; }
       if (name) name.textContent = 'Clefwork Voice Leading';
       document.title = 'Clefwork Voice Leading';
       document.querySelector('.flow').replaceChildren(
-        h('li', null, h('b', null, '1'), ' Type the chord symbols and choose how many notes go in each block'),
-        h('li', null, h('b', null, '2'), ' Students write block voicings on the grand staff, in half notes'),
-        h('li', null, h('b', null, '3'), ' Clefwork marks every chord by the textbook’s rules — you see what they wrote and can change any mark'));
+        h('li', null, h('b', null, '1'), ' Block chords: type the chord symbols and choose how many notes go in each block. Non-harmonic tones: choose the kinds, and Clefwork writes the four-part examples'),
+        h('li', null, h('b', null, '2'), ' Students write block voicings on the grand staff, and name the highlighted non-harmonic tones from a menu'),
+        h('li', null, h('b', null, '3'), ' Clefwork marks every chord by the textbook’s rules and every lettered note — you see what they wrote and can change any block mark'));
     }
     if (MELODY) {
       const name = document.querySelector('.brand-name');

@@ -122,6 +122,8 @@
     // Added last, so the numbers report codes already use keep their meaning.
     // Intervals printed for students to name (the Intervals tab's "students name it" setting).
     { id: 'ivname', label: 'Name the Interval', blurb: 'Read an interval printed on the staff, its two notes stacked, and choose its quality and size.', est: 20, custom: true },
+    // Clefwork Voice Leading (see nht.js): non-harmonic tones in four-part writing.
+    { id: 'nht', label: 'Non-Harmonic Tones', blurb: 'A progression in four voices with its non-harmonic tones highlighted and lettered; students name each one — passing tone, suspension, appoggiatura…', est: 90, custom: true },
   ];
   const BUILT_IN = TYPES.filter((t) => !t.custom);
   const MAX_CUSTOM = 20, MAX_CUSTOM_NOTES = 6, MAX_VOICING_NOTES = 8;
@@ -772,6 +774,7 @@
     if (MQ.termQuestions && MQ.TERM_COUNTS.some((k) => cfg.counts[k] > 0)) MQ.termQuestions(cfg).forEach((q) => qs.push(q));
     if (MQ.singQuestions && cfg.counts.sing) MQ.singQuestions(cfg).forEach((q) => qs.push(q));
     if (MQ.blockQuestions && cfg.counts.block) MQ.blockQuestions(cfg).forEach((q) => qs.push(q));
+    if (MQ.nhQuestions && cfg.counts.nht) MQ.nhQuestions(cfg).forEach((q) => qs.push(q));
     if (cfg.flags.shuffle) shuffle(qs, rng);
     return qs;
   }
@@ -810,6 +813,7 @@
     if (q.type === 'degree') return MQ.gradeDegrees(q, response);
     if (q.type === 'rgrid') return MQ.gradeGrid(q, response);
     if (q.type === 'block') return MQ.gradeBlock(q, response, cfg);
+    if (q.type === 'nht') return MQ.gradeNh(q, response);
     if (MQ.isGraph && MQ.isGraph(q)) return MQ.gradeGraph(q, response, cfg);
     if (q.type === 'figured' || q.type === 'figprog') return MQ.gradeFigured(q, response, cfg);
     if (q.type === 'progression') return MQ.gradeProgression(q, response, cfg);
@@ -842,6 +846,7 @@
       : q.type === 'degree' ? MQ.hasDegreeAnswer(q, response)
       : q.type === 'rgrid' ? MQ.hasGridAnswer(q, response)
       : q.type === 'block' ? MQ.hasBlockAnswer(q, response)
+      : q.type === 'nht' ? MQ.hasNhAnswer(q, response)
       : MQ.isGraph && MQ.isGraph(q) ? MQ.hasGraphAnswer(q, response)
       : q.type === 'figured' || q.type === 'figprog' ? MQ.hasFiguredAnswer(q, response)
       : q.colSpecs ? !!response && response.some((col) => col && col.some(Boolean))
@@ -862,6 +867,7 @@
     if (q.type === 'term') return MQ.describeTerm(q);
     if (q.type === 'sing') return MQ.describeSing(q);
     if (q.type === 'block') return MQ.describeBlock(q);
+    if (q.type === 'nht') return MQ.describeNh(q);
     if (q.symbolAnswers) return q.symbolAnswers.map((a) => a.shown).join('  ');
     if (q.symbolAnswer) return q.symbolAnswer.shown;
     if (q.type === 'ivname') return q.ivName.charAt(0).toUpperCase() + q.ivName.slice(1);

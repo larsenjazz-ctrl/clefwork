@@ -39,6 +39,8 @@
     }
     // Scale degrees: a short blank for each numbered note (n1, n2 …), several to a line.
     if (q.type === 'degree') return { kind: 'lines', narrow: true, items: q.deg.notes.map((_, i) => 'n' + (i + 1)) };
+    // Non-harmonic tones: a blank for each lettered note (a, b …).
+    if (q.type === 'nht') return { kind: 'lines', items: q.nh.spots.map((_, i) => MQ.NH_LETTERS[i]) };
     if (q.choices) return { kind: 'choices', items: q.choices.slice() };
     if (q.dropdowns) return { kind: 'lines', items: q.dropdowns.map((d, i) => d.label || `Answer ${i + 1}`) };
     if (q.symbolAnswers) return { kind: 'lines', items: q.symbolAnswers.map((_, i) => `Chord ${i + 1}`) };
