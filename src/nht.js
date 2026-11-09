@@ -84,7 +84,20 @@
     s.hear = s.hear == null ? 1 : s.hear ? 1 : 0;
     if (!['question', 'notes', 'percent'].includes(s.score)) s.score = 'question';
     s.outOf = clamp(Math.round(s.outOf || 100), 1, 1000);
+    // pick: how many of the examples each student gets (0: all of them). Fewer makes the examples a bank.
+    s.pick = clamp(s.pick | 0, 0, NH_MAX);
     return s;
+  }
+  // How many examples one student gets, of a bank of `total`.
+  const nhAsked = (s, total) => (!s.pick || s.pick >= total ? total : s.pick);
+  // The questions a student gets: every question that isn't a non-harmonic tone example, and a random draw
+  // of the examples — as indices into the quiz's questions, in order; null when everyone gets them all.
+  function nhPick(cfg, qs, rnd) {
+    const s = nhSettings(cfg.nht);
+    const idx = qs.map((q, i) => (q.type === 'nht' ? i : -1)).filter((i) => i >= 0);
+    if (!s.pick || s.pick >= idx.length) return null;
+    const keep = new Set(shuffle(idx, rnd || Math.random).slice(0, s.pick));
+    return qs.map((q, i) => (q.type !== 'nht' || keep.has(i) ? i : -1)).filter((i) => i >= 0);
   }
   const kindOn = (s, id) => !!(s.kinds & (1 << PICKS.findIndex((k) => k.id === id)));
   // The menu students choose from: KINDS indices, in order, with the named suspensions in SUS's place.
@@ -338,7 +351,7 @@
         type: 'nht', clef: 'grand', grand: true,
         text: `Name each highlighted non-harmonic tone${spots.length > 1 ? ` (${LETTERS[0]}–${LETTERS[spots.length - 1]})` : ''}.`,
         hint: `In ${ex.key.name}, four voices, two chords a measure. Find the chord first, then choose what each lettered note is.` + (pairs ? ' Two voices may take a figure at the same time.' : ''),
-        nh: { key: ex.key, chords: ex.chords, segs: ex.segs, spots, menu: m, show: s.show, hear: s.hear },
+        nh: { n: k, key: ex.key, chords: ex.chords, segs: ex.segs, spots, menu: m, show: s.show, hear: s.hear },
         sig: 'nh' + k, tags: [],
       };
     });
@@ -376,6 +389,6 @@
 
   Object.assign(MQ, {
     NH_MAX, NH_SPAN: SPAN, NH_KINDS: KINDS, NH_PICKS: PICKS, NH_LETTERS: LETTERS, nhKindLabel: kindLabel, nhSettings, nhMenu: menuOf,
-    nhQuestions, cleanNh, markNh, gradeNh, hasNhAnswer, compareNh, describeNh, nhEvents,
+    nhQuestions, nhAsked, nhPick, cleanNh, markNh, gradeNh, hasNhAnswer, compareNh, describeNh, nhEvents,
   });
 })(typeof window !== 'undefined' ? window : globalThis);

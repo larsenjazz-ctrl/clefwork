@@ -134,6 +134,8 @@
   const onlyHarmony = (cfg) => !!(harmonyCount(cfg) && sumCounts(cfg) === harmonyCount(cfg));
   // How many melodies one student sings, of a bank of this many.
   const singAsked = (cfg) => MQ.singCount(MQ.singSettings(cfg.sing), listCount(cfg, 'sing'));
+  // Non-harmonic tones: how many examples each student gets when the quiz holds a bank (0: all of them).
+  const nhAsked = (cfg) => { const n = listCount(cfg, 'nht'), k = MQ.nhAsked(MQ.nhSettings(cfg.nht), n); return k < n ? k : 0; };
   // Clefwork Rhythm quizzes are rhythmic dictation or rhythm grids.
   const gridQuiz = (cfg) => MQ.rhythmSettings(cfg.rhythm).task === 'grid';
   // A rhythm grid's rhythm is read, heard, or both.
@@ -1874,7 +1876,7 @@
         const outOf = quizTotal(cfg) ? ` · worth ${quizTotal(cfg)} point${quizTotal(cfg) === 1 ? '' : 's'}` : sb ? (sb.score === 'percent' ? ` · out of ${sb.outOf} points` : ` · out of ${rhythmNotes(S.qs)} notes`)
           : dsc ? ` · out of ${fmtPts(MQ.reportStats({ items: S.qs.map((q) => ({ type: q.type, clef: q.clef, credit: 7, answered: true, sec: 0, notes: q.type === 'degree' ? q.deg.notes.length : MQ.isGraph(q) ? MQ.graphPoints(q) : q.type === 'block' ? q.blk.syms.length : q.type === 'nht' ? q.nh.spots.length : undefined, wrong: 0 })), scoring: dsc }).n)} ${VOICE ? 'chords' : 'points'}` : '';
         const noun = MELODY || SING ? (total === 1 ? 'melody' : 'melodies') : `${RHYTHM ? 'example' : GRAPH ? 'worksheet' : VOICE ? 'exercise' : 'question'}${total === 1 ? '' : 's'}`;
-        const each = SING && singAsked(cfg) < total ? ` (each student sings ${singAsked(cfg)})` : '';
+        const each = SING && singAsked(cfg) < total ? ` (each student sings ${singAsked(cfg)})` : nhAsked(cfg) ? ` (each student gets ${nhAsked(cfg)} of the ${listCount(cfg, 'nht')} non-harmonic tone examples)` : '';
         R.summary.replaceChildren(h('b', null, STUDENT ? 'Your practice' : cfg.title || 'Untitled quiz'), ` — ${total} ${noun}${each} · ${clefsText(cfg)}${outOf} · about ${est} min${cfg.timeLimit ? ` · ${cfg.timeLimit}-minute limit` : ''}`);
       }
       if (R.scoreInfo) R.scoreInfo.textContent = total ? rhythmScoreText(cfg, S.qs) : '';
@@ -2477,9 +2479,15 @@
   // quiz holds a bank; then each student draws their own, kept with their attempt and written into
   // their report, so the teacher knows which melodies to listen for.
   function singDraw(cfg, qs, pick) {
-    if (!qs.length || qs[0].type !== 'sing') return { qs, pick: null };
-    const list = (Array.isArray(pick) && pick.length ? pick : MQ.singPick(cfg, qs.length)).filter((i) => qs[i]);
-    return { qs: list.length ? list.map((i) => qs[i]) : qs, pick: list.length ? list : null };
+    if (!qs.length) return { qs, pick: null };
+    let list = null;
+    if (qs[0].type === 'sing') list = (Array.isArray(pick) && pick.length ? pick : MQ.singPick(cfg, qs.length)).filter((i) => qs[i]);
+    else if (qs.some((q) => q.type === 'nht') && MQ.nhPick) {
+      // Non-harmonic tones drawn from a bank: every other question is kept, in order.
+      list = Array.isArray(pick) && pick.length ? pick.filter((i) => qs[i]) : MQ.nhPick(cfg, qs);
+      if (list && list.length === qs.length) list = null;
+    }
+    return { qs: list && list.length ? list.map((i) => qs[i]) : qs, pick: list && list.length ? list : null };
   }
 
   // ---------- student ----------
@@ -2569,8 +2577,8 @@
     const limit = MQ.retakeLimit(t.cfg);
     const best = t.preview ? null : bestSoFar(t.code);
     const about = [`Attempt ${t.attempt || 1}`, best != null ? `best so far ${Math.round(best)}%` : null].filter(Boolean).join(' · ');
-    const fresh = sungQuiz(t.qs) && t.pick && t.pick.length < MQ.generateQuiz(t.cfg).length;
-    const note = left === Infinity ? (fresh ? 'You can retake this quiz as many times as you like — each time draws melodies again, so you may get different ones.' : 'You can retake this quiz as many times as you like — the same questions, a fresh start.')
+    const fresh = !!t.pick && t.pick.length < MQ.generateQuiz(t.cfg).length;
+    const note = left === Infinity ? (fresh ? `You can retake this quiz as many times as you like — each time draws ${sungQuiz(t.qs) ? 'melodies' : 'examples'} again, so you may get different ones.` : 'You can retake this quiz as many times as you like — the same questions, a fresh start.')
       : left > 0 ? `You can retake this quiz ${left} more time${left === 1 ? '' : 's'}.`
         : limit === 0 ? 'This quiz can be taken once.' : 'You’ve used every retake for this quiz.';
     return h('div', { class: 'retake-row' },
@@ -2792,7 +2800,7 @@
     if (listCount(cfg, 'melody')) types.push(`Melodic dictation (${listCount(cfg, 'melody')} melod${listCount(cfg, 'melody') > 1 ? 'ies' : 'y'})`);
     if (listCount(cfg, 'sing')) types.push(`Sight singing (${t.qs.length} melod${t.qs.length > 1 ? 'ies' : 'y'} to record${singAsked(cfg) < listCount(cfg, 'sing') ? `, drawn from ${listCount(cfg, 'sing')}` : ''})`);
     if (listCount(cfg, 'block')) types.push(`Block chords (${listCount(cfg, 'block')} exercise${listCount(cfg, 'block') > 1 ? 's' : ''})`);
-    if (listCount(cfg, 'nht')) types.push(`Non-harmonic tones (${listCount(cfg, 'nht')} example${listCount(cfg, 'nht') > 1 ? 's' : ''})`);
+    if (listCount(cfg, 'nht')) types.push(`Non-harmonic tones (${nhAsked(cfg) ? `${nhAsked(cfg)} of ${listCount(cfg, 'nht')}` : listCount(cfg, 'nht')} example${listCount(cfg, 'nht') > 1 ? 's' : ''}${nhAsked(cfg) ? ', drawn for you' : ''})`);
     if (listCount(cfg, 'analysis')) {
       const asks = MQ.analysisQuestions(cfg).map((q) => q.an.ask);
       const kinds = [asks.some((a) => a === 'roman' || a === 'both') ? 'Roman numerals' : null, asks.some((a) => a === 'symbol' || a === 'both') ? 'chord symbols' : null,
@@ -3179,10 +3187,25 @@
   // Sight singing: the quiz holds the whole bank, so a report's melodies are looked up by the
   // numbers it carries — otherwise the teacher would see the first few melodies, not the right ones.
   function singReportQuiz(r) {
-    if (!r.quiz || !r.answers || !r.items.length || !r.items.every((it) => it.type === 'sing')) return r.quiz;
+    if (!r.quiz || !r.answers || !r.items.length) return r.quiz;
     const bank = r.quiz.qs;
-    const qs = r.answers.map((a) => (a && a.value ? bank.find((q) => q.sing && q.sing.n === a.value.n) : null) || null);
-    return qs.every(Boolean) ? Object.assign({}, r.quiz, { qs }) : r.quiz;
+    if (r.items.every((it) => it.type === 'sing')) {
+      const qs = r.answers.map((a) => (a && a.value ? bank.find((q) => q.sing && q.sing.n === a.value.n) : null) || null);
+      return qs.every(Boolean) ? Object.assign({}, r.quiz, { qs }) : r.quiz;
+    }
+    // Non-harmonic tones drawn from a bank: each report item names its example, and the other
+    // questions follow in the quiz's order.
+    if (r.items.some((it) => it.type === 'nht') && r.items.length < bank.length) {
+      const rest = bank.filter((q) => q.type !== 'nht');
+      let j = 0;
+      const qs = r.items.map((it, i) => {
+        if (it.type !== 'nht') return rest[j++] || null;
+        const a = r.answers[i];
+        return (a && a.value && bank.find((q) => q.type === 'nht' && q.nh.n === a.value.n)) || null;
+      });
+      return qs.every(Boolean) ? Object.assign({}, r.quiz, { qs }) : r.quiz;
+    }
+    return r.quiz;
   }
   function knownQuizzes(extra) {
     const out = [], seen = new Set();
@@ -8097,11 +8120,14 @@
     outIn.addEventListener('change', () => { s.outOf = Math.max(1, Math.min(1000, Math.round(+outIn.value || 100))); outIn.value = s.outOf; changed(); });
     const outFld = fld('Total points', outIn, 'The score is the share of lettered notes answered correctly, times this total.');
     outFld.hidden = s.score !== 'percent';
+    const pickCtr = counter('nh-pick', 'examples each student gets', (v) => { s.pick = v; changed(); });
+    pickCtr.sync(s.pick, MQ.NH_MAX);
     const chart = h('div', { class: 'table-wrap' }, h('table', { class: 'qtable nh-chart' },
       h('thead', null, h('tr', null, h('th', null, 'Name'), h('th', null, 'Abbr.'), h('th', null, 'How it moves'))),
       h('tbody', null, ...MQ.NH_PICKS.map((k) => h('tr', null, h('td', null, k.name), h('td', { class: 'nh-abbr' }, k.id), h('td', null, k.how))))));
     return [
-      h('p', { class: 'help' }, 'Clefwork writes a progression in four voices by the voice-leading rules, then adds non-harmonic tones to it. Each one is highlighted and lettered on the music; students name it from a menu. Each example is one question, made from the quiz’s seed — every student sees the same ones.'),
+      h('p', { class: 'help' }, 'Clefwork writes a progression in four voices by the voice-leading rules, then adds non-harmonic tones to it. Each one is highlighted and lettered on the music; students name it from a menu. Each example is one question, made from the quiz’s seed. The counter on the tab sets how many examples the quiz holds.'),
+      grp('Examples each student gets', pickCtr, '0 means all of them. Fewer makes the examples above a bank: each student gets a different draw of that many, in order, and their report says which ones. Retakes draw again.'),
       h('div', { class: 'row2' },
         grp('Chords in each example', seg('nh-len', [4, 6, 8].map((v) => ({ v, label: `${v} chords` })), s.length, (v) => { s.length = v; changed(); }), 'Two chords a measure, in half notes.'),
         grp('Non-harmonic tones in each example', seg('nh-per', [1, 2, 3, 4].map((v) => ({ v, label: String(v) })), s.per, (v) => { s.per = v; changed(); }), 'As many as fit the chords; a pair of figures at once may add one.')),

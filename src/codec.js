@@ -464,11 +464,13 @@
   function writeNhtBlock(w, cfg) {
     const s = MQ.nhSettings(cfg.nht);
     w.u(s.gen, 3).u(Math.min(MQ.NH_MAX, (cfg.counts && cfg.counts.nht) || 0), 5).u(s.length / 2 - 2, 2).u(s.mode, 2).u(s.maxSig, 3).u(s.per - 1, 2)
-      .u(s.kinds, 12).u(s.dbl, 1).u(s.mix, 1).u(s.susNames, 1).u(s.show, 2).u(s.menu, 1).u(s.hear, 1).u(DEGREE_SCORES.indexOf(s.score), 2).u(s.outOf, 10);
+      .u(s.kinds, 12).u(s.dbl, 1).u(s.mix, 1).u(s.susNames, 1).u(s.show, 2).u(s.menu, 1).u(s.hear, 1).u(DEGREE_SCORES.indexOf(s.score), 2).u(s.outOf, 10)
+      .u(s.pick, 4);                                   // how many each student gets (added later: older codes end before it)
   }
   function readNhtBlock(r, cfg) {
     const gen = r.u(3), n = r.u(5);
     cfg.nht = MQ.nhSettings({ gen, length: (r.u(2) + 2) * 2, mode: r.u(2), maxSig: r.u(3), per: r.u(2) + 1, kinds: r.u(12), dbl: r.u(1), mix: r.u(1), susNames: r.u(1), show: r.u(2), menu: r.u(1), hear: r.u(1), score: DEGREE_SCORES[r.u(2)] || 'question', outOf: r.u(10) });
+    cfg.nht.pick = r.b.length - r.p >= 4 ? r.u(4) : 0;
     cfg.counts.nht = n;
   }
 
@@ -1133,9 +1135,10 @@
       return;
     }
     if (q.type === 'nht') {
-      // Non-harmonic tones: how many lettered notes, then each choice (0 blank, else its kind + 1).
+      // Non-harmonic tones: which example of the bank this was, how many lettered notes, then each choice
+      // (0 blank, else its kind + 1).
       const list = MQ.cleanNh(q, resp).slice(0, 31);
-      w.u(list.length, 5);
+      w.u(Math.min(15, (q.nh && q.nh.n) || 0), 4).u(list.length, 5);
       list.forEach((v) => w.u(v < 0 ? 0 : v + 1, 4));
       return;
     }
@@ -1262,9 +1265,9 @@
       return { kind: 'text', value: out };
     }
     if (type === 'nht') {
-      const n = r.u(5), list = [];
+      const ex = r.u(4), n = r.u(5), list = [];
       for (let j = 0; j < n; j++) list.push(r.u(4) - 1);
-      return { kind: 'nht', value: list };
+      return { kind: 'nht', value: { n: ex, picks: list } };
     }
     if (type === 'degree') {
       const n = r.u(7), list = [];
@@ -1349,6 +1352,7 @@
   function answerFor(q, a) {
     if (!a || answerLost(q, a)) return null;
     if (a.kind === 'cadence') return Object.assign({}, a.value, { n: a.value.n ? q.columns.map((c, i) => a.value.n[i] || []) : null });
+    if (a.kind === 'nht') return a.value.picks;
     if (a.kind !== 'staff') return a.value;
     const cols = a.value.slice();
     return q.columns.map((c) => (c.cap > 0 ? cols.shift() || [] : []));
