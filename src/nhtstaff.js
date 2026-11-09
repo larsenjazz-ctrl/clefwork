@@ -1,4 +1,4 @@
-/* Clefwork Voice Leading — the picture of a non-harmonic tone example: four voices on the grand staff in
+/* Clefwork Harmony — the picture of a non-harmonic tone example: four voices on the grand staff in
    4/4, two chords a bar, half notes split into quarters and eighths where a voice takes a figure, with
    beams, dots and ties. Soprano and alto share the treble staff (stems up and down), tenor and bass the
    bass staff. The non-harmonic tones are coloured, ringed and lettered — the letters above the music for

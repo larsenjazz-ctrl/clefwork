@@ -26,7 +26,7 @@ body() {
   echo "<script>window.CLEFWORK_BASE = '$BASE';</script>"
   echo "<style>"; cat src/styles.css; echo "$MARK_CSS"; echo "</style>"
   cat src/shell.html
-  echo "<script>"; cat src/theory.js src/progressions.js src/chords.js src/figured.js src/voicings.js src/blockchords.js src/partwriting.js src/nht.js src/keys.js src/analysis.js src/rhythm.js src/rhythmgen.js src/melody.js src/melodygen.js src/sing.js src/degrees.js src/chordgraph.js src/vocab.js src/terms.js src/library-index.js src/library.js src/qr.js src/pdf.js src/print.js src/docx.js src/codec.js src/staff.js src/nhtstaff.js src/rhythmstaff.js src/rhythmgrid.js src/melodystaff.js src/piano.js src/audio.js src/app.js; echo "</script>"
+  echo "<script>"; cat src/theory.js src/progressions.js src/chords.js src/figured.js src/voicings.js src/blockchords.js src/cadences.js src/partwriting.js src/nht.js src/keys.js src/analysis.js src/rhythm.js src/rhythmgen.js src/melody.js src/melodygen.js src/sing.js src/degrees.js src/chordgraph.js src/vocab.js src/terms.js src/library-index.js src/library.js src/qr.js src/pdf.js src/print.js src/docx.js src/codec.js src/staff.js src/nhtstaff.js src/rhythmstaff.js src/rhythmgrid.js src/melodystaff.js src/piano.js src/audio.js src/app.js; echo "</script>"
 }
 # Student version: same app with practice + take-a-quiz only (no quiz codes, no grading tab).
 SHEAD=$(printf '%s' "$HEAD" | sed 's#<title>Clefwork Music Quizzes</title>#<title>Clefwork Practice</title>#; s#Build music theory quizzes, have students write notes on the staff, and grade them from report codes#Practise music theory on the staff, and take quizzes from your teacher#')
@@ -80,16 +80,22 @@ TMFLAG='<script>window.CLEFWORK_MODE = "terms";</script>'
 { echo "$TMHEAD"; echo "$TMFLAG"; body; } > dist/clefwork-terms.html
 { echo "$DOC"; echo "$TMHEAD"; echo "$TMFLAG"; echo '</head><body>'; body; echo '</body></html>'; } > dist/clefwork-terms-standalone.html
 # Clefwork Voice Leading: block chords on the grand staff, marked by the textbook's rules.
-VLHEAD=$(printf '%s' "$HEAD" | sed 's#<title>Clefwork Music Quizzes</title>#<title>Clefwork Voice Leading</title>#; s#Build music theory quizzes, have students write notes on the staff, and grade them from report codes#Voice leading: block chord voicings marked against the textbook rules, and four-part examples whose non-harmonic tones students name#')
+VLHEAD=$(printf '%s' "$HEAD" | sed 's#<title>Clefwork Music Quizzes</title>#<title>Clefwork Voice Leading</title>#; s#Build music theory quizzes, have students write notes on the staff, and grade them from report codes#Block chord voicings: students write a block for each chord symbol on the grand staff, marked chord by chord against the textbook rules#')
 VLFLAG='<script>window.CLEFWORK_MODE = "voice";</script>'
 { echo "$VLHEAD"; echo "$VLFLAG"; body; } > dist/clefwork-voice.html
 { echo "$DOC"; echo "$VLHEAD"; echo "$VLFLAG"; echo '</head><body>'; body; echo '</body></html>'; } > dist/clefwork-voice-standalone.html
+# Clefwork Harmony: voicings, progressions, figured bass, cadences and modulations.
+HMHEAD=$(printf '%s' "$HEAD" | sed 's#<title>Clefwork Music Quizzes</title>#<title>Clefwork Harmony</title>#; s#Build music theory quizzes, have students write notes on the staff, and grade them from report codes#Harmony quizzes: voiced chords, progressions, figured bass, cadences and modulations, and non-harmonic tones in four-part writing, written on the staff and named#')
+HMFLAG='<script>window.CLEFWORK_MODE = "harmony";</script>'
+{ echo "$HMHEAD"; echo "$HMFLAG"; body; } > dist/clefwork-harmony.html
+{ echo "$DOC"; echo "$HMHEAD"; echo "$HMFLAG"; echo '</head><body>'; body; echo '</body></html>'; } > dist/clefwork-harmony-standalone.html
 # The landing page: pick a tool, or paste report codes to grade.
 HHEAD=$(printf '%s' "$HEAD" | sed 's#<title>Clefwork Music Quizzes</title>#<title>Clefwork</title>#; s#Build music theory quizzes, have students write notes on the staff, and grade them from report codes — no server needed#Music theory quiz tools for teachers: build quizzes, share links, and grade the reports students send back#')
 { echo "$DOC"; echo "$HHEAD"; echo "<style>"; cat src/styles.css; echo "$MARK_CSS"; logo_css logo-full logo; echo "</style>"; echo '</head><body>'; cat src/home.html; echo '</body></html>'; } > dist/clefwork-home.html
 # Copies for GitHub Pages: the landing page at index.html, the quiz builder at clefwork.html,
 # the student app at student.html, the Canvas pages at take.html and results.html, and the other
-# tools at keys.html, analysis.html, rhythm.html, melody.html, sing.html, graph.html, terms.html and voice.html.
+# tools at keys.html, analysis.html, rhythm.html, melody.html, sing.html, graph.html, terms.html, voice.html
+# and harmony.html.
 mkdir -p dist/site
 cp dist/clefwork-home.html dist/site/index.html
 cp dist/clefwork-standalone.html dist/site/clefwork.html
@@ -104,6 +110,7 @@ cp dist/clefwork-sing-standalone.html dist/site/sing.html
 cp dist/clefwork-graph-standalone.html dist/site/graph.html
 cp dist/clefwork-terms-standalone.html dist/site/terms.html
 cp dist/clefwork-voice-standalone.html dist/site/voice.html
+cp dist/clefwork-harmony-standalone.html dist/site/harmony.html
 # The library's pieces and score pictures (library/), which the pages load when they're needed.
 mkdir -p dist/site/library
 cp library/* dist/site/library/

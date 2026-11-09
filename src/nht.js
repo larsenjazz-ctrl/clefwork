@@ -1,4 +1,4 @@
-/* Clefwork Voice Leading — Non-Harmonic Tones. Clefwork writes a short progression in four voices
+/* Clefwork Harmony — Non-Harmonic Tones. Clefwork writes a short progression in four voices
    (the part-writing engine, MQ.PW, voices it by the common-practice rules), two chords to a bar of 4/4
    in half notes, then adds non-harmonic tones the way the course textbook classifies them (Harmony in
    Contemporary Music, "Non-Harmonic Tones"): by how a note is approached, how it is left, and where it

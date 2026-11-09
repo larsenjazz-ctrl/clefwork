@@ -3,7 +3,8 @@
 Music theory quizzes that run entirely in the browser — no server, no accounts, nothing stored online.
 
 - **Landing page:** [index.html](https://larsenjazz-ctrl.github.io/clefwork/) — choose a tool, or paste report codes and results links to open them in the grade checker. Each teacher tool has an **← All tools** link back here. Old `index.html#grade=…` and `#take=…` links are passed on to the quiz builder.
-- **Teacher app:** [clefwork.html](https://larsenjazz-ctrl.github.io/clefwork/clefwork.html) — build a quiz, share its code or link, and grade the report codes or results links students send back.
+- **Teacher app:** [clefwork.html](https://larsenjazz-ctrl.github.io/clefwork/clefwork.html) — build a quiz of the basics (placing and naming notes, scale degrees, intervals, chords, scales and key signatures), share its code or link, and grade the report codes or results links students send back.
+- **Clefwork Harmony:** [harmony.html](https://larsenjazz-ctrl.github.io/clefwork/harmony.html) — the harmony question types: single voiced chords, voiced progressions, chord progressions, figured bass chords and progressions, and cadences and modulations. Non-harmonic tones: Clefwork writes a progression in four voices and adds passing tones, suspensions and the other figures from the textbook, highlighted and lettered; students name each one from a menu.
 - **Student app:** [student.html](https://larsenjazz-ctrl.github.io/clefwork/student.html) — practise with instant feedback, or take a teacher's quiz and send back a report code.
 - **Clefwork Keys:** [keys.html](https://larsenjazz-ctrl.github.io/clefwork/keys.html) — a separate app for reading notes: the grand staff, note names with octaves, and the piano keyboard.
 - **Clefwork Analysis:** [analysis.html](https://larsenjazz-ctrl.github.io/clefwork/analysis.html) — harmonic analysis on real music: upload a picture of a score, box the chords, and students write Roman numerals or chord symbols beside the music.
@@ -12,7 +13,7 @@ Music theory quizzes that run entirely in the browser — no server, no accounts
 - **Clefwork Sight Singing:** [sing.html](https://larsenjazz-ctrl.github.io/clefwork/sing.html) — the same melodies, read instead of heard: students sing each one and record themselves, and hand the recordings in on Canvas.
 - **Clefwork Chord Graph:** [graph.html](https://larsenjazz-ctrl.github.io/clefwork/graph.html) — the chord graph as worksheets: diatonic progression tables, tritone substitution graphs, and phrases in Roman numerals checked against the graph's rules.
 - **Clefwork Terms:** [terms.html](https://larsenjazz-ctrl.github.io/clefwork/terms.html) — musical terms, multiple choice: dynamics, tempo markings and instrument families, and hearing the dynamics and tempo of a generated melody.
-- **Clefwork Voice Leading:** [voice.html](https://larsenjazz-ctrl.github.io/clefwork/voice.html) — block chords: students write a block voicing for each chord symbol on the grand staff, and every chord is marked by the textbook's rules for block voicings. The teacher sees what the student wrote and Clefwork's marks, and can accept or reject any chord. Non-harmonic tones: Clefwork writes a progression in four voices and adds passing tones, suspensions and the other figures from the textbook, highlighted and lettered; students name each one from a menu.
+- **Clefwork Voice Leading:** [voice.html](https://larsenjazz-ctrl.github.io/clefwork/voice.html) — block chords: students write a block voicing for each chord symbol on the grand staff, and every chord is marked by the textbook's rules for block voicings. The teacher sees what the student wrote and Clefwork's marks, and can accept or reject any chord.
 - **Canvas pages:** [take.html](https://larsenjazz-ctrl.github.io/clefwork/take.html) takes one quiz and ends with a results link to hand in; [results.html](https://larsenjazz-ctrl.github.io/clefwork/results.html) shows one student's results from that link.
 
 ## How it works
@@ -189,7 +190,26 @@ Every chord is a point. Students who may check their answers see each chord's ma
 
 The answer key shows one good block for each chord — the one the rules like best, near the middle of the treble staff.
 
-The second section is **non-harmonic tones**. Clefwork writes a progression of 4, 6 or 8 chords in a major or minor key (up to the number of sharps or flats the teacher allows), voices it in four parts by the common-practice rules (the part-writing engine), and adds one to four non-harmonic tones of the kinds the teacher chooses, as the course textbook classifies them by approach, resolution and accent: passing tones, accented passing tones, chromatic passing tones, neighbor tones, chromatic (raised lower) neighbors, suspensions — named 9–8, 7–6, 4–3, or 2–3 in the bass — retardations, appoggiaturas, escape tones, anticipations and pedal points. Two voices may take the same figure at once (double suspensions, passing tones in thirds) or different figures at once, when the teacher turns those on. Each example is one question: the four voices on the grand staff in 4/4, two chords a measure, with every non-harmonic tone coloured, ringed and lettered, the Roman numerals (with the key) under the music and/or the chord symbols above it, and a play button. Under the music each letter has a menu — the kinds the quiz asks for, or every kind — and each lettered note is an equal share of the question, or a point of its own, or a share of a total. The answer key names each letter. On paper the example prints two measures a line with a blank for each letter.
+### Clefwork Harmony
+
+The quiz builder's question types are split between two tools. Clefwork (`clefwork.html`) keeps the first seven tabs — Place the Note, Name the Note, Scale Degrees, Intervals, Chords, Scales and Key Signatures. Clefwork Harmony (`harmony.html`) has the harmony tabs — Single Voiced Chords, Voiced Progressions, Chord Progressions, Figured Bass Chord, Figured Bass Progression — and a new one, **Cadences & Modulations**. A quiz made before the split opens in either tool with every tab it uses, and the student page still practises every type.
+
+**Cadences & Modulations** (`src/cadences.js`). Each question is a progression of up to eight chords in half notes, two to a 4/4 measure, following Kostka & Payne, *Tonal Harmony*:
+
+- **Cadences** — perfect authentic (V–I, both in root position, tonic in the soprano), imperfect authentic (another soprano note, an inverted V, or vii°6–I), half (ends on V), Phrygian half (iv6–V in minor), plagal (IV–I) and deceptive (V–vi).
+- **Modulations** — common-chord (a pivot chord diatonic in both keys, a predominant in the new key when it can be, printed in both keys: vi = ii), phrase (one phrase ends with a cadence in the old key and the next begins in the new one), sequential (a pattern repeated in the new key) and common-tone (a note held in the soprano between major keys a third apart). The first three go to a closely related key.
+
+Progressions are **made by Clefwork** (the teacher chooses which cadences and modulations take turns, how many chords, major or minor keys and how many sharps or flats) or **written by the teacher** in Roman numerals — `C: I IV ii6 V7 I`, a new key before its first chord (`F: I ii6 V I C: I IV V7 I`), a pivot as both numerals (`C: I vi=G:ii V7 I`), applied chords (`V7/V`). Clefwork reads the cadence and modulation from what is written, or the teacher chooses them; a list of the textbook's examples can be added with a click. Chords are triads, some sevenths (V7, ii7, vii°7 where the 7th can resolve) or full (also IV7, vi7 and V9 in major); **Every note in large chords** keeps every note of sevenths and ninths, with an extra inner voice where needed.
+
+Chords are voiced on the treble or bass staff (the bass and three upper notes close together, stemmed as one or with the top note up and the others down) or on the grand staff — four-part chorale (soprano and alto in the treble clef, tenor and bass in the bass clef, each with its own stem) or the bass under a three-note block. Voicing follows the textbook's rules: no parallel 5ths or octaves, the leading tone and chordal 7ths resolved (a 7th may be held into a chord that has it, as in ii65–I64–V), voices in range, no augmented 2nds, the tonic in the soprano at a perfect authentic cadence. Phrase endings carry a fermata, placed above the stem and clear of the chord symbols. Printed music can have passing and neighbour tones as quarter notes in a voice with its own stem.
+
+Students **write the chords** on the staff (each chord's notes, with the figure's note in the bass), **name the cadence or modulation** (a modulation's kind and the new key) from menus, a **mix** (about half the questions write the chords and half name the cadence or modulation, dealt in a shuffled order), or **both in every question** (students write the chords, then name the cadence or modulation of the same progression). Roman numerals and chord symbols are each printed, written by students (a box per chord, two for a pivot), or left out; students writing the chords always have one of them printed. Each part asked — notes, numerals, symbols, naming — is an equal share of the question.
+
+Codes: quiz extension 15 holds the settings and written progressions; other quizzes keep their codes. Report type `cadence` (the 26th) carries the notes, numerals, symbols and menu choices.
+
+**Non-Harmonic Tones** (`src/nht.js`, `src/nhtstaff.js`). Clefwork writes a progression of 4, 6 or 8 chords in a major or minor key (up to the number of sharps or flats the teacher allows), voices it in four parts by the common-practice rules (the part-writing engine), and adds one to four non-harmonic tones of the kinds the teacher chooses, as the course textbook classifies them by approach, resolution and accent: passing tones, accented passing tones, chromatic passing tones, neighbor tones, chromatic (raised lower) neighbors, suspensions — named 9–8, 7–6, 4–3, or 2–3 in the bass — retardations, appoggiaturas, escape tones, anticipations and pedal points. Two voices may take the same figure at once (double suspensions, passing tones in thirds) or different figures at once, when the teacher turns those on. Each example is one question (the tab’s counter sets how many): the four voices on the grand staff in 4/4, two chords a measure, with every non-harmonic tone coloured, ringed and lettered, the Roman numerals (with the key) under the music and/or the chord symbols above it, and a play button. Under the music each letter has a menu — the kinds the quiz asks for, or every kind — and each lettered note is an equal share of the question, or a point of its own, or a share of a total. The answer key names each letter. On paper the example prints two measures a line with a blank for each letter.
+
+Codes: quiz extension 16 holds the cadence block (as extension 15 writes it) and the non-harmonic tone settings — 4/6/8 chords, keys, kinds, pairs, naming, labels, scoring. Report type `nht` (the 27th) carries each lettered note’s choice, and how many were right.
 
 ### The library
 
@@ -209,6 +229,20 @@ Where it's used:
 The library window filters by kind, searches titles, composers and styles, plays the measures chosen, has "🎲 Pick at random", and says why measures can't be used.
 
 The pieces are in `library/data.js` and the scores in `library/` (engraved hymns as gzipped SVG, piano pages as 1-bit PNG), loaded only when needed; a one-line-a-piece index is bundled so a Terms quiz chooses the same pieces everywhere. Pieces are only ever added, each with the library version it arrived in. `tools/library/` holds the scripts that build it and their sources (see its README).
+
+### Correcting a quiz that's already out
+
+When a quiz went out with a mistake — most often an Analysis box given the wrong answer (V where it should be ii) — the teacher fixes it in the grade checker, and every student's report is re-graded. Report codes don't change and nothing is stored online: each report already carries what the student entered, and the corrections are kept on the teacher's computer with the quiz.
+
+Open a report in **Grade reports** (with the quiz known on this computer, or its code pasted) and choose **See answers**. Under each question:
+
+- **Drop this question** — it counts for no one; scores are out of the questions left (a quiz with a total keeps its total).
+- **Give everyone credit** — every student gets it right.
+- **Fix the right answer** — for every question whose answer the teacher typed: Analysis boxes asking for a Roman numeral, chord symbol or pivot (answers that are all right separated by "or"); Chord Progressions the teacher wrote; Cadences & Modulations progressions the teacher wrote (with the cadence and modulation menus); and Block Chords exercises. A corrected progression keeps the same number of chords, so students' answers line up. Clefwork writes the correction into the teacher's entry, makes that question again, and marks every student's answer to it again. Students who haven't taken the quiz yet still have the old answer, so a link opens a corrected copy in the quiz's own tool (an Analysis quiz with its pictures) to share again.
+
+Each corrected report shows "Re-graded with your corrections" with its old and new scores, and the class summary, spreadsheet copy and Canvas score follow. The results page applies the corrections on the computer they were made on. Each change can be undone from the same place.
+
+`node tests/quiz-fixes.js` checks that a corrected answer re-marks the answer a report carries, how dropped and credited questions are scored, and that questions made from the teacher's entries can be found and made again in line with the quiz students took.
 
 ### Retakes
 
@@ -242,7 +276,8 @@ dist/clefwork-melody*.html            Clefwork Melody
 dist/clefwork-sing*.html              Clefwork Sight Singing
 dist/clefwork-graph*.html             Clefwork Chord Graph
 dist/clefwork-terms*.html             Clefwork Terms
-dist/clefwork-voice*.html             Clefwork Voice Leading (block chords, non-harmonic tones)
+dist/clefwork-voice*.html             Clefwork Voice Leading
+dist/clefwork-harmony*.html           Clefwork Harmony
 dist/site/library/                    the library's pieces and score pictures (copied from library/)
 dist/clefwork-take-standalone.html    Canvas: take one quiz
 dist/clefwork-results-standalone.html Canvas: one student's results
@@ -270,6 +305,10 @@ Set `CLEFWORK_BASE` before building to change the address used in shared links.
 ### Testing block chords
 
 `node tests/block-chords.js` (no dependencies) checks the block-chord marks against the textbook's rules: good blocks from the textbook's examples pass, and blocks that break each rule are marked for that rule only. It also checks that the model answer for every chord type, in every key and block size, follows the rules; that the quiz code carries the exercises; that a report carries the student's notes; and that the teacher's accept and reject choices change the score.
+
+### Testing cadences and modulations
+
+`node tests/cadences.js` (no dependencies) makes every kind of cadence and modulation on every staff, texture and chord size, and checks that each reads back as what it claims, that its voice leading follows the rules (no parallel 5ths or octaves, 7ths resolved, voices in range, the right bass, a tonic soprano at a PAC), that its model answer is marked right and a blank one wrong, and that quiz and report codes carry everything. It also reads the textbook's example progressions.
 
 ### Testing typed answers
 
