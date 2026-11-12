@@ -396,6 +396,10 @@
     return h('section', { class: 'sec', id: 'sec-' + id },
       h('div', { class: 'sec-head' }, h('h2', null, title), sub ? h('p', null, sub) : null), ...kids);
   }
+  // A part of a tab's panel, with its own small heading.
+  function pane(id, title, sub, ...kids) {
+    return h('div', { class: 'qt-pane', id: 'sec-' + id }, h('h4', { class: 'nh-sub' }, title), sub ? h('p', { class: 'help' }, sub) : null, ...kids);
+  }
   function fld(label, control, help) {
     return h('label', { class: 'fld', for: control.id }, h('span', { class: 'mini-label' }, label), control, help ? h('span', { class: 'help' }, help) : null);
   }
@@ -1467,7 +1471,6 @@
     if (MELODY || SING) form.append(...melodySections(cfg, changed, R));
     if (GRAPH) form.append(graphKeysSection(cfg, changed));
     if (TERMS) form.append(termChoicesSection(cfg, changed));
-    if (VOICE) form.append(...blockSections(cfg, changed, R), ...chorSections(cfg, changed, R));
     if (!KEYS && !ANALYSIS && !DICTATION && !GRAPH && !TERMS && !SING && !VOICE) form.append(sec('staff', 'Staff & notes', 'Applies to every question type.',
       h('div', { class: 'row2' },
         grp('Clefs', chips('q-clefs', [{ label: 'Treble' }, { label: 'Bass' }, { label: 'Grand staff' }], cfg.clefs, (m) => { cfg.clefs = m; changed(); }, (x) => x.label), 'Each tab can override this.'),
@@ -1555,6 +1558,8 @@
       progression: () => [progressionSection(cfg, changed)],
       cadence: () => cadencePanel(cfg, changed),
       nht: () => nhPanel(cfg, changed),
+      block: () => blockSections(cfg, changed, R),
+      chorale: () => chorSections(cfg, changed, R),
       figured: () => [
         h('p', { class: 'help' }, 'Clefwork builds a chord on a scale degree of a key you choose, in root position or an inversion, and prints its key signature. Figures: 6 and 6/4 for triads; 7, 6/5, 4/3 and 4/2 for sevenths.'),
         h('div', { class: 'row2' },
@@ -1629,7 +1634,10 @@
         grp('Notes on the staff', seg('q-figpask', [{ v: 1, label: 'Print the chords — students write the numerals' }, { v: 2, label: 'Print the numerals — students write the chords' }, { v: 3, label: 'A mix of both' }], cfg.figpAsk, (v) => { cfg.figpAsk = v; changed(); })),
       ],
     };
-    const TABS = GRAPH ? [
+    const TABS = VOICE ? [
+      { id: 'block', label: 'Block Chords', maxOf: () => MQ.usableBlockExercises(cfg.block).length },
+      { id: 'chorale', label: 'Four-Part Writing', max: MQ.CHOR_MAX },
+    ] : GRAPH ? [
       { id: 'cgtable', label: 'Diatonic Tables', max: MQ.GRAPH_MAX }, { id: 'cgtritone', label: 'Tritone Graphs', max: MQ.GRAPH_MAX },
       { id: 'cgphrase', label: 'Musical Phrases', max: MQ.GRAPH_MAX },
     ] : TERMS ? MQ.TERM_TABS.map((t) => ({ id: t.id, label: t.label, max: t.max, blurb: t.blurb })) : [
@@ -1646,7 +1654,7 @@
     ];
     // Each teacher tool shows its own tabs (students practise with all of them). A quiz made before the
     // tools were split keeps every tab it uses.
-    if (!STUDENT && !GRAPH && !TERMS) {
+    if (!STUDENT && !GRAPH && !TERMS && !VOICE) {
       const mine = HARMONY ? HARMONY_TABS : BASIC_TABS;
       for (let i = TABS.length - 1; i >= 0; i--) if (!mine.includes(TABS[i].id) && !(cfg.counts[TABS[i].id] > 0)) TABS.splice(i, 1);
     }
@@ -1745,8 +1753,9 @@
       go('build');
       toast('Cleared — the quiz is empty');
     } }, 'Clear all questions');
-    if (!KEYS && !ANALYSIS && !DICTATION && !SING && !VOICE) form.append(sec('types', GRAPH ? 'Worksheets' : 'Question types', GRAPH
+    if (!KEYS && !ANALYSIS && !DICTATION && !SING) form.append(sec('types', GRAPH ? 'Worksheets' : VOICE ? 'Exercise types' : 'Question types', GRAPH
       ? 'Choose a worksheet to change its settings. The counter on each tab sets how many the quiz asks — each table or phrase is one question, in its own key.'
+      : VOICE ? 'Choose a type to change its settings. The counter on each tab sets how many of those exercises the quiz asks — block chords from the exercises you type, four-part writing made by Clefwork.'
       : 'Choose a type to change its settings. The counter on each tab sets how many of those questions the quiz asks.',
       h('div', { class: 'types-top' }, clearBtn),
       strip, panels, h('div', { class: 'mix-foot' }, R.total)));
@@ -7780,7 +7789,13 @@
   // The builder: each exercise is a row of chord symbols and how many notes go in each block.
   function blockSections(cfg, changed, R) {
     const b = (cfg.block = MQ.blockSettings(cfg.block));
-    const sync = () => { cfg.counts.block = MQ.usableBlockExercises(b).length; };
+    // The tab's counter asks every exercise unless the teacher turned it down: then it only shrinks to fit.
+    let all = MQ.usableBlockExercises(b).length;
+    const sync = () => {
+      const now = MQ.usableBlockExercises(b).length;
+      cfg.counts.block = (cfg.counts.block || 0) >= all ? now : Math.min(cfg.counts.block || 0, now);
+      all = now;
+    };
     const list = h('div', { class: 'bk-list' });
     const addBtn = h('button', { type: 'button', class: 'btn sm', onclick: () => {
       if (b.ex.length >= MQ.BLOCK_MAX) return;
@@ -7813,14 +7828,13 @@
       addBtn.disabled = b.ex.length >= MQ.BLOCK_MAX;
     };
     draw();
-    sync();
     const octaveNote = h('p', { class: 'help' });
     const sayOctave = () => octaveNote.replaceChildren(b.octave
       ? `Students may use the root in the block, as its octave — a ${b.voices}-note block of Cma7 can be C E G B or E G B D.`
       : 'The root is marked wrong in the block unless the chord has no other note to fill it — a three-note C triad still needs its octave.');
     sayOctave();
     return [
-      sec('bk-block', 'The blocks', 'These apply to every exercise in the quiz.',
+      pane('bk-block', 'The blocks', 'These apply to every exercise in the quiz.',
         grp('Notes in each block', seg('bk-voices', MQ.BLOCK_VOICES.map((v) => ({ v, label: `${v} notes` })), b.voices, (v) => {
           b.voices = v;
           b.ex.forEach((e) => (e.voices = v));
@@ -7830,15 +7844,15 @@
         h('div', { class: 'toggles' },
           toggle('bk-octave', 'Allow the root (octave) in the block', 'The root may be one of the notes above, as well as low in the bass clef.', b.octave, (v) => { b.octave = v ? 1 : 0; sayOctave(); changed(); })),
         octaveNote),
-      sec('bk-ex', 'Exercises', `Each exercise is one question: up to ${MQ.BLOCK_CHORDS} chord symbols, separated by spaces. Every chord is a point.`,
+      pane('bk-ex', 'Exercises', `Each exercise is one question: up to ${MQ.BLOCK_CHORDS} chord symbols, separated by spaces. Every chord is a point.`,
         list, h('div', { class: 'btn-row' }, addBtn)),
-      sec('bk-staff', 'On the staff', 'Students always write on the grand staff: the block above, the root low in the bass clef.',
+      pane('bk-staff', 'On the staff', 'Students always write on the grand staff: the block above, the root low in the bass clef.',
         h('div', { class: 'row2' },
           grp('Roots', seg('bk-root', [{ v: 0, label: 'Printed for students' }, { v: 1, label: 'Students write them' }], b.root, (v) => { b.root = v; changed(); }),
             'Printed roots sit between E2 and D3. A root students write must be the lowest note, at or below D3.'),
           grp('Notes', seg('bk-value', [{ v: 0, label: 'Half notes' }, { v: 1, label: 'Whole notes' }], b.value, (v) => { b.value = v; changed(); }),
             'Half notes put two chords in each 4/4 measure.'))),
-      sec('bk-rules', 'How chords are marked', 'From the textbook’s Rules for Block Voicings. Clefwork checks every chord against each rule. When you grade, you see what the student wrote and Clefwork’s marks, and you can accept or reject any chord.',
+      pane('bk-rules', 'How chords are marked', 'From the textbook’s Rules for Block Voicings. Clefwork checks every chord against each rule. When you grade, you see what the student wrote and Clefwork’s marks, and you can accept or reject any chord.',
         h('ul', { class: 'bk-rulelist' }, MQ.BLOCK_RULES.map((r) => h('li', null, h('b', null, `Rule ${r.n}`), ' ' + r.title))),
         h('p', { class: 'help' }, 'Rule 7 reads the chord symbol: the 3rd and 7th come first, then every extension written in the symbol (the 13 in C13, the ♯11 in C7♯11), before a 5th or the octave. When the symbol asks for more notes than the block holds, the 3rd and 7th go in and any of the others fill the rest. A block with more notes than you allow is marked wrong (Rule 8).'),
         h('p', { class: 'help' }, 'Every note must also be in the chord and spelled as it is (unless you accept enharmonic spellings). Rule 2 follows your choice above about the root. A doubled note is only marked when the chord has enough other notes to fill the block.'),
@@ -8181,18 +8195,14 @@
   // The builder: how many exercises, how long, the key and meter, and the ways an exercise comes.
   function chorSections(cfg, changed, R) {
     const s = (cfg.chor = MQ.chorSettings(cfg.chor));
-    const ctr = counter('ch-count', 'four-part writing', (v) => { cfg.counts.chorale = v; changed(); });
-    ctr.sync(cfg.counts.chorale || 0, MQ.CHOR_MAX);
     const maxFld = grp('Sharps or flats, up to', seg('ch-max', [0, 1, 2, 3, 4, 5, 6, 7].map((v) => ({ v, label: String(v) })), s.maxSig, (v) => { s.maxSig = v; changed(); }), 'When Clefwork chooses the key signature.');
     maxFld.hidden = s.sig !== 15;
     const sigSel = selectEl('ch-sig', [{ v: 15, label: 'Clefwork chooses — a different key for each exercise' }].concat(FIFTHS.map((f) => ({ v: f + 7, label: `${sigLabel(f)} — ${MQ.MAJOR_KEYS[f + 7]} major or ${MQ.MINOR_KEYS[f + 7]} minor` }))), s.sig, (v) => { s.sig = +v; maxFld.hidden = s.sig !== 15; changed(); });
     return [
-      sec('ch', 'Four-part writing', 'Students write chorale-style music for soprano, alto, tenor and bass on the grand staff, one voice at a time, in any rhythm down to a sixteenth note. Clefwork marks it by the textbook’s voice-leading rules — and you approve every grade.',
+      pane('ch', 'The exercises', 'The tab’s counter sets how many exercises the quiz asks. The kinds you choose below take turns, one exercise each.',
+        grp('Measures in each exercise', seg('ch-meas', [4, 5, 6, 7, 8].map((v) => ({ v, label: String(v) })), s.measures, (v) => { s.measures = v; changed(); }), 'Every exercise starts on a downbeat — no pickup measures.'),
         h('div', { class: 'row2' },
-          grp('Exercises in the quiz', ctr, 'Each exercise is one question. The kinds you choose below take turns.'),
-          grp('Measures in each exercise', seg('ch-meas', [4, 5, 6, 7, 8].map((v) => ({ v, label: String(v) })), s.measures, (v) => { s.measures = v; changed(); }), 'Every exercise starts on a downbeat — no pickup measures.')),
-        h('div', { class: 'row2' },
-          grp('Time signature', seg('ch-meter', MQ.CHOR_METERS.map((m, i) => ({ v: i, label: `${m.n}/${m.d}` })), s.meter, (v) => { s.meter = v; changed(); }), 'Given chords change every half note in 4/4 (a whole note in the last measure), and every measure in 3/4 and 2/4.'),
+          grp('Time signature', seg('ch-meter', MQ.CHOR_METERS.map((m, i) => ({ v: i, label: `${m.n}/${m.d}` })), s.meter, (v) => { s.meter = v; changed(); }), 'Given chords change every half note in 4/4 and every dotted quarter in 6/8 (one chord fills the last measure), and every measure in 3/4 and 2/4.'),
           grp('Keys', seg('ch-mode', [{ v: 1, label: 'Major' }, { v: 2, label: 'Minor' }, { v: 3, label: 'Both' }], s.mode, (v) => { s.mode = v; changed(); }))),
         h('div', { class: 'row2' }, fld('Key signature', sigSel), maxFld),
         grp('What students are given', chips('ch-kinds', MQ.CHOR_KINDS, s.kinds, (m) => { s.kinds = m; changed(); }, (k) => k.label),
@@ -8201,7 +8211,7 @@
           grp('With a given melody or bass, print', seg('ch-lines', [{ v: 1, label: 'Roman numerals' }, { v: 2, label: 'Chord symbols' }, { v: 3, label: 'Both' }, { v: 0, label: 'Neither' }], s.lines, (v) => { s.lines = v; changed(); }),
             'Without them the notes are still marked against the chords Clefwork wrote the line from.'),
           grp('Chords Clefwork uses', seg('ch-harm', MQ.CHOR_HARMONY.map((x, i) => ({ v: i, label: x.label })), s.harm, (v) => { s.harm = v; changed(); })))),
-      sec('ch-rules', 'How four-part writing is marked', 'From the textbook’s Rules for Voice Leading (Unit 9) and its non-harmonic tones. Each chord — or each measure, when no chords are given — is a point, lost to any broken rule that touches it. That score is Clefwork’s suggestion: on the Grade reports tab you see the student’s music with every mark, and each exercise waits for you to approve the score or set your own.',
+      pane('ch-rules', 'How four-part writing is marked', 'From the textbook’s Rules for Voice Leading (Unit 9) and its non-harmonic tones. Each chord — or each measure, when no chords are given — is a point, lost to any broken rule that touches it. That score is Clefwork’s suggestion: on the Grade reports tab you see the student’s music with every mark, and each exercise waits for you to approve the score or set your own.',
         h('ul', { class: 'bk-rulelist' },
           h('li', null, h('b', null, 'Rule 1'), ' Every voice a good melody: no augmented leaps, sevenths, or leaps past an octave'),
           h('li', null, h('b', null, 'Rule 2'), ` Ranges: soprano ${MQ.CHOR_RANGE_TEXT[0]}, alto ${MQ.CHOR_RANGE_TEXT[1]}, tenor ${MQ.CHOR_RANGE_TEXT[2]}, bass ${MQ.CHOR_RANGE_TEXT[3]}`),

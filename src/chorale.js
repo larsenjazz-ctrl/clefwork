@@ -1,6 +1,6 @@
 /* Clefwork Voice Leading — Four-Part Writing. Students write chorale-style music for soprano, alto, tenor
    and bass on the grand staff, one voice at a time, in any rhythm down to a sixteenth note. An exercise
-   is four to eight measures in a key and meter the teacher chooses, and comes one of seven ways:
+   is four to eight measures in a key and meter (4/4, 3/4, 2/4 or 6/8) the teacher chooses, and comes one of seven ways:
      a melody to harmonize, a bass line to write over, a melody and a bass to fill in between — each made
      by Clefwork from a progression it voices itself (the part-writing engine, MQ.PW) — or empty measures
      with chord symbols, with Roman numerals, with both, or with nothing at all.
@@ -40,7 +40,7 @@
   const RANGE_TEXT = ['C4–G5', 'G3–D5', 'C3–G4', 'E2–C4'];
   // Where a voice's first typed note goes: the middle of its practical octave.
   const CENTERS = [72, 65, 57, 50];
-  const METERS = [{ n: 4, d: 4 }, { n: 3, d: 4 }, { n: 2, d: 4 }];
+  const METERS = [{ n: 4, d: 4 }, { n: 3, d: 4 }, { n: 2, d: 4 }, { n: 6, d: 8 }];
   // The ways an exercise comes. gives: the voices printed; show: the labels (1 Roman numerals, 2 chord
   // symbols, 3 both; null: the teacher's choice for exercises with a given line); free: no chords at all.
   const KINDS = [
@@ -89,6 +89,8 @@
     return null;
   }
   function tripletProblem(events, info) {
+    // In 6/8 the beat already divides in three: only eighth-note triplets, on a beat.
+    if (info.d === 8) return MQ.tripletGroups(events, info).some((g) => !g.open && g.span >= 24) ? 'In 6/8, triplets are eighth notes that start on a beat.' : null;
     const bad = MQ.tripletGroups(events, info).find((g) => {
       if (g.open) return false;
       if (g.span === 24) return info.n === 3 ? g.at !== 0 && g.at !== 12 : g.at % 24 !== 0;
@@ -113,17 +115,19 @@
   const DEG = { 1: 'root', 3: 'third', 5: 'fifth', 7: 'seventh' };
 
   // ---------- the exercises ----------
-  // The chords' places: two to a measure of 4/4 (one, a whole note, in the last), one a measure otherwise.
+  // The chords' places: two to a measure of 4/4 and 6/8 — a half note or a dotted quarter each — but one,
+  // the whole measure, in the last; one a measure in 3/4 and 2/4.
+  const twoChords = (meter) => (meter.n === 4 && meter.d === 4) || (meter.n === 6 && meter.d === 8);
   function spansOf(meter, measures) {
-    const len = (48 / meter.d) * meter.n, out = [];
+    const len = (48 / meter.d) * meter.n, half = len / 2, out = [];
     for (let m = 0; m < measures; m++) {
-      if (meter.n === 4 && m < measures - 1) { out.push({ m, t: 0, d: 24, g: m * len }); out.push({ m, t: 24, d: 24, g: m * len + 24 }); }
+      if (twoChords(meter) && m < measures - 1) { out.push({ m, t: 0, d: half, g: m * len }); out.push({ m, t: half, d: half, g: m * len + half }); }
       else out.push({ m, t: 0, d: len, g: m * len });
     }
     return out;
   }
-  // A note as long as a chord's place: a half, a dotted half or a whole note.
-  const spanEvent = (d, p) => Object.assign(d === 48 ? { v: 0, d: 0 } : d === 36 ? { v: 1, d: 1 } : { v: 1, d: 0 }, { t: 0, r: 0, p: P(p) });
+  // A note as long as a chord's place: a dotted quarter, a half, a dotted half or a whole note.
+  const spanEvent = (d, p) => Object.assign(d === 48 ? { v: 0, d: 0 } : d === 36 ? { v: 1, d: 1 } : d === 18 ? { v: 2, d: 1 } : { v: 1, d: 0 }, { t: 0, r: 0, p: P(p) });
   // A progression of n chords in a key, voiced: one phrase, or two joined and voiced as one.
   function progression(n, s, rng, fifths, mode) {
     const PW = MQ.PW;
@@ -193,7 +197,7 @@
         type: 'chorale', clef: 'grand', grand: true,
         text: TEXT[ex.kind] || `Write ${ex.measures} measures of four-part, chorale-style music in ${keyName}.`,
         hint: `${keyName}, ${info.label}, ${ex.measures} measures. Write one voice at a time — ${mine.map((v) => VOICES[v]).join(', ')} — in any rhythm down to a sixteenth note; every measure of every voice must be full.`
-          + (ex.chords ? (ex.meter.n === 4 ? ' The chords change every half note.' : ' The chords change every measure.') : ''),
+          + (ex.chords ? (!twoChords(ex.meter) ? ' The chords change every measure.' : ex.meter.d === 8 ? ' The chords change every dotted quarter note.' : ' The chords change every half note.') : ''),
         ch: Object.assign({ n: k }, ex),
         sig: 'ch' + k, tags: [],
       };
