@@ -1329,6 +1329,30 @@ input.sg-range { flex: 1; min-width: 0; accent-color: var(--accent); height: 28p
 .nh-answers .dg-box select { width: auto; min-width: 150px; text-align: left; text-align-last: left; font: 600 14px var(--f-body); padding: 4px 8px; }
 .nh-chart td.nh-abbr { font: 700 13px var(--f-mono); white-space: nowrap; }
 .nh-chart td { font-size: 14px; }
+
+/* ---------- Clefwork Voice Leading: four-part writing ---------- */
+.cstaff-box { overflow-x: auto; }
+.rstaff.cstaff { touch-action: none; }
+.rstaff.cstaff .clef-glyph { font-family: 'Noto Music', 'Bravura Text', 'Apple Symbols', 'Segoe UI Symbol', serif; fill: currentColor; }
+.rstaff.cstaff .sacc { font-family: 'Noto Music', serif; font-weight: 400; }
+.rstaff.cstaff .c-rn, .rstaff.cstaff .c-sym { font-family: Georgia, 'Times New Roman', serif; }
+.rstaff.cstaff .is-given { cursor: default; }
+.rstaff.cstaff .is-active { color: #2f3fbf; }
+.rstaff.cstaff .is-active.is-sel { color: #c2410c; }
+.rstaff.cstaff .is-wrong, .rstaff.cstaff .is-bad { color: #bf3139; }
+.rstaff.cstaff .c-ghost { color: #2f3fbf; opacity: 0.42; pointer-events: none; }
+.ch-voices { align-items: center; }
+.ch-voices-label { margin: 0 4px 0 2px; }
+.rh-tool.ch-voice { flex-direction: column; min-width: 92px; padding: 5px 10px; }
+.rh-tool.ch-voice b { font: 700 14px var(--f-display); }
+.rh-tool.ch-voice span { font-size: 11px; opacity: 0.8; }
+.ch-marks .bk-rule.is-note { background: var(--warn-soft); color: var(--warn); }
+.ch-approve { margin-top: 6px; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--line); display: flex; flex-direction: column; gap: 8px; }
+.ch-approve.is-waiting { border-color: var(--warn); background: var(--warn-soft); }
+.ch-approve.is-done { border-color: var(--good); background: var(--good-soft); }
+.ch-approve-status { margin: 0; font-size: 14.5px; }
+.ch-own { display: inline-flex; align-items: center; gap: 6px; font-size: 14px; white-space: nowrap; }
+.ch-pts { width: 64px; min-height: 34px; padding: 2px 6px; }
 :root{--logo-mark:url(data:image/png;base64,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)}@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--logo-mark:url(data:image/png;base64,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)}}:root[data-theme="dark"]{--logo-mark:url(data:image/png;base64,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)}
 </style>
 <div class="shell">
@@ -1481,6 +1505,8 @@ input.sg-range { flex: 1; min-width: 0; accent-color: var(--accent); height: 28p
     { id: 'cadence', label: 'Cadences & Modulations', blurb: 'A progression of up to eight chords in half notes that ends with a cadence or modulates — students write the chords, name the cadence or modulation, or both.', est: 120, custom: true },
     // Clefwork Voice Leading (see nht.js): non-harmonic tones in four-part writing.
     { id: 'nht', label: 'Non-Harmonic Tones', blurb: 'A progression in four voices with its non-harmonic tones highlighted and lettered; students name each one — passing tone, suspension, appoggiatura…', est: 90, custom: true },
+    // Clefwork Voice Leading (see chorale.js): four-part writing, marked by the rules and approved by the teacher.
+    { id: 'chorale', label: 'Four-Part Writing', blurb: 'Write chorale-style music for soprano, alto, tenor and bass on the grand staff — over a given melody or bass, from chord symbols or Roman numerals, or on blank measures.', est: 600, custom: true },
   ];
   const BUILT_IN = TYPES.filter((t) => !t.custom);
   const MAX_CUSTOM = 20, MAX_CUSTOM_NOTES = 6, MAX_VOICING_NOTES = 8;
@@ -2135,6 +2161,7 @@ input.sg-range { flex: 1; min-width: 0; accent-color: var(--accent); height: 28p
     if (MQ.blockQuestions && cfg.counts.block) MQ.blockQuestions(cfg).forEach((q) => qs.push(q));
     if (MQ.cadenceQuestions && cfg.counts.cadence) MQ.cadenceQuestions(cfg).forEach((q) => qs.push(q));
     if (MQ.nhQuestions && cfg.counts.nht) MQ.nhQuestions(cfg).forEach((q) => qs.push(q));
+    if (MQ.chorQuestions && cfg.counts.chorale) MQ.chorQuestions(cfg).forEach((q) => qs.push(q));
     if (cfg.flags.shuffle) shuffle(qs, rng);
     return qs;
   }
@@ -2176,6 +2203,7 @@ input.sg-range { flex: 1; min-width: 0; accent-color: var(--accent); height: 28p
     if (q.type === 'block') return MQ.gradeBlock(q, response, cfg);
     if (q.type === 'cadence') return MQ.gradeCadence(q, response, cfg);
     if (q.type === 'nht') return MQ.gradeNh(q, response);
+    if (q.type === 'chorale') return MQ.gradeChorale(q, response);
     if (MQ.isGraph && MQ.isGraph(q)) return MQ.gradeGraph(q, response, cfg);
     if (q.type === 'figured' || q.type === 'figprog') return MQ.gradeFigured(q, response, cfg);
     if (q.type === 'progression') return MQ.gradeProgression(q, response, cfg);
@@ -2210,6 +2238,7 @@ input.sg-range { flex: 1; min-width: 0; accent-color: var(--accent); height: 28p
       : q.type === 'block' ? MQ.hasBlockAnswer(q, response)
       : q.type === 'cadence' ? MQ.hasCadenceAnswer(q, response)
       : q.type === 'nht' ? MQ.hasNhAnswer(q, response)
+      : q.type === 'chorale' ? MQ.hasChoraleAnswer(q, response)
       : MQ.isGraph && MQ.isGraph(q) ? MQ.hasGraphAnswer(q, response)
       : q.type === 'figured' || q.type === 'figprog' ? MQ.hasFiguredAnswer(q, response)
       : q.colSpecs ? !!response && response.some((col) => col && col.some(Boolean))
@@ -2232,6 +2261,7 @@ input.sg-range { flex: 1; min-width: 0; accent-color: var(--accent); height: 28p
     if (q.type === 'block') return MQ.describeBlock(q);
     if (q.type === 'cadence') return MQ.describeCadence(q);
     if (q.type === 'nht') return MQ.describeNh(q);
+    if (q.type === 'chorale') return MQ.describeChorale(q);
     if (q.symbolAnswers) return q.symbolAnswers.map((a) => a.shown).join('  ');
     if (q.symbolAnswer) return q.symbolAnswer.shown;
     if (q.type === 'ivname') return q.ivName.charAt(0).toUpperCase() + q.ivName.slice(1);
@@ -9347,6 +9377,423 @@ input.sg-range { flex: 1; min-width: 0; accent-color: var(--accent); height: 28p
 
   Object.assign(MQ, { MELODY_LEVELS: LEVELS, MELODY_GEN: GEN, generateMelodies, melodyLevel: levelOf });
 })(typeof window !== 'undefined' ? window : globalThis);
+/* Clefwork Voice Leading — Four-Part Writing. Students write chorale-style music for soprano, alto, tenor
+   and bass on the grand staff, one voice at a time, in any rhythm down to a sixteenth note. An exercise
+   is four to eight measures in a key and meter the teacher chooses, and comes one of seven ways:
+     a melody to harmonize, a bass line to write over, a melody and a bass to fill in between — each made
+     by Clefwork from a progression it voices itself (the part-writing engine, MQ.PW) — or empty measures
+     with chord symbols, with Roman numerals, with both, or with nothing at all.
+   There is no single right answer, so the work is checked against the rules of the course textbook
+   (Harmony in Contemporary Music, Unit 9 "Voice Leading" and the non-harmonic tones of Unit 10):
+     Rule 1   Make every voice a good melody: no augmented leaps, sevenths or leaps past an octave; after a
+              leap larger than a fourth, turn back by step; two leaps the same way outline a triad (the bass, which
+              moves from root to root, is left its leaps).
+     Rule 2   Keep each voice in its range: soprano C4–G5, alto G3–D5, tenor C3–G4, bass E2–C4.
+     Rule 3   No more than an octave between soprano and alto, or alto and tenor.
+     Rule 4   Do not cross voices.
+     Rule 5   Double the root of a root-position triad (the third in V–vi; three roots at the end are fine).
+     Rule 6   Never double the leading tone.
+     Rule 7   Resolve the tendency tones: the leading tone in the soprano up to the tonic, the seventh of a
+              chord down by step.
+     Rule 8   No parallel fifths or octaves.
+     Rule 9   No contrary fifths or octaves (but 5–1 in both outer voices at the last cadence).
+     Rule 10  No direct fifths or octaves in the outer voices unless the soprano moves by step.
+   Where the chords are known, every note must be a note of its chord or move like a non-harmonic tone
+   (passing, neighbor, suspension, retardation, appoggiatura, escape tone, anticipation, pedal point), the
+   bass must be the chord's bass note, and each chord needs its root and third (and seventh).
+   Each chord — or, with no chords given, each measure — is a point, lost to any broken rule that touches
+   it; lesser matters (doubling, direct fifths, how leaps are left) are noted without costing a point. That
+   score is only Clefwork's suggestion: the teacher sees the music and the marks and sets the grade.
+   Time is counted as in Clefwork Rhythm, 48 to a whole note. A voice is [measure][event], an event
+   {v: 0 whole … 4 sixteenth, d: dotted, t: triplet, r: rest, p: pitch, tie}.
+   cfg.chor holds the settings; cfg.counts.chorale is how many exercises the quiz asks. */
+(function (root) {
+  'use strict';
+  const MQ = (root.MQ = root.MQ || {});
+  const { dia, midi } = MQ;
+  const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
+  const mod = (n, m) => ((n % m) + m) % m;
+  const CHOR_MAX = 10;
+  const VOICES = ['soprano', 'alto', 'tenor', 'bass'];
+  const RANGES = [[60, 79], [55, 74], [48, 67], [40, 60]];
+  const RANGE_TEXT = ['C4–G5', 'G3–D5', 'C3–G4', 'E2–C4'];
+  // Where a voice's first typed note goes: the middle of its practical octave.
+  const CENTERS = [72, 65, 57, 50];
+  const METERS = [{ n: 4, d: 4 }, { n: 3, d: 4 }, { n: 2, d: 4 }];
+  // The ways an exercise comes. gives: the voices printed; show: the labels (1 Roman numerals, 2 chord
+  // symbols, 3 both; null: the teacher's choice for exercises with a given line); free: no chords at all.
+  const KINDS = [
+    { id: 'mel', label: 'A melody to harmonize', gives: [0], show: null },
+    { id: 'bass', label: 'A bass line to write over', gives: [3], show: null },
+    { id: 'both', label: 'A melody and a bass line', gives: [0, 3], show: null },
+    { id: 'sym', label: 'Empty measures with chord symbols', gives: [], show: 2 },
+    { id: 'rn', label: 'Empty measures with Roman numerals', gives: [], show: 1 },
+    { id: 'rnsym', label: 'Empty measures with Roman numerals and chord symbols', gives: [], show: 3 },
+    { id: 'blank', label: 'Completely blank measures', gives: [], show: 0, free: true },
+  ];
+  const HARMONY = [
+    { label: 'Root-position triads' },
+    { label: 'With inversions' },
+    { label: 'With inversions and seventh chords' },
+  ];
+
+  // kinds: a mask over KINDS (the quiz takes them in turn); lines: the labels printed with a given melody
+  // or bass (0 none, 1 Roman numerals, 2 chord symbols, 3 both); measures: 4–8; meter: an index into
+  // METERS; mode: 1 major, 2 minor, 3 either; sig: the key signature as sharps + 7 (0 seven flats … 14
+  // seven sharps), or 15 for Clefwork's choice of up to maxSig sharps or flats; harm: an index into
+  // HARMONY; gen: the generator's version, so a quiz code keeps its exercises.
+  function chorSettings(s) {
+    s = s || {};
+    s.gen = clamp(s.gen | 0 || 1, 1, 7);
+    s.kinds = s.kinds == null ? 7 : s.kinds & ((1 << KINDS.length) - 1);
+    if (!s.kinds) s.kinds = 7;
+    s.lines = clamp(s.lines == null ? 1 : s.lines | 0, 0, 3);
+    s.measures = clamp(s.measures | 0 || 4, 4, 8);
+    s.meter = clamp(s.meter | 0, 0, METERS.length - 1);
+    s.mode = clamp(s.mode | 0 || 1, 1, 3);
+    s.sig = clamp(s.sig == null ? 15 : s.sig | 0, 0, 15);
+    s.maxSig = clamp(s.maxSig == null ? 3 : s.maxSig | 0, 0, 7);
+    s.harm = clamp(s.harm | 0, 0, HARMONY.length - 1);
+    return s;
+  }
+
+  // ---------- rhythm rules ----------
+  // Nothing shorter than a sixteenth, and triplets only of eighths and quarters. A triplet starts on a
+  // beat (MQ.tripletGroups sees to that); a group of quarter-note triplets fills a half note, so it starts
+  // on beat 1 or 3 of 4/4, beat 1 or 2 of 3/4, beat 1 of 2/4.
+  function valueProblem(ev) {
+    if (ev.t && ev.v !== 2 && ev.v !== 3) return 'Triplets here are eighth notes or quarter notes.';
+    if (ev.t && ev.d) return 'A triplet note can’t be dotted.';
+    if (ev.d && ev.v === 4) return 'A dotted sixteenth would need a thirty-second note — nothing here is shorter than a sixteenth.';
+    return null;
+  }
+  function tripletProblem(events, info) {
+    const bad = MQ.tripletGroups(events, info).find((g) => {
+      if (g.open) return false;
+      if (g.span === 24) return info.n === 3 ? g.at !== 0 && g.at !== 12 : g.at % 24 !== 0;
+      return g.span > 24;
+    });
+    if (!bad) return null;
+    return bad.span > 24 ? 'Triplets here are eighth notes or quarter notes.'
+      : info.n === 3 ? 'Quarter-note triplets start on beat 1 or beat 2 of a 3/4 measure.'
+        : info.n === 4 ? 'Quarter-note triplets start on beat 1 or beat 3 of a 4/4 measure.' : 'Quarter-note triplets start on beat 1.';
+  }
+
+  // ---------- pitches ----------
+  const P = (p) => ({ step: p.step, oct: p.oct, alt: p.alt });
+  const gen = (a, b) => dia(b) - dia(a);
+  const semi = (a, b) => midi(b) - midi(a);
+  const isStep = (a, b) => Math.abs(gen(a, b)) === 1 && Math.abs(semi(a, b)) >= 1 && Math.abs(semi(a, b)) <= 2;
+  const samePc = (t, p) => t.step === p.step && t.alt === p.alt;
+  const name = (p) => MQ.pcName(p);
+  const cap = (s) => s.charAt(0).toUpperCase() + s.slice(1);
+  const tonesOf = (ch) => ch.tones.filter((t, i) => ch.degs[i] > 0);
+  const inChord = (ch, p) => tonesOf(ch).some((t) => samePc(t, p));
+  const DEG = { 1: 'root', 3: 'third', 5: 'fifth', 7: 'seventh' };
+
+  // ---------- the exercises ----------
+  // The chords' places: two to a measure of 4/4 (one, a whole note, in the last), one a measure otherwise.
+  function spansOf(meter, measures) {
+    const len = (48 / meter.d) * meter.n, out = [];
+    for (let m = 0; m < measures; m++) {
+      if (meter.n === 4 && m < measures - 1) { out.push({ m, t: 0, d: 24, g: m * len }); out.push({ m, t: 24, d: 24, g: m * len + 24 }); }
+      else out.push({ m, t: 0, d: len, g: m * len });
+    }
+    return out;
+  }
+  // A note as long as a chord's place: a half, a dotted half or a whole note.
+  const spanEvent = (d, p) => Object.assign(d === 48 ? { v: 0, d: 0 } : d === 36 ? { v: 1, d: 1 } : { v: 1, d: 0 }, { t: 0, r: 0, p: P(p) });
+  // A progression of n chords in a key, voiced: one phrase, or two joined and voiced as one.
+  function progression(n, s, rng, fifths, mode) {
+    const PW = MQ.PW;
+    const ask = (len) => PW.generate({ type: 'roman', length: len, mode, fifths, maxSig: 0, sevenths: s.harm >= 2, inversions: s.harm >= 1, sixFour: s.harm >= 1, secondary: false, every: 'mixed', show: ['roman'] }, rng);
+    if (n <= 8) {
+      const ex = ask(Math.max(3, n));
+      return !ex || ex.error || ex.texture !== 'satb' ? null : { key: ex.key, chords: ex.chords.slice(0, n), voices: ex.answer.slice(0, n) };
+    }
+    const n1 = Math.ceil(n / 2), a = ask(n1), b = ask(n - n1);
+    if (!a || a.error || !b || b.error || a.texture !== 'satb' || b.texture !== 'satb') return null;
+    const chords = a.chords.concat(b.chords);
+    let voices = a.answer.concat(b.answer);
+    try {
+      const sol = PW.solve({ type: 'roman', key: a.key, chords, texture: 'satb', given: chords.map(() => [null, null, null, null]) }, { rng, melody: true, rules: new Set(PW.PRESETS[0].rules) });
+      if (sol && sol.cost < 1000) voices = sol.voices;
+    } catch (e) { /* keep the two phrases as they were voiced */ }
+    return { key: a.key, chords, voices };
+  }
+  function makeExercise(s, kind, rng) {
+    const meter = METERS[s.meter], spans = spansOf(meter, s.measures);
+    const mode = s.mode === 1 ? 'major' : s.mode === 2 ? 'minor' : rng() < 0.5 ? 'major' : 'minor';
+    const fifths = s.sig < 15 ? s.sig - 7 : Math.floor(rng() * (2 * s.maxSig + 1)) - s.maxSig;
+    const empty = () => Array.from({ length: s.measures }, () => []);
+    const base = { kind: kind.id, meter: { n: meter.n, d: meter.d }, measures: s.measures, key: { fifths, mode }, gives: [0, 1, 2, 3].map((v) => kind.gives.includes(v)), given: [empty(), empty(), empty(), empty()] };
+    if (kind.free) return Object.assign(base, { spans: null, chords: null, labels: null, show: 0, model: null });
+    let pr = null;
+    for (let tries = 0; tries < 6 && !pr; tries++) pr = progression(spans.length, s, rng, fifths, mode);
+    if (!pr) return null;
+    kind.gives.forEach((v) => spans.forEach((sp, c) => base.given[v][sp.m].push(spanEvent(sp.d, pr.voices[c][v]))));
+    return Object.assign(base, {
+      spans, chords: pr.chords, show: kind.show == null ? s.lines : kind.show,
+      labels: pr.chords.map((ch) => ({ rn: Object.assign({}, ch.disp), sym: ch.symbol })),
+      model: pr.voices.map((V) => V.map(P)),
+    });
+  }
+  const TEXT = {
+    mel: 'Harmonize this melody in four parts: write the alto, tenor and bass.',
+    bass: 'Write the soprano, alto and tenor over this bass line.',
+    both: 'Write the alto and tenor between this melody and bass line.',
+    sym: 'Write these chords in four parts, chorale style.',
+    rn: 'Write these chords in four parts, chorale style.',
+    rnsym: 'Write these chords in four parts, chorale style.',
+  };
+  const cache = new Map();
+  function chorQuestions(cfg) {
+    const n = clamp((cfg.counts && cfg.counts.chorale) | 0, 0, CHOR_MAX);
+    if (!n || !MQ.PW) return [];
+    const s = chorSettings(cfg.chor);
+    const kinds = KINDS.filter((k, i) => s.kinds & (1 << i));
+    const keyOf = JSON.stringify([cfg.seed, n, s.gen, s.kinds, s.lines, s.measures, s.meter, s.mode, s.sig, s.maxSig, s.harm]);
+    let list = cache.get(keyOf);
+    if (!list) {
+      list = [];
+      for (let k = 0; k < n; k++) {
+        const rng = MQ.mulberry32(((cfg.seed >>> 0) ^ Math.imul(k + 1, 0x9e3779b1) ^ 0x0c401a1e) >>> 0);
+        let ex = null;
+        for (let tries = 0; tries < 4 && !ex; tries++) ex = makeExercise(s, kinds[k % kinds.length], rng);
+        if (ex) list.push(ex);
+      }
+      if (cache.size > 40) cache.clear();
+      cache.set(keyOf, list);
+    }
+    return list.map((ex, k) => {
+      const keyName = MQ.melodyKeyName(ex.key), info = MQ.rhythmMeter(ex.meter);
+      const mine = [0, 1, 2, 3].filter((v) => !ex.gives[v]);
+      return {
+        type: 'chorale', clef: 'grand', grand: true,
+        text: TEXT[ex.kind] || `Write ${ex.measures} measures of four-part, chorale-style music in ${keyName}.`,
+        hint: `${keyName}, ${info.label}, ${ex.measures} measures. Write one voice at a time — ${mine.map((v) => VOICES[v]).join(', ')} — in any rhythm down to a sixteenth note; every measure of every voice must be full.`
+          + (ex.chords ? (ex.meter.n === 4 ? ' The chords change every half note.' : ' The chords change every measure.') : ''),
+        ch: Object.assign({ n: k }, ex),
+        sig: 'ch' + k, tags: [],
+      };
+    });
+  }
+
+  // ---------- answers ----------
+  // A response is the four voices, each [measure][event]; a printed voice's place is left empty.
+  const blankVoice = (q) => Array.from({ length: q.ch.measures }, () => []);
+  const chorBlank = (q) => [0, 1, 2, 3].map(() => blankVoice(q));
+  const cleanChorale = (q, resp) => [0, 1, 2, 3].map((v) => (q.ch.gives[v] ? blankVoice(q)
+    : blankVoice(q).map((_, m) => ((resp && resp[v] && resp[v][m]) || []).map(MQ.rhythmEvent).filter((e) => e.r || e.p))));
+  // All four voices as they stand: the printed ones and the student's.
+  const chorVoices = (q, resp) => { const mine = cleanChorale(q, resp); return [0, 1, 2, 3].map((v) => (q.ch.gives[v] ? q.ch.given[v] : mine[v])); };
+  const hasChoraleAnswer = (q, resp) => cleanChorale(q, resp).some((L) => L.some((m) => m.length));
+
+  // ---------- checking ----------
+  // {units (chords, or measures when no chords are given), wrong, unitOk [bool], issues [{rule, sev
+  // ('error' costs its unit, 'warn' doesn't), unit, m, text, notes [{l, m, i}]}], blank}.
+  function checkChorale(q, resp) {
+    const C = q.ch, info = MQ.rhythmMeter(C.meter), len = info.len;
+    const L = chorVoices(q, resp);
+    const units = C.spans || Array.from({ length: C.measures }, (_, m) => ({ m, t: 0, d: len, g: m * len }));
+    const issues = [], seen = new Set();
+    const unitAt = (g) => { let u = 0; units.forEach((sp, k) => { if (sp.g <= g) u = k; }); return u; };
+    const add = (rule, sev, g, text, notes, key) => {
+      const k = key || rule + '|' + text + '|' + unitAt(g);
+      if (seen.has(k)) return;
+      seen.add(k);
+      issues.push({ rule, sev, unit: unitAt(g), m: Math.floor(g / len), text, notes: notes || [] });
+    };
+    const ref = (v, n) => n.evs.map((e) => ({ l: v, m: e.m, i: e.i }));
+    const at = (g) => `m. ${Math.floor(g / len) + 1}`;
+    // Each voice as it sounds, tied notes joined.
+    const N = L.map((layer) => MQ.rhythmSounding(layer, len, C.measures).filter((n) => n.p));
+    N.forEach((list, v) => list.forEach((n, k) => { n.v = v; n.k = k; n.end = n.g + n.d; }));
+    const noteAt = (v, g) => N[v].find((n) => n.g <= g && g < n.end) || null;
+    const blank = !hasChoraleAnswer(q, resp);
+    // Every measure of every voice the student writes must be full.
+    [0, 1, 2, 3].forEach((v) => {
+      if (C.gives[v]) return;
+      L[v].forEach((evs, m) => {
+        const st = MQ.measureState(evs, info), trip = tripletProblem(evs, info);
+        if (!st.ok || trip) {
+          const why = trip || MQ.measureNote(evs, info) || 'not finished';
+          units.forEach((sp, k) => { if (sp.m === m) add(0, 'error', sp.g, `${at(sp.g)}: the ${VOICES[v]} is ${why === 'empty' ? 'empty' : why}.`, [], `fill|${v}|${m}|${k}`); });
+        }
+      });
+    });
+    // Rule 2: ranges.
+    N.forEach((list, v) => list.forEach((n) => {
+      if (C.gives[v]) return;
+      const mm = midi(n.p);
+      if (mm < RANGES[v][0] || mm > RANGES[v][1]) add(2, 'error', n.g, `${at(n.g)}: ${MQ.fullName(n.p)} is ${mm < RANGES[v][0] ? 'below' : 'above'} the ${VOICES[v]}’s range (${RANGE_TEXT[v]}).`, ref(v, n), `range|${v}|${n.k}`);
+    }));
+    // Rule 1: each voice a good melody.
+    N.forEach((list, v) => {
+      if (C.gives[v]) return;
+      list.forEach((n, k) => {
+        const nx = list[k + 1];
+        if (!nx) return;
+        const g = Math.abs(gen(n.p, nx.p)), sm = Math.abs(semi(n.p, nx.p));
+        const leap = `${name(n.p)} to ${name(nx.p)} in the ${VOICES[v]}`;
+        const plain = [0, 2, 4, 5, 7, 9, 11, 12][Math.min(7, g)];
+        if (sm > 12 || g > 7) add(1, 'error', nx.g, `${at(nx.g)}: ${leap} is a leap of more than an octave.`, ref(v, n).concat(ref(v, nx)), `leap|${v}|${k}`);
+        else if (g === 6) add(1, 'error', nx.g, `${at(nx.g)}: ${leap} is a leap of a seventh.`, ref(v, n).concat(ref(v, nx)), `leap|${v}|${k}`);
+        else if (g > 0 && sm > plain) add(1, 'error', nx.g, `${at(nx.g)}: ${leap} is an augmented interval.`, ref(v, n).concat(ref(v, nx)), `leap|${v}|${k}`);
+        const after = list[k + 2];
+        if (after && g >= 4 && v < 3) {
+          const back = Math.sign(gen(nx.p, after.p)) === -Math.sign(gen(n.p, nx.p)) && isStep(nx.p, after.p);
+          if (!back) add(1, 'warn', after.g, `${at(nx.g)}: after the leap ${leap}, turn back and move by step.`, ref(v, nx).concat(ref(v, after)), `turn|${v}|${k}`);
+        }
+        if (after && g >= 2 && g < 4 && v < 3) {
+          const g2 = Math.abs(gen(nx.p, after.p));
+          if (g2 >= 2 && Math.sign(gen(nx.p, after.p)) === Math.sign(gen(n.p, nx.p)) && !((g === 2 && (g2 === 2 || g2 === 3)) || (g === 3 && g2 === 2))) {
+            add(1, 'warn', after.g, `${at(nx.g)}: two leaps the same way in the ${VOICES[v]} (${name(n.p)}–${name(nx.p)}–${name(after.p)}) should outline a triad.`, ref(v, n).concat(ref(v, nx), ref(v, after)), `two|${v}|${k}`);
+          }
+        }
+      });
+    });
+    // Every moment a voice starts a note.
+    const times = [...new Set([].concat(...N.map((list) => list.map((n) => n.g))))].sort((a, b) => a - b);
+    // Rules 3 and 4: spacing and crossing, wherever the voices stand together.
+    times.forEach((g) => {
+      const V = [0, 1, 2, 3].map((v) => noteAt(v, g));
+      for (let v = 0; v < 3; v++) {
+        const a = V[v], b = V[v + 1];
+        if (!a || !b) continue;
+        const both = ref(v, a).concat(ref(v + 1, b));
+        if (midi(a.p) < midi(b.p)) add(4, 'error', g, `${at(g)}: the ${VOICES[v + 1]} (${MQ.fullName(b.p)}) crosses above the ${VOICES[v]} (${MQ.fullName(a.p)}).`, both, `cross|${v}|${a.k}|${b.k}`);
+        else if (v < 2 && midi(a.p) - midi(b.p) > 12) add(3, 'error', g, `${at(g)}: more than an octave between the ${VOICES[v]} (${MQ.fullName(a.p)}) and the ${VOICES[v + 1]} (${MQ.fullName(b.p)}).`, both, `space|${v}|${a.k}|${b.k}`);
+      }
+    });
+    // Rules 8, 9 and 10: two voices moving together into a fifth or an octave.
+    const lastStart = units[units.length - 1].g;
+    for (let k = 0; k + 1 < times.length; k++) {
+      const g1 = times[k], g2 = times[k + 1];
+      for (let a = 0; a < 3; a++) for (let b = a + 1; b < 4; b++) {
+        const A1 = noteAt(a, g1), A2 = noteAt(a, g2), B1 = noteAt(b, g1), B2 = noteAt(b, g2);
+        if (!A1 || !A2 || !B1 || !B2 || A1 === A2 || B1 === B2) continue;
+        const da = Math.sign(semi(A1.p, A2.p)), db = Math.sign(semi(B1.p, B2.p));
+        if (!da || !db) continue;
+        const i1 = mod(semi(B1.p, A1.p), 12), i2 = mod(semi(B2.p, A2.p), 12);
+        const what = i2 === 7 ? 'fifths' : 'octaves', pair = `the ${VOICES[a]} and the ${VOICES[b]}`;
+        const notes = ref(a, A1).concat(ref(a, A2), ref(b, B1), ref(b, B2));
+        if (i1 === i2 && (i2 === 7 || i2 === 0)) {
+          if (da === db) add(8, 'error', g2, `${at(g2)}: parallel ${what} between ${pair} (${name(B1.p)}–${name(A1.p)} to ${name(B2.p)}–${name(A2.p)}).`, notes, `par|${a}|${b}|${A2.k}|${B2.k}`);
+          else if (!(a === 0 && b === 3 && g2 >= lastStart)) add(9, 'error', g2, `${at(g2)}: contrary ${what} between ${pair} (${name(B1.p)}–${name(A1.p)} to ${name(B2.p)}–${name(A2.p)}).`, notes, `con|${a}|${b}|${A2.k}|${B2.k}`);
+        } else if (a === 0 && b === 3 && da === db && (i2 === 7 || i2 === 0) && Math.abs(gen(A1.p, A2.p)) > 1) {
+          add(10, 'warn', g2, `${at(g2)}: a direct ${i2 === 7 ? 'fifth' : 'octave'} in the outer voices — the soprano leaps into it.`, notes, `dir|${A2.k}|${B2.k}`);
+        } else if (b === 3 && i1 === 6 && i2 === 7 && da === db) {
+          add(8, 'warn', g2, `${at(g2)}: a diminished fifth moves to a perfect fifth between ${pair}.`, notes, `uneq|${a}|${A2.k}|${B2.k}`);
+        }
+      }
+    }
+    // With the chords known: the notes of each chord, its bass, what it doubles, and how its tendency
+    // tones go on.
+    if (C.chords) {
+      const spans = C.spans, chordAt = (g) => C.chords[unitAt(g)];
+      const lt = MQ.PW.leadingTone(C.chords[0].home || C.chords[0].key);
+      const dominant = (ch) => ch.fn === 'D' || inChord(ch, lt);
+      spans.forEach((sp, c) => {
+        const ch = C.chords[c], end = sp.g + sp.d, sym = C.labels[c].sym;
+        const there = [0, 1, 2, 3].map((v) => N[v].filter((n) => n.g < end && n.end > sp.g));
+        const complete = there.every((list) => list.length);
+        // Each note: in the chord, or moving like a non-harmonic tone.
+        there.forEach((list, v) => list.forEach((n) => {
+          if (C.gives[v] || inChord(ch, n.p)) return;
+          const prev = N[v][n.k - 1], next = N[v][n.k + 1];
+          let ok;
+          if (n.g < sp.g) {
+            // Held over from the chord before: a suspension or retardation resolves by step; a pedal point
+            // is the bass holding a note that was in its chord.
+            ok = (next && isStep(n.p, next.p)) || (v === 3 && inChord(chordAt(n.g), n.p));
+          } else {
+            const stepIn = prev && isStep(prev.p, n.p), stepOut = next && isStep(n.p, next.p);
+            const early = (n.end > end && c + 1 < spans.length && inChord(C.chords[c + 1], n.p)) || (next && midi(next.p) === midi(n.p) && inChord(chordAt(next.g), next.p));
+            ok = stepOut || (stepIn && !!next) || early;
+          }
+          if (!ok) add(0, 'error', Math.max(n.g, sp.g), `${at(Math.max(n.g, sp.g))}: ${name(n.p)} in the ${VOICES[v]} isn’t in ${sym} and doesn’t move like a non-harmonic tone (by step into or out of it).`, ref(v, n), `nct|${v}|${n.k}|${c}`);
+        }));
+        if (!complete) return;
+        // The bass note of the chord, as its figures or its symbol say.
+        const first = [0, 1, 2, 3].map((v) => noteAt(v, sp.g));
+        const bassTone = ch.tones[ch.inv];
+        if (first[3] && !C.gives[3] && !samePc(bassTone, first[3].p) && inChord(ch, first[3].p)) {
+          add(0, 'error', sp.g, `${at(sp.g)}: the bass of ${sym} is ${name(bassTone)}, not ${name(first[3].p)}.`, ref(3, first[3]), `bass|${c}`);
+        }
+        // The notes the chord needs.
+        ch.tones.forEach((t, i) => {
+          if (!(ch.degs[i] > 0) || !(ch.req ? ch.req[i] : ch.degs[i] !== 5)) return;
+          if (!there.some((list) => list.some((n) => samePc(t, n.p)))) add(0, 'error', sp.g, `${at(sp.g)}: ${sym} is missing its ${DEG[ch.degs[i]] || 'note'} (${name(t)}).`, [], `need|${c}|${i}`);
+        });
+        // Rules 5 and 6: doubling, as the chord stands when it begins.
+        if (first.every((n) => n && inChord(ch, n.p))) {
+          const count = (t) => first.filter((n) => samePc(t, n.p)).length;
+          if (inChord(ch, lt) && count(lt) > 1) add(6, 'error', sp.g, `${at(sp.g)}: the leading tone (${name(lt)}) is doubled in ${sym}.`, [0, 1, 2, 3].filter((v) => samePc(lt, first[v].p)).reduce((a, v) => a.concat(ref(v, first[v])), []), `lt2|${c}`);
+          const triad = tonesOf(ch).length === 3 && ch.inv === 0;
+          const deceptive = c > 0 && dominant(C.chords[c - 1]) && mod(ch.root.step - C.chords[c - 1].root.step, 7) === 1;
+          if (triad && count(ch.root) < 2 && !deceptive) add(5, 'warn', sp.g, `${at(sp.g)}: ${sym} is in root position — double its root (${name(ch.root)}).`, [], `dbl|${c}`);
+        }
+        // Rule 7: the leading tone in the soprano, and the seventh of the chord.
+        const next = C.chords[c + 1];
+        if (next) {
+          const s = there[0][there[0].length - 1];
+          if (s && !C.gives[0] && samePc(lt, s.p) && dominant(ch) && !dominant(next)) {
+            const to = N[0][s.k + 1];
+            if (to && !(semi(s.p, to.p) === 1 && gen(s.p, to.p) === 1)) add(7, 'error', to.g, `${at(to.g)}: the leading tone (${name(s.p)}) in the soprano should go up to the tonic.`, ref(0, s).concat(ref(0, to)), `ltres|${c}`);
+          }
+          const sevI = ch.degs.indexOf(7);
+          if (sevI >= 0) {
+            there.forEach((list, v) => {
+              const n = list[list.length - 1];
+              if (!n || C.gives[v] || !samePc(ch.tones[sevI], n.p) || inChord(next, n.p)) return;
+              const to = N[v][n.k + 1];
+              if (to && !(gen(n.p, to.p) === -1 && isStep(n.p, to.p))) add(7, 'error', to.g, `${at(to.g)}: the seventh of ${sym} (${name(n.p)}, in the ${VOICES[v]}) should go down by step.`, ref(v, n).concat(ref(v, to)), `sev|${c}|${v}`);
+            });
+          }
+        }
+      });
+    }
+    const unitOk = units.map((_, k) => !blank && !issues.some((x) => x.sev === 'error' && x.unit === k));
+    issues.sort((a, b) => a.unit - b.unit || (a.sev === b.sev ? 0 : a.sev === 'error' ? -1 : 1));
+    return { units: units.length, wrong: unitOk.filter((x) => !x).length, unitOk, issues, blank, word: C.chords ? 'chord' : 'measure' };
+  }
+  const gradeChorale = (q, resp) => { const c = checkChorale(q, resp); return c.units ? (c.units - c.wrong) / c.units : 0; };
+  const compareChorale = (q, resp) => { const c = checkChorale(q, resp); return { notes: c.units, wrong: c.wrong }; };
+  // For the answer key: the voicing Clefwork made the exercise from, or what the work is marked on.
+  function describeChorale(q) {
+    const C = q.ch;
+    if (!C.model) return 'Any four-part writing that keeps the voice-leading rules — every measure is marked.';
+    const mine = [0, 1, 2, 3].filter((v) => !C.gives[v]);
+    return 'One way: ' + mine.map((v) => `${cap(VOICES[v])} ${C.model.map((V) => MQ.fullName(V[v])).join(' ')}`).join(' · ');
+  }
+  // The model answer as four voices of plain chord-length notes, to show on the staff.
+  function chorModel(q) {
+    const C = q.ch;
+    if (!C.model) return null;
+    return [0, 1, 2, 3].map((v) => {
+      const out = Array.from({ length: C.measures }, () => []);
+      C.spans.forEach((sp, c) => out[sp.m].push(spanEvent(sp.d, C.model[c][v])));
+      return out;
+    });
+  }
+
+  // ---------- playback ----------
+  // Sound events for MQ.Audio.sequence: the four voices as written. unit: seconds per 48th of a whole note.
+  function chorEvents(q, layers, unit) {
+    const C = q.ch, len = MQ.rhythmMeter(C.meter).len, events = [];
+    layers.forEach((layer) => MQ.rhythmSounding(layer, len, C.measures).forEach((n) => {
+      if (n.p) events.push({ at: n.g * unit, dur: n.d * unit * 0.95, midi: midi(n.p), voice: 'piano', vel: 0.22 });
+    }));
+    return { events, total: C.measures * len * unit };
+  }
+
+  Object.assign(MQ, {
+    CHOR_MAX, CHOR_KINDS: KINDS, CHOR_METERS: METERS, CHOR_HARMONY: HARMONY, CHOR_VOICES: VOICES, CHOR_RANGES: RANGES, CHOR_RANGE_TEXT: RANGE_TEXT, CHOR_CENTERS: CENTERS,
+    chorSettings, chorQuestions, chorBlank, cleanChorale, chorVoices, hasChoraleAnswer, checkChorale, gradeChorale, compareChorale, describeChorale, chorModel,
+    chorEvents, chorValueProblem: valueProblem, chorTripletProblem: tripletProblem,
+  });
+})(typeof window !== 'undefined' ? window : globalThis);
 /* Clefwork Sight Singing — the teacher sets the melodies exactly as in Clefwork Melody (written by
    hand, made by Clefwork, or taken from the library); students read one at a time and record
    themselves singing it away from Clefwork. Nothing here ever plays the melody to a student: the
@@ -13113,6 +13560,16 @@ svg.staff .nlabel { display: none; }
     cfg.block = MQ.blockSettings(b);
     cfg.counts.block = asked;
   }
+  // Clefwork Voice Leading's four-part writing (extension 17): how many exercises, and what makes them.
+  function writeChorBlock(w, cfg) {
+    const s = MQ.chorSettings(cfg.chor);
+    w.u(s.gen, 3).u(Math.min(MQ.CHOR_MAX, (cfg.counts && cfg.counts.chorale) || 0), 4).u(s.kinds, 7).u(s.lines, 2).u(s.measures - 4, 3).u(s.meter, 2).u(s.mode, 2).u(s.sig, 4).u(s.maxSig, 3).u(s.harm, 2);
+  }
+  function readChorBlock(r, cfg) {
+    const gen = r.u(3), n = r.u(4);
+    cfg.chor = MQ.chorSettings({ gen, kinds: r.u(7), lines: r.u(2), measures: r.u(3) + 4, meter: r.u(2), mode: r.u(2), sig: r.u(4), maxSig: r.u(3), harm: r.u(2) });
+    cfg.counts.chorale = n;
+  }
   // Clefwork Harmony's non-harmonic tones (extension 16): the settings that make the examples, how
   // many to ask, and what students see and choose from.
   function writeNhtBlock(w, cfg) {
@@ -13297,17 +13754,20 @@ svg.staff .nlabel { display: none; }
     const block = MQ.blockSettings && (cfg.counts && cfg.counts.block) > 0 && MQ.usableBlockExercises(cfg.block).length > 0;
     const cad = !!MQ.cadSettings && (cfg.counts && cfg.counts.cadence) > 0;
     const nht = !!MQ.nhSettings && (cfg.counts && cfg.counts.nht) > 0;
+    const chor = !!MQ.chorSettings && (cfg.counts && cfg.counts.chorale) > 0;
     const graph = GRAPH_COUNTS.some((k) => cfg.counts && cfg.counts[k] > 0);
     const terms = TERM_COUNTS.some((k) => cfg.counts && cfg.counts[k] > 0);
     const anMore = an.more.length > 0 && (regions.length > 0 || an.more.some((m) => m.regions.length));
     const ivAsk = (cfg.counts && cfg.counts.interval) > 0 && (cfg.intervalAsk === 2 || cfg.intervalAsk === 3) ? cfg.intervalAsk : 0;
     // How many of the quiz's questions each student gets (0: all of them) — the last block, behind a flag.
     const pick = Math.max(0, Math.min(127, cfg.pick | 0));
-    if (regions.length || an.img || limit != null || rhythm || melody || degrees || graph || terms || sing || block || cad || nht || ivAsk || pick) {
+    if (regions.length || an.img || limit != null || rhythm || melody || degrees || graph || terms || sing || block || cad || nht || chor || ivAsk || pick) {
       const q10 = (v) => Math.max(0, Math.min(1023, Math.round(v * 1023)));
       // Extension 16: Clefwork Harmony with non-harmonic tones — the cadence block as extension 15 writes it
       // (possibly empty), then the non-harmonic tone block.
-      const ext = nht ? 16 : cad ? 15 : block ? 14 : sing ? 13 : terms ? 10 : graph ? 9 : anMore ? 12 : grid ? 6 : degrees ? (dgLib ? 11 : dgMore ? 8 : 7) : melody ? 5 : rhythm ? 4 : limit != null ? 2 : 1;
+      // Extension 17: Clefwork Voice Leading with four-part writing — the block chords as extension 14
+      // writes them (possibly none), then the four-part writing block.
+      const ext = chor ? 17 : nht ? 16 : cad ? 15 : block ? 14 : sing ? 13 : terms ? 10 : graph ? 9 : anMore ? 12 : grid ? 6 : degrees ? (dgLib ? 11 : dgMore ? 8 : 7) : melody ? 5 : rhythm ? 4 : limit != null ? 2 : 1;
       const deg8 = ext === 8 || ext === 11, deg7 = ext === 7 || deg8;
       w.u(ext, 8).u(an.override, 2).u(an.img ? 1 : 0, 1);
       if (an.img) w.u(an.img.hash >>> 0, 32);
@@ -13362,10 +13822,11 @@ svg.staff .nlabel { display: none; }
           examples.forEach((ex) => writeExample(w, ex, grid));
         }
       }
-      if (ext === 14) {
+      if (ext === 14 || ext === 17) {
         w.u(limit != null ? 1 : 0, 1);
         if (limit != null) w.u(limit, 5);
         writeBlockBlock(w, cfg);
+        if (ext === 17) writeChorBlock(w, cfg);
       }
       if (ext === 15 || ext === 16) {
         w.u(limit != null ? 1 : 0, 1);
@@ -13636,9 +14097,10 @@ svg.staff .nlabel { display: none; }
             cfg.rhythm = MQ.rhythmSettings(rh);
             cfg.counts.rhythm = rh.auto ? rh.auto.count : rh.examples.length;
           }
-          if (ext === 14) {
+          if (ext === 14 || ext === 17) {
             if (r.u(1)) cfg.retakes = r.u(5);
             readBlockBlock(r, cfg);
+            if (ext === 17) readChorBlock(r, cfg);
           }
           if (ext === 15 || ext === 16) {
             if (r.u(1)) cfg.retakes = r.u(5);
@@ -13793,6 +14255,21 @@ svg.staff .nlabel { display: none; }
       }
       return;
     }
+    if (q.type === 'chorale') {
+      // Four-part writing: which voices the student wrote, how many measures, then each voice's measures —
+      // every note or rest with its value, dot, triplet, tie and (for a note) pitch.
+      const L = MQ.cleanChorale(q, resp), voices = [0, 1, 2, 3].filter((v) => !q.ch.gives[v]);
+      w.u(voices.reduce((m, v) => m | (1 << v), 0), 4).u(q.ch.measures, 4);
+      voices.forEach((v) => L[v].forEach((evs) => {
+        const list = evs.slice(0, 31);
+        w.u(list.length, 5);
+        list.forEach((e) => {
+          w.u(e.v, 3).u(e.d ? 1 : 0, 1).u(e.t ? 1 : 0, 1).u(e.r ? 1 : 0, 1).u(e.tie ? 1 : 0, 1);
+          if (!e.r) w.u(Math.max(0, Math.min(127, MQ.dia(e.p))), 7).u(Math.max(-2, Math.min(2, e.p.alt)) + 2, 3);
+        });
+      }));
+      return;
+    }
     if (q.type === 'nht') {
       // Non-harmonic tones: which example of the bank this was, how many lettered notes, then each choice
       // (0 blank, else its kind + 1).
@@ -13923,6 +14400,20 @@ svg.staff .nlabel { display: none; }
       for (let j = 0; j < n; j++) { out.r.push(readText(r)); out.s.push(sym ? readGraphText(r) : ''); }
       return { kind: 'text', value: out };
     }
+    if (type === 'chorale') {
+      const mask = r.u(4), M = r.u(4), out = [0, 1, 2, 3].map(() => Array.from({ length: M }, () => []));
+      [0, 1, 2, 3].filter((v) => mask & (1 << v)).forEach((v) => {
+        for (let m = 0; m < M; m++) {
+          for (let j = 0, n = r.u(5); j < n; j++) {
+            const e = { v: r.u(3), d: r.u(1), t: r.u(1), r: r.u(1) };
+            if (r.u(1)) e.tie = 1;
+            if (!e.r) e.p = MQ.fromDia(r.u(7), r.u(3) - 2);
+            out[v][m].push(e);
+          }
+        }
+      });
+      return { kind: 'chorale', value: out };
+    }
     if (type === 'nht') {
       const ex = r.u(4), n = r.u(5), list = [];
       for (let j = 0; j < n; j++) list.push(r.u(4) - 1);
@@ -14052,7 +14543,7 @@ svg.staff .nlabel { display: none; }
         // (Scale degrees too, when scored by note. No report has both kinds, so earlier reports read the same.)
         // (Block chords too: how many chords, and how many broke a rule.)
         // (Non-harmonic tones too: lettered notes, and how many were wrong.)
-        if (it.type === 'rhythm' || it.type === 'melody' || it.type === 'rgrid' || it.type === 'degree' || it.type === 'block' || it.type === 'nht') w.u(n9(it.notes), 9).u(n9(it.wrong), 9);
+        if (it.type === 'rhythm' || it.type === 'melody' || it.type === 'rgrid' || it.type === 'degree' || it.type === 'block' || it.type === 'nht' || it.type === 'chorale') w.u(n9(it.notes), 9).u(n9(it.wrong), 9);
         // Chord Graph: points, and points lost in halves (a right root can earn half).
         if (GRAPH_COUNTS.includes(it.type)) w.u(n9(it.notes), 9).u(n9(Math.round((it.wrong || 0) * 2)), 9);
         if (it.type === 'melody') w.u(n9(it.pw), 9).u(n9(it.rw), 9);
@@ -14164,7 +14655,7 @@ svg.staff .nlabel { display: none; }
       if (ver >= 11 && r.u(1)) {
         rep.scoring = { mode: r.u(1) ? 'percent' : 'notes', outOf: r.u(10), split: ver >= 12 ? r.u(1) : 0 };
         rep.items.forEach((it) => {
-          if (it.type === 'rhythm' || it.type === 'rgrid' || it.type === 'degree' || it.type === 'block' || it.type === 'nht' || (it.type === 'melody' && ver >= 12)) { it.notes = r.u(9); it.wrong = r.u(9); }
+          if (it.type === 'rhythm' || it.type === 'rgrid' || it.type === 'degree' || it.type === 'block' || it.type === 'nht' || it.type === 'chorale' || (it.type === 'melody' && ver >= 12)) { it.notes = r.u(9); it.wrong = r.u(9); }
           if (GRAPH_COUNTS.includes(it.type)) { it.notes = r.u(9); it.wrong = r.u(9) / 2; }
           if (it.type === 'melody' && ver >= 12) { it.pw = r.u(9); it.rw = r.u(9); }
         });
@@ -14257,6 +14748,7 @@ svg.staff .nlabel { display: none; }
       graph: rep.items.some((it) => GRAPH_COUNTS.includes(it.type)),    // Chord Graph: answers, not notes
       block: rep.items.some((it) => it.type === 'block'),                 // block chords: chords, not notes
       nh: rep.items.some((it) => it.type === 'nht'),                      // non-harmonic tones: lettered notes
+      chor: rep.items.some((it) => it.type === 'chorale'),                // four-part writing: chords or measures
       byType: by('type'), byClef: by('clef'),
       avgSec: count ? rep.items.reduce((s, it) => s + it.sec, 0) / count : 0,
       slowest,
@@ -16557,6 +17049,585 @@ svg.staff .nlabel { display: none; }
 
   Object.assign(MQ, { MelodyStaff, melodyArt, melodyMarkup: build, MELODY_SYS_H: SYS_H });
 })(window);
+/* Clefwork Voice Leading — the grand staff for four-part writing. Soprano and alto share the treble
+   staff, tenor and bass the bass staff; soprano and tenor stems always point up, alto and bass stems down,
+   so each voice can be followed even when two land on the same note. Every voice has its own rhythm —
+   whole notes to sixteenths, dots, ties, eighth- and quarter-note triplets — and the four are lined up in
+   time, measure by measure.
+   Writing goes one voice at a time: the student picks a voice, picks a note value, and then places the
+   pitch — pressing on the staff shows a light note head that follows the pointer up and down until it is
+   let go, or a letter key writes that note nearest the one before it, inside the voice's range. A caret
+   marks where the next note of the voice goes; a written note can be clicked to select it, dragged to a
+   new pitch, replaced, or deleted. Printed voices (a given melody or bass) can't be changed.
+   Drawn with the plain shapes Clefwork Rhythm draws with, so the same picture prints. */
+(function (root) {
+  'use strict';
+  const MQ = root.MQ;
+  const NS = 'http://www.w3.org/2000/svg';
+  const { RX, STEM, BEAM, BEAM_STEP, PAD_L, PAD_R, r1, headSVG, lineSVG, rectSVG, dotSVG, flagsSVG, restSVG, tieSVG, spacing, beamPlan, NAMES } = MQ.rhythmDraw;
+  const HALF = 5, ACC_SCALE = 0.85, ACC_W = 11;
+  // One system: chord symbols, the treble staff, the bass staff, Roman numerals.
+  const T_TOP = 70, B_TOP = 180, SYS_H = 304, SYM_Y = 24, RN_Y = B_TOP + 40 + 66;
+  const STAFF = [0, 0, 1, 1], UP = [true, false, true, false];
+  const topOf = (st) => (st ? B_TOP : T_TOP);
+  const bottomDia = (st) => MQ.CLEFS[st ? 'bass' : 'treble'].bottom;
+  const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;');
+  const accSpan = (s) => esc(s).replace(/([♯♭♮𝄪𝄫])/g, '<tspan class="sacc">$1</tspan>');
+  const accSVG = (alt, x, y) => `<g transform="translate(${r1(x)} ${r1(y)}) scale(${ACC_SCALE})">${MQ.ACC_SVG[alt]}</g>`;
+  const keyTag = (K) => (K.mode === 'minor' ? K.name.charAt(0).toLowerCase() + K.name.slice(1) : K.name) + ':';
+  // A Roman numeral with its figures stacked beside it.
+  function rnSVG(x, y, d) {
+    const figs = d.figs || [];
+    let t = `<text class="c-rn" x="${r1(x)}" y="${y}" font-size="14" font-weight="bold" text-anchor="middle" fill="currentColor">${accSpan(d.pre || '')}${esc(d.num)}${d.mark ? esc(d.mark) : ''}`;
+    if (figs.length === 1) t += `<tspan font-size="9.5" dy="-6">${accSpan(figs[0])}</tspan>`;
+    if (figs.length === 2) t += `<tspan font-size="9.5" dy="-6">${esc(figs[0])}</tspan><tspan font-size="9.5" dx="-6" dy="10">${esc(figs[1])}</tspan>`;
+    if (d.sec) t += `<tspan dy="${figs.length === 2 ? -4 : figs.length === 1 ? 6 : 0}">${accSpan(d.sec)}</tspan>`;
+    return t + '</text>';
+  }
+
+  // ---------- the picture ----------
+  // model: {meter, measures, layers [4 voices][measure][event], key}. opts: print, perLine, first (the
+  // number of the first measure shown, less one), showTime, measureW, editing, active (the voice being
+  // written), caret {m, i}, sel {l, m, i}, ghost {p, v, d} (the light note at the caret), locked [4]
+  // (printed voices), bad (a Set of "l:m:i" notes to mark), labels ([{m, t, rn, sym}]), show (1 Roman
+  // numerals, 2 chord symbols, 3 both), keyTag (print the key before the numerals), open (more follows).
+  function build(model, opts) {
+    const o = Object.assign({ print: false, perLine: 2, first: 0, showTime: true, measureW: null, editing: false, active: -1, caret: null, sel: null, ghost: null, locked: [false, false, false, false], bad: null, labels: null, show: 0, keyTag: true, open: false, playing: -1 }, opts);
+    const info = MQ.rhythmMeter(model.meter), K = MQ.melodyKey(model.key), M = model.measures, len = info.len;
+    const L = [0, 1, 2, 3].map((l) => Array.from({ length: M }, (_, m) => ((model.layers[l] || [])[m]) || []));
+    const plans = L.map((layer) => layer.map((ev) => beamPlan(ev, info)));
+    const showSym = (o.show & 2) !== 0 && !!o.labels, showRn = (o.show & 1) !== 0 && !!o.labels;
+    // Notes a tie leads to: they keep their accidental without showing it again.
+    const tiedTo = new Set();
+    L.forEach((layer, l) => layer.forEach((ev, m) => ev.forEach((e, i) => {
+      if (!e.tie || e.r) return;
+      const to = MQ.rhythmTieNext(layer, m, i, len, M);
+      if (to) tiedTo.add(l + ':' + to.m + ':' + to.i);
+    })));
+    // Accidentals: what the key signature, and earlier notes on that line or space of the staff in the
+    // measure, don't already say.
+    for (let m = 0; m < M; m++) {
+      [0, 1].forEach((st) => {
+        const all = [];
+        [0, 1, 2, 3].filter((l) => STAFF[l] === st).forEach((l) => plans[l][m].list.forEach((n) => { if (!n.e.r && n.e.p) all.push({ l, n }); }));
+        all.sort((a, b) => a.n.t - b.n.t || a.l - b.l);
+        const cur = {};
+        all.forEach(({ l, n }) => {
+          const d = MQ.dia(n.e.p), was = d in cur ? cur[d] : K.alts[n.e.p.step];
+          n.acc = tiedTo.has(l + ':' + m + ':' + n.i) || n.e.p.alt === was ? null : n.e.p.alt;
+          cur[d] = n.e.p.alt;
+        });
+      });
+    }
+    // ---------- widths: one place for every moment any voice starts a note ----------
+    const ksW = Math.abs(K.fifths) * 9 + (K.fifths ? 8 : 0);
+    const headW = (k) => 60 + ksW + (k === 0 && o.showTime ? 28 : 0) + 6;
+    const natural = [];
+    for (let m = 0; m < M; m++) {
+      const times = new Set([0, len]), pre = new Map(), post = new Map();
+      const bump = (map, t, x) => map.set(t, Math.max(map.get(t) || 0, x));
+      (o.labels || []).forEach((lb) => { if (lb.m === m) times.add(lb.t); });
+      plans.forEach((P, l) => {
+        let end = 0;
+        P[m].list.forEach((n) => {
+          times.add(n.t);
+          if (n.acc != null) bump(pre, n.t, ACC_W);
+          let x = n.e.d ? 6 : 0;
+          if (!n.e.r && n.e.v >= 3 && !P[m].inBeam.has(n.i) && UP[l]) x += 6;
+          bump(post, n.t, x);
+          end = n.t + n.d;
+        });
+        times.add(Math.min(len, end));
+      });
+      // Two voices of a staff a second apart (or on one note with different heads): the lower one moves right.
+      [[0, 1], [2, 3]].forEach(([a, b]) => plans[a][m].list.forEach((na) => {
+        const nb = plans[b][m].list.find((x) => x.t === na.t);
+        if (!nb || na.e.r || nb.e.r) return;
+        const gap = MQ.dia(na.e.p) - MQ.dia(nb.e.p);
+        if (Math.abs(gap) === 1 || (gap === 0 && (na.e.v < 2) !== (nb.e.v < 2))) { nb.shift = 13; bump(post, na.t, 13 + (nb.e.d ? 6 : 0)); }
+      }));
+      const ts = [...times].filter((t) => t <= len).sort((a, b) => a - b);
+      const seg = ts.slice(0, -1).map((t, k) => spacing(ts[k + 1] - t) + (pre.get(t) || 0) + (post.get(t) || 0));
+      const content = seg.reduce((a, b) => a + b, 0);
+      const nominal = o.measureW ? o.measureW - PAD_L - PAD_R : (len / 6) * 20;
+      natural.push({ ts, seg, pre, width: Math.max(content, nominal) + PAD_L + PAD_R, content });
+    }
+    const nSys = Math.ceil(M / o.perLine);
+    const sysMeasures = [];
+    for (let k = 0; k < nSys; k++) sysMeasures.push(Array.from({ length: Math.min(o.perLine, M - k * o.perLine) }, (_, j) => k * o.perLine + j));
+    const W = Math.max(...sysMeasures.map((ms, k) => headW(k) + ms.reduce((t, m) => t + natural[m].width, 0))) + 10;
+    const H = nSys * SYS_H;
+    const geo = { measures: [], ev: [[], [], [], []], W, H, systems: [] };
+    sysMeasures.forEach((ms, k) => {
+      const sy = k * SYS_H, x0 = headW(k);
+      const total = ms.reduce((t, m) => t + natural[m].width, 0);
+      const stretch = (W - 10 - x0) / total;
+      let x = x0;
+      geo.systems.push({ y0: sy, y1: sy + SYS_H, x0 });
+      ms.forEach((m) => {
+        const nat = natural[m], w = nat.width * stretch;
+        const k2 = Math.max(1, (w - PAD_L - PAD_R) / Math.max(1, nat.content));
+        const xs = new Map();
+        let at = x + PAD_L;
+        nat.ts.forEach((t, j) => { xs.set(t, at); if (j < nat.seg.length) at += nat.seg[j] * k2; });
+        geo.measures[m] = { x0: x, x1: x + w, xs, ts: nat.ts, pre: nat.pre, sys: k, sy };
+        x += w;
+      });
+    });
+    const xOf = (m, t) => {
+      const g = geo.measures[m];
+      if (g.xs.has(t)) return g.xs.get(t);
+      let lo = 0;
+      g.ts.forEach((u, j) => { if (u <= t) lo = j; });
+      const hi = Math.min(g.ts.length - 1, lo + 1), a = g.ts[lo], b = g.ts[hi];
+      return b === a ? g.xs.get(a) : g.xs.get(a) + ((t - a) / (b - a)) * (g.xs.get(b) - g.xs.get(a));
+    };
+    const headX = (m, t) => xOf(m, t) + (geo.measures[m].pre.get(t) || 0) + RX + 1;
+    const yOf = (sy, st, pos) => sy + topOf(st) + 40 - pos * HALF;
+    let s = '';
+    // ---------- measure backgrounds ----------
+    if (!o.print) {
+      geo.measures.forEach((g, m) => {
+        const cls = ['r-meas', o.playing === m ? 'is-playing' : '', o.editing && o.caret && o.caret.m === m ? 'is-cur' : ''].filter(Boolean).join(' ');
+        s += `<rect class="${cls}" data-m="${m}" x="${r1(g.x0 + 1)}" y="${g.sy + T_TOP - 34}" width="${r1(g.x1 - g.x0 - 2)}" height="${B_TOP + 40 + 34 - (T_TOP - 34)}" rx="6"/>`;
+      });
+    }
+    // ---------- staves, brace, clefs, key and time signatures, bar lines ----------
+    sysMeasures.forEach((ms, k) => {
+      const sy = k * SYS_H, top = sy + T_TOP, bot = sy + B_TOP + 40, mid = (top + bot) / 2;
+      [0, 1].forEach((st) => {
+        const y0 = sy + topOf(st), by = y0 + 40, clef = st ? 'bass' : 'treble';
+        for (let i = 0; i < 5; i++) s += lineSVG(16, y0 + i * 10, W - 3, y0 + i * 10, 1);
+        s += `<g class="clef" transform="translate(22 ${by}) scale(0.8333) translate(-22 ${-by})">${MQ.clefSVG(clef, by, 22)}</g>`;
+        MQ.keySigDias(K.fifths, clef).forEach((d, j) => { s += accSVG(K.fifths > 0 ? 1 : -1, 60 + j * 9, by - (d - bottomDia(st)) * HALF); });
+        if (k === 0 && o.showTime) {
+          const tx = 60 + ksW + 12;
+          s += `<text class="clabel r-tsig" x="${tx}" y="${y0 + 19}" font-size="22" font-weight="bold" text-anchor="middle" fill="currentColor">${info.n}</text>`;
+          s += `<text class="clabel r-tsig" x="${tx}" y="${by - 1}" font-size="22" font-weight="bold" text-anchor="middle" fill="currentColor">${info.d}</text>`;
+        }
+      });
+      s += lineSVG(16, top, 16, bot, 1);
+      s += `<path class="brace" fill="currentColor" d="M14 ${top}C5 ${top + 28} 13 ${mid - 38} 4 ${mid}C13 ${mid + 38} 5 ${bot - 28} 14 ${bot}C10 ${bot - 28} 17 ${mid + 38} 7.5 ${mid}C17 ${mid - 38} 10 ${top + 28} 14 ${top}Z"/>`;
+      ms.forEach((m) => {
+        const g = geo.measures[m];
+        s += `<text class="r-mnum" x="${r1(g.x0 + 4)}" y="${sy + 11}" font-size="9.5" fill="currentColor">${o.first + m + 1}</text>`;
+        const last = m === M - 1 && !o.open;
+        if (!last) s += lineSVG(g.x1, top, g.x1, bot, 1);
+        else s += lineSVG(g.x1 - 7, top, g.x1 - 7, bot, 1) + rectSVG(g.x1 - 4, top, 3.6, bot - top);
+      });
+      if (showRn && k === 0 && o.keyTag) s += `<text class="c-rn" x="20" y="${sy + RN_Y}" font-size="14" font-weight="bold" fill="currentColor">${accSpan(keyTag(K))}</text>`;
+    });
+    // ---------- chord symbols above, Roman numerals below ----------
+    (o.labels || []).forEach((lb) => {
+      if (lb.m < 0 || lb.m >= M) return;
+      const g = geo.measures[lb.m], x = headX(lb.m, lb.t);
+      if (showSym && lb.sym) s += `<text class="c-sym" x="${r1(x)}" y="${g.sy + SYM_Y}" font-size="13.5" font-weight="bold" text-anchor="middle" fill="currentColor">${accSpan(lb.sym)}</text>`;
+      if (showRn && lb.rn) s += rnSVG(x, g.sy + RN_Y, lb.rn);
+    });
+    // ---------- the notes, voice by voice ----------
+    const drawn = [[], [], [], []], ties = [];
+    L.forEach((layer, l) => {
+      const st = STAFF[l], up = UP[l];
+      const voiceCls = ` c-v${l}` + (o.locked[l] ? ' is-given' : '') + (o.editing && l === o.active ? ' is-active' : '');
+      layer.forEach((evs, m) => {
+        const g = geo.measures[m], sy = g.sy, y0 = sy + topOf(st);
+        const { list, beamed, inBeam } = plans[l][m];
+        const state = MQ.measureState(evs, info);
+        const badAt = new Set();
+        state.bad.forEach((tg) => { if (!tg.finishable || state.full) for (let i = tg.from; i <= tg.to; i++) badAt.add(i); });
+        list.forEach((n) => {
+          n.hx = headX(m, n.t) + (n.shift || 0);
+          if (!n.e.r) { n.pos = MQ.dia(n.e.p) - bottomDia(st); n.hy = yOf(sy, st, n.pos); }
+        });
+        geo.ev[l][m] = list.map((n) => ({ x: n.hx, t: n.t }));
+        const stemX = (n) => n.hx + (up ? 5.7 : -5.7);
+        const stemEnd = (n) => (up ? n.hy - STEM : n.hy + STEM) + (up ? -1 : 1) * (!inBeam.has(n.i) && n.e.v === 4 ? 5 : 0);
+        beamed.forEach((grp) => {
+          const y = up ? Math.min(...grp.map(stemEnd)) : Math.max(...grp.map(stemEnd));
+          grp.forEach((n) => { n.beamY = y; });
+        });
+        const restPos = up ? { rest: y0 + 8, wholeTop: y0, halfBottom: y0 + 10 } : { rest: y0 + 32, wholeTop: y0 + 30, halfBottom: y0 + 40 };
+        list.forEach((n) => {
+          const e = n.e;
+          const sel = o.sel && o.sel.l === l && o.sel.m === m && o.sel.i === n.i;
+          const wrong = o.bad && o.bad.has(l + ':' + m + ':' + n.i);
+          const cls = 'r-ev' + voiceCls + (sel && !o.print ? ' is-sel' : '') + (badAt.has(n.i) ? ' is-bad' : '') + (wrong ? ' is-wrong' : '');
+          let body = '';
+          if (e.r) {
+            body += restSVG(e.v, n.hx, restPos);
+            if (e.d) body += dotSVG(n.hx + (e.v <= 1 ? 10 : 8), restPos.rest - 3);
+          } else {
+            for (let k = -2; k >= n.pos; k -= 2) body += lineSVG(n.hx - 11, yOf(sy, st, k), n.hx + 11, yOf(sy, st, k), 1.3);
+            for (let k = 10; k <= n.pos; k += 2) body += lineSVG(n.hx - 11, yOf(sy, st, k), n.hx + 11, yOf(sy, st, k), 1.3);
+            if (n.acc != null) body += accSVG(n.acc, n.hx - RX - 9 - (n.acc === -2 ? 4 : 0), n.hy);
+            body += headSVG(e.v, n.hx, n.hy);
+            if (e.v >= 1) {
+              const end = inBeam.has(n.i) ? n.beamY : stemEnd(n);
+              body += lineSVG(stemX(n), n.hy + (up ? -1.5 : 1.5), stemX(n), end, 1.3);
+              if (e.v >= 3 && !inBeam.has(n.i)) body += flagsSVG(stemX(n) + (up ? -0.6 : 0.6), end, up, e.v - 2);
+            }
+            if (e.d) body += dotSVG(n.hx + (e.v === 0 ? 12 : 10.5), n.hy - (n.pos % 2 === 0 ? HALF : 0));
+          }
+          const hit = o.print || !o.editing || o.locked[l] ? '' : `<rect class="r-hit" x="${r1(n.hx - RX - 4)}" y="${r1((e.r ? restPos.rest : n.hy) - 9)}" width="${r1(2 * RX + 8)}" height="18"/>`;
+          s += `<g class="${cls}" data-l="${l}" data-m="${m}" data-i="${n.i}">${hit}${body}</g>`;
+          if (e.tie && !e.r) ties.push({ l, m, n });
+        });
+        drawn[l][m] = list;
+        // Beams.
+        beamed.forEach((grp) => {
+          const y0b = up ? grp[0].beamY : grp[0].beamY - BEAM;
+          const a = stemX(grp[0]) - 0.65, z = stemX(grp[grp.length - 1]) + 0.65;
+          let b = rectSVG(a, y0b, z - a, BEAM);
+          const y1 = y0b + (up ? BEAM_STEP : -BEAM_STEP);
+          for (let j = 0; j < grp.length; j++) {
+            if (grp[j].e.v !== 4) continue;
+            let k = j;
+            while (k + 1 < grp.length && grp[k + 1].e.v === 4) k++;
+            if (k > j) b += rectSVG(stemX(grp[j]) - 0.65, y1, stemX(grp[k]) - stemX(grp[j]) + 1.3, BEAM);
+            else { const sx = stemX(grp[j]); b += rectSVG(j > 0 ? sx - 8 : sx - 0.65, y1, 8.65, BEAM); }
+            j = k;
+          }
+          s += `<g class="r-beam${voiceCls}${grp.some((n) => badAt.has(n.i)) ? ' is-bad' : ''}">${b}</g>`;
+        });
+        // Triplets: the number on the stem side, with a bracket when the notes aren't all under one beam.
+        MQ.tripletGroups(evs, info).forEach((tg) => {
+          const notes = list.slice(tg.from, tg.to + 1);
+          if (!notes.length) return;
+          const pitched = notes.filter((n) => !n.e.r);
+          const ends = pitched.map((n) => (inBeam.has(n.i) ? n.beamY : n.e.v >= 1 ? stemEnd(n) : n.hy));
+          const grp = beamed.find((b) => b[0].i === tg.from && b[b.length - 1].i === tg.to);
+          const xa = notes[0].hx - RX, xb = notes[notes.length - 1].hx + RX;
+          const mid = grp ? (stemX(grp[0]) + stemX(grp[grp.length - 1])) / 2 : (xa + xb) / 2;
+          const ny = up ? Math.min(y0 - 6, ...ends.map((y) => y - 5)) : Math.max(y0 + 54, ...ends.map((y) => y + 13));
+          let b = `<text class="clabel r-trip" x="${r1(mid)}" y="${r1(ny)}" font-size="11" font-weight="bold" text-anchor="middle" fill="currentColor">3</text>`;
+          if (!grp) {
+            const by = ny - 4, hook = up ? 4 : -4;
+            b += lineSVG(xa, by + hook, xa, by, 0.9) + lineSVG(xa, by, mid - 6, by, 0.9) + lineSVG(mid + 6, by, xb, by, 0.9) + lineSVG(xb, by, xb, by + hook, 0.9);
+          }
+          s += `<g class="r-tripg${voiceCls}${badAt.has(tg.from) ? ' is-bad' : ''}">${b}</g>`;
+        });
+      });
+    });
+    // ---------- ties: above the stems-up voices, below the stems-down ones ----------
+    ties.forEach(({ l, m, n }) => {
+      const to = MQ.rhythmTieNext(L[l], m, n.i, len, M);
+      const nx = to ? drawn[l][to.m][to.i] : null;
+      const after = n.i + 1 < L[l][m].length ? L[l][m][n.i + 1] : L[l][m + 1] && L[l][m + 1][0];
+      const down = !UP[l], dy = down ? 6.5 : -6.5;
+      const x1 = n.hx + (n.e.d ? 13 : 3);
+      const bad = !nx && after && !(n.i + 1 >= L[l][m].length && MQ.rhythmTotal(L[l][m]) < len) ? ' is-bad' : '';
+      let arc;
+      if (nx && geo.measures[to.m].sys !== geo.measures[m].sys) {
+        arc = tieSVG(x1, geo.measures[m].x1 + 4, n.hy + dy, down) + tieSVG(geo.measures[to.m].x0 + 2, nx.hx - 3 - (nx.acc != null ? ACC_W : 0), nx.hy + dy, down);
+      } else arc = tieSVG(x1, nx ? nx.hx - 3 : x1 + 15, n.hy + dy, down);
+      s += `<g class="r-tie c-v${l}${o.locked[l] ? ' is-given' : ''}${o.editing && l === o.active ? ' is-active' : ''}${bad}">${arc}</g>`;
+    });
+    // ---------- the caret of the voice being written, and the light note that shows the next pitch ----------
+    if (o.editing && o.caret && o.active >= 0 && !o.sel) {
+      const l = o.active, st = STAFF[l], g = geo.measures[o.caret.m];
+      const list = geo.ev[l][o.caret.m] || [], evs = L[l][o.caret.m];
+      let cx;
+      if (o.caret.i < list.length) cx = list[o.caret.i].x - RX - 5;
+      else if (!list.length) cx = g.x0 + PAD_L - 5;
+      else cx = Math.min(g.x1 - 16, Math.max(list[list.length - 1].x + RX + 8, xOf(o.caret.m, Math.min(MQ.rhythmTotal(evs), len)) - 2));
+      const y0 = g.sy + topOf(st);
+      s += `<g class="r-caret c-caret">${lineSVG(cx, y0 - 16, cx, y0 + 56, 2)}<path d="M${r1(cx - 4.5)} ${y0 - 17}h9l-4.5 5z" fill="currentColor"/></g>`;
+      if (o.ghost && o.ghost.p) {
+        const pos = MQ.dia(o.ghost.p) - bottomDia(st), gx = cx + RX + 6, gy = yOf(g.sy, st, pos), v = o.ghost.v;
+        let b = '';
+        for (let k = -2; k >= pos; k -= 2) b += lineSVG(gx - 11, yOf(g.sy, st, k), gx + 11, yOf(g.sy, st, k), 1.3);
+        for (let k = 10; k <= pos; k += 2) b += lineSVG(gx - 11, yOf(g.sy, st, k), gx + 11, yOf(g.sy, st, k), 1.3);
+        if (o.ghost.p.alt !== K.alts[o.ghost.p.step]) b += accSVG(o.ghost.p.alt, gx - RX - 9, gy);
+        b += headSVG(v, gx, gy);
+        if (v >= 1) {
+          const sx = gx + (UP[l] ? 5.7 : -5.7), end = UP[l] ? gy - STEM : gy + STEM;
+          b += lineSVG(sx, gy + (UP[l] ? -1.5 : 1.5), sx, end, 1.3);
+          if (v >= 3) b += flagsSVG(sx + (UP[l] ? -0.6 : 0.6), end, UP[l], v - 2);
+        }
+        if (o.ghost.d) b += dotSVG(gx + 10.5, gy - (pos % 2 === 0 ? HALF : 0));
+        s += `<g class="c-ghost">${b}</g>`;
+      }
+    }
+    geo.xOf = xOf;
+    return { inner: s, W, H, geo, info };
+  }
+
+  // How many measures fit a line `avail` pixels wide; 0 while there's no width to measure.
+  function lineFit(model, avail) {
+    if (!avail) return 0;
+    const info = MQ.rhythmMeter(model.meter), K = MQ.melodyKey(model.key);
+    const head = 60 + Math.abs(K.fifths) * 9 + (K.fifths ? 8 : 0) + 34;
+    const bar = (info.len / 6) * 20 + PAD_L + PAD_R;
+    for (let n = 4; n > 1; n--) if ((head + n * bar + 10) * 0.78 <= avail) return n;
+    return 1;
+  }
+  // Pictures for paper, a line of music each: [{svg, markup, wIn, hIn}]. layers: what to print (the given
+  // voices; the rest is left for the student to write in, so the measures are drawn wide).
+  function chorArt(model, opts) {
+    const o = opts || {}, per = o.perLine || 2, out = [];
+    const was = MQ.clefFont;
+    if (o.drawnClefs) MQ.clefFont = false;
+    for (let a = 0; a < model.measures; a += per) {
+      const n = Math.min(per, model.measures - a);
+      const sub = { meter: model.meter, measures: n, key: model.key, layers: model.layers.map((L) => (L || []).slice(a, a + n)) };
+      const labels = (o.labels || []).filter((lb) => lb.m >= a && lb.m < a + n).map((lb) => Object.assign({}, lb, { m: lb.m - a }));
+      const b = build(sub, { print: true, perLine: n, first: a, showTime: a === 0, keyTag: a === 0, open: a + n < model.measures, measureW: o.measureW || 250, labels, show: o.show || 0 });
+      const markup = `<svg xmlns="${NS}" class="cstaff c-art" viewBox="0 0 ${r1(b.W)} ${b.H}" width="${r1(b.W)}" height="${b.H}" style="color:#000">${b.inner}</svg>`;
+      const svg = new DOMParser().parseFromString(markup, 'image/svg+xml').documentElement;
+      const hIn = (o.height || 1.25) * 2.4;
+      out.push({ svg, markup, wIn: (b.W / b.H) * hIn, hIn });
+    }
+    MQ.clefFont = was;
+    return out;
+  }
+
+  // ---------- the interactive staff ----------
+  class ChoraleStaff extends MQ.RhythmStaff {
+    // opts: as RhythmStaff (parts: 4), plus key, locked [4] (printed voices), labels, show, bad, value
+    // ({v, d, t}: the next note's value), sound, perLine, onMessage(text), onNeedValue().
+    setup() {
+      this.K = MQ.melodyKey(this.o.key);
+      this.model.key = this.o.key;
+      this.locked = this.o.locked || [false, false, false, false];
+      this.value = this.o.value || null;
+      this.ghost = null;           // the pitch under the pointer, while a note is being placed
+      this.lastAt = null;          // the note just written: arrow keys and ♯ ♭ ♮ act on it
+      this.fit = 0;
+      if (!this.o.perLine && typeof ResizeObserver !== 'undefined') {
+        new ResizeObserver(() => {
+          const n = lineFit(this.model, this.svg.parentNode ? this.svg.parentNode.clientWidth : 0);
+          if (n && n !== this.fit) { this.fit = n; this.render(); }
+        }).observe(this.svg.parentNode);
+      }
+    }
+    render() {
+      const ro = !!this.o.readOnly;
+      const showGhost = !ro && this.value && !this.sel && !this.locked[this.active];
+      const b = build(this.model, {
+        caret: ro ? null : this.caret, sel: this.sel, active: ro ? -1 : this.active, editing: !ro, playing: this.playing,
+        perLine: this.o.perLine || this.fit || 2, locked: this.locked, bad: this.o.bad || null, labels: this.o.labels || null, show: this.o.show || 0,
+        ghost: showGhost ? { p: this.ghost || this.cursorPitch(), v: this.value.v, d: this.value.d } : null,
+      });
+      this.geo = b.geo;
+      this.svg.setAttribute('class', 'rstaff cstaff' + (ro ? ' is-readonly' : ''));
+      this.svg.setAttribute('viewBox', `0 0 ${r1(b.W)} ${b.H}`);
+      this.svg.style.minWidth = Math.round(b.W * 0.72) + 'px';
+      this.svg.style.maxWidth = Math.round(b.W * 1.5) + 'px';
+      this.svg.innerHTML = b.inner;
+      this.svg.setAttribute('aria-label', this.describeChorale(b.info));
+    }
+    describeChorale(info) {
+      const V = MQ.CHOR_VOICES;
+      const what = (e) => (e.r ? `${e.d ? 'dotted ' : ''}${NAMES[e.v]} rest` : `${MQ.fullName(e.p)} ${e.t ? 'triplet ' : ''}${e.d ? 'dotted ' : ''}${NAMES[e.v]}${e.tie ? ', tied' : ''}`);
+      const parts = this.model.layers.map((L, l) => `${V[l]}${this.locked[l] ? ' (printed)' : ''}: ` + L.slice(0, this.model.measures).map((m, k) => `measure ${k + 1}, ${m.length ? m.map(what).join(', ') : 'empty'}`).join('; '));
+      const how = this.o.readOnly ? '' : ` Writing the ${V[this.active]}, measure ${this.caret.m + 1}. Choose a note value, then press on the staff and move up or down to choose the pitch, or type a letter A to G.`;
+      return `Grand staff for four voices in ${MQ.melodyKeyName(this.o.key)}, ${info.label}, ${this.model.measures} measures. ${parts.join('. ')}.${how}`;
+    }
+    setValue(val) { this.value = val; this.render(); }
+    // ---------- pitch ----------
+    noteAt(at, l) { const L = this.model.layers[l == null ? this.active : l]; const e = at && L[at.m] && L[at.m][at.i]; return e && !e.r ? e : null; }
+    target() { return this.locked[this.active] ? null : this.sel ? this.noteAt(this.sel) : this.noteAt(this.lastAt); }
+    // The voice's note before the caret: the note a new one starts from.
+    before() {
+      const L = this.model.layers[this.active];
+      let { m, i } = this.caret;
+      for (;;) {
+        for (let j = Math.min(i, L[m].length) - 1; j >= 0; j--) if (!L[m][j].r) return L[m][j].p;
+        if (m === 0) return null;
+        m--; i = L[m].length;
+      }
+    }
+    // The note of the key nearest the middle of the voice's practical octave.
+    defaultPitch() {
+      const want = MQ.CHOR_CENTERS[this.active];
+      let best = null;
+      for (let d = 12; d < 50; d++) { const p = MQ.melodyPitchAt(this.K, d); if (!best || Math.abs(MQ.midi(p) - want) < Math.abs(MQ.midi(best) - want)) best = p; }
+      return best;
+    }
+    cursorPitch() { return this.before() || this.defaultPitch(); }
+    sound(p) { if (this.o.sound !== false && MQ.Audio && p) MQ.Audio.play([[MQ.midi(p)]], 0.6); }
+    // ---------- ties ----------
+    after(at) {
+      const L = this.model.layers[this.active];
+      if (at.i + 1 < L[at.m].length) return { m: at.m, i: at.i + 1 };
+      if (at.m + 1 < this.model.measures && L[at.m + 1].length && MQ.rhythmTotal(L[at.m]) === this.info().len) return { m: at.m + 1, i: 0 };
+      return null;
+    }
+    before1(at) {
+      const L = this.model.layers[this.active];
+      if (at.i > 0) return { m: at.m, i: at.i - 1 };
+      return at.m > 0 && L[at.m - 1].length && MQ.rhythmTotal(L[at.m - 1]) === this.info().len ? { m: at.m - 1, i: L[at.m - 1].length - 1 } : null;
+    }
+    // Tied notes are one pitch: a note that changes takes the notes tied to it along.
+    syncTies(at) {
+      const L = this.model.layers[this.active], e = at && L[at.m] && L[at.m][at.i];
+      if (!e || e.r || !e.p) return;
+      for (let b = this.before1(at); b && L[b.m][b.i].tie && !L[b.m][b.i].r; b = this.before1(b)) L[b.m][b.i].p = Object.assign({}, e.p);
+      for (let c = at; L[c.m][c.i].tie;) {
+        const n = this.after(c);
+        if (!n || L[n.m][n.i].r) break;
+        L[n.m][n.i].p = Object.assign({}, e.p);
+        c = n;
+      }
+    }
+    tied(at) { this.syncTies(at); this.lastAt = at; }
+    // ---------- writing ----------
+    // Writes ev at the caret of the voice being written, or in place of its selected note. pitch: where the
+    // pointer or a letter key put it; without one a replaced note keeps its pitch. Returns a message when
+    // it can't.
+    enter(ev, pitch) {
+      const V = MQ.CHOR_VOICES, l = this.active;
+      if (this.locked[l]) return `The ${V[l]} is printed for you — choose another voice.`;
+      const vp = MQ.chorValueProblem(ev);
+      if (vp) return vp;
+      const info = this.info(), L = this.model.layers[l];
+      const replace = !!(this.sel && this.sel.l === l);
+      let m = replace ? this.sel.m : this.caret.m, i = replace ? this.sel.i : this.caret.i;
+      if (!ev.r) {
+        const was = replace ? L[m][i] : null;
+        const prev = !replace && this.tieAt() ? this.noteAt(this.tieAt()) : null;
+        ev.p = Object.assign({}, pitch || (was && was.p) || (prev && prev.tie ? prev.p : this.cursorPitch()));
+      }
+      let next = L[m].slice();
+      next.splice(i, replace ? 1 : 0, ev);
+      let prob = MQ.rhythmEditProblem(L[m], next, info);
+      // At the end of a full measure, carry on in the next one.
+      if (prob && prob.kind === 'over' && !replace && i === L[m].length && MQ.rhythmTotal(L[m]) >= info.len && m + 1 < this.model.measures) {
+        m += 1; i = L[m].length;
+        next = L[m].concat([ev]);
+        prob = MQ.rhythmEditProblem(L[m], next, info);
+      }
+      if (prob) {
+        if (prob.kind !== 'over') return prob.text;
+        const room = info.len - MQ.rhythmTotal(L[m]) + (replace ? MQ.rhythmDur(L[m][i]) : 0);
+        return room > 0 ? `That’s too long — measure ${m + 1} of the ${V[l]} has room for ${MQ.rhythmAmount(room, info)}.`
+          : m + 1 >= this.model.measures ? `The ${V[l]} is full. Select a note to change it, or choose another voice.` : `Measure ${m + 1} of the ${V[l]} is full. Select a note to change it, or delete one.`;
+      }
+      const trip = MQ.chorTripletProblem(next, info);
+      if (trip) return trip;
+      L[m] = next;
+      this.enteredAt = { m, i };
+      this.sel = null;
+      this.caret = { m, i: i + 1 };
+      if (this.caret.i === next.length && MQ.rhythmTotal(next) === info.len && m + 1 < this.model.measures) this.caret = { m: m + 1, i: L[m + 1].length };
+      this.ghost = null;
+      this.lastAt = this.enteredAt;
+      if (!ev.r) { this.syncTies(this.enteredAt); this.sound(ev.p); }
+      this.changed();
+      return null;
+    }
+    // A note by its letter: the nearest one to the voice's note before, kept inside the voice's range.
+    enterLetter(step, ev) {
+      const from = this.cursorPitch(), base = MQ.dia(from), r = MQ.CHOR_RANGES[this.active];
+      let d = base - ((((base % 7) - step) % 7) + 7) % 7;
+      if (base - d > 3) d += 7;
+      while (MQ.midi(MQ.melodyPitchAt(this.K, d)) > r[1]) d -= 7;
+      while (MQ.midi(MQ.melodyPitchAt(this.K, d)) < r[0]) d += 7;
+      return this.enter(ev, MQ.melodyPitchAt(this.K, d));
+    }
+    // Up or down by steps: the note picked, or the note just written.
+    nudge(steps) {
+      const e = this.target();
+      if (!e) return false;
+      e.p = MQ.melodyPitchAt(this.K, MQ.dia(e.p) + steps);
+      this.syncTies(this.sel || this.lastAt);
+      this.sound(e.p);
+      this.changed();
+      return true;
+    }
+    setAlt(alt) {
+      const e = this.target();
+      if (!e) return false;
+      e.p.alt = alt;
+      this.syncTies(this.sel || this.lastAt);
+      this.sound(e.p);
+      this.changed();
+      return true;
+    }
+    remove(back) { if (this.locked[this.active]) return false; this.lastAt = null; return super.remove(back); }
+    clearMeasure() { if (this.locked[this.active]) return false; this.lastAt = null; return super.clearMeasure(); }
+    toggleTie() { return this.locked[this.active] ? 'That voice is printed for you — choose another voice.' : super.toggleTie(); }
+    select(l, m, i) { if (this.locked[l]) return; super.select(l, m, i); this.lastAt = { m, i }; }
+    move(dir) { this.lastAt = null; super.move(dir); }
+    // Another voice: the caret goes to where that voice's writing stops.
+    setActive(l) {
+      if (l === this.active || this.locked[l]) return;
+      this.active = l;
+      this.sel = null;
+      this.lastAt = null;
+      this.ghost = null;
+      this.caretToEnd();
+      this.moved();
+    }
+    pitchAtY(y, sys) {
+      const st = STAFF[this.active];
+      const pos = Math.max(-9, Math.min(17, Math.round((sys * SYS_H + topOf(st) + 40 - y) / HALF)));
+      return MQ.melodyPitchAt(this.K, bottomDia(st) + pos);
+    }
+    bind() {
+      const svg = this.svg;
+      let drag = null;
+      const sysAt = (y) => Math.max(0, Math.min(this.geo.systems.length - 1, Math.floor(y / SYS_H)));
+      svg.addEventListener('pointerdown', (e) => {
+        if (e.button > 0) return;
+        const p = this.pt(e.clientX, e.clientY);
+        const hit = e.target.closest && e.target.closest('.r-ev');
+        e.preventDefault();
+        this.focus();
+        if (hit && !this.locked[+hit.dataset.l]) {
+          const l = +hit.dataset.l, m = +hit.dataset.m, i = +hit.dataset.i;
+          this.ghost = null;
+          this.select(l, m, i);
+          // Dragging a note moves it up or down the staff.
+          if (this.noteAt({ m, i })) {
+            drag = { note: { m, i }, sys: this.geo.measures[m].sys, moved: false };
+            try { svg.setPointerCapture(e.pointerId); } catch (err) { /* older browsers */ }
+          }
+          return;
+        }
+        if (this.locked[this.active]) return;
+        if (!this.value) { if (this.o.onNeedValue) this.o.onNeedValue(); return; }
+        // A new note: the light note head follows the pointer up and down until it is let go.
+        this.sel = null;
+        drag = { place: true, sys: this.geo.measures[this.caret.m].sys };
+        this.ghost = this.pitchAtY(p.y, sysAt(p.y) === drag.sys ? drag.sys : sysAt(p.y));
+        drag.sys = sysAt(p.y);
+        try { svg.setPointerCapture(e.pointerId); } catch (err) { /* older browsers */ }
+        this.render();
+      });
+      svg.addEventListener('pointermove', (e) => {
+        const p = this.pt(e.clientX, e.clientY);
+        if (drag && drag.note) {
+          const note = this.noteAt(drag.note), to = this.pitchAtY(p.y, drag.sys);
+          if (note && MQ.dia(to) !== MQ.dia(note.p)) {
+            note.p = to;
+            this.syncTies(drag.note);
+            drag.moved = true;
+            this.sound(to);
+            this.render();
+          }
+        } else if ((drag && drag.place) || (e.pointerType === 'mouse' && this.value && !this.sel && !this.locked[this.active])) {
+          const to = this.pitchAtY(p.y, drag ? drag.sys : sysAt(p.y));
+          if (!this.ghost || MQ.dia(to) !== MQ.dia(this.ghost)) { this.ghost = to; this.render(); }
+        }
+      });
+      const end = (e, cancel) => {
+        const d = drag;
+        drag = null;
+        if (!d) return;
+        if (d.note) { if (d.moved) this.changed(); return; }
+        if (cancel || !this.ghost || !this.value) { this.ghost = null; this.render(); return; }
+        const msg = this.enter({ v: this.value.v, d: this.value.d ? 1 : 0, t: this.value.t ? 1 : 0, r: 0 }, this.ghost);
+        if (msg) { this.ghost = null; this.render(); if (this.o.onMessage) this.o.onMessage(msg); }
+      };
+      svg.addEventListener('pointerup', (e) => end(e, false));
+      svg.addEventListener('pointercancel', (e) => end(e, true));
+      svg.addEventListener('pointerleave', () => { if (!drag && this.ghost) { this.ghost = null; this.render(); } });
+    }
+  }
+
+  Object.assign(MQ, { ChoraleStaff, chorMarkup: build, chorArt, CHOR_SYS_H: SYS_H });
+})(window);
 /* Clefwork Keys — an on-screen piano. Keys are drawn in grey on white (so they print and export
    as they are), and the page's stylesheet colours them on screen. */
 (function (root) {
@@ -16926,6 +17997,7 @@ svg.staff .nlabel { display: none; }
     if (key === 'block') return Math.min(cfg.counts.block || 0, MQ.usableBlockExercises(cfg.block).length);
     if (key === 'cadence') return Math.min(cfg.counts.cadence || 0, MQ.CAD_MAX, cfg.cad && cfg.cad.src ? MQ.usableCadExercises(cfg.cad).length : MQ.CAD_MAX);
     if (key === 'nht') return Math.min(MQ.NH_MAX, cfg.counts.nht || 0);
+    if (key === 'chorale') return Math.min(MQ.CHOR_MAX, cfg.counts.chorale || 0);
     if (MQ.TERM_COUNTS.includes(key)) return Math.min(key === 'tmhdyn' || key === 'tmhtempo' ? MQ.TERMS_HEAR_MAX : MQ.TERMS_MAX, cfg.counts[key] || 0);
     const list = key === 'custom' ? cfg.custom || [] : cfg.voicings || [];
     const n = cfg.counts[key] == null ? list.length : cfg.counts[key];
@@ -16933,7 +18005,7 @@ svg.staff .nlabel { display: none; }
   };
   const sumCounts = (cfg) => MQ.BUILT_IN.reduce((s, t) => s + (cfg.counts[t.id] || 0), 0) + listCount(cfg, 'custom') + listCount(cfg, 'voicing') + listCount(cfg, 'vprog') + listCount(cfg, 'progression')
     + listCount(cfg, 'keys') + listCount(cfg, 'analysis') + listCount(cfg, 'rhythm') + listCount(cfg, 'melody')
-    + Math.min(MQ.DEGREE_MAX, cfg.counts.degree || 0) + graphCount(cfg) + termCount(cfg) + listCount(cfg, 'sing') + listCount(cfg, 'block') + listCount(cfg, 'cadence') + listCount(cfg, 'nht');
+    + Math.min(MQ.DEGREE_MAX, cfg.counts.degree || 0) + graphCount(cfg) + termCount(cfg) + listCount(cfg, 'sing') + listCount(cfg, 'block') + listCount(cfg, 'cadence') + listCount(cfg, 'nht') + listCount(cfg, 'chorale');
   // Clefwork Chord Graph: its tables and phrases.
   const graphCount = (cfg) => listCount(cfg, 'cgtable') + listCount(cfg, 'cgtritone') + listCount(cfg, 'cgphrase');
   // Clefwork Terms: all five kinds of question, and the ones that are heard.
@@ -18169,6 +19241,7 @@ svg.staff .nlabel { display: none; }
   }
   function questionCard(q, cfg, o) {
     if (q.type === 'block') return blockCard(q, cfg, o);
+    if (q.type === 'chorale') return choraleCard(q, cfg, o);
     if (q.type === 'cadence') return cadenceCard(q, cfg, o);
     if (q.type === 'nht') return nhCard(q, cfg, o);
     if (q.type === 'sing') return singCard(q, cfg, o);
@@ -18291,7 +19364,7 @@ svg.staff .nlabel { display: none; }
     if (MELODY || SING) form.append(...melodySections(cfg, changed, R));
     if (GRAPH) form.append(graphKeysSection(cfg, changed));
     if (TERMS) form.append(termChoicesSection(cfg, changed));
-    if (VOICE) form.append(...blockSections(cfg, changed, R));
+    if (VOICE) form.append(...blockSections(cfg, changed, R), ...chorSections(cfg, changed, R));
     if (!KEYS && !ANALYSIS && !DICTATION && !GRAPH && !TERMS && !SING && !VOICE) form.append(sec('staff', 'Staff & notes', 'Applies to every question type.',
       h('div', { class: 'row2' },
         grp('Clefs', chips('q-clefs', [{ label: 'Treble' }, { label: 'Bass' }, { label: 'Grand staff' }], cfg.clefs, (m) => { cfg.clefs = m; changed(); }, (x) => x.label), 'Each tab can override this.'),
@@ -18701,11 +19774,11 @@ svg.staff .nlabel { display: none; }
           + 150 * listCount(cfg, 'cgtable') + 180 * listCount(cfg, 'cgtritone') + 120 * listCount(cfg, 'cgphrase')
           + 15 * (termCount(cfg) - termHeard(cfg)) + 40 * termHeard(cfg) + 60 * singAsked(cfg)
           + 25 * S.qs.reduce((n, q) => n + (q.type === 'block' ? q.blk.syms.length : 0), 0)
-          + S.qs.reduce((n, q) => n + (q.type === 'cadence' ? 20 * (q.cad.write ? q.cad.chords.length : 0) + 10 * q.cad.chords.length * ((q.cad.rn === 1 ? 1 : 0) + (q.cad.sym === 1 ? 1 : 0)) + 30 * q.cad.dd.length : 0), 0) + 90 * listCount(cfg, 'nht')) / 60));
+          + S.qs.reduce((n, q) => n + (q.type === 'cadence' ? 20 * (q.cad.write ? q.cad.chords.length : 0) + 10 * q.cad.chords.length * ((q.cad.rn === 1 ? 1 : 0) + (q.cad.sym === 1 ? 1 : 0)) + 30 * q.cad.dd.length : 0), 0) + 90 * listCount(cfg, 'nht') + 480 * listCount(cfg, 'chorale')) / 60));
         const sb = DICTATION && !SING ? dictation(cfg) : null;
         const dsc = !sb ? quizScoring(cfg, S.qs) : null;          // scale degrees scored by note or percent
         const outOf = quizTotal(cfg) ? ` · worth ${quizTotal(cfg)} point${quizTotal(cfg) === 1 ? '' : 's'}` : sb ? (sb.score === 'percent' ? ` · out of ${sb.outOf} points` : ` · out of ${rhythmNotes(S.qs)} notes`)
-          : dsc ? ` · out of ${fmtPts(MQ.reportStats({ items: S.qs.map((q) => ({ type: q.type, clef: q.clef, credit: 7, answered: true, sec: 0, notes: q.type === 'degree' ? q.deg.notes.length : MQ.isGraph(q) ? MQ.graphPoints(q) : q.type === 'block' ? q.blk.syms.length : q.type === 'nht' ? q.nh.spots.length : undefined, wrong: 0 })), scoring: dsc }).n)} ${VOICE ? 'chords' : 'points'}` : '';
+          : dsc ? ` · out of ${fmtPts(MQ.reportStats({ items: S.qs.map((q) => ({ type: q.type, clef: q.clef, credit: 7, answered: true, sec: 0, notes: q.type === 'degree' ? q.deg.notes.length : MQ.isGraph(q) ? MQ.graphPoints(q) : q.type === 'block' ? q.blk.syms.length : q.type === 'nht' ? q.nh.spots.length : q.type === 'chorale' ? (q.ch.spans ? q.ch.spans.length : q.ch.measures) : undefined, wrong: 0 })), scoring: dsc }).n)} ${VOICE && !listCount(cfg, 'chorale') ? 'chords' : 'points'}` : '';
         const noun = MELODY || SING ? (total === 1 ? 'melody' : 'melodies') : `${RHYTHM ? 'example' : GRAPH ? 'worksheet' : VOICE ? 'exercise' : 'question'}${total === 1 ? '' : 's'}`;
         const each = SING && singAsked(cfg) < total ? ` (each student sings ${singAsked(cfg)})` : !ANALYSIS && cfg.pick > 0 && cfg.pick < total ? ` (each student gets ${cfg.pick} of them)` : nhAsked(cfg) ? ` (each student gets ${nhAsked(cfg)} of the ${listCount(cfg, 'nht')} non-harmonic tone examples)` : '';
         R.summary.replaceChildren(h('b', null, STUDENT ? 'Your practice' : cfg.title || 'Untitled quiz'), ` — ${total} ${noun}${each} · ${clefsText(cfg)}${outOf} · about ${est} min${cfg.timeLimit ? ` · ${cfg.timeLimit}-minute limit` : ''}`);
@@ -19641,6 +20714,7 @@ svg.staff .nlabel { display: none; }
     if (listCount(cfg, 'melody')) types.push(`Melodic dictation (${listCount(cfg, 'melody')} melod${listCount(cfg, 'melody') > 1 ? 'ies' : 'y'})`);
     if (listCount(cfg, 'sing')) types.push(`Sight singing (${t.qs.length} melod${t.qs.length > 1 ? 'ies' : 'y'} to record${singAsked(cfg) < listCount(cfg, 'sing') ? `, drawn from ${listCount(cfg, 'sing')}` : ''})`);
     if (listCount(cfg, 'block')) types.push(`Block chords (${listCount(cfg, 'block')} exercise${listCount(cfg, 'block') > 1 ? 's' : ''})`);
+    if (listCount(cfg, 'chorale')) types.push(`Four-part writing (${listCount(cfg, 'chorale')} exercise${listCount(cfg, 'chorale') > 1 ? 's' : ''})`);
     if (listCount(cfg, 'nht')) types.push(`Non-harmonic tones (${nhAsked(cfg) ? `${nhAsked(cfg)} of ${listCount(cfg, 'nht')}` : listCount(cfg, 'nht')} example${listCount(cfg, 'nht') > 1 ? 's' : ''}${nhAsked(cfg) ? ', drawn for you' : ''})`);
     if (listCount(cfg, 'analysis')) {
       const asks = MQ.analysisQuestions(cfg).map((q) => q.an.ask);
@@ -19795,7 +20869,8 @@ svg.staff .nlabel { display: none; }
   }
   function toolScoring(cfg, qs) {
     // Block chords: every chord a point.
-    if (qs.some((q) => q.type === 'block')) return { mode: 'notes', outOf: 100, split: 0 };
+    // (Four-part writing too: every chord, or measure, a point.)
+    if (qs.some((q) => q.type === 'block' || q.type === 'chorale')) return { mode: 'notes', outOf: 100, split: 0 };
     if (qs.some((q) => q.type === 'rhythm' || q.type === 'melody' || q.type === 'rgrid')) {
       const rh = dictation(cfg);
       return { mode: rh.score, outOf: rh.outOf, split: rh.split ? 1 : 0 };
@@ -19819,7 +20894,7 @@ svg.staff .nlabel { display: none; }
     const rhythm = t.qs.some((q) => q.type === 'rhythm' || q.type === 'melody' || q.type === 'rgrid');
     // Chord Graph quizzes scored by answer give credit for each one, whatever the partial-credit switch says.
     const byAnswer = t.qs.some((q) => MQ.isGraph(q)) && !!quizScoring(t.cfg, t.qs);
-    const partial = t.cfg.flags.partial || rhythm || byAnswer || t.qs.some((q) => q.type === 'block');
+    const partial = t.cfg.flags.partial || rhythm || byAnswer || t.qs.some((q) => q.type === 'block' || q.type === 'chorale');
     const items = t.qs.map((q, i) => {
       const frac = MQ.gradeQuestion(q, t.resp[i], t.cfg);
       const credit = frac === 1 ? 7 : partial ? Math.min(6, Math.round(frac * 7)) : 0;
@@ -19831,6 +20906,7 @@ svg.staff .nlabel { display: none; }
       if (MQ.isGraph(q)) Object.assign(it, MQ.compareGraph(q, t.resp[i], t.cfg));
       if (q.type === 'block') { const c = MQ.compareBlock(q, t.resp[i], t.cfg); it.notes = c.notes; it.wrong = c.wrong; }
       if (q.type === 'nht') Object.assign(it, MQ.compareNh(q, t.resp[i]));
+      if (q.type === 'chorale') Object.assign(it, MQ.compareChorale(q, t.resp[i]));
       return it;
     });
     t.report = {
@@ -19973,7 +21049,7 @@ svg.staff .nlabel { display: none; }
   }
   // "3 wrong notes" for note-scored questions, or "12 fully correct" for the rest.
   function scoreNote(st) {
-    if (st.noted && (st.block || st.nh)) return `${fmtPts(st.notes - st.wrong)} of ${st.notes} ${st.block && !st.nh ? 'chords' : st.nh && !st.block ? 'notes' : 'answers'} right`;
+    if (st.noted && (st.block || st.nh || st.chor)) return `${fmtPts(st.notes - st.wrong)} of ${st.notes} ${st.chor ? 'points' : st.block && !st.nh ? 'chords' : st.nh && !st.block ? 'notes' : 'answers'}${st.chor ? '' : ' right'}`;
     if (st.noted && st.graph) return `${fmtPts(st.notes - st.wrong)} of ${st.notes} answers right`;
     if (st.noted) return `${st.wrong} wrong note${st.wrong === 1 ? '' : 's'} of ${st.notes}`;
     return `${st.full} fully correct`;
@@ -19981,6 +21057,12 @@ svg.staff .nlabel { display: none; }
   function resultCell(it) {
     if (it.dropped) return h('span', { class: 'res is-blank' }, '— Dropped, not counted');
     if (it.credited) return h('span', { class: 'res is-good' }, '✓ Credit given to everyone');
+    if (it.type === 'chorale' && it.notes != null) {
+      // Four-part writing: Clefwork's suggestion until the teacher approves it.
+      if (!it.answered) return h('span', { class: 'res is-blank' }, '— Blank');
+      const pts = `${fmtPts(it.notes - it.wrong)} of ${it.notes}`;
+      return h('span', { class: 'res ' + (it.approved ? (!it.wrong ? 'is-good' : it.wrong < it.notes ? 'is-part' : 'is-bad') : 'is-part') }, it.approved ? `${!it.wrong ? '✓' : it.wrong < it.notes ? '◐' : '✗'} ${pts}` : `◐ Suggested ${pts} — needs the teacher’s approval`);
+    }
     if (it.type === 'block' && it.notes != null) {
       if (!it.answered) return h('span', { class: 'res is-blank' }, '— Blank');
       if (!it.wrong) return h('span', { class: 'res is-good' }, `✓ ${it.notes} of ${it.notes} chords`);
@@ -20014,7 +21096,7 @@ svg.staff .nlabel { display: none; }
         h('td', { class: 'num' }, String(i + 1)),
         h('td', null, it.type === 'sing' ? (q ? `Melody ${q.sing.n + 1}` : 'A melody') : q ? q.text : typeOf(it.type).label),
         h('td', null, it.type === 'sing' ? 'Sung' : it.type === 'analysis' ? 'Score' : it.type === 'rhythm' ? 'Rhythm' : it.type === 'rgrid' ? 'Grid' : it.type === 'cgphrase' ? 'Phrase' : MQ.GRAPH_TYPES.includes(it.type) ? 'Table' : it.type === 'term' ? (q && q.tm ? MQ.termCat(q) : 'Terms') : MQ.CLEFS[it.clef].label),
-        key ? h('td', { class: 'ans' + (q && (q.mel || q.rh || q.cg || q.ph || q.blk || q.nh) ? ' is-long' : '') },
+        key ? h('td', { class: 'ans' + (q && (q.mel || q.rh || q.cg || q.ph || q.blk || q.nh || q.ch) ? ' is-long' : '') },
           it.type === 'sing' && q ? accText(MQ.singSungText(q.mel, rep.answers && rep.answers[i] ? rep.answers[i].value : null))
             : q ? (q.cg ? graphAnswer(q) : q.ph ? accText(MQ.describeAnswer(q, quiz.cfg)) : MQ.describeAnswer(q, quiz.cfg)) : '') : null,
         h('td', null, resultCell(it)),
@@ -20135,7 +21217,7 @@ svg.staff .nlabel { display: none; }
     g.sel = Math.min(g.sel, reports.length - 1);
     // Block chords open with the student's answers showing: that's where the marks are.
     const sel = reports[g.sel];
-    host.append(reportDetail(sel, { openAnswers: g.openAns != null ? g.openAns : sel.items.some((it) => it.type === 'block'), onOpen: (v) => (g.openAns = v) }));
+    host.append(reportDetail(sel, { openAnswers: g.openAns != null ? g.openAns : sel.items.some((it) => it.type === 'block' || it.type === 'chorale'), onOpen: (v) => (g.openAns = v) }));
   }
   function verifyChips(r) {
     const chip = (tone, text) => h('span', { class: 'vchip is-' + tone }, text);
@@ -20145,6 +21227,7 @@ svg.staff .nlabel { display: none; }
       r.sealOk === true ? chip('good', '✓ Seal verified') : r.sealOk === false ? chip('bad', '⚠ Seal doesn’t match — this code may have been edited') : null,
       attemptChip(r, chip),
       r.teach && r.teach.changed ? chip('warn', `You changed the marks on ${r.teach.changed} chord${r.teach.changed === 1 ? '' : 's'}`) : null,
+      r.teach && r.teach.pending ? chip('warn', `${r.teach.pending} four-part exercise${r.teach.pending === 1 ? '' : 's'} waiting for your approval — the score uses Clefwork’s suggestion until then`) : null,
       r.fix && r.fix.count ? chip('warn', `Re-graded with your corrections: ${fmtPts(r.fix.before.points)}/${r.fix.before.n} → ${fmtPts(MQ.reportStats(r).points)}/${MQ.reportStats(r).n}`) : null);
   }
   // Which attempt this was, and a warning when it goes past the quiz's retake limit.
@@ -20184,8 +21267,8 @@ svg.staff .nlabel { display: none; }
       h('dl', { class: 'facts' },
         sung
           ? h('div', null, h('dt', null, 'Melodies'), h('dd', null, String(st.count)))
-          : st.noted && (st.block || st.nh)
-          ? h('div', null, h('dt', null, st.block && !st.nh ? 'Chords right' : st.nh && !st.block ? 'Notes right' : 'Answers right'), h('dd', null, `${fmtPts(st.notes - st.wrong)} of ${st.notes}`))
+          : st.noted && (st.block || st.nh || st.chor)
+          ? h('div', null, h('dt', null, st.chor ? 'Points' : st.block && !st.nh ? 'Chords right' : st.nh && !st.block ? 'Notes right' : 'Answers right'), h('dd', null, `${fmtPts(st.notes - st.wrong)} of ${st.notes}`))
           : st.noted && st.graph
           ? h('div', null, h('dt', null, 'Answers right'), h('dd', null, `${fmtPts(st.notes - st.wrong)} of ${st.notes}`))
           : st.noted
@@ -20218,7 +21301,8 @@ svg.staff .nlabel { display: none; }
         const lost = MQ.answerLost(q, r.answers[i]);
         let card;
         try {
-          const teacher = q.type === 'block' && r.teach && r.teach.set ? { marks: r.teach.marks[i] || {}, set: (j, v) => r.teach.set(i, j, v) } : null;
+          const teacher = q.type === 'block' && r.teach && r.teach.set ? { marks: r.teach.marks[i] || {}, set: (j, v) => r.teach.set(i, j, v) }
+            : q.type === 'chorale' && r.teach ? { pts: r.teach.ch[i] == null ? null : r.teach.ch[i], set: r.teach.setCh ? (v) => r.teach.setCh(i, v) : null } : null;
           card = it.answered || q.type === 'progression' || q.type === 'term' || !q.choices
             ? questionCard(q, cfg, { response: MQ.answerFor(q, r.answers[i]), locked: true, reveal: (o.showKey || !!teacher) && !lost, playsUsed: r.answers[i] && r.answers[i].plays, teacher })
             : h('div', null, h('p', { class: 'q-text' }, q.text),
@@ -20326,6 +21410,11 @@ svg.staff .nlabel { display: none; }
         }
         if (q.type === 'block') {
           it.notes = q.blk.syms.length;
+          it.wrong = !it.answered ? it.notes : Math.min(it.notes, Math.round(it.notes * (1 - skill) * rng() * 1.6));
+          it.credit = it.wrong ? Math.min(6, Math.round(((it.notes - it.wrong) / Math.max(1, it.notes)) * 7)) : 7;
+        }
+        if (q.type === 'chorale') {
+          it.notes = q.ch.spans ? q.ch.spans.length : q.ch.measures;
           it.wrong = !it.answered ? it.notes : Math.min(it.notes, Math.round(it.notes * (1 - skill) * rng() * 1.6));
           it.credit = it.wrong ? Math.min(6, Math.round(((it.notes - it.wrong) / Math.max(1, it.notes)) * 7)) : 7;
         }
@@ -24129,6 +25218,7 @@ svg.staff .nlabel { display: none; }
     return { svg, markup, wIn: (vb[2] / vb[3]) * hIn, hIn };
   }
   function exportArt(q, opts) {
+    if (q.type === 'chorale') return chorPrintArt(q, opts);
     if (q.type === 'nht') return nhPrintArt(q, opts);
     if (q.type === 'sing') return singPrintArt(q, opts);
     if (q.type === 'term') return termPrintArt(q);
@@ -24930,10 +26020,24 @@ svg.staff .nlabel { display: none; }
   // report's scores. redraw (null: no changing marks here) shows the report again after a change.
   function teachBlocks(r, redraw) {
     r.teach = null;
-    if (!r.quiz || !r.answers || !r.items.some((it) => it.type === 'block')) return;
+    if (!r.quiz || !r.answers || !r.items.some((it) => it.type === 'block' || it.type === 'chorale')) return;
     const key = MQ.normalize(r.code);
     const all = store.get('block-marks', {}) || {};
     const marks = all[key] || {};
+    // Four-part writing: the teacher's score for each exercise, in points; none yet means it is waiting.
+    const ch = (store.get('chorale-marks', {}) || {})[key] || {};
+    let pending = 0;
+    r.items.forEach((it, i) => {
+      const q = r.quiz.qs[i];
+      if (it.type !== 'chorale' || !q || q.type !== 'chorale') return;
+      const cmp = MQ.compareChorale(q, MQ.answerFor(q, r.answers[i]));
+      const pts = ch[i] != null ? Math.max(0, Math.min(cmp.notes, ch[i])) : cmp.notes - cmp.wrong;
+      it.notes = cmp.notes;
+      it.wrong = cmp.notes - pts;
+      it.approved = ch[i] != null;
+      if (!it.approved && it.answered) pending++;
+      it.credit = it.wrong ? Math.min(6, Math.round((pts / Math.max(1, cmp.notes)) * 7)) : 7;
+    });
     if (!r.scoring) r.scoring = { mode: 'notes', outOf: 100, split: 0 };
     let changed = 0;
     r.items.forEach((it, i) => {
@@ -24948,7 +26052,15 @@ svg.staff .nlabel { display: none; }
       it.credit = wrong ? Math.min(6, Math.round(((cmp.notes - wrong) / Math.max(1, cmp.notes)) * 7)) : 7;
     });
     r.teach = {
-      marks, changed,
+      marks, changed, ch, pending,
+      setCh: redraw ? (i, v) => {
+        const now = store.get('chorale-marks', {}) || {};
+        const mine = now[key] || {};
+        if (v == null) delete mine[i]; else mine[i] = v;
+        if (Object.keys(mine).length) now[key] = mine; else delete now[key];
+        store.set('chorale-marks', now);
+        redraw();
+      } : null,
       set: redraw ? (i, j, v) => {
         const now = store.get('block-marks', {}) || {};
         const mine = now[key] || {};
@@ -24960,6 +26072,258 @@ svg.staff .nlabel { display: none; }
         redraw();
       } : null,
     };
+  }
+
+  // ---------- Clefwork Voice Leading: four-part writing ----------
+  // The builder: how many exercises, how long, the key and meter, and the ways an exercise comes.
+  function chorSections(cfg, changed, R) {
+    const s = (cfg.chor = MQ.chorSettings(cfg.chor));
+    const ctr = counter('ch-count', 'four-part writing', (v) => { cfg.counts.chorale = v; changed(); });
+    ctr.sync(cfg.counts.chorale || 0, MQ.CHOR_MAX);
+    const maxFld = grp('Sharps or flats, up to', seg('ch-max', [0, 1, 2, 3, 4, 5, 6, 7].map((v) => ({ v, label: String(v) })), s.maxSig, (v) => { s.maxSig = v; changed(); }), 'When Clefwork chooses the key signature.');
+    maxFld.hidden = s.sig !== 15;
+    const sigSel = selectEl('ch-sig', [{ v: 15, label: 'Clefwork chooses — a different key for each exercise' }].concat(FIFTHS.map((f) => ({ v: f + 7, label: `${sigLabel(f)} — ${MQ.MAJOR_KEYS[f + 7]} major or ${MQ.MINOR_KEYS[f + 7]} minor` }))), s.sig, (v) => { s.sig = +v; maxFld.hidden = s.sig !== 15; changed(); });
+    return [
+      sec('ch', 'Four-part writing', 'Students write chorale-style music for soprano, alto, tenor and bass on the grand staff, one voice at a time, in any rhythm down to a sixteenth note. Clefwork marks it by the textbook’s voice-leading rules — and you approve every grade.',
+        h('div', { class: 'row2' },
+          grp('Exercises in the quiz', ctr, 'Each exercise is one question. The kinds you choose below take turns.'),
+          grp('Measures in each exercise', seg('ch-meas', [4, 5, 6, 7, 8].map((v) => ({ v, label: String(v) })), s.measures, (v) => { s.measures = v; changed(); }), 'Every exercise starts on a downbeat — no pickup measures.')),
+        h('div', { class: 'row2' },
+          grp('Time signature', seg('ch-meter', MQ.CHOR_METERS.map((m, i) => ({ v: i, label: `${m.n}/${m.d}` })), s.meter, (v) => { s.meter = v; changed(); }), 'Given chords change every half note in 4/4 (a whole note in the last measure), and every measure in 3/4 and 2/4.'),
+          grp('Keys', seg('ch-mode', [{ v: 1, label: 'Major' }, { v: 2, label: 'Minor' }, { v: 3, label: 'Both' }], s.mode, (v) => { s.mode = v; changed(); }))),
+        h('div', { class: 'row2' }, fld('Key signature', sigSel), maxFld),
+        grp('What students are given', chips('ch-kinds', MQ.CHOR_KINDS, s.kinds, (m) => { s.kinds = m; changed(); }, (k) => k.label),
+          'A melody: students write the alto, tenor and bass. A bass line: they write the three voices above it. Both: they fill in the alto and tenor. Empty measures show only the chords, or nothing but the key and meter.'),
+        h('div', { class: 'row2' },
+          grp('With a given melody or bass, print', seg('ch-lines', [{ v: 1, label: 'Roman numerals' }, { v: 2, label: 'Chord symbols' }, { v: 3, label: 'Both' }, { v: 0, label: 'Neither' }], s.lines, (v) => { s.lines = v; changed(); }),
+            'Without them the notes are still marked against the chords Clefwork wrote the line from.'),
+          grp('Chords Clefwork uses', seg('ch-harm', MQ.CHOR_HARMONY.map((x, i) => ({ v: i, label: x.label })), s.harm, (v) => { s.harm = v; changed(); })))),
+      sec('ch-rules', 'How four-part writing is marked', 'From the textbook’s Rules for Voice Leading (Unit 9) and its non-harmonic tones. Each chord — or each measure, when no chords are given — is a point, lost to any broken rule that touches it. That score is Clefwork’s suggestion: on the Grade reports tab you see the student’s music with every mark, and each exercise waits for you to approve the score or set your own.',
+        h('ul', { class: 'bk-rulelist' },
+          h('li', null, h('b', null, 'Rule 1'), ' Every voice a good melody: no augmented leaps, sevenths, or leaps past an octave'),
+          h('li', null, h('b', null, 'Rule 2'), ` Ranges: soprano ${MQ.CHOR_RANGE_TEXT[0]}, alto ${MQ.CHOR_RANGE_TEXT[1]}, tenor ${MQ.CHOR_RANGE_TEXT[2]}, bass ${MQ.CHOR_RANGE_TEXT[3]}`),
+          h('li', null, h('b', null, 'Rule 3'), ' No more than an octave between soprano and alto, or alto and tenor'),
+          h('li', null, h('b', null, 'Rule 4'), ' No crossed voices'),
+          h('li', null, h('b', null, 'Rule 6'), ' Never double the leading tone'),
+          h('li', null, h('b', null, 'Rule 7'), ' The leading tone in the soprano goes up to the tonic; a chord’s seventh goes down by step'),
+          h('li', null, h('b', null, 'Rules 8 and 9'), ' No parallel or contrary fifths and octaves'),
+          h('li', null, h('b', null, 'The chords'), ' Every note is in its chord or moves like a non-harmonic tone; the bass is the chord’s bass note; each chord has its root and third (and seventh)')),
+        h('p', { class: 'help' }, 'Noted without costing a point: doubling the root of a root-position triad (Rule 5), direct fifths and octaves in the outer voices (Rule 10), and how the upper voices leave their leaps (Rule 1). Every measure of every voice must be full; triplets are eighth or quarter notes and start on a beat — quarter-note triplets on beat 1 or 3 of 4/4, beat 1 or 2 of 3/4.')),
+    ];
+  }
+  // The grand staff a student writes four parts on: the voice buttons, the note values (chosen before a
+  // pitch is placed), and what each measure of the voice still needs.
+  // layers: all four voices (the printed ones filled in). opts: readOnly, bad, labels, onChange(layers).
+  function choraleEditor(q, layers, opts) {
+    const o = opts || {}, C = q.ch, V = MQ.CHOR_VOICES, uid = ++rhUid;
+    const box = h('div', { class: 'rstaff-box cstaff-box' });
+    const firstFree = [0, 1, 2, 3].find((v) => !C.gives[v]);
+    const cur = () => (S.chValue ? { v: S.chValue.v, d: S.chValue.dot ? 1 : 0, t: S.chValue.trip ? 1 : 0 } : null);
+    const status = h('div', { class: 'rh-status', 'aria-live': 'polite' });
+    let paintVoices = () => {};
+    const staff = new MQ.ChoraleStaff(box, {
+      meter: C.meter, measures: C.measures, parts: 4, slots: C.measures, layers, key: C.key, locked: C.gives, labels: o.labels || null, show: o.show == null ? C.show : o.show,
+      active: firstFree == null ? 0 : firstFree, readOnly: !!o.readOnly, bad: o.bad || null, sound: !o.readOnly, value: cur(),
+      onChange: (L) => { drawStatus(); if (o.onChange) o.onChange(L); },
+      onMove: () => { paintVoices(); drawStatus(); },
+      onMessage: (m) => toast(m, 'bad'),
+      onNeedValue: () => toast('Choose a note value first — whole, half, quarter, eighth or 16th — then place the pitch.'),
+    });
+    function drawStatus() {
+      if (o.readOnly) return;
+      const info = MQ.rhythmMeter(C.meter), L = staff.layers()[staff.active];
+      const chipsEl = [];
+      for (let m = 0; m < C.measures; m++) {
+        const note = MQ.chorTripletProblem(L[m], info) || MQ.measureNote(L[m], info);
+        chipsEl.push(h('span', { class: 'rh-chip ' + (!note ? 'is-ok' : note === 'empty' ? 'is-empty' : 'is-short') }, h('b', null, String(m + 1)), !note ? ' ✓' : ' ' + note));
+      }
+      status.replaceChildren(h('div', { class: 'rh-status-row' }, h('span', { class: 'rh-status-part' }, V[staff.active][0].toUpperCase() + V[staff.active].slice(1)), chipsEl));
+    }
+    if (o.readOnly) return { el: h('div', { class: 'rh-editor' }, box), staff };
+    // ---------- the voices ----------
+    const STEMS = ['treble staff, stems up', 'treble staff, stems down', 'bass staff, stems up', 'bass staff, stems down'];
+    const voiceBtns = V.map((name, v) => h('button', {
+      type: 'button', class: 'rh-tool ch-voice', disabled: C.gives[v] || null, 'aria-pressed': 'false',
+      title: C.gives[v] ? `The ${name} is printed for you` : `Write the ${name} (${STEMS[v]})`,
+      onclick: () => { staff.setActive(v); paintVoices(); drawStatus(); staff.focus(); },
+    }, h('b', null, name[0].toUpperCase() + name.slice(1)), h('span', null, C.gives[v] ? 'printed' : STEMS[v])));
+    paintVoices = () => voiceBtns.forEach((b, v) => b.setAttribute('aria-pressed', String(v === staff.active)));
+    // ---------- the note values: chosen first, then the pitch is placed ----------
+    const need = () => toast('Select a note first — click it on the staff.');
+    const pick = (k) => {
+      S.chValue = S.chValue || { v: k, dot: false, trip: false };
+      S.chValue.v = k;
+      if (k === 4) S.chValue.dot = false;
+      if (k !== 2 && k !== 3) S.chValue.trip = false;
+      paint();
+      // A selected note takes the new value, keeping its pitch.
+      if (staff.sel && !C.gives[staff.sel.l]) {
+        const was = staff.model.layers[staff.sel.l][staff.sel.m][staff.sel.i];
+        const msg = staff.enter({ v: k, d: S.chValue.dot ? 1 : 0, t: S.chValue.trip ? 1 : 0, r: was && was.r ? 1 : 0 });
+        if (msg) toast(msg, 'bad');
+      }
+      staff.focus();
+    };
+    const valueBtns = MQ.RHYTHM_VALUES.map((v, k) => h('button', {
+      type: 'button', class: 'rh-tool', 'aria-pressed': 'false', title: `${v.name[0].toUpperCase() + v.name.slice(1)} note (${['1', '2', '4', '8', '6'][k]})`, onclick: () => pick(k),
+    }, svgEl(MQ.rhythmIcon(v.name)), h('span', null, v.name === 'sixteenth' ? '16th' : v.name[0].toUpperCase() + v.name.slice(1))));
+    const flip = (key) => {
+      if (!S.chValue) { toast('Choose a note value first.'); return; }
+      if (key === 'trip' && !S.chValue.trip && S.chValue.v !== 2 && S.chValue.v !== 3) { toast('Triplets here are eighth notes or quarter notes — choose one of those first.'); return; }
+      if (key === 'dot' && !S.chValue.dot && S.chValue.v === 4) { toast('A dotted sixteenth would need a thirty-second note — nothing here is shorter than a sixteenth.'); return; }
+      S.chValue[key] = !S.chValue[key];
+      if (key === 'dot' && S.chValue.dot) S.chValue.trip = false;
+      if (key === 'trip' && S.chValue.trip) S.chValue.dot = false;
+      paint();
+      staff.focus();
+    };
+    const modeBtn = (key, label, iconKind, title) => h('button', { type: 'button', class: 'rh-tool rh-mode', 'aria-pressed': 'false', title, onclick: () => flip(key) }, svgEl(MQ.rhythmIcon(iconKind)), h('span', null, label));
+    const dotBtn = modeBtn('dot', 'Dot', 'dot', 'Dotted notes (.)');
+    const tripBtn = modeBtn('trip', 'Triplet', 'triplet', 'Triplets of eighth or quarter notes, starting on a beat (T)');
+    function paint() {
+      valueBtns.forEach((b, k) => b.setAttribute('aria-pressed', String(!!S.chValue && S.chValue.v === k)));
+      dotBtn.setAttribute('aria-pressed', String(!!S.chValue && S.chValue.dot));
+      tripBtn.setAttribute('aria-pressed', String(!!S.chValue && S.chValue.trip));
+      staff.setValue(cur());
+    }
+    const rest = () => {
+      const val = cur();
+      if (!val) { toast('Choose a note value first, then Rest writes a rest that long.'); return; }
+      const msg = staff.enter({ v: val.v, d: val.d, t: val.t, r: 1 });
+      if (msg) toast(msg, 'bad');
+      staff.focus();
+    };
+    const tie = () => { const msg = staff.toggleTie(); if (msg) toast(msg, 'bad'); staff.focus(); };
+    const tool = (label, title, iconHTML, fn) => h('button', { type: 'button', class: 'rh-tool', title, onclick: () => { fn(); staff.focus(); } }, svgEl(iconHTML), h('span', null, label));
+    const arrow = (d) => `<svg class="rh-icon" viewBox="0 0 24 26" aria-hidden="true"><path d="${d}" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+    const palette = h('div', { class: 'rh-palette', role: 'toolbar', 'aria-label': 'Note values and tools' },
+      ...valueBtns, h('span', { class: 'rh-sep', 'aria-hidden': 'true' }), dotBtn, tripBtn,
+      tool('Rest', 'Write a rest of the chosen value (R)', MQ.rhythmIcon('rest'), rest),
+      tool('Tie', 'Tie the selected note, or the one before the cursor, to the next note (~)', MQ.rhythmIcon('tie'), tie),
+      h('span', { class: 'rh-sep', 'aria-hidden': 'true' }),
+      tool('Sharp', 'Make the note sharp (+)', ACC_ICON(1), () => staff.setAlt(1) || need()),
+      tool('Flat', 'Make the note flat (−)', ACC_ICON(-1), () => staff.setAlt(-1) || need()),
+      tool('Natural', 'Make the note natural (=)', ACC_ICON(0), () => staff.setAlt(0) || need()),
+      tool('Up', 'Up a step (↑; Shift for an octave)', arrow('M6 15l6-6 6 6'), () => staff.nudge(1) || need()),
+      tool('Down', 'Down a step (↓; Shift for an octave)', arrow('M6 10l6 6 6-6'), () => staff.nudge(-1) || need()),
+      h('span', { class: 'rh-sep', 'aria-hidden': 'true' }),
+      tool('Delete', 'Delete the selected note, or the one before the cursor (Backspace)', '<svg class="rh-icon" viewBox="0 0 24 26" aria-hidden="true"><path d="M9 6h11v14H9l-6-7z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M12 10l5 6M17 10l-5 6" stroke="currentColor" stroke-width="1.6"/></svg>', () => { if (!staff.remove(true)) toast('There’s nothing before the cursor to delete.'); }),
+      tool('Clear bar', 'Empty this voice’s measure', '<svg class="rh-icon" viewBox="0 0 24 26" aria-hidden="true"><path d="M5 8h14M9 8V5h6v3M7 8l1 13h8l1-13" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>', () => { if (!staff.clearMeasure()) toast('That measure is already empty.'); }));
+    paintVoices();
+    paint();
+    drawStatus();
+    // ---------- keyboard ----------
+    const DIGITS = { 1: 0, 2: 1, 4: 2, 8: 3, 6: 4 };
+    staff.svg.addEventListener('keydown', (e) => {
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
+      const k = e.key.length === 1 ? e.key.toLowerCase() : e.key;
+      let done = true;
+      if (k in DIGITS) pick(DIGITS[k]);
+      else if ('abcdefg'.includes(k) && k.length === 1) {
+        const val = cur();
+        if (!val) toast('Choose a note value first — whole, half, quarter, eighth or 16th — then type the note.');
+        else { const msg = staff.enterLetter('cdefgab'.indexOf(k), { v: val.v, d: val.d, t: val.t, r: 0 }); if (msg) toast(msg, 'bad'); }
+      } else if (k === '.' || e.code === 'Period' || e.code === 'NumpadDecimal') flip('dot');
+      else if (k === 't' || k === '3') flip('trip');
+      else if (k === 'r' || k === '0') rest();
+      else if (k === '~' || k === '`') tie();
+      else if (k === '+' || k === '#') { if (!staff.setAlt(1)) need(); }
+      else if (k === '-' || k === '_') { if (!staff.setAlt(-1)) need(); }
+      else if (k === '=' || k === 'n') { if (!staff.setAlt(0)) need(); }
+      else if (k === 'ArrowUp') staff.nudge(e.shiftKey ? 7 : 1);
+      else if (k === 'ArrowDown') staff.nudge(e.shiftKey ? -7 : -1);
+      else if (k === 'ArrowLeft') staff.move(-1);
+      else if (k === 'ArrowRight') staff.move(1);
+      else if (k === 'Backspace') { if (!staff.remove(true)) toast('There’s nothing before the cursor to delete.'); }
+      else if (k === 'Delete') staff.remove(false);
+      else if (k === 'Escape') { staff.sel = null; staff.moved(); }
+      else if (k === 'v') {
+        // The next voice the student writes.
+        const free = [0, 1, 2, 3].filter((v) => !C.gives[v]);
+        staff.setActive(free[(free.indexOf(staff.active) + 1) % free.length]);
+        paintVoices(); drawStatus();
+      } else done = false;
+      if (done) e.preventDefault();
+    });
+    return {
+      el: h('div', { class: 'rh-editor', id: 'ch-ed-' + uid },
+        h('div', { class: 'rh-palette ch-voices', role: 'toolbar', 'aria-label': 'Voice to write' }, h('span', { class: 'mini-label ch-voices-label' }, 'Voice'), ...voiceBtns),
+        box, palette, status,
+        h('p', { class: 'rh-keys' }, 'Choose a voice, then a note value. Press on the staff and slide up or down — the light note shows the pitch — and let go to write it; or type the letter name (A–G), which writes the nearest one to the note before. Notes go in at the cursor, one after another. Click a note to select it: drag it or use ↑ ↓ to move it, choose another value to change its length, ♯ ♭ ♮ to change it. V moves to the next voice.')),
+      staff,
+    };
+  }
+  // A four-part writing exercise: the grand staff to write on and, once it is checked, Clefwork's marks.
+  // o.teacher: {pts (the teacher's score, or null while it waits), set(points or null)}.
+  function choraleCard(q, cfg, o) {
+    const C = q.ch, info = MQ.rhythmMeter(C.meter);
+    const wrap = h('div', { class: 'qcard rh-card ch-card' + (o.compact ? ' is-compact' : '') });
+    wrap.append(h('div', { class: 'q-eyebrow' }, typeOf(q.type).label, h('span', { class: 'q-clef' }, `${MQ.melodyKeyName(C.key)} · ${info.label} · ${C.measures} measures`)));
+    wrap.append(h(o.compact ? 'h3' : 'h2', { class: 'q-text' }, q.text));
+    if (q.hint && !o.locked && !o.keyMode) wrap.append(h('p', { class: 'q-hint' }, q.hint));
+    const labels = C.spans ? C.spans.map((sp, c) => ({ m: sp.m, t: sp.t, rn: C.labels[c].rn, sym: C.labels[c].sym })) : null;
+    const hear = (getLayers, label) => h('div', { class: 'btn-row dg-hear' },
+      h('button', { type: 'button', class: 'btn sm', onclick: () => {
+        const pe = MQ.chorEvents(q, getLayers(), 0.07);
+        if (!pe.events.length) { toast('Write some notes first — then you can hear them.'); return; }
+        if (!MQ.Audio.sequence(pe.events, { total: pe.total })) toast('This browser can’t play sound.', 'bad');
+      } }, label),
+      h('button', { type: 'button', class: 'btn btn-quiet sm', onclick: () => MQ.Audio.stop() }, 'Stop'));
+    if (o.keyMode) {
+      const model = MQ.chorModel(q);
+      if (model) {
+        const ed = choraleEditor(q, model, { readOnly: true, labels, show: 3 });
+        wrap.append(hear(() => model, '♪ Hear this answer'), ed.el);
+      }
+      wrap.append(h('p', { class: 'result is-key' }, h('strong', null, model ? 'One good answer. ' : 'No single answer. '), model ? 'Any writing that keeps the rules is right — every chord is marked on its own.' : MQ.describeAnswer(q, cfg)));
+      return wrap;
+    }
+    const mine = MQ.cleanChorale(q, o.response);
+    const layers = MQ.chorVoices(q, mine);
+    const chk = o.reveal ? MQ.checkChorale(q, mine) : null;
+    const bad = chk ? new Set([].concat(...chk.issues.filter((x) => x.sev === 'error').map((x) => x.notes.map((n) => `${n.l}:${n.m}:${n.i}`)))) : null;
+    const ed = choraleEditor(q, layers, {
+      readOnly: !!o.locked, bad, labels,
+      onChange: (L) => { if (o.onResponse) o.onResponse([0, 1, 2, 3].map((v) => (C.gives[v] ? Array.from({ length: C.measures }, () => []) : L[v].slice(0, C.measures)))); },
+    });
+    wrap.append(hear(() => (o.locked ? layers : ed.staff.layers()), o.locked ? '♪ Hear it' : '♪ Hear what’s written'), ed.el);
+    if (chk) wrap.append(choraleMarks(q, chk, o.teacher));
+    return wrap;
+  }
+  // Clefwork's marks for an exercise — a suggestion — and for the teacher the choice of grade.
+  function choraleMarks(q, chk, T) {
+    const right = chk.units - chk.wrong, plural = (n) => `${chk.word}${n === 1 ? '' : 's'}`;
+    const errors = chk.issues.filter((x) => x.sev === 'error'), warns = chk.issues.filter((x) => x.sev !== 'error');
+    const tone = chk.blank ? 'is-bad' : chk.wrong ? 'is-bad' : 'is-good';
+    const head = h('p', { class: 'result ' + tone, role: 'status' },
+      h('strong', null, chk.blank ? 'Nothing was written.' : `Clefwork’s suggestion: ${right} of ${chk.units} ${plural(chk.units)} follow the rules.`),
+      chk.blank ? '' : ' Notes in red are the ones a rule is about.', T ? '' : ' Your teacher sets the grade.');
+    const item = (x) => h('li', null, x.rule ? h('span', { class: 'bk-rule' + (x.sev === 'error' ? '' : ' is-note') }, `Rule ${x.rule}`) : null, x.text);
+    const out = h('div', { class: 'bk-marks ch-marks' }, head);
+    if (errors.length && !chk.blank) out.append(h('ul', { class: 'bk-flags' }, errors.slice(0, 40).map(item)));
+    if (warns.length && !chk.blank) out.append(h('p', { class: 'help' }, 'Noted, without costing a point:'), h('ul', { class: 'bk-flags ch-notes' }, warns.slice(0, 30).map(item)));
+    if (T) {
+      const waiting = T.pts == null;
+      const ptsIn = h('input', { type: 'number', min: 0, max: chk.units, step: 0.5, inputmode: 'decimal', class: 'ch-pts', 'aria-label': `Points out of ${chk.units}`, value: waiting ? right : T.pts });
+      const setPts = (v) => T.set && T.set(Math.max(0, Math.min(chk.units, Math.round(v * 2) / 2)));
+      out.append(h('div', { class: 'ch-approve' + (waiting ? ' is-waiting' : ' is-done') },
+        h('p', { class: 'ch-approve-status' }, waiting
+          ? [h('strong', null, 'Waiting for your approval. '), `Until you choose, this exercise counts as Clefwork suggests: ${right} of ${chk.units}.`]
+          : [h('strong', null, `Your grade: ${fmtPts(T.pts)} of ${chk.units}. `), T.pts === right ? 'You approved Clefwork’s score.' : `Clefwork suggested ${right}.`]),
+        T.set ? h('div', { class: 'btn-row' },
+          h('button', { type: 'button', class: 'btn btn-primary sm', onclick: () => setPts(right) }, `Approve ${right} of ${chk.units}`),
+          h('button', { type: 'button', class: 'btn sm', onclick: () => setPts(chk.units) }, 'Full credit'),
+          h('button', { type: 'button', class: 'btn sm', onclick: () => setPts(0) }, 'No credit'),
+          h('label', { class: 'ch-own' }, 'or ', ptsIn, ` of ${chk.units} `, h('button', { type: 'button', class: 'btn sm', onclick: () => setPts(+ptsIn.value || 0) }, 'Set')),
+          waiting ? null : h('button', { type: 'button', class: 'btn btn-quiet sm', onclick: () => T.set(null) }, 'Undo')) : null));
+    }
+    return out;
+  }
+  // On paper: the printed voices and labels, the measures drawn wide to write in, two to a line.
+  function chorPrintArt(q, opts) {
+    const C = q.ch;
+    const labels = C.spans ? C.spans.map((sp, c) => ({ m: sp.m, t: sp.t, rn: C.labels[c].rn, sym: C.labels[c].sym })) : null;
+    return MQ.chorArt({ meter: C.meter, measures: C.measures, key: C.key, layers: C.given }, { labels, show: C.show, perLine: 2, height: opts && opts.height, drawnClefs: opts && opts.drawnClefs });
   }
 
   // ---------- Clefwork Harmony: non-harmonic tones ----------
@@ -25233,9 +26597,9 @@ svg.staff .nlabel { display: none; }
       if (name) name.textContent = 'Clefwork Voice Leading';
       document.title = 'Clefwork Voice Leading';
       document.querySelector('.flow').replaceChildren(
-        h('li', null, h('b', null, '1'), ' Type the chord symbols and choose how many notes go in each block'),
-        h('li', null, h('b', null, '2'), ' Students write block voicings on the grand staff, in half notes'),
-        h('li', null, h('b', null, '3'), ' Clefwork marks every chord by the textbook’s rules — you see what they wrote and can change any mark'));
+        h('li', null, h('b', null, '1'), ' Block chords: type the chord symbols. Four-part writing: choose what students are given — a melody, a bass line, chords, or blank measures'),
+        h('li', null, h('b', null, '2'), ' Students write block voicings in half notes, or four voices one at a time in their own rhythms'),
+        h('li', null, h('b', null, '3'), ' Clefwork marks the work by the textbook’s rules — you see what they wrote, change any block mark, and approve every four-part score'));
     }
     if (MELODY) {
       const name = document.querySelector('.brand-name');

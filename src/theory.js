@@ -126,6 +126,8 @@
     { id: 'cadence', label: 'Cadences & Modulations', blurb: 'A progression of up to eight chords in half notes that ends with a cadence or modulates — students write the chords, name the cadence or modulation, or both.', est: 120, custom: true },
     // Clefwork Voice Leading (see nht.js): non-harmonic tones in four-part writing.
     { id: 'nht', label: 'Non-Harmonic Tones', blurb: 'A progression in four voices with its non-harmonic tones highlighted and lettered; students name each one — passing tone, suspension, appoggiatura…', est: 90, custom: true },
+    // Clefwork Voice Leading (see chorale.js): four-part writing, marked by the rules and approved by the teacher.
+    { id: 'chorale', label: 'Four-Part Writing', blurb: 'Write chorale-style music for soprano, alto, tenor and bass on the grand staff — over a given melody or bass, from chord symbols or Roman numerals, or on blank measures.', est: 600, custom: true },
   ];
   const BUILT_IN = TYPES.filter((t) => !t.custom);
   const MAX_CUSTOM = 20, MAX_CUSTOM_NOTES = 6, MAX_VOICING_NOTES = 8;
@@ -780,6 +782,7 @@
     if (MQ.blockQuestions && cfg.counts.block) MQ.blockQuestions(cfg).forEach((q) => qs.push(q));
     if (MQ.cadenceQuestions && cfg.counts.cadence) MQ.cadenceQuestions(cfg).forEach((q) => qs.push(q));
     if (MQ.nhQuestions && cfg.counts.nht) MQ.nhQuestions(cfg).forEach((q) => qs.push(q));
+    if (MQ.chorQuestions && cfg.counts.chorale) MQ.chorQuestions(cfg).forEach((q) => qs.push(q));
     if (cfg.flags.shuffle) shuffle(qs, rng);
     return qs;
   }
@@ -821,6 +824,7 @@
     if (q.type === 'block') return MQ.gradeBlock(q, response, cfg);
     if (q.type === 'cadence') return MQ.gradeCadence(q, response, cfg);
     if (q.type === 'nht') return MQ.gradeNh(q, response);
+    if (q.type === 'chorale') return MQ.gradeChorale(q, response);
     if (MQ.isGraph && MQ.isGraph(q)) return MQ.gradeGraph(q, response, cfg);
     if (q.type === 'figured' || q.type === 'figprog') return MQ.gradeFigured(q, response, cfg);
     if (q.type === 'progression') return MQ.gradeProgression(q, response, cfg);
@@ -855,6 +859,7 @@
       : q.type === 'block' ? MQ.hasBlockAnswer(q, response)
       : q.type === 'cadence' ? MQ.hasCadenceAnswer(q, response)
       : q.type === 'nht' ? MQ.hasNhAnswer(q, response)
+      : q.type === 'chorale' ? MQ.hasChoraleAnswer(q, response)
       : MQ.isGraph && MQ.isGraph(q) ? MQ.hasGraphAnswer(q, response)
       : q.type === 'figured' || q.type === 'figprog' ? MQ.hasFiguredAnswer(q, response)
       : q.colSpecs ? !!response && response.some((col) => col && col.some(Boolean))
@@ -877,6 +882,7 @@
     if (q.type === 'block') return MQ.describeBlock(q);
     if (q.type === 'cadence') return MQ.describeCadence(q);
     if (q.type === 'nht') return MQ.describeNh(q);
+    if (q.type === 'chorale') return MQ.describeChorale(q);
     if (q.symbolAnswers) return q.symbolAnswers.map((a) => a.shown).join('  ');
     if (q.symbolAnswer) return q.symbolAnswer.shown;
     if (q.type === 'ivname') return q.ivName.charAt(0).toUpperCase() + q.ivName.slice(1);

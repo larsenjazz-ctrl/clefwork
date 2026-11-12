@@ -1319,3 +1319,27 @@ input.sg-range { flex: 1; min-width: 0; accent-color: var(--accent); height: 28p
 .nh-answers .dg-box select { width: auto; min-width: 150px; text-align: left; text-align-last: left; font: 600 14px var(--f-body); padding: 4px 8px; }
 .nh-chart td.nh-abbr { font: 700 13px var(--f-mono); white-space: nowrap; }
 .nh-chart td { font-size: 14px; }
+
+/* ---------- Clefwork Voice Leading: four-part writing ---------- */
+.cstaff-box { overflow-x: auto; }
+.rstaff.cstaff { touch-action: none; }
+.rstaff.cstaff .clef-glyph { font-family: 'Noto Music', 'Bravura Text', 'Apple Symbols', 'Segoe UI Symbol', serif; fill: currentColor; }
+.rstaff.cstaff .sacc { font-family: 'Noto Music', serif; font-weight: 400; }
+.rstaff.cstaff .c-rn, .rstaff.cstaff .c-sym { font-family: Georgia, 'Times New Roman', serif; }
+.rstaff.cstaff .is-given { cursor: default; }
+.rstaff.cstaff .is-active { color: #2f3fbf; }
+.rstaff.cstaff .is-active.is-sel { color: #c2410c; }
+.rstaff.cstaff .is-wrong, .rstaff.cstaff .is-bad { color: #bf3139; }
+.rstaff.cstaff .c-ghost { color: #2f3fbf; opacity: 0.42; pointer-events: none; }
+.ch-voices { align-items: center; }
+.ch-voices-label { margin: 0 4px 0 2px; }
+.rh-tool.ch-voice { flex-direction: column; min-width: 92px; padding: 5px 10px; }
+.rh-tool.ch-voice b { font: 700 14px var(--f-display); }
+.rh-tool.ch-voice span { font-size: 11px; opacity: 0.8; }
+.ch-marks .bk-rule.is-note { background: var(--warn-soft); color: var(--warn); }
+.ch-approve { margin-top: 6px; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--line); display: flex; flex-direction: column; gap: 8px; }
+.ch-approve.is-waiting { border-color: var(--warn); background: var(--warn-soft); }
+.ch-approve.is-done { border-color: var(--good); background: var(--good-soft); }
+.ch-approve-status { margin: 0; font-size: 14.5px; }
+.ch-own { display: inline-flex; align-items: center; gap: 6px; font-size: 14px; white-space: nowrap; }
+.ch-pts { width: 64px; min-height: 34px; padding: 2px 6px; }
