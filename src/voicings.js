@@ -176,18 +176,13 @@
     const has = (d) => ch.has.includes(d);
     const mid = has(13) ? 13 : has(11) ? 11 : 5;                 // 11 or 13 takes the 5's place
     const top = has(9) ? 9 : has(7) ? 7 : has(6) ? 6 : 1;         // a 9th takes the octave's place
-    const rootNote = bassRoot(ch, M('E2'));
-    // The 5th stays at G3 or above, unless holding it there would push the upper voices off the staff.
-    const build = (floor) => {
-      const fifth = place(tone(ch, mid), Math.max(dia(rootNote) + 1, floor));
-      return [fifth].concat(stack([tone(ch, 3), tone(ch, top)], Math.max(dia(fifth) + 1, D('C4'))));
-    };
-    let voices = build(mid === 5 ? D('G3') : D('D3'));
-    if (midi(voices[2]) > M('A5')) voices = build(D('D3'));
-    const fifth = voices[0], upper = voices.slice(1);
+    // The root sits on the bass staff (G2 or above), and each voice above it takes the nearest spot
+    // over the one below, so no two neighbouring upper voices are more than an octave apart.
+    const rootNote = place(ch.root, D('G2'));
+    const voices = stack([tone(ch, mid), tone(ch, 3), tone(ch, top)], dia(rootNote) + 1);
     return {
-      notes: [Object.assign({}, rootNote, { st: 1 }), Object.assign({}, fifth, { st: 1 })].concat(onStaff(upper, 0)),
-      staff: 'grand',
+      notes: onStaff([rootNote, voices[0]], 1).concat(onStaff(voices.slice(1), 0)),
+      staff: 'grand', flex: 'chorale',
       shape: `root, ${degName(mid)}, 3rd, ${degName(top, true)} from the bottom`,
     };
   }
@@ -551,6 +546,8 @@
     inner7: 'Inner sevenths: the voices pair off a seventh apart.',
     custom: '',
   };
+  // A chorale voicing is marked by its spacing, not its octave (see markFlex in theory.js).
+  const FLEX_HINT = 'Any octave counts, as long as the upper three notes are each within an octave of the note below.';
   function chordQuestion(ch, tech, v, cfg, ask, extra) {
     const notes = v.notes.slice().sort((a, b) => dia(a) - dia(b));
     const shown = MQ.prettySymbol(ch.symbol);
@@ -574,8 +571,9 @@
     return Object.assign({
       type: 'voicing', clef: v.staff, grand: v.staff === 'grand', symbol: ch.symbol,
       text: `Voice ${shown} — ${LABEL(tech)}.`,
-      hint: `${shapeText} Place ${counts}. Exact pitches count.`.replace(/\s+/g, ' ').trim()
+      hint: `${shapeText} Place ${counts}. ${v.flex ? FLEX_HINT : 'Exact pitches count.'}`.replace(/\s+/g, ' ').trim()
         + (helper ? ' The lowest note is printed.' : ''),
+      flex: v.flex || undefined,
       columns: [{ given: helper ? [notes[0]] : [], cap: helper ? notes.length - 1 : notes.length }],
       answer: [helper ? notes.slice(1) : notes], tags: tag, sig: 's' + sig,
     }, extra || {});
@@ -651,7 +649,8 @@
     return {
       type: 'vprog', clef: staff, grand: staff === 'grand',
       text: `Voice this progression — ${LABEL(tech)}.`,
-      hint: `${shapeText} Exact pitches count.`.replace(/\s+/g, ' ').trim(),
+      hint: `${shapeText} ${voicings[0].flex ? FLEX_HINT : 'Exact pitches count.'}`.replace(/\s+/g, ' ').trim(),
+      flex: voicings[0].flex || undefined,
       columns: cols.map((notes) => ({ given: [], cap: notes.length })),
       chordLabels: { top: symbols }, answer: cols, tags, sig: 's' + sig,
     };

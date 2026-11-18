@@ -790,12 +790,43 @@
   // ---------- grading ----------
   const pcMatch = (a, b, enh) => (enh ? (((midi(a) - midi(b)) % 12) + 12) % 12 === 0 : a.step === b.step && a.alt === b.alt);
 
+  // A chorale voicing — root, 5th, 3rd, top from the bottom — is right in any octave: the root below
+  // the 5th, and the 5th, 3rd and top note each no more than an octave under the next. A note that
+  // breaks the spacing is marked wrong: the root if it is not the lowest, the 5th if the 3rd is not
+  // within an octave above it, the top note if it is not within an octave above the 3rd.
+  function markFlex(q, placed, cfg) {
+    const enh = cfg.flags.enharmonic;
+    return q.columns.map((col, i) => {
+      const given = (col.given || []).slice();
+      const exp = given.concat(q.answer[i] || []).sort((a, b) => midi(a) - midi(b));
+      const res = (placed && placed[i]) || [];
+      const order = res.map((r, j) => j).filter((j) => res[j]).sort((a, b) => midi(res[a]) - midi(res[b]));
+      const slot = new Array(exp.length).fill(-1), note = new Array(exp.length).fill(null);
+      const taken = new Set();
+      exp.forEach((e, k) => {
+        if (given.includes(e)) { note[k] = e; return; }
+        const j = order.find((x) => !taken.has(x) && pcMatch(res[x], e, enh));
+        if (j == null) return;
+        taken.add(j); slot[k] = j; note[k] = res[j];
+      });
+      const ok = note.map((n) => !!n);
+      const gap = (lo, hi) => midi(note[hi]) - midi(note[lo]);
+      if (note[0] && note[1] && gap(0, 1) <= 0) ok[0] = false;
+      if (note[1] && note[2] && !(gap(1, 2) > 0 && gap(1, 2) <= 12)) ok[1] = false;
+      if (note[2] && note[3] && !(gap(2, 3) > 0 && gap(2, 3) <= 12)) ok[3] = false;
+      const marks = res.map(() => false);
+      slot.forEach((j, k) => { if (j >= 0) marks[j] = ok[k]; });
+      return marks;
+    });
+  }
+
   // Returns, for each column, a boolean per placed note (true = that note is right).
   function markResponse(q, placed, cfg) {
     if (q.type === 'block') return MQ.markBlock(q, placed, cfg);
     if (q.type === 'cadence') return MQ.markCadenceNotes(q, placed, cfg);
     if (q.colSpecs) return MQ.markProgSpell(q, placed, cfg);
     if (q.nameSpec) return q.bassPc ? MQ.markSpelled(q, placed, cfg) : MQ.markNames(q, placed, cfg);
+    if (q.flex === 'chorale') return markFlex(q, placed, cfg);
     const enh = cfg.flags.enharmonic;
     const eq = (a, b) => (enh ? midi(a) === midi(b) : samePitch(a, b));
     return q.columns.map((col, i) => {

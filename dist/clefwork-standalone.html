@@ -2174,12 +2174,43 @@ input.sg-range { flex: 1; min-width: 0; accent-color: var(--accent); height: 28p
   // ---------- grading ----------
   const pcMatch = (a, b, enh) => (enh ? (((midi(a) - midi(b)) % 12) + 12) % 12 === 0 : a.step === b.step && a.alt === b.alt);
 
+  // A chorale voicing — root, 5th, 3rd, top from the bottom — is right in any octave: the root below
+  // the 5th, and the 5th, 3rd and top note each no more than an octave under the next. A note that
+  // breaks the spacing is marked wrong: the root if it is not the lowest, the 5th if the 3rd is not
+  // within an octave above it, the top note if it is not within an octave above the 3rd.
+  function markFlex(q, placed, cfg) {
+    const enh = cfg.flags.enharmonic;
+    return q.columns.map((col, i) => {
+      const given = (col.given || []).slice();
+      const exp = given.concat(q.answer[i] || []).sort((a, b) => midi(a) - midi(b));
+      const res = (placed && placed[i]) || [];
+      const order = res.map((r, j) => j).filter((j) => res[j]).sort((a, b) => midi(res[a]) - midi(res[b]));
+      const slot = new Array(exp.length).fill(-1), note = new Array(exp.length).fill(null);
+      const taken = new Set();
+      exp.forEach((e, k) => {
+        if (given.includes(e)) { note[k] = e; return; }
+        const j = order.find((x) => !taken.has(x) && pcMatch(res[x], e, enh));
+        if (j == null) return;
+        taken.add(j); slot[k] = j; note[k] = res[j];
+      });
+      const ok = note.map((n) => !!n);
+      const gap = (lo, hi) => midi(note[hi]) - midi(note[lo]);
+      if (note[0] && note[1] && gap(0, 1) <= 0) ok[0] = false;
+      if (note[1] && note[2] && !(gap(1, 2) > 0 && gap(1, 2) <= 12)) ok[1] = false;
+      if (note[2] && note[3] && !(gap(2, 3) > 0 && gap(2, 3) <= 12)) ok[3] = false;
+      const marks = res.map(() => false);
+      slot.forEach((j, k) => { if (j >= 0) marks[j] = ok[k]; });
+      return marks;
+    });
+  }
+
   // Returns, for each column, a boolean per placed note (true = that note is right).
   function markResponse(q, placed, cfg) {
     if (q.type === 'block') return MQ.markBlock(q, placed, cfg);
     if (q.type === 'cadence') return MQ.markCadenceNotes(q, placed, cfg);
     if (q.colSpecs) return MQ.markProgSpell(q, placed, cfg);
     if (q.nameSpec) return q.bassPc ? MQ.markSpelled(q, placed, cfg) : MQ.markNames(q, placed, cfg);
+    if (q.flex === 'chorale') return markFlex(q, placed, cfg);
     const enh = cfg.flags.enharmonic;
     const eq = (a, b) => (enh ? midi(a) === midi(b) : samePitch(a, b));
     return q.columns.map((col, i) => {
@@ -3539,18 +3570,13 @@ input.sg-range { flex: 1; min-width: 0; accent-color: var(--accent); height: 28p
     const has = (d) => ch.has.includes(d);
     const mid = has(13) ? 13 : has(11) ? 11 : 5;                 // 11 or 13 takes the 5's place
     const top = has(9) ? 9 : has(7) ? 7 : has(6) ? 6 : 1;         // a 9th takes the octave's place
-    const rootNote = bassRoot(ch, M('E2'));
-    // The 5th stays at G3 or above, unless holding it there would push the upper voices off the staff.
-    const build = (floor) => {
-      const fifth = place(tone(ch, mid), Math.max(dia(rootNote) + 1, floor));
-      return [fifth].concat(stack([tone(ch, 3), tone(ch, top)], Math.max(dia(fifth) + 1, D('C4'))));
-    };
-    let voices = build(mid === 5 ? D('G3') : D('D3'));
-    if (midi(voices[2]) > M('A5')) voices = build(D('D3'));
-    const fifth = voices[0], upper = voices.slice(1);
+    // The root sits on the bass staff (G2 or above), and each voice above it takes the nearest spot
+    // over the one below, so no two neighbouring upper voices are more than an octave apart.
+    const rootNote = place(ch.root, D('G2'));
+    const voices = stack([tone(ch, mid), tone(ch, 3), tone(ch, top)], dia(rootNote) + 1);
     return {
-      notes: [Object.assign({}, rootNote, { st: 1 }), Object.assign({}, fifth, { st: 1 })].concat(onStaff(upper, 0)),
-      staff: 'grand',
+      notes: onStaff([rootNote, voices[0]], 1).concat(onStaff(voices.slice(1), 0)),
+      staff: 'grand', flex: 'chorale',
       shape: `root, ${degName(mid)}, 3rd, ${degName(top, true)} from the bottom`,
     };
   }
@@ -3914,6 +3940,8 @@ input.sg-range { flex: 1; min-width: 0; accent-color: var(--accent); height: 28p
     inner7: 'Inner sevenths: the voices pair off a seventh apart.',
     custom: '',
   };
+  // A chorale voicing is marked by its spacing, not its octave (see markFlex in theory.js).
+  const FLEX_HINT = 'Any octave counts, as long as the upper three notes are each within an octave of the note below.';
   function chordQuestion(ch, tech, v, cfg, ask, extra) {
     const notes = v.notes.slice().sort((a, b) => dia(a) - dia(b));
     const shown = MQ.prettySymbol(ch.symbol);
@@ -3937,8 +3965,9 @@ input.sg-range { flex: 1; min-width: 0; accent-color: var(--accent); height: 28p
     return Object.assign({
       type: 'voicing', clef: v.staff, grand: v.staff === 'grand', symbol: ch.symbol,
       text: `Voice ${shown} — ${LABEL(tech)}.`,
-      hint: `${shapeText} Place ${counts}. Exact pitches count.`.replace(/\s+/g, ' ').trim()
+      hint: `${shapeText} Place ${counts}. ${v.flex ? FLEX_HINT : 'Exact pitches count.'}`.replace(/\s+/g, ' ').trim()
         + (helper ? ' The lowest note is printed.' : ''),
+      flex: v.flex || undefined,
       columns: [{ given: helper ? [notes[0]] : [], cap: helper ? notes.length - 1 : notes.length }],
       answer: [helper ? notes.slice(1) : notes], tags: tag, sig: 's' + sig,
     }, extra || {});
@@ -4014,7 +4043,8 @@ input.sg-range { flex: 1; min-width: 0; accent-color: var(--accent); height: 28p
     return {
       type: 'vprog', clef: staff, grand: staff === 'grand',
       text: `Voice this progression — ${LABEL(tech)}.`,
-      hint: `${shapeText} Exact pitches count.`.replace(/\s+/g, ' ').trim(),
+      hint: `${shapeText} ${voicings[0].flex ? FLEX_HINT : 'Exact pitches count.'}`.replace(/\s+/g, ' ').trim(),
+      flex: voicings[0].flex || undefined,
       columns: cols.map((notes) => ({ given: [], cap: notes.length })),
       chordLabels: { top: symbols }, answer: cols, tags, sig: 's' + sig,
     };
