@@ -13769,7 +13769,9 @@ svg.staff .nlabel { display: none; }
     const ivAsk = (cfg.counts && cfg.counts.interval) > 0 && (cfg.intervalAsk === 2 || cfg.intervalAsk === 3) ? cfg.intervalAsk : 0;
     // How many of the quiz's questions each student gets (0: all of them) — the last block, behind a flag.
     const pick = Math.max(0, Math.min(127, cfg.pick | 0));
-    if (regions.length || an.img || limit != null || rhythm || melody || degrees || graph || terms || sing || block || cad || nht || chor || ivAsk || pick) {
+    // Whether students see their answers on the staff once they have submitted — after the draw, behind a flag.
+    const show = cfg.flags && cfg.flags.answers ? 1 : 0;
+    if (regions.length || an.img || limit != null || rhythm || melody || degrees || graph || terms || sing || block || cad || nht || chor || ivAsk || pick || show) {
       const q10 = (v) => Math.max(0, Math.min(1023, Math.round(v * 1023)));
       // Extension 16: Clefwork Harmony with non-harmonic tones — the cadence block as extension 15 writes it
       // (possibly empty), then the non-harmonic tone block.
@@ -13880,20 +13882,22 @@ svg.staff .nlabel { display: none; }
       const keys = anScores.some((sc) => sc.keys && sc.keys.length);
       const opens = anScores.some((sc) => sc.open && sc.open.show > 0);
       const extras = keys || opens || anRegs.some((g) => g.link || g.ask === 'nht' || g.ask === 'pivot');
-      if (extras || ivAsk || pick) {
+      if (extras || ivAsk || pick || show) {
         if (((ext >= 4 && ext <= 8) || ext === 11 || ext === 13) && !tiesWritten) w.u(0, 1);
         w.u(extras ? 1 : 0, 1);
       }
       if (extras) {
         writeAnalysisExtras(w, an, anRegs);
         if (keys) writeKeyChanges(w, an, anScores);
-        else if (opens || ivAsk || pick) w.u(0, 1);
+        else if (opens || ivAsk || pick || show) w.u(0, 1);
         if (opens) writeOpenKeys(w, anScores);
-        else if (ivAsk || pick) w.u(0, 1);
+        else if (ivAsk || pick || show) w.u(0, 1);
       }
       if (ivAsk) w.u(1, 1).u(ivAsk, 2);
-      else if (pick) w.u(0, 1);
+      else if (pick || show) w.u(0, 1);
       if (pick) w.u(1, 1).u(pick, 7);
+      else if (show) w.u(0, 1);
+      if (show) w.u(1, 1);
     }
     return pack(KIND_QUIZ, w.b);
   }
@@ -14155,6 +14159,7 @@ svg.staff .nlabel { display: none; }
           }
           if (r.b.length > r.p && r.u(1)) cfg.intervalAsk = r.u(2) || 1;
           if (r.b.length > r.p && r.u(1)) cfg.pick = r.u(7);
+          if (r.b.length > r.p && r.u(1)) cfg.flags.answers = true;
         }
         const sum = (b) => MQ.TECHNIQUES.reduce((n, t) => n + ((b.tech && b.tech[t.id]) || 0), 0);
         cfg.counts.voicing = sum(cfg.vc);
@@ -19693,6 +19698,7 @@ svg.staff .nlabel { display: none; }
           : GRAPH ? flag('partial', 'Partial credit', 'When each table or phrase is one question: a table earns credit for each right answer, a phrase for each measure and rule. Without it, only a perfect one counts.')
           : flag('partial', 'Partial credit', 'Chords and scales earn credit for each correct note.'),
         STUDENT || SING ? null : flag('feedback', 'Let students check answers', 'Students can check each question and see the right answer. Best for practice.'),
+        STUDENT || SING ? null : flag('answers', 'Show answers on the staff after submitting', 'When students finish, they see every question again as they answered it — right and wrong marked on the staff, with the correct answer — and their results link shows the same. Off: they see only their score.'),
         ANALYSIS || DICTATION || GRAPH || TERMS || SING ? null : flag('labels', 'Show note names while dragging', STUDENT ? 'The note’s name appears as you move it.' : 'Practice mode: the note’s name appears as students move it.'),
         DICTATION || TERMS || SING ? null : ANALYSIS ? flag('enharmonic', 'Accept enharmonic spellings', 'Counts a G♭7 chord symbol as correct when the answer is F♯7.')
           : GRAPH ? flag('enharmonic', 'Accept enharmonic spellings', 'Counts A♯mi as correct when the answer is B♭mi. Tritone substitutes always take either spelling (C♭7 or B7).')
@@ -20975,7 +20981,7 @@ svg.staff .nlabel { display: none; }
     const teacher = t.cfg.teacher || 'your teacher';
     const body = `Hi ${t.cfg.teacher || ''},\n\nHere is my report code for "${t.cfg.title}":\n\n${t.reportCode}\n\n${t.name}`;
     const mail = `mailto:?subject=${encodeURIComponent('Quiz report: ' + (t.cfg.title || 'Music quiz') + ' — ' + t.name)}&body=${encodeURIComponent(body)}`;
-    const review = t.cfg.flags.feedback;
+    const review = t.cfg.flags.feedback || t.cfg.flags.answers;
     if (MODE === 'canvas') return canvasDone(main, t, rep, st, review);
     main.append(h('div', { class: 'take done' },
       h('section', { class: 'card stage done-hero' },
@@ -20995,7 +21001,17 @@ svg.staff .nlabel { display: none; }
           ? 'Send the code, or the results link, which opens your results on their own page. Nothing was uploaded — reopen this tab on the same device if you lose it.'
           : 'The code contains your name, score and results. Nothing was uploaded — if you lose this code, you can reopen this tab on the same device to see it again.')),
       h('section', { class: 'card' }, h('h3', { class: 'card-title' }, 'How you did'), typeBars(st, rep, t.qs), questionTable(rep, review ? t : null)),
+      doneAnswers(t, rep),
       h('div', { class: 'btn-row center' }, h('button', { type: 'button', class: 'btn btn-quiet', onclick: () => { S.take = null; saveAttempt(); go(tv()); } }, 'Take another quiz'))));
+  }
+  // When the teacher allows it: every question as the student answered it, on the staff, right and wrong
+  // marked, with the correct answer — shown once the quiz has been submitted.
+  function doneAnswers(t, rep) {
+    if (!t.cfg.flags.answers || sungQuiz(t.qs) || !rep.answers) return null;
+    rep.quiz = { cfg: t.cfg, qs: t.qs, code: t.code };
+    return h('section', { class: 'card done-answers' }, h('h3', { class: 'card-title' }, 'Your answers'),
+      h('p', { class: 'fine' }, 'Each question as you answered it: what was right, what was wrong, and the correct answer.'),
+      answersSection(rep, { showKey: true, openAnswers: true }));
   }
 
 
@@ -21034,7 +21050,8 @@ svg.staff .nlabel { display: none; }
         retakesLeft(t) > 0 ? h('p', { class: 'fine' }, 'Each attempt has its own results link. If you retake the quiz, hand in the link for the attempt you want counted.') : null,
         h('details', { class: 'fine-details' }, h('summary', null, 'Report code (a backup)'),
           h('output', { class: 'code' }, t.reportCode))),
-      h('section', { class: 'card' }, h('h3', { class: 'card-title' }, 'How you did'), typeBars(st, rep, t.qs), questionTable(rep, review ? t : null))));
+      h('section', { class: 'card' }, h('h3', { class: 'card-title' }, 'How you did'), typeBars(st, rep, t.qs), questionTable(rep, review ? t : null)),
+      doneAnswers(t, rep)));
   }
 
   // ---------- stats widgets ----------
@@ -26485,7 +26502,7 @@ svg.staff .nlabel { display: none; }
     // Corrections to the quiz are kept with it, so they can be made here only where it was built.
     applyFixes(r, local ? () => { const y = window.scrollY; main.replaceChildren(); renderResults(main); window.scrollTo(0, y); } : null);
     r.stats = MQ.reportStats(r);
-    const showKey = !!(r.quiz && (local || r.quiz.cfg.flags.feedback));
+    const showKey = !!(r.quiz && (local || r.quiz.cfg.flags.feedback || r.quiz.cfg.flags.answers));
     if (mismatch) wrap.append(h('section', { class: 'card notice is-bad' }, h('h3', null, 'The quiz in this link doesn’t match the report'), h('p', null, 'The score is shown, but the questions can’t be — the link may have been edited.')));
     if (linkError) wrap.append(h('section', { class: 'card notice is-bad' }, h('h3', null, 'The quiz part of this link is damaged'), h('p', null, linkError)));
     wrap.append(reportDetail(r, { showKey, openAnswers: true, canvas: true }));

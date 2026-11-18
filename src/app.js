@@ -1788,6 +1788,7 @@
           : GRAPH ? flag('partial', 'Partial credit', 'When each table or phrase is one question: a table earns credit for each right answer, a phrase for each measure and rule. Without it, only a perfect one counts.')
           : flag('partial', 'Partial credit', 'Chords and scales earn credit for each correct note.'),
         STUDENT || SING ? null : flag('feedback', 'Let students check answers', 'Students can check each question and see the right answer. Best for practice.'),
+        STUDENT || SING ? null : flag('answers', 'Show answers on the staff after submitting', 'When students finish, they see every question again as they answered it — right and wrong marked on the staff, with the correct answer — and their results link shows the same. Off: they see only their score.'),
         ANALYSIS || DICTATION || GRAPH || TERMS || SING ? null : flag('labels', 'Show note names while dragging', STUDENT ? 'The note’s name appears as you move it.' : 'Practice mode: the note’s name appears as students move it.'),
         DICTATION || TERMS || SING ? null : ANALYSIS ? flag('enharmonic', 'Accept enharmonic spellings', 'Counts a G♭7 chord symbol as correct when the answer is F♯7.')
           : GRAPH ? flag('enharmonic', 'Accept enharmonic spellings', 'Counts A♯mi as correct when the answer is B♭mi. Tritone substitutes always take either spelling (C♭7 or B7).')
@@ -3070,7 +3071,7 @@
     const teacher = t.cfg.teacher || 'your teacher';
     const body = `Hi ${t.cfg.teacher || ''},\n\nHere is my report code for "${t.cfg.title}":\n\n${t.reportCode}\n\n${t.name}`;
     const mail = `mailto:?subject=${encodeURIComponent('Quiz report: ' + (t.cfg.title || 'Music quiz') + ' — ' + t.name)}&body=${encodeURIComponent(body)}`;
-    const review = t.cfg.flags.feedback;
+    const review = t.cfg.flags.feedback || t.cfg.flags.answers;
     if (MODE === 'canvas') return canvasDone(main, t, rep, st, review);
     main.append(h('div', { class: 'take done' },
       h('section', { class: 'card stage done-hero' },
@@ -3090,7 +3091,17 @@
           ? 'Send the code, or the results link, which opens your results on their own page. Nothing was uploaded — reopen this tab on the same device if you lose it.'
           : 'The code contains your name, score and results. Nothing was uploaded — if you lose this code, you can reopen this tab on the same device to see it again.')),
       h('section', { class: 'card' }, h('h3', { class: 'card-title' }, 'How you did'), typeBars(st, rep, t.qs), questionTable(rep, review ? t : null)),
+      doneAnswers(t, rep),
       h('div', { class: 'btn-row center' }, h('button', { type: 'button', class: 'btn btn-quiet', onclick: () => { S.take = null; saveAttempt(); go(tv()); } }, 'Take another quiz'))));
+  }
+  // When the teacher allows it: every question as the student answered it, on the staff, right and wrong
+  // marked, with the correct answer — shown once the quiz has been submitted.
+  function doneAnswers(t, rep) {
+    if (!t.cfg.flags.answers || sungQuiz(t.qs) || !rep.answers) return null;
+    rep.quiz = { cfg: t.cfg, qs: t.qs, code: t.code };
+    return h('section', { class: 'card done-answers' }, h('h3', { class: 'card-title' }, 'Your answers'),
+      h('p', { class: 'fine' }, 'Each question as you answered it: what was right, what was wrong, and the correct answer.'),
+      answersSection(rep, { showKey: true, openAnswers: true }));
   }
 
 
@@ -3129,7 +3140,8 @@
         retakesLeft(t) > 0 ? h('p', { class: 'fine' }, 'Each attempt has its own results link. If you retake the quiz, hand in the link for the attempt you want counted.') : null,
         h('details', { class: 'fine-details' }, h('summary', null, 'Report code (a backup)'),
           h('output', { class: 'code' }, t.reportCode))),
-      h('section', { class: 'card' }, h('h3', { class: 'card-title' }, 'How you did'), typeBars(st, rep, t.qs), questionTable(rep, review ? t : null))));
+      h('section', { class: 'card' }, h('h3', { class: 'card-title' }, 'How you did'), typeBars(st, rep, t.qs), questionTable(rep, review ? t : null)),
+      doneAnswers(t, rep)));
   }
 
   // ---------- stats widgets ----------
@@ -8580,7 +8592,7 @@
     // Corrections to the quiz are kept with it, so they can be made here only where it was built.
     applyFixes(r, local ? () => { const y = window.scrollY; main.replaceChildren(); renderResults(main); window.scrollTo(0, y); } : null);
     r.stats = MQ.reportStats(r);
-    const showKey = !!(r.quiz && (local || r.quiz.cfg.flags.feedback));
+    const showKey = !!(r.quiz && (local || r.quiz.cfg.flags.feedback || r.quiz.cfg.flags.answers));
     if (mismatch) wrap.append(h('section', { class: 'card notice is-bad' }, h('h3', null, 'The quiz in this link doesn’t match the report'), h('p', null, 'The score is shown, but the questions can’t be — the link may have been edited.')));
     if (linkError) wrap.append(h('section', { class: 'card notice is-bad' }, h('h3', null, 'The quiz part of this link is damaged'), h('p', null, linkError)));
     wrap.append(reportDetail(r, { showKey, openAnswers: true, canvas: true }));

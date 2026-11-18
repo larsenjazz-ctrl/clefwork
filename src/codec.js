@@ -660,7 +660,9 @@
     const ivAsk = (cfg.counts && cfg.counts.interval) > 0 && (cfg.intervalAsk === 2 || cfg.intervalAsk === 3) ? cfg.intervalAsk : 0;
     // How many of the quiz's questions each student gets (0: all of them) — the last block, behind a flag.
     const pick = Math.max(0, Math.min(127, cfg.pick | 0));
-    if (regions.length || an.img || limit != null || rhythm || melody || degrees || graph || terms || sing || block || cad || nht || chor || ivAsk || pick) {
+    // Whether students see their answers on the staff once they have submitted — after the draw, behind a flag.
+    const show = cfg.flags && cfg.flags.answers ? 1 : 0;
+    if (regions.length || an.img || limit != null || rhythm || melody || degrees || graph || terms || sing || block || cad || nht || chor || ivAsk || pick || show) {
       const q10 = (v) => Math.max(0, Math.min(1023, Math.round(v * 1023)));
       // Extension 16: Clefwork Harmony with non-harmonic tones — the cadence block as extension 15 writes it
       // (possibly empty), then the non-harmonic tone block.
@@ -771,20 +773,22 @@
       const keys = anScores.some((sc) => sc.keys && sc.keys.length);
       const opens = anScores.some((sc) => sc.open && sc.open.show > 0);
       const extras = keys || opens || anRegs.some((g) => g.link || g.ask === 'nht' || g.ask === 'pivot');
-      if (extras || ivAsk || pick) {
+      if (extras || ivAsk || pick || show) {
         if (((ext >= 4 && ext <= 8) || ext === 11 || ext === 13) && !tiesWritten) w.u(0, 1);
         w.u(extras ? 1 : 0, 1);
       }
       if (extras) {
         writeAnalysisExtras(w, an, anRegs);
         if (keys) writeKeyChanges(w, an, anScores);
-        else if (opens || ivAsk || pick) w.u(0, 1);
+        else if (opens || ivAsk || pick || show) w.u(0, 1);
         if (opens) writeOpenKeys(w, anScores);
-        else if (ivAsk || pick) w.u(0, 1);
+        else if (ivAsk || pick || show) w.u(0, 1);
       }
       if (ivAsk) w.u(1, 1).u(ivAsk, 2);
-      else if (pick) w.u(0, 1);
+      else if (pick || show) w.u(0, 1);
       if (pick) w.u(1, 1).u(pick, 7);
+      else if (show) w.u(0, 1);
+      if (show) w.u(1, 1);
     }
     return pack(KIND_QUIZ, w.b);
   }
@@ -1046,6 +1050,7 @@
           }
           if (r.b.length > r.p && r.u(1)) cfg.intervalAsk = r.u(2) || 1;
           if (r.b.length > r.p && r.u(1)) cfg.pick = r.u(7);
+          if (r.b.length > r.p && r.u(1)) cfg.flags.answers = true;
         }
         const sum = (b) => MQ.TECHNIQUES.reduce((n, t) => n + ((b.tech && b.tech[t.id]) || 0), 0);
         cfg.counts.voicing = sum(cfg.vc);

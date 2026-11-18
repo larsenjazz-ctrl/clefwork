@@ -254,6 +254,10 @@ Each corrected report shows "Re-graded with your corrections" with its old and n
 
 `node tests/quiz-fixes.js` checks that a corrected answer re-marks the answer a report carries, how dropped and credited questions are scored, and that questions made from the teacher's entries can be found and made again in line with the quiz students took.
 
+### Answers after submitting
+
+The quiz rules have **Show answers on the staff after submitting**, off by default, in every tool but Sight Singing. Off, a student who finishes sees the score and which questions were right. On, the finished page also shows every question as they answered it — right and wrong notes marked on the staff, with the correct answer — and their results link shows the same to anyone who opens it. (Let students check answers is the other switch: checking question by question while the quiz is being taken.) The setting is the last bit of the quiz code; codes without it mean off.
+
 ### A draw of the questions
 
 In every tool but Clefwork Analysis (whose boxes are one score) the quiz rules have **Questions each student gets**. Left empty, everyone gets every question. Set to a number, the quiz becomes a bank: when a student starts, Clefwork draws that many of its questions at random for them, in the quiz's order, and keeps the draw if they reload. The report code records which questions they had, so grading, the answer key and corrections line up with their draw (corrections are kept by the whole quiz's numbering). A retake draws again. Sight Singing keeps its own setting for the melodies, and the Non-Harmonic Tones tab its own for its examples; a quiz-wide draw applies on top of those. The setting travels at the end of the quiz code; codes without it mean all the questions.
