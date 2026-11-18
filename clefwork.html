@@ -3532,7 +3532,9 @@ input.sg-range { flex: 1; min-width: 0; accent-color: var(--accent); height: 28p
     return { notes: onStaff(notes, staff === 'bass' ? 1 : 0), staff };
   }
 
-  // 2. Chorale — root, 5, 3, top; extensions replace the 5 and the top note.
+  // 2. Chorale — root, 5, 3, top; extensions replace the 5 and the top note. Always a grand staff with
+  // two notes in each clef: the root and 5th in the bass clef (on ledger lines when the 5th is above
+  // middle C), the 3rd and top note in the treble.
   function voiceChorale(ch) {
     const has = (d) => ch.has.includes(d);
     const mid = has(13) ? 13 : has(11) ? 11 : 5;                 // 11 or 13 takes the 5's place
@@ -3547,7 +3549,7 @@ input.sg-range { flex: 1; min-width: 0; accent-color: var(--accent); height: 28p
     if (midi(voices[2]) > M('A5')) voices = build(D('D3'));
     const fifth = voices[0], upper = voices.slice(1);
     return {
-      notes: [Object.assign({}, rootNote, { st: 1 }), Object.assign({}, fifth, { st: dia(fifth) < 28 ? 1 : 0 })].concat(onStaff(upper, 0)),
+      notes: [Object.assign({}, rootNote, { st: 1 }), Object.assign({}, fifth, { st: 1 })].concat(onStaff(upper, 0)),
       staff: 'grand',
       shape: `root, ${degName(mid)}, 3rd, ${degName(top, true)} from the bottom`,
     };
