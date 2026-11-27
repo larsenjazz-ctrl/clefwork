@@ -269,6 +269,26 @@ input.pg-in.is-wrong { border-color: var(--bad); background: var(--bad-soft); }
 .dr-texts textarea.dr-in { font: 16px/1.45 var(--f-body, inherit); resize: vertical; }
 .dr-in.is-right { border-color: var(--good); background: var(--good-soft); }
 .dr-in.is-wrong { border-color: var(--bad); background: var(--bad-soft); }
+/* Writing a key signature: an oversized staff, and a tray of signs to drag onto it. */
+.ksw-box { margin: 6px 0 12px; padding: 8px 4px; border: 1px solid var(--line, #d8dce6); border-radius: 14px; background: var(--paper, #fff); color: var(--staff-ink, var(--ink)); }
+.ksw-staff { display: block; width: 100%; max-width: 760px; height: auto; margin: 0 auto; touch-action: none; user-select: none; -webkit-user-select: none; }
+.ksw-staff .ksw-line { stroke: currentColor; stroke-width: 1; }
+.ksw-staff .ksw-guide { stroke: var(--accent); stroke-width: 0.5; stroke-dasharray: 2 3; opacity: 0.35; }
+.ksw-staff .clef-glyph { font-family: 'Noto Music', 'Bravura Text', 'Apple Symbols', 'Segoe UI Symbol', serif; fill: currentColor; }
+.ksw-staff .ksw-acc { cursor: grab; }
+.ksw-staff .ksw-acc.is-preview { opacity: 0.55; color: var(--accent); }
+.ksw-staff .ksw-acc.is-right { color: var(--good); }
+.ksw-staff .ksw-acc.is-wrong { color: var(--bad); }
+.ksw-staff .ksw-name { font: 700 9px var(--f-body); fill: var(--muted, #667); }
+.ksw-staff .ksw-tip rect { fill: var(--accent); }
+.ksw-staff .ksw-tip text { font: 700 10px var(--f-body); fill: #fff; }
+.ksw-box.is-answer { padding-top: 6px; }
+.ksw-box.is-answer .mini-label { display: block; margin: 0 8px; }
+.ksw-tray { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.ksw-tray-btn { display: inline-flex; align-items: center; gap: 8px; padding: 6px 16px 6px 10px; border: 1.5px solid var(--line, #d8dce6); border-radius: 12px; background: var(--paper, #fff); color: var(--ink); font: 700 15px var(--f-body); cursor: grab; touch-action: none; }
+.ksw-tray-btn[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-soft, #e8ecff); }
+.ksw-sign { font: 32px/1 'Noto Music', serif; }
+.ksw-ghost { position: fixed; z-index: 1000; pointer-events: none; transform: translate(-50%, -60%); font: 44px/1 'Noto Music', serif; color: var(--accent); }
 .dr-meter { display: inline-flex; flex-direction: column; align-items: center; font: 800 40px/0.95 'Bricolage Grotesque', var(--f-mono); margin: 4px 0 12px 8px; }
 .qt-panel .fld.is-off { opacity: 0.45; pointer-events: none; }
 .staff .clabel.is-small { font-size: 10.5px; fill: var(--muted); }
@@ -2270,6 +2290,7 @@ input.sg-range { flex: 1; min-width: 0; accent-color: var(--accent); height: 28p
       return got / q.symbolAnswers.length;
     }
     if (q.symbolAnswer) return MQ.gradeChordSymbol(q, response, cfg);
+    if (q.ksw) return MQ.gradeKsw(q, response);
     if (q.texts) return MQ.gradeTexts(q, response);
     if (q.choices) return response === q.answer ? 1 : 0;
     if (q.dropdowns) {
@@ -2304,6 +2325,7 @@ input.sg-range { flex: 1; min-width: 0; accent-color: var(--accent); height: 28p
         : q.type === 'progression' ? !!response && ['r', 's'].some((k) => (response[k] || []).some((x) => x && x.trim()))
       : q.symbolAnswers ? !!response && response.some((v) => String(v || '').trim())
         : q.symbolAnswer ? !!String(response || '').trim()
+        : q.ksw ? MQ.hasKsw(q, response)
         : q.texts ? MQ.hasTexts(q, response)
         : q.dropdowns ? !!response && response.some((v) => v != null)
         : q.choices ? response != null : !!response && response.some((col) => col && col.some(Boolean));
@@ -2325,6 +2347,7 @@ input.sg-range { flex: 1; min-width: 0; accent-color: var(--accent); height: 28p
     if (q.symbolAnswers) return q.symbolAnswers.map((a) => a.shown).join('  ');
     if (q.symbolAnswer) return q.symbolAnswer.shown;
     if (q.type === 'ivname') return q.ivName.charAt(0).toUpperCase() + q.ivName.slice(1);
+    if (q.ksw) return MQ.describeKsw(q);
     if (q.texts) return MQ.describeTexts(q);
     if (q.dropdowns) return q.dropdowns.map((d) => d.options[d.answer]).join(' · ');
     if (q.choices) return q.choices[q.answer];
@@ -11996,6 +12019,50 @@ input.sg-range { flex: 1; min-width: 0; accent-color: var(--accent); height: 28p
     },
   });
 
+  // ===== Clefwork: writing key signatures =====
+  // Students drag sharps and flats onto a large blank staff. Where each one goes in a key signature:
+  // its line or space (a diatonic number, as staff.js has them), treble clef; bass is two octaves
+  // lower, alto one. q.ksw: {fifths, clef, names (show the note name while dragging), exact (the
+  // printed line or space, not just the right letter)}. The answer: KSW_SLOTS places left to right,
+  // each null or [diatonic number, alteration (1 sharp, −1 flat)].
+  const KSW_SHARPS = [38, 35, 39, 36, 33, 37, 34], KSW_FLATS = [34, 37, 33, 36, 32, 35, 31];
+  const KSW_SLOTS = 7;
+  const kswShift = (clef) => (clef === 'bass' ? -14 : clef === 'alto' ? -7 : 0);
+  const kswWant = (K) => (K.fifths > 0 ? KSW_SHARPS.slice(0, K.fifths) : KSW_FLATS.slice(0, -K.fifths)).map((d) => [d + kswShift(K.clef), K.fifths > 0 ? 1 : -1]);
+  // The accidentals placed, in order, and how many of them are right.
+  function kswCompare(q, resp) {
+    const K = q.ksw, want = kswWant(K);
+    const got = (resp || []).filter(Boolean);
+    const same = (a, b) => !!a && !!b && a[1] === b[1] && (K.exact ? a[0] === b[0] : (((a[0] - b[0]) % 7) + 7) % 7 === 0);
+    const marks = got.map((a, i) => same(a, want[i]));
+    return { want, got, marks, right: marks.filter(Boolean).length, need: Math.max(want.length, got.length) };
+  }
+  const gradeKsw = (q, resp) => { const c = kswCompare(q, resp); return c.need ? c.right / c.need : 0; };
+  const hasKsw = (q, resp) => !!resp && resp.some(Boolean);
+  const kswNames = (q) => kswWant(q.ksw).map(([d, a]) => nm(P(((d % 7) + 7) % 7, a))).join(' ');
+  const describeKsw = (q) => `${Math.abs(q.ksw.fifths)} ${q.ksw.fifths > 0 ? 'sharp' : 'flat'}${Math.abs(q.ksw.fifths) > 1 ? 's' : ''}: ${kswNames(q)}`;
+  const KSW_CLEFS = ['treble', 'bass', 'alto'];
+  kind({
+    id: 'drksw', group: 'keysig', label: 'Write Key Signatures', blurb: 'Drag sharps and flats onto a large blank staff to write the key signature of a named key, in order, on the right lines and spaces.',
+    opts: [{ key: 'mode', label: 'Keys', kind: 'seg', items: ['Major', 'Minor', 'Both'], def: 0 }, KEYMAX(7),
+      { key: 'clef', label: 'Clefs', kind: 'chips', items: ['Treble', 'Bass', 'Alto'], def: 0b011 },
+      { key: 'names', label: 'While dragging', kind: 'seg', items: ['Show the note name of each line and space', 'Don’t show note names'], def: 0 },
+      { key: 'exact', label: 'Each sharp or flat must be on', kind: 'seg', items: ['The line or space where it is printed', 'Any line or space with the right letter'], def: 0 }],
+    gen(rng, s, i) {
+      const mode = s.mode === 0 ? 'major' : s.mode === 1 ? 'minor' : rng() < 0.5 ? 'major' : 'minor';
+      const max = Math.max(1, s.max);
+      let f = 0;
+      while (!f) f = fifthsFor(rng, max);
+      const clefs = bits(s.clef, KSW_CLEFS), clef = pick(rng, clefs.length ? clefs : ['treble']);
+      return base('drksw', i, {
+        clef, text: `Write the key signature for ${keyText(mode, f)}.`,
+        hint: 'Drag sharps or flats onto the staff, left to right, in the order they are written. Drag one off the staff to remove it.',
+        columns: [{ given: [], cap: 0 }], noStaff: false, ksw: { fifths: f, clef, names: s.names === 0, exact: s.exact === 0 },
+        tags: ['k:' + mode + f],
+      });
+    },
+  });
+
   // ===== Clefwork: chords =====
   const QSET = { triad: ['maj', 'min', 'dim', 'aug', 'sus4'], seventh: ['dom7', 'maj7', 'min7', 'hdim7', 'dim7'], ext: ['dom9', 'maj9', 'min9', 'dom11', 'min11', 'dom13', 'maj13', 'min13'] };
   const Q = (id) => MQ.QUALITIES.find((x) => x.id === id);
@@ -12404,6 +12471,7 @@ input.sg-range { flex: 1; min-width: 0; accent-color: var(--accent); height: 28p
   const GROUPS = [
     { id: 'drgnotes', g: 'notes', tool: 'basic', label: 'Notes & Steps', blurb: 'The musical alphabet, half and whole steps, enharmonic names, the alto clef, counting half steps, and consonance.' },
     { id: 'drgkeys', g: 'keys', tool: 'basic', label: 'Keys & Degrees', blurb: 'Relative and parallel keys, spelling scales, solfège, scale degree notes and names, modes and their parent scales, closely related keys, and tendency tones.' },
+    { id: 'drgkeysig', g: 'keysig', tool: 'basic', label: 'Write Key Signatures', blurb: 'Students drag sharps and flats onto a large blank staff to write a key signature.' },
     { id: 'drgchords', g: 'chords', tool: 'basic', label: 'Chord Spelling', blurb: 'Spell chords in letter names, and name the chord tones and tensions over a chord symbol.' },
     { id: 'drgmeter', g: 'meter', tool: 'basic', label: 'Meter & Form', blurb: 'Time signatures, tempo math, musical forms, and road maps with repeats, endings, D.C. and D.S.' },
     { id: 'drgwrite', g: 'write', tool: 'basic', label: 'Written Answers', blurb: 'Your own questions, answered in words: graded from the answers you give, or read by you.' },
@@ -12481,7 +12549,7 @@ input.sg-range { flex: 1; min-width: 0; accent-color: var(--accent); height: 28p
   Object.assign(MQ, {
     DRILL_KINDS: KINDS, DRILL_GROUPS: GROUPS, DRILL_COUNTS, DRILLS_MAX: MAX, DRILL_WRITE_MAX: WRITE_MAX,
     drillSettings, drillDiff, drillCount, drillGroupCount: groupCount, drillsOf, drillQuestions, drillLabel, drillKind: kindOf, drillKindCount: countOf,
-    gradeTexts, hasTexts, describeTexts, textRight, teacherReads, readNotes, readNums,
+    gradeTexts, hasTexts, describeTexts, gradeKsw, hasKsw, describeKsw, kswCompare, kswWant, KSW_SLOTS, textRight, teacherReads, readNotes, readNums,
   });
 })(typeof window !== 'undefined' ? window : globalThis);
 /* Clefwork Library — one line a piece: [id, kind, measures, can be heard, has a score, version].
@@ -15278,8 +15346,17 @@ svg.staff .nlabel { display: none; }
   function writeAnswer(w, q, resp, plays) {
     if (q.type === 'cadence') { writeCadAnswer(w, q, resp); return; }
     if (q.type === 'drill') {
-      // Clefwork Drills: what the question asks with (0 a choice, 1 menus, 2 typed boxes), then the answers.
-      if (q.texts) {
+      // Clefwork Drills: what the question asks with (0 a choice, 1 menus, 2 typed boxes, 3 a key signature
+      // on the staff), then the answers. A key signature: each place, then its line or space (from 16
+      // below the treble staff's bottom line) and whether it is a sharp.
+      if (q.ksw) {
+        w.u(3, 2);
+        for (let j = 0; j < MQ.KSW_SLOTS; j++) {
+          const a = (resp || [])[j];
+          w.u(a ? 1 : 0, 1);
+          if (a) w.u(Math.max(0, Math.min(63, a[0] - 14)), 6).u(a[1] > 0 ? 1 : 0, 1);
+        }
+      } else if (q.texts) {
         w.u(2, 2).u(Math.min(31, q.texts.length), 5);
         q.texts.slice(0, 31).forEach((f, i) => w.strN(String((resp || [])[i] || '').trim(), 255, 8));
       } else if (q.dropdowns) {
@@ -15449,6 +15526,11 @@ svg.staff .nlabel { display: none; }
     if (type === 'cadence') return readCadAnswer(r);
     if (type === 'drill') {
       const how = r.u(2);
+      if (how === 3) {
+        const out = [];
+        for (let j = 0; j < MQ.KSW_SLOTS; j++) out.push(r.u(1) ? [r.u(6) + 14, r.u(1) ? 1 : -1] : null);
+        return { kind: 'ksw', value: out };
+      }
       if (how === 0) { const v = r.u(5); return { kind: 'choice', value: v ? v - 1 : null }; }
       const n = r.u(5), out = [];
       for (let j = 0; j < n; j++) { if (how === 2) out.push(r.strN(8)); else { const v = r.u(5); out.push(v ? v - 1 : null); } }
@@ -19478,7 +19560,7 @@ svg.staff .nlabel { display: none; }
     const cols = staff.pitches();
     const all = [].concat(...cols);
     if (q.type === 'place') return [[all], 1.5];
-    if (q.type === 'drill') return [q.columns.map((c) => c.given).filter((c) => c.length), 0.9];
+    if (q.type === 'drill') return q.ksw ? 'There is nothing to play for this question.' : [q.columns.map((c) => c.given).filter((c) => c.length), 0.9];
     if (q.type === 'interval') return [cols.concat([all]), 1];         // printed note, student's note, both
     if (q.type === 'scale') return [cols, 0.6];                        // note by note
     if ((q.type === 'voicing' || q.type === 'vprog') && q.columns.length > 1) {
@@ -19618,6 +19700,9 @@ svg.staff .nlabel { display: none; }
     } else if (frac > 0 && q.type === 'nht') {
       const need = q.nh.spots.length;
       lead = `Partly right — ${Math.round(frac * need)} of ${need} notes.`;
+    } else if (frac > 0 && q.ksw) {
+      const c = MQ.kswCompare(q, response);
+      lead = `Partly right — ${c.right} of ${c.want.length} ${q.ksw.fifths > 0 ? 'sharp' : 'flat'}${c.want.length > 1 ? 's' : ''}${c.got.length > c.want.length ? `, with ${c.got.length - c.want.length} too many` : ''}.`;
     } else if (frac > 0 && q.type === 'drill') {
       const need = (q.texts || q.dropdowns).length;
       lead = `Partly right — ${Math.round(frac * need)} of ${need} answers.`;
@@ -20349,7 +20434,154 @@ svg.staff .nlabel { display: none; }
     if ((o.reveal || o.keyMode) && T.piece && MQ.libraryName(T.piece)) wrap.append(h('p', { class: 'tm-why' }, 'The melody: ', h('i', null, MQ.libraryName(T.piece)), '.'));
     return wrap;
   }
+  // ---------- Clefwork Drills: writing a key signature ----------
+  // A large blank staff; students drag sharps and flats from the tray onto it (or choose one and tap the
+  // staff). Each lands in the nearest of seven places, left to right, on the nearest line or space. One
+  // dragged off the staff is removed. q.ksw.names shows the letter of the line or space under it.
+  function kswCard(q, cfg, o) {
+    const K = q.ksw, N = MQ.KSW_SLOTS;
+    const bottom = MQ.CLEFS[K.clef].bottom, BY = 76, X0 = 64, DX = 20, W = 64 + N * DX + 40, H = K.names && !o.locked && !o.keyMode ? 116 : 100;
+    const yOf = (d) => BY - (d - bottom) * 6;
+    const xOf = (i) => X0 + i * DX;
+    const letter = (d) => 'CDEFGAB'[((d % 7) + 7) % 7];
+    const slots = Array.from({ length: N }, (_, i) => { const a = (o.response || [])[i]; return a ? [a[0], a[1]] : null; });
+    const cmp = o.reveal || o.keyMode ? MQ.kswCompare(q, slots) : null;
+    const t = h('div', { class: 'qcard ksw-card' + (o.compact ? ' is-compact' : '') });
+    t.append(h('div', { class: 'q-eyebrow' }, MQ.drillLabel(q), h('span', { class: 'q-clef' }, MQ.clefLabel(K.clef))));
+    t.append(h(o.compact ? 'h3' : 'h2', { class: 'q-text' }, accText(q.text)));
+    if (q.hint && !o.locked) t.append(h('p', { class: 'q-hint' }, q.hint));
+    const box = h('div', { class: 'ksw-box' });
+    t.append(box);
+    let tool = null, drag = null;
+    const svgOf = (list, preview, marks) => {
+      let g = '';
+      for (let k = 0; k < 5; k++) g += `<line x1="8" x2="${W - 8}" y1="${BY - k * 12}" y2="${BY - k * 12}" class="ksw-line"/>`;
+      g += `<line x1="8" x2="8" y1="${BY - 48}" y2="${BY}" class="ksw-line"/>`;
+      g += `<g class="clef">${MQ.clefSVG(K.clef, BY, 12)}</g>`;
+      // Faint guides for the seven places.
+      if (!o.locked) for (let i = 0; i < N; i++) g += `<line x1="${xOf(i)}" x2="${xOf(i)}" y1="${BY - 60}" y2="${BY + 12}" class="ksw-guide"/>`;
+      list.forEach((a, i) => {
+        if (!a) return;
+        const cls = marks ? (marks[i] ? ' is-right' : ' is-wrong') : '';
+        g += `<g class="ksw-acc${cls}" data-i="${i}" transform="translate(${xOf(i)} ${yOf(a[0])})">${ledgers(a[0], xOf(i), true)}${MQ.ACC_SVG[a[1]]}<rect x="-8" y="-18" width="16" height="30" fill="transparent"/></g>`;
+        if (K.names && !o.locked) g += `<text class="ksw-name" x="${xOf(i)}" y="${BY + 26}" text-anchor="middle">${letter(a[0])}</text>`;
+      });
+      if (preview) {
+        g += `<g class="ksw-acc is-preview" transform="translate(${xOf(preview.i)} ${yOf(preview.d)})">${ledgers(preview.d, xOf(preview.i), true)}${MQ.ACC_SVG[preview.alt]}</g>`;
+        if (K.names) g += `<g class="ksw-tip" transform="translate(${xOf(preview.i) + 22} ${yOf(preview.d)})"><rect x="-11" y="-8" width="22" height="15" rx="4"/><text y="3.5" text-anchor="middle">${letter(preview.d)}</text></g>`;
+      }
+      return g;
+    };
+    // Short ledger lines for a sign above or below the staff, centred on it.
+    const ledgers = (d, x, rel) => {
+      let g = '';
+      const pos = d - bottom;
+      for (let p = -2; p >= pos; p -= 2) g += `<line x1="-9" x2="9" y1="${(pos - p) * 6}" y2="${(pos - p) * 6}" class="ksw-line"/>`;
+      for (let p = 10; p <= pos; p += 2) g += `<line x1="-9" x2="9" y1="${(pos - p) * 6}" y2="${(pos - p) * 6}" class="ksw-line"/>`;
+      return g;
+    };
+    const svg = svgEl(`<svg class="ksw-staff" viewBox="0 0 ${W} ${H}" role="img" aria-label="${MQ.clefLabel(K.clef)} staff for the key signature"></svg>`);
+    box.append(svg);
+    const draw = (preview) => { svg.innerHTML = svgOf(slots, preview, cmp && !o.keyMode ? slotMarks() : null); };
+    // Right or wrong for each place, in the order the accidentals were written.
+    const slotMarks = () => { let k = 0; return slots.map((a) => (a ? cmp.marks[k++] : null)); };
+    draw();
+    const said = h('p', { class: 'sr-only', 'aria-live': 'polite' });
+    t.append(said);
+    const emit = () => {
+      said.textContent = slots.filter(Boolean).map((a) => letter(a[0]) + (a[1] > 0 ? ' sharp' : ' flat')).join(', ') || 'No sharps or flats yet.';
+      if (o.onResponse) o.onResponse(slots.map((a) => (a ? a.slice() : null)));
+    };
+    // Where a pointer is, in staff units: the nearest place and line or space, or null off the staff.
+    const at = (e) => {
+      const pt = svg.createSVGPoint();
+      pt.x = e.clientX; pt.y = e.clientY;
+      const m = svg.getScreenCTM();
+      if (!m) return null;
+      const p = pt.matrixTransform(m.inverse());
+      if (p.x < X0 - DX || p.x > W || p.y < BY - 72 || p.y > BY + 26) return null;
+      const i = Math.max(0, Math.min(N - 1, Math.round((p.x - X0) / DX)));
+      const d = Math.max(bottom - 3, Math.min(bottom + 11, bottom + Math.round((BY - p.y) / 6)));
+      return { i, d };
+    };
+    if (!o.locked && !o.keyMode) {
+      const move = (e) => {
+        if (!drag) return;
+        drag.ghost.style.left = e.clientX + 'px';
+        drag.ghost.style.top = e.clientY + 'px';
+        const a = at(e);
+        drag.where = a;
+        draw(a ? { i: a.i, d: a.d, alt: drag.alt } : null);
+      };
+      const up = (e) => {
+        if (!drag) return;
+        window.removeEventListener('pointermove', move);
+        window.removeEventListener('pointerup', up);
+        window.removeEventListener('pointercancel', up);
+        drag.ghost.remove();
+        const a = at(e);
+        if (a) slots[a.i] = [a.d, drag.alt];
+        drag = null;
+        draw();
+        emit();
+      };
+      const start = (e, alt) => {
+        e.preventDefault();
+        const ghost = h('div', { class: 'ksw-ghost', 'aria-hidden': 'true' }, alt > 0 ? '♯' : '♭');
+        ghost.style.left = e.clientX + 'px';
+        ghost.style.top = e.clientY + 'px';
+        document.body.append(ghost);
+        drag = { alt, ghost, where: null };
+        window.addEventListener('pointermove', move);
+        window.addEventListener('pointerup', up);
+        window.addEventListener('pointercancel', up);
+      };
+      // Pick up an accidental already on the staff.
+      svg.addEventListener('pointerdown', (e) => {
+        const g = e.target.closest && e.target.closest('.ksw-acc[data-i]');
+        if (g) {
+          const i = +g.dataset.i, a = slots[i];
+          slots[i] = null;
+          start(e, a[1]);
+          draw();
+          return;
+        }
+        // With a sign chosen in the tray, a tap puts it where the tap was.
+        if (tool) {
+          const a = at(e);
+          if (a) { slots[a.i] = [a.d, tool]; draw(); emit(); }
+        }
+      });
+      svg.addEventListener('pointermove', (e) => { if (!drag && tool && e.pointerType === 'mouse') { const a = at(e); draw(a ? { i: a.i, d: a.d, alt: tool } : null); } });
+      svg.addEventListener('pointerleave', () => { if (!drag) draw(); });
+      const trayBtn = (alt, label) => {
+        const b = h('button', { type: 'button', class: 'ksw-tray-btn', 'aria-pressed': 'false', title: `Drag a ${label} onto the staff, or choose it and tap the staff` },
+          h('span', { class: 'ksw-sign', 'aria-hidden': 'true' }, alt > 0 ? '♯' : '♭'), h('span', null, label));
+        b.addEventListener('pointerdown', (e) => { if (e.button > 0) return; start(e, alt); });
+        b.addEventListener('click', () => {
+          tool = tool === alt ? null : alt;
+          tray.querySelectorAll('.ksw-tray-btn').forEach((x) => x.setAttribute('aria-pressed', 'false'));
+          if (tool) b.setAttribute('aria-pressed', 'true');
+        });
+        return b;
+      };
+      const tray = h('div', { class: 'ksw-tray' }, trayBtn(1, 'Sharp'), trayBtn(-1, 'Flat'),
+        h('button', { type: 'button', class: 'tool', onclick: () => { const k = slots.map((a, i) => (a ? i : -1)).filter((i) => i >= 0).pop(); if (k != null) { slots[k] = null; draw(); emit(); } } }, 'Undo last'),
+        h('button', { type: 'button', class: 'tool', onclick: () => { slots.fill(null); draw(); emit(); } }, 'Clear'));
+      t.append(tray);
+    }
+    if (o.keyMode) t.append(h('p', { class: 'result is-key' }, h('strong', null, 'Answer: '), accText(MQ.describeAnswer(q, cfg))));
+    else if (o.reveal) t.append(resultLine(q, cfg, slots));
+    if ((o.reveal || o.keyMode) && cmp) {
+      // The key signature as it should be, on a staff of its own.
+      const ans = svgEl(`<svg class="ksw-staff is-answer" viewBox="0 0 ${W} ${H}" role="img" aria-label="The key signature"></svg>`);
+      ans.innerHTML = svgOf(cmp.want.concat(Array(N - cmp.want.length).fill(null)), null, null);
+      t.append(h('div', { class: 'ksw-box is-answer' }, h('span', { class: 'mini-label' }, 'The key signature'), ans));
+    }
+    return t;
+  }
   function questionCard(q, cfg, o) {
+    if (q.ksw) return kswCard(q, cfg, o);
     if (q.type === 'block') return blockCard(q, cfg, o);
     if (q.type === 'chorale') return choraleCard(q, cfg, o);
     if (q.type === 'cadence') return cadenceCard(q, cfg, o);

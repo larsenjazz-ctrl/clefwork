@@ -258,6 +258,26 @@ input.pg-in.is-wrong { border-color: var(--bad); background: var(--bad-soft); }
 .dr-texts textarea.dr-in { font: 16px/1.45 var(--f-body, inherit); resize: vertical; }
 .dr-in.is-right { border-color: var(--good); background: var(--good-soft); }
 .dr-in.is-wrong { border-color: var(--bad); background: var(--bad-soft); }
+/* Writing a key signature: an oversized staff, and a tray of signs to drag onto it. */
+.ksw-box { margin: 6px 0 12px; padding: 8px 4px; border: 1px solid var(--line, #d8dce6); border-radius: 14px; background: var(--paper, #fff); color: var(--staff-ink, var(--ink)); }
+.ksw-staff { display: block; width: 100%; max-width: 760px; height: auto; margin: 0 auto; touch-action: none; user-select: none; -webkit-user-select: none; }
+.ksw-staff .ksw-line { stroke: currentColor; stroke-width: 1; }
+.ksw-staff .ksw-guide { stroke: var(--accent); stroke-width: 0.5; stroke-dasharray: 2 3; opacity: 0.35; }
+.ksw-staff .clef-glyph { font-family: 'Noto Music', 'Bravura Text', 'Apple Symbols', 'Segoe UI Symbol', serif; fill: currentColor; }
+.ksw-staff .ksw-acc { cursor: grab; }
+.ksw-staff .ksw-acc.is-preview { opacity: 0.55; color: var(--accent); }
+.ksw-staff .ksw-acc.is-right { color: var(--good); }
+.ksw-staff .ksw-acc.is-wrong { color: var(--bad); }
+.ksw-staff .ksw-name { font: 700 9px var(--f-body); fill: var(--muted, #667); }
+.ksw-staff .ksw-tip rect { fill: var(--accent); }
+.ksw-staff .ksw-tip text { font: 700 10px var(--f-body); fill: #fff; }
+.ksw-box.is-answer { padding-top: 6px; }
+.ksw-box.is-answer .mini-label { display: block; margin: 0 8px; }
+.ksw-tray { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.ksw-tray-btn { display: inline-flex; align-items: center; gap: 8px; padding: 6px 16px 6px 10px; border: 1.5px solid var(--line, #d8dce6); border-radius: 12px; background: var(--paper, #fff); color: var(--ink); font: 700 15px var(--f-body); cursor: grab; touch-action: none; }
+.ksw-tray-btn[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-soft, #e8ecff); }
+.ksw-sign { font: 32px/1 'Noto Music', serif; }
+.ksw-ghost { position: fixed; z-index: 1000; pointer-events: none; transform: translate(-50%, -60%); font: 44px/1 'Noto Music', serif; color: var(--accent); }
 .dr-meter { display: inline-flex; flex-direction: column; align-items: center; font: 800 40px/0.95 'Bricolage Grotesque', var(--f-mono); margin: 4px 0 12px 8px; }
 .qt-panel .fld.is-off { opacity: 0.45; pointer-events: none; }
 .staff .clabel.is-small { font-size: 10.5px; fill: var(--muted); }

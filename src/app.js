@@ -502,7 +502,7 @@
     const cols = staff.pitches();
     const all = [].concat(...cols);
     if (q.type === 'place') return [[all], 1.5];
-    if (q.type === 'drill') return [q.columns.map((c) => c.given).filter((c) => c.length), 0.9];
+    if (q.type === 'drill') return q.ksw ? 'There is nothing to play for this question.' : [q.columns.map((c) => c.given).filter((c) => c.length), 0.9];
     if (q.type === 'interval') return [cols.concat([all]), 1];         // printed note, student's note, both
     if (q.type === 'scale') return [cols, 0.6];                        // note by note
     if ((q.type === 'voicing' || q.type === 'vprog') && q.columns.length > 1) {
@@ -642,6 +642,9 @@
     } else if (frac > 0 && q.type === 'nht') {
       const need = q.nh.spots.length;
       lead = `Partly right — ${Math.round(frac * need)} of ${need} notes.`;
+    } else if (frac > 0 && q.ksw) {
+      const c = MQ.kswCompare(q, response);
+      lead = `Partly right — ${c.right} of ${c.want.length} ${q.ksw.fifths > 0 ? 'sharp' : 'flat'}${c.want.length > 1 ? 's' : ''}${c.got.length > c.want.length ? `, with ${c.got.length - c.want.length} too many` : ''}.`;
     } else if (frac > 0 && q.type === 'drill') {
       const need = (q.texts || q.dropdowns).length;
       lead = `Partly right — ${Math.round(frac * need)} of ${need} answers.`;
@@ -1373,7 +1376,154 @@
     if ((o.reveal || o.keyMode) && T.piece && MQ.libraryName(T.piece)) wrap.append(h('p', { class: 'tm-why' }, 'The melody: ', h('i', null, MQ.libraryName(T.piece)), '.'));
     return wrap;
   }
+  // ---------- Clefwork Drills: writing a key signature ----------
+  // A large blank staff; students drag sharps and flats from the tray onto it (or choose one and tap the
+  // staff). Each lands in the nearest of seven places, left to right, on the nearest line or space. One
+  // dragged off the staff is removed. q.ksw.names shows the letter of the line or space under it.
+  function kswCard(q, cfg, o) {
+    const K = q.ksw, N = MQ.KSW_SLOTS;
+    const bottom = MQ.CLEFS[K.clef].bottom, BY = 76, X0 = 64, DX = 20, W = 64 + N * DX + 40, H = K.names && !o.locked && !o.keyMode ? 116 : 100;
+    const yOf = (d) => BY - (d - bottom) * 6;
+    const xOf = (i) => X0 + i * DX;
+    const letter = (d) => 'CDEFGAB'[((d % 7) + 7) % 7];
+    const slots = Array.from({ length: N }, (_, i) => { const a = (o.response || [])[i]; return a ? [a[0], a[1]] : null; });
+    const cmp = o.reveal || o.keyMode ? MQ.kswCompare(q, slots) : null;
+    const t = h('div', { class: 'qcard ksw-card' + (o.compact ? ' is-compact' : '') });
+    t.append(h('div', { class: 'q-eyebrow' }, MQ.drillLabel(q), h('span', { class: 'q-clef' }, MQ.clefLabel(K.clef))));
+    t.append(h(o.compact ? 'h3' : 'h2', { class: 'q-text' }, accText(q.text)));
+    if (q.hint && !o.locked) t.append(h('p', { class: 'q-hint' }, q.hint));
+    const box = h('div', { class: 'ksw-box' });
+    t.append(box);
+    let tool = null, drag = null;
+    const svgOf = (list, preview, marks) => {
+      let g = '';
+      for (let k = 0; k < 5; k++) g += `<line x1="8" x2="${W - 8}" y1="${BY - k * 12}" y2="${BY - k * 12}" class="ksw-line"/>`;
+      g += `<line x1="8" x2="8" y1="${BY - 48}" y2="${BY}" class="ksw-line"/>`;
+      g += `<g class="clef">${MQ.clefSVG(K.clef, BY, 12)}</g>`;
+      // Faint guides for the seven places.
+      if (!o.locked) for (let i = 0; i < N; i++) g += `<line x1="${xOf(i)}" x2="${xOf(i)}" y1="${BY - 60}" y2="${BY + 12}" class="ksw-guide"/>`;
+      list.forEach((a, i) => {
+        if (!a) return;
+        const cls = marks ? (marks[i] ? ' is-right' : ' is-wrong') : '';
+        g += `<g class="ksw-acc${cls}" data-i="${i}" transform="translate(${xOf(i)} ${yOf(a[0])})">${ledgers(a[0], xOf(i), true)}${MQ.ACC_SVG[a[1]]}<rect x="-8" y="-18" width="16" height="30" fill="transparent"/></g>`;
+        if (K.names && !o.locked) g += `<text class="ksw-name" x="${xOf(i)}" y="${BY + 26}" text-anchor="middle">${letter(a[0])}</text>`;
+      });
+      if (preview) {
+        g += `<g class="ksw-acc is-preview" transform="translate(${xOf(preview.i)} ${yOf(preview.d)})">${ledgers(preview.d, xOf(preview.i), true)}${MQ.ACC_SVG[preview.alt]}</g>`;
+        if (K.names) g += `<g class="ksw-tip" transform="translate(${xOf(preview.i) + 22} ${yOf(preview.d)})"><rect x="-11" y="-8" width="22" height="15" rx="4"/><text y="3.5" text-anchor="middle">${letter(preview.d)}</text></g>`;
+      }
+      return g;
+    };
+    // Short ledger lines for a sign above or below the staff, centred on it.
+    const ledgers = (d, x, rel) => {
+      let g = '';
+      const pos = d - bottom;
+      for (let p = -2; p >= pos; p -= 2) g += `<line x1="-9" x2="9" y1="${(pos - p) * 6}" y2="${(pos - p) * 6}" class="ksw-line"/>`;
+      for (let p = 10; p <= pos; p += 2) g += `<line x1="-9" x2="9" y1="${(pos - p) * 6}" y2="${(pos - p) * 6}" class="ksw-line"/>`;
+      return g;
+    };
+    const svg = svgEl(`<svg class="ksw-staff" viewBox="0 0 ${W} ${H}" role="img" aria-label="${MQ.clefLabel(K.clef)} staff for the key signature"></svg>`);
+    box.append(svg);
+    const draw = (preview) => { svg.innerHTML = svgOf(slots, preview, cmp && !o.keyMode ? slotMarks() : null); };
+    // Right or wrong for each place, in the order the accidentals were written.
+    const slotMarks = () => { let k = 0; return slots.map((a) => (a ? cmp.marks[k++] : null)); };
+    draw();
+    const said = h('p', { class: 'sr-only', 'aria-live': 'polite' });
+    t.append(said);
+    const emit = () => {
+      said.textContent = slots.filter(Boolean).map((a) => letter(a[0]) + (a[1] > 0 ? ' sharp' : ' flat')).join(', ') || 'No sharps or flats yet.';
+      if (o.onResponse) o.onResponse(slots.map((a) => (a ? a.slice() : null)));
+    };
+    // Where a pointer is, in staff units: the nearest place and line or space, or null off the staff.
+    const at = (e) => {
+      const pt = svg.createSVGPoint();
+      pt.x = e.clientX; pt.y = e.clientY;
+      const m = svg.getScreenCTM();
+      if (!m) return null;
+      const p = pt.matrixTransform(m.inverse());
+      if (p.x < X0 - DX || p.x > W || p.y < BY - 72 || p.y > BY + 26) return null;
+      const i = Math.max(0, Math.min(N - 1, Math.round((p.x - X0) / DX)));
+      const d = Math.max(bottom - 3, Math.min(bottom + 11, bottom + Math.round((BY - p.y) / 6)));
+      return { i, d };
+    };
+    if (!o.locked && !o.keyMode) {
+      const move = (e) => {
+        if (!drag) return;
+        drag.ghost.style.left = e.clientX + 'px';
+        drag.ghost.style.top = e.clientY + 'px';
+        const a = at(e);
+        drag.where = a;
+        draw(a ? { i: a.i, d: a.d, alt: drag.alt } : null);
+      };
+      const up = (e) => {
+        if (!drag) return;
+        window.removeEventListener('pointermove', move);
+        window.removeEventListener('pointerup', up);
+        window.removeEventListener('pointercancel', up);
+        drag.ghost.remove();
+        const a = at(e);
+        if (a) slots[a.i] = [a.d, drag.alt];
+        drag = null;
+        draw();
+        emit();
+      };
+      const start = (e, alt) => {
+        e.preventDefault();
+        const ghost = h('div', { class: 'ksw-ghost', 'aria-hidden': 'true' }, alt > 0 ? '♯' : '♭');
+        ghost.style.left = e.clientX + 'px';
+        ghost.style.top = e.clientY + 'px';
+        document.body.append(ghost);
+        drag = { alt, ghost, where: null };
+        window.addEventListener('pointermove', move);
+        window.addEventListener('pointerup', up);
+        window.addEventListener('pointercancel', up);
+      };
+      // Pick up an accidental already on the staff.
+      svg.addEventListener('pointerdown', (e) => {
+        const g = e.target.closest && e.target.closest('.ksw-acc[data-i]');
+        if (g) {
+          const i = +g.dataset.i, a = slots[i];
+          slots[i] = null;
+          start(e, a[1]);
+          draw();
+          return;
+        }
+        // With a sign chosen in the tray, a tap puts it where the tap was.
+        if (tool) {
+          const a = at(e);
+          if (a) { slots[a.i] = [a.d, tool]; draw(); emit(); }
+        }
+      });
+      svg.addEventListener('pointermove', (e) => { if (!drag && tool && e.pointerType === 'mouse') { const a = at(e); draw(a ? { i: a.i, d: a.d, alt: tool } : null); } });
+      svg.addEventListener('pointerleave', () => { if (!drag) draw(); });
+      const trayBtn = (alt, label) => {
+        const b = h('button', { type: 'button', class: 'ksw-tray-btn', 'aria-pressed': 'false', title: `Drag a ${label} onto the staff, or choose it and tap the staff` },
+          h('span', { class: 'ksw-sign', 'aria-hidden': 'true' }, alt > 0 ? '♯' : '♭'), h('span', null, label));
+        b.addEventListener('pointerdown', (e) => { if (e.button > 0) return; start(e, alt); });
+        b.addEventListener('click', () => {
+          tool = tool === alt ? null : alt;
+          tray.querySelectorAll('.ksw-tray-btn').forEach((x) => x.setAttribute('aria-pressed', 'false'));
+          if (tool) b.setAttribute('aria-pressed', 'true');
+        });
+        return b;
+      };
+      const tray = h('div', { class: 'ksw-tray' }, trayBtn(1, 'Sharp'), trayBtn(-1, 'Flat'),
+        h('button', { type: 'button', class: 'tool', onclick: () => { const k = slots.map((a, i) => (a ? i : -1)).filter((i) => i >= 0).pop(); if (k != null) { slots[k] = null; draw(); emit(); } } }, 'Undo last'),
+        h('button', { type: 'button', class: 'tool', onclick: () => { slots.fill(null); draw(); emit(); } }, 'Clear'));
+      t.append(tray);
+    }
+    if (o.keyMode) t.append(h('p', { class: 'result is-key' }, h('strong', null, 'Answer: '), accText(MQ.describeAnswer(q, cfg))));
+    else if (o.reveal) t.append(resultLine(q, cfg, slots));
+    if ((o.reveal || o.keyMode) && cmp) {
+      // The key signature as it should be, on a staff of its own.
+      const ans = svgEl(`<svg class="ksw-staff is-answer" viewBox="0 0 ${W} ${H}" role="img" aria-label="The key signature"></svg>`);
+      ans.innerHTML = svgOf(cmp.want.concat(Array(N - cmp.want.length).fill(null)), null, null);
+      t.append(h('div', { class: 'ksw-box is-answer' }, h('span', { class: 'mini-label' }, 'The key signature'), ans));
+    }
+    return t;
+  }
   function questionCard(q, cfg, o) {
+    if (q.ksw) return kswCard(q, cfg, o);
     if (q.type === 'block') return blockCard(q, cfg, o);
     if (q.type === 'chorale') return choraleCard(q, cfg, o);
     if (q.type === 'cadence') return cadenceCard(q, cfg, o);

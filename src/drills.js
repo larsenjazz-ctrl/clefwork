@@ -455,6 +455,50 @@
     },
   });
 
+  // ===== Clefwork: writing key signatures =====
+  // Students drag sharps and flats onto a large blank staff. Where each one goes in a key signature:
+  // its line or space (a diatonic number, as staff.js has them), treble clef; bass is two octaves
+  // lower, alto one. q.ksw: {fifths, clef, names (show the note name while dragging), exact (the
+  // printed line or space, not just the right letter)}. The answer: KSW_SLOTS places left to right,
+  // each null or [diatonic number, alteration (1 sharp, −1 flat)].
+  const KSW_SHARPS = [38, 35, 39, 36, 33, 37, 34], KSW_FLATS = [34, 37, 33, 36, 32, 35, 31];
+  const KSW_SLOTS = 7;
+  const kswShift = (clef) => (clef === 'bass' ? -14 : clef === 'alto' ? -7 : 0);
+  const kswWant = (K) => (K.fifths > 0 ? KSW_SHARPS.slice(0, K.fifths) : KSW_FLATS.slice(0, -K.fifths)).map((d) => [d + kswShift(K.clef), K.fifths > 0 ? 1 : -1]);
+  // The accidentals placed, in order, and how many of them are right.
+  function kswCompare(q, resp) {
+    const K = q.ksw, want = kswWant(K);
+    const got = (resp || []).filter(Boolean);
+    const same = (a, b) => !!a && !!b && a[1] === b[1] && (K.exact ? a[0] === b[0] : (((a[0] - b[0]) % 7) + 7) % 7 === 0);
+    const marks = got.map((a, i) => same(a, want[i]));
+    return { want, got, marks, right: marks.filter(Boolean).length, need: Math.max(want.length, got.length) };
+  }
+  const gradeKsw = (q, resp) => { const c = kswCompare(q, resp); return c.need ? c.right / c.need : 0; };
+  const hasKsw = (q, resp) => !!resp && resp.some(Boolean);
+  const kswNames = (q) => kswWant(q.ksw).map(([d, a]) => nm(P(((d % 7) + 7) % 7, a))).join(' ');
+  const describeKsw = (q) => `${Math.abs(q.ksw.fifths)} ${q.ksw.fifths > 0 ? 'sharp' : 'flat'}${Math.abs(q.ksw.fifths) > 1 ? 's' : ''}: ${kswNames(q)}`;
+  const KSW_CLEFS = ['treble', 'bass', 'alto'];
+  kind({
+    id: 'drksw', group: 'keysig', label: 'Write Key Signatures', blurb: 'Drag sharps and flats onto a large blank staff to write the key signature of a named key, in order, on the right lines and spaces.',
+    opts: [{ key: 'mode', label: 'Keys', kind: 'seg', items: ['Major', 'Minor', 'Both'], def: 0 }, KEYMAX(7),
+      { key: 'clef', label: 'Clefs', kind: 'chips', items: ['Treble', 'Bass', 'Alto'], def: 0b011 },
+      { key: 'names', label: 'While dragging', kind: 'seg', items: ['Show the note name of each line and space', 'Don’t show note names'], def: 0 },
+      { key: 'exact', label: 'Each sharp or flat must be on', kind: 'seg', items: ['The line or space where it is printed', 'Any line or space with the right letter'], def: 0 }],
+    gen(rng, s, i) {
+      const mode = s.mode === 0 ? 'major' : s.mode === 1 ? 'minor' : rng() < 0.5 ? 'major' : 'minor';
+      const max = Math.max(1, s.max);
+      let f = 0;
+      while (!f) f = fifthsFor(rng, max);
+      const clefs = bits(s.clef, KSW_CLEFS), clef = pick(rng, clefs.length ? clefs : ['treble']);
+      return base('drksw', i, {
+        clef, text: `Write the key signature for ${keyText(mode, f)}.`,
+        hint: 'Drag sharps or flats onto the staff, left to right, in the order they are written. Drag one off the staff to remove it.',
+        columns: [{ given: [], cap: 0 }], noStaff: false, ksw: { fifths: f, clef, names: s.names === 0, exact: s.exact === 0 },
+        tags: ['k:' + mode + f],
+      });
+    },
+  });
+
   // ===== Clefwork: chords =====
   const QSET = { triad: ['maj', 'min', 'dim', 'aug', 'sus4'], seventh: ['dom7', 'maj7', 'min7', 'hdim7', 'dim7'], ext: ['dom9', 'maj9', 'min9', 'dom11', 'min11', 'dom13', 'maj13', 'min13'] };
   const Q = (id) => MQ.QUALITIES.find((x) => x.id === id);
@@ -863,6 +907,7 @@
   const GROUPS = [
     { id: 'drgnotes', g: 'notes', tool: 'basic', label: 'Notes & Steps', blurb: 'The musical alphabet, half and whole steps, enharmonic names, the alto clef, counting half steps, and consonance.' },
     { id: 'drgkeys', g: 'keys', tool: 'basic', label: 'Keys & Degrees', blurb: 'Relative and parallel keys, spelling scales, solfège, scale degree notes and names, modes and their parent scales, closely related keys, and tendency tones.' },
+    { id: 'drgkeysig', g: 'keysig', tool: 'basic', label: 'Write Key Signatures', blurb: 'Students drag sharps and flats onto a large blank staff to write a key signature.' },
     { id: 'drgchords', g: 'chords', tool: 'basic', label: 'Chord Spelling', blurb: 'Spell chords in letter names, and name the chord tones and tensions over a chord symbol.' },
     { id: 'drgmeter', g: 'meter', tool: 'basic', label: 'Meter & Form', blurb: 'Time signatures, tempo math, musical forms, and road maps with repeats, endings, D.C. and D.S.' },
     { id: 'drgwrite', g: 'write', tool: 'basic', label: 'Written Answers', blurb: 'Your own questions, answered in words: graded from the answers you give, or read by you.' },
@@ -940,6 +985,6 @@
   Object.assign(MQ, {
     DRILL_KINDS: KINDS, DRILL_GROUPS: GROUPS, DRILL_COUNTS, DRILLS_MAX: MAX, DRILL_WRITE_MAX: WRITE_MAX,
     drillSettings, drillDiff, drillCount, drillGroupCount: groupCount, drillsOf, drillQuestions, drillLabel, drillKind: kindOf, drillKindCount: countOf,
-    gradeTexts, hasTexts, describeTexts, textRight, teacherReads, readNotes, readNums,
+    gradeTexts, hasTexts, describeTexts, gradeKsw, hasKsw, describeKsw, kswCompare, kswWant, KSW_SLOTS, textRight, teacherReads, readNotes, readNums,
   });
 })(typeof window !== 'undefined' ? window : globalThis);

@@ -1164,8 +1164,17 @@
   function writeAnswer(w, q, resp, plays) {
     if (q.type === 'cadence') { writeCadAnswer(w, q, resp); return; }
     if (q.type === 'drill') {
-      // Clefwork Drills: what the question asks with (0 a choice, 1 menus, 2 typed boxes), then the answers.
-      if (q.texts) {
+      // Clefwork Drills: what the question asks with (0 a choice, 1 menus, 2 typed boxes, 3 a key signature
+      // on the staff), then the answers. A key signature: each place, then its line or space (from 16
+      // below the treble staff's bottom line) and whether it is a sharp.
+      if (q.ksw) {
+        w.u(3, 2);
+        for (let j = 0; j < MQ.KSW_SLOTS; j++) {
+          const a = (resp || [])[j];
+          w.u(a ? 1 : 0, 1);
+          if (a) w.u(Math.max(0, Math.min(63, a[0] - 14)), 6).u(a[1] > 0 ? 1 : 0, 1);
+        }
+      } else if (q.texts) {
         w.u(2, 2).u(Math.min(31, q.texts.length), 5);
         q.texts.slice(0, 31).forEach((f, i) => w.strN(String((resp || [])[i] || '').trim(), 255, 8));
       } else if (q.dropdowns) {
@@ -1335,6 +1344,11 @@
     if (type === 'cadence') return readCadAnswer(r);
     if (type === 'drill') {
       const how = r.u(2);
+      if (how === 3) {
+        const out = [];
+        for (let j = 0; j < MQ.KSW_SLOTS; j++) out.push(r.u(1) ? [r.u(6) + 14, r.u(1) ? 1 : -1] : null);
+        return { kind: 'ksw', value: out };
+      }
       if (how === 0) { const v = r.u(5); return { kind: 'choice', value: v ? v - 1 : null }; }
       const n = r.u(5), out = [];
       for (let j = 0; j < n; j++) { if (how === 2) out.push(r.strN(8)); else { const v = r.u(5); out.push(v ? v - 1 : null); } }

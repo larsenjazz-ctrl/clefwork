@@ -877,6 +877,7 @@
       return got / q.symbolAnswers.length;
     }
     if (q.symbolAnswer) return MQ.gradeChordSymbol(q, response, cfg);
+    if (q.ksw) return MQ.gradeKsw(q, response);
     if (q.texts) return MQ.gradeTexts(q, response);
     if (q.choices) return response === q.answer ? 1 : 0;
     if (q.dropdowns) {
@@ -911,6 +912,7 @@
         : q.type === 'progression' ? !!response && ['r', 's'].some((k) => (response[k] || []).some((x) => x && x.trim()))
       : q.symbolAnswers ? !!response && response.some((v) => String(v || '').trim())
         : q.symbolAnswer ? !!String(response || '').trim()
+        : q.ksw ? MQ.hasKsw(q, response)
         : q.texts ? MQ.hasTexts(q, response)
         : q.dropdowns ? !!response && response.some((v) => v != null)
         : q.choices ? response != null : !!response && response.some((col) => col && col.some(Boolean));
@@ -932,6 +934,7 @@
     if (q.symbolAnswers) return q.symbolAnswers.map((a) => a.shown).join('  ');
     if (q.symbolAnswer) return q.symbolAnswer.shown;
     if (q.type === 'ivname') return q.ivName.charAt(0).toUpperCase() + q.ivName.slice(1);
+    if (q.ksw) return MQ.describeKsw(q);
     if (q.texts) return MQ.describeTexts(q);
     if (q.dropdowns) return q.dropdowns.map((d) => d.options[d.answer]).join(' · ');
     if (q.choices) return q.choices[q.answer];

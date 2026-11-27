@@ -17,6 +17,7 @@ const P = (step, alt) => ({ step, alt, oct: 4 });
 
 // The right answer to a question, as a student would enter it.
 function keyOf(q) {
+  if (q.ksw) { const w = MQ.kswWant(q.ksw); return Array.from({ length: MQ.KSW_SLOTS }, (_, i) => w[i] || null); }
   if (q.texts) {
     return q.texts.map((f) => {
       if (f.mode === 'note') return MQ.pcName(P(f.pcs[0][0], f.pcs[0][1]));
@@ -43,7 +44,7 @@ MQ.DRILL_KINDS.forEach((k) => {
   ok(mine.length === (k.written ? 2 : 6), `${k.label}: makes every question it is asked for`, `got ${mine.length}`);
   mine.forEach((q) => {
     ok(q.type === 'drill' && !!q.text, `${k.label}: a drill question with its text`);
-    ok(!!(q.texts || q.dropdowns || q.choices), `${k.label}: something to answer with`);
+    ok(!!(q.texts || q.dropdowns || q.choices || q.ksw), `${k.label}: something to answer with`);
     if (q.dropdowns) ok(q.dropdowns.every((d) => d.answer >= 0 && d.answer < d.options.length), `${k.label}: every menu holds its answer`, q.text);
     if (q.choices) ok(q.answer >= 0 && new Set(q.choices).size === q.choices.length, `${k.label}: the answer is one of the choices, none twice`, q.text);
     ok(MQ.gradeQuestion(q, keyOf(q), all) === 1, `${k.label}: the answer key is right`, q.text + ' → ' + JSON.stringify(keyOf(q)));
@@ -52,7 +53,7 @@ MQ.DRILL_KINDS.forEach((k) => {
   });
 });
 // The kinds a staff is printed for draw notes on it.
-qs.filter((q) => q.columns).forEach((q) => ok(q.columns.every((c) => c.given.length && c.given.every((p) => p.step >= 0 && p.oct > 0)), `${MQ.drillLabel(q)}: printed notes`));
+qs.filter((q) => q.columns && !q.ksw).forEach((q) => ok(q.columns.every((c) => c.given.length && c.given.every((p) => p.step >= 0 && p.oct > 0)), `${MQ.drillLabel(q)}: printed notes`));
 ok(qs.some((q) => q.clef === 'alto'), 'the alto clef drill prints on the alto clef');
 ok(MQ.generateQuiz(all).length === qs.length && texts(MQ.generateQuiz(all)) === texts(qs), 'the same seed makes the same questions');
 const other = Object.assign({}, all, { seed: 99 });
@@ -142,6 +143,34 @@ MQ.generateQuiz(sc).forEach((q) => {
   ok(notes.every((p, i) => !i || p.step !== notes[i - 1].step || p.alt === notes[i - 1].alt + 1), 'a chromatic scale goes up by raising notes (sharps), not lowering them', q.text);
 });
 ok(MQ.CLEFS.alto.bottom === 24 && MQ.clefLabel('alto') === 'Alto clef', 'the alto clef: F3 on its bottom line');
+
+// ---------- writing a key signature ----------
+const kw = blank();
+kw.counts.drksw = 24;
+kw.drill = { drksw: { mode: 2, clef: 0b111, names: 1, exact: 0 } };
+const kqs = MQ.generateQuiz(kw);
+ok(kqs.length === 24 && kqs.every((q) => q.ksw && q.ksw.fifths !== 0), 'key signature questions: never C major or A minor');
+ok(['treble', 'bass', 'alto'].every((c) => kqs.some((q) => q.ksw.clef === c)), 'key signature questions use all three clefs');
+ok(kqs.every((q) => !q.ksw.names) && MQ.generateQuiz(Object.assign({}, kw, { drill: { drksw: { names: 0 } } })).every((q) => q.ksw.names), 'the note-name setting reaches the questions');
+const g4 = kqs.find((q) => q.ksw.fifths >= 3 && q.ksw.clef === 'treble') || kqs.find((q) => q.ksw.fifths >= 3);
+if (g4) {
+  const key = keyOf(g4);
+  ok(MQ.gradeQuestion(g4, key, kw) === 1, 'the written key signature grades as right');
+  ok(MQ.gradeQuestion(g4, [], kw) === 0 && !MQ.hasAnswer(g4, Array(7).fill(null)), 'an empty staff is no answer');
+  const octave = key.map((a) => (a ? [a[0] - 7, a[1]] : null));
+  ok(MQ.gradeQuestion(g4, octave, kw) < 1, 'printed an octave away is wrong when the exact place is asked for');
+  ok(MQ.gradeQuestion(Object.assign({}, g4, { ksw: Object.assign({}, g4.ksw, { exact: false }) }), octave, kw) === 1, 'printed an octave away is right when any line or space with the letter will do');
+  const flipped = key.map((a) => (a ? [a[0], -a[1]] : null));
+  ok(MQ.gradeQuestion(g4, flipped, kw) === 0, 'flats in place of sharps are wrong');
+  const swapped = key.slice(); [swapped[0], swapped[1]] = [swapped[1], swapped[0]];
+  ok(MQ.gradeQuestion(g4, swapped, kw) < 1, 'the sharps out of order are not all right');
+  const extra = key.slice(); extra[6] = extra[6] || [g4.ksw.clef === 'treble' ? 30 : 20, 1];
+  ok(Math.abs(g4.ksw.fifths) === 7 || MQ.gradeQuestion(g4, extra, kw) < 1, 'an extra sign costs points');
+  ok(/sharp|flat/.test(MQ.describeAnswer(g4, kw)), 'the answer is described', MQ.describeAnswer(g4, kw));
+}
+const kcode = MQ.encodeQuiz(kw);
+const krep = MQ.decodeReport(MQ.encodeReport({ name: 'Ana', submittedAt: Date.now(), totalSec: 50, partial: false, items: kqs.map((q) => ({ type: q.type, clef: q.clef })), answers: { qs: kqs, resp: kqs.map(keyOf) } }, kw, kcode));
+ok(krep && krep.answers && kqs.every((q, i) => JSON.stringify(krep.answers[i] && krep.answers[i].value) === JSON.stringify(keyOf(q))), 'key signature answers come back from the report code');
 
 console.log(`${passes} passed, ${fails} failed`);
 process.exit(fails ? 1 : 0);
