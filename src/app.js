@@ -108,7 +108,8 @@
   };
   const sumCounts = (cfg) => MQ.BUILT_IN.reduce((s, t) => s + (cfg.counts[t.id] || 0), 0) + listCount(cfg, 'custom') + listCount(cfg, 'voicing') + listCount(cfg, 'vprog') + listCount(cfg, 'progression')
     + listCount(cfg, 'keys') + listCount(cfg, 'analysis') + listCount(cfg, 'rhythm') + listCount(cfg, 'melody')
-    + Math.min(MQ.DEGREE_MAX, cfg.counts.degree || 0) + graphCount(cfg) + termCount(cfg) + listCount(cfg, 'sing') + listCount(cfg, 'block') + listCount(cfg, 'cadence') + listCount(cfg, 'nht') + listCount(cfg, 'chorale');
+    + Math.min(MQ.DEGREE_MAX, cfg.counts.degree || 0) + graphCount(cfg) + termCount(cfg) + listCount(cfg, 'sing') + listCount(cfg, 'block') + listCount(cfg, 'cadence') + listCount(cfg, 'nht') + listCount(cfg, 'chorale')
+    + MQ.drillCount(cfg);
   // Clefwork Chord Graph: its tables and phrases.
   const graphCount = (cfg) => listCount(cfg, 'cgtable') + listCount(cfg, 'cgtritone') + listCount(cfg, 'cgphrase');
   // Clefwork Terms: all five kinds of question, and the ones that are heard.
@@ -128,10 +129,12 @@
   const onlyBlock = (cfg) => !!(listCount(cfg, 'block') && sumCounts(cfg) === listCount(cfg, 'block'));
   // The quiz builder's tabs are split in two tools: the basics in Clefwork, and harmony — voicings,
   // progressions, figured bass, cadences and modulations — in Clefwork Harmony.
-  const BASIC_TABS = ['place', 'identify', 'degree', 'interval', 'chord', 'scale', 'keysig'];
-  const HARMONY_TABS = ['voicing', 'vprog', 'progression', 'figured', 'figprog', 'cadence', 'nht'];
+  // Clefwork Drills sit in both: their groups (MQ.DRILL_GROUPS) say which tool each tab belongs to.
+  const drillTabs = (tool) => MQ.DRILL_GROUPS.filter((g) => g.tool === tool).map((g) => g.id);
+  const BASIC_TABS = ['place', 'identify', 'degree', 'interval', 'chord', 'scale', 'keysig'].concat(drillTabs('basic'));
+  const HARMONY_TABS = ['voicing', 'vprog', 'progression', 'figured', 'figprog', 'cadence', 'nht'].concat(drillTabs('harmony'));
   const harmonyCount = (cfg) => listCount(cfg, 'voicing') + listCount(cfg, 'vprog') + listCount(cfg, 'progression')
-    + (cfg.counts.figured || 0) + (cfg.counts.figprog || 0) + listCount(cfg, 'cadence') + listCount(cfg, 'nht');
+    + (cfg.counts.figured || 0) + (cfg.counts.figprog || 0) + listCount(cfg, 'cadence') + listCount(cfg, 'nht') + MQ.drillCount(cfg, MQ.drillsOf('harmony'));
   const onlyHarmony = (cfg) => !!(harmonyCount(cfg) && sumCounts(cfg) === harmonyCount(cfg));
   // How many melodies one student sings, of a bank of this many.
   const singAsked = (cfg) => MQ.singCount(MQ.singSettings(cfg.sing), listCount(cfg, 'sing'));
@@ -499,6 +502,7 @@
     const cols = staff.pitches();
     const all = [].concat(...cols);
     if (q.type === 'place') return [[all], 1.5];
+    if (q.type === 'drill') return [q.columns.map((c) => c.given).filter((c) => c.length), 0.9];
     if (q.type === 'interval') return [cols.concat([all]), 1];         // printed note, student's note, both
     if (q.type === 'scale') return [cols, 0.6];                        // note by note
     if ((q.type === 'voicing' || q.type === 'vprog') && q.columns.length > 1) {
@@ -638,6 +642,9 @@
     } else if (frac > 0 && q.type === 'nht') {
       const need = q.nh.spots.length;
       lead = `Partly right — ${Math.round(frac * need)} of ${need} notes.`;
+    } else if (frac > 0 && q.type === 'drill') {
+      const need = (q.texts || q.dropdowns).length;
+      lead = `Partly right — ${Math.round(frac * need)} of ${need} answers.`;
     } else if (frac > 0 && q.type === 'degree') {
       const need = q.deg.notes.length;
       lead = `Partly right — ${Math.round(frac * need)} of ${need} notes.`;
@@ -852,6 +859,26 @@
       if (o.reveal && !o.keyMode) sel.classList.add(resp[i] === d.answer ? 'is-right' : 'is-wrong');
       g.append(h('label', { class: 'dd-cell' }, h('span', { class: 'mini-label' }, d.label), sel,
         o.reveal && !o.keyMode && resp[i] !== d.answer ? h('span', { class: 'pg-fix' }, d.options[d.answer]) : null));
+    });
+    return g;
+  }
+  // Clefwork Drills' typed answers: a box for each, with its label.
+  let txUid = 0;
+  function textsGroup(q, o) {
+    const uid = ++txUid;
+    const resp = (o.response || []).slice();
+    const g = h('div', { class: 'dd-answers dr-texts' + (q.texts.length === 1 ? ' is-one' : '') });
+    q.texts.forEach((f, i) => {
+      const long = f.mode === 'notes' || f.mode === 'nums' || f.mode === 'open';
+      const inp = h(f.mode === 'open' ? 'textarea' : 'input', Object.assign({ id: `tx-${uid}-${i}`, class: 'fig-in dr-in' + (long ? ' is-long' : ''), autocomplete: 'off', autocapitalize: 'off', autocorrect: 'off', spellcheck: f.mode === 'open' ? 'true' : 'false', maxlength: 250 },
+        f.mode === 'open' ? { rows: 3 } : { type: 'text', inputmode: f.mode === 'num' || f.mode === 'nums' ? 'decimal' : null }));
+      inp.value = o.keyMode ? f.shown || '' : resp[i] == null ? '' : String(resp[i]);
+      inp.addEventListener('input', () => { resp[i] = inp.value; if (o.onResponse) o.onResponse(q.texts.map((_, j) => (resp[j] == null ? '' : resp[j]))); });
+      if (o.locked) inp.disabled = true;
+      const right = MQ.textRight(f, resp[i]);
+      if (o.reveal && !o.keyMode) inp.classList.add(right ? 'is-right' : 'is-wrong');
+      g.append(h('label', { class: 'dd-cell', for: inp.id }, h('span', { class: 'mini-label' }, accText(f.label || 'Answer')), inp,
+        o.reveal && !o.keyMode && !right && f.shown ? h('span', { class: 'pg-fix' }, accText(f.shown)) : null));
     });
     return g;
   }
@@ -1363,12 +1390,13 @@
     if (q.type === 'analysis') return analysisCard(q, cfg, o);
     if (q.type === 'figured' || q.type === 'figprog') return figuredCard(q, cfg, o);
     if (q.type === 'progression' && !q.colSpecs) return progressionCard(q, cfg, o);
-    const t = typeOf(q.type);
+    const t = q.type === 'drill' ? { label: MQ.drillLabel(q) } : typeOf(q.type);
     const wrap = h('div', { class: 'qcard' + (o.compact ? ' is-compact' : '') });
-    wrap.append(h('div', { class: 'q-eyebrow' }, t.label, h('span', { class: 'q-clef' }, MQ.clefLabel(q.clef))));
+    wrap.append(h('div', { class: 'q-eyebrow' }, t.label, q.noStaff ? null : h('span', { class: 'q-clef' }, MQ.clefLabel(q.clef))));
     wrap.append(h(o.compact ? 'h3' : 'h2', { class: 'q-text' }, q.text));
     if (q.hint && !o.locked) wrap.append(h('p', { class: 'q-hint' }, q.hint));
-    const isChoice = !!q.choices || !!q.dropdowns || !!q.symbolAnswer || !!q.symbolAnswers;
+    const isChoice = !!q.choices || !!q.dropdowns || !!q.symbolAnswer || !!q.symbolAnswers || !!q.texts;
+    if (q.dr && q.dr.meter) wrap.append(h('div', { class: 'dr-meter', 'aria-label': `Time signature ${q.dr.meter[0]}/${q.dr.meter[1]}` }, h('span', null, String(q.dr.meter[0])), h('span', null, String(q.dr.meter[1]))));
     const staffBox = h('div', { class: 'staff-box' });
     if (!q.noStaff) wrap.append(staffBox);
     const placed = isChoice ? null : clonePlaced(o.response) || q.columns.map(() => []);
@@ -1384,6 +1412,7 @@
     const what = isChoice ? 'your answer' : q.type === 'place' ? 'your note' : 'your notes';
     if (staff) staffBox.append(playButton(() => { const r = questionSound(q, staff, choice); return typeof r === 'string' ? r : { chords: r[0], dur: r[1] }; }, 1, what));
     if (q.symbolAnswers) wrap.append(symbolRowBlock(q, o, cfg));
+    else if (q.texts) wrap.append(textsGroup(q, o));
     else if (q.symbolAnswer) wrap.append(symbolAnswerBlock(q, o));
     else if (q.dropdowns) wrap.append(dropdownGroup(q, o));
     else if (q.choices) wrap.append(choiceGroup(q, Object.assign({}, o, { onResponse: (i) => { choice = i; if (o.onResponse) o.onResponse(i); } })));
@@ -1529,17 +1558,15 @@
         R.chordWarn, R.invWarn],
       scale: () => {
         const modes = MQ.SCALES.filter((x) => x.mode), plain = MQ.SCALES.filter((x) => !x.mode);
-        const base = Math.pow(2, plain.length);
-        const modeBox = grp('Modes', chips('q-modes', modes, Math.floor((cfg.scales || 0) / base), (m) => {
-          cfg.scales = (cfg.scales % base) + m * base; changed();
-        }, (x) => x.label, (x) => x.name, true));
+        // Each chip's bit in cfg.scales is the scale's place in MQ.SCALES (the chromatic scale comes after the modes).
+        const sub = (list) => list.reduce((m, x, j) => ((cfg.scales || 0) & (1 << MQ.SCALES.indexOf(x)) ? m | (1 << j) : m), 0);
+        const put = (list, m) => list.forEach((x, j) => { const b = 1 << MQ.SCALES.indexOf(x); cfg.scales = m & (1 << j) ? (cfg.scales || 0) | b : (cfg.scales || 0) & ~b; });
+        const modeBox = grp('Modes', chips('q-modes', modes, sub(modes), (m) => { put(modes, m); changed(); }, (x) => x.label, (x) => x.name, true));
         const sync = () => modeBox.classList.toggle('is-off', !cfg.scaleModes);
         sync();
         return [
           staffPick('scale'),
-          grp('Scales', chips('q-scales', plain, cfg.scales % base, (m) => {
-            cfg.scales = m + Math.floor((cfg.scales || 0) / base) * base; changed();
-          }, (x) => x.label, (x) => x.name, true), 'Pentatonic scales are five notes long.'),
+          grp('Scales', chips('q-scales', plain, sub(plain), (m) => { put(plain, m); changed(); }, (x) => x.label, (x) => x.name, true), 'Pentatonic scales are five notes long. Chromatic scales are written with sharps going up.'),
           toggle('f-scaleModes', 'Allow modes', 'Modes are only used when this is switched on.', cfg.scaleModes, (v) => { cfg.scaleModes = v ? 1 : 0; sync(); changed(); }),
           modeBox,
           grp('Length', seg('q-scalelen', [{ v: 0, label: 'Full octave' }, { v: 1, label: 'First five notes' }], cfg.scaleLen, (v) => { cfg.scaleLen = v; changed(); }), 'Pentatonic scales always use all five notes.'),
@@ -1634,6 +1661,9 @@
         grp('Notes on the staff', seg('q-figpask', [{ v: 1, label: 'Print the chords — students write the numerals' }, { v: 2, label: 'Print the numerals — students write the chords' }, { v: 3, label: 'A mix of both' }], cfg.figpAsk, (v) => { cfg.figpAsk = v; changed(); })),
       ],
     };
+    // Clefwork Drills: a tab for each group of drill kinds, each kind with its own counter in the panel.
+    const drillTabList = (tool) => MQ.DRILL_GROUPS.filter((g) => g.tool === tool).map((g) => ({ id: g.id, label: g.label, blurb: g.blurb, drill: g }));
+    MQ.DRILL_GROUPS.forEach((g) => { panelBody[g.id] = () => drillPanel(cfg, changed, g); });
     const TABS = VOICE ? [
       { id: 'block', label: 'Block Chords', maxOf: () => MQ.usableBlockExercises(cfg.block).length },
       { id: 'chorale', label: 'Four-Part Writing', max: MQ.CHOR_MAX },
@@ -1645,18 +1675,20 @@
       { id: 'degree', label: 'Scale Degrees', max: MQ.DEGREE_MAX },
       { id: 'interval', label: 'Intervals' }, { id: 'chord', label: 'Chords' },
       { id: 'scale', label: 'Scales' }, { id: 'keysig', label: 'Key Signatures' },
+      ...drillTabList('basic'),
       { id: 'custom', label: 'Custom Chords', list: 'custom' },
       { id: 'voicing', label: 'Single Voiced Chords', tech: 'vc' }, { id: 'vprog', label: 'Voiced Progressions', tech: 'vp' },
       { id: 'progression', label: 'Chord Progressions', list: 'progs', pool: true },
       { id: 'figured', label: 'Figured Bass Chord' }, { id: 'figprog', label: 'Figured Bass Progression' },
       { id: 'cadence', label: 'Cadences & Modulations', maxOf: () => (cfg.cad && cfg.cad.src ? MQ.usableCadExercises(cfg.cad).length : MQ.CAD_MAX) },
       { id: 'nht', label: 'Non-Harmonic Tones', max: MQ.NH_MAX },
+      ...drillTabList('harmony'),
     ];
     // Each teacher tool shows its own tabs (students practise with all of them). A quiz made before the
     // tools were split keeps every tab it uses.
     if (!STUDENT && !GRAPH && !TERMS && !VOICE) {
       const mine = HARMONY ? HARMONY_TABS : BASIC_TABS;
-      for (let i = TABS.length - 1; i >= 0; i--) if (!mine.includes(TABS[i].id) && !(cfg.counts[TABS[i].id] > 0)) TABS.splice(i, 1);
+      for (let i = TABS.length - 1; i >= 0; i--) if (!mine.includes(TABS[i].id) && !(cfg.counts[TABS[i].id] > 0) && !(TABS[i].drill && MQ.drillGroupCount(cfg, TABS[i].id) > 0)) TABS.splice(i, 1);
     }
     // Custom Chords is hidden while it is being reworked.
     for (let i = TABS.length - 1; i >= 0; i--) if (TABS[i].id === 'custom') TABS.splice(i, 1);
@@ -1680,6 +1712,15 @@
       const btn = h('button', { type: 'button', role: 'tab', id: 'tab-' + tb.id, 'aria-controls': 'panel-' + tb.id, class: 'qt-tab', onclick: () => select(tb.id) },
         h('span', { class: 'qt-name' }, tb.label), h('span', { class: 'qt-status' }));
       const ctr = counter('count-' + tb.id, tb.label, (v) => {
+        if (tb.drill) {
+          // A drill tab counts its kinds: + adds to the first one in use, − takes from the last.
+          const ids = tb.drill.kinds.map((k) => k.id);
+          let n = ids.reduce((sum, x) => sum + (cfg.counts[x] || 0), 0);
+          while (n < v) { const k = ids.find((x) => cfg.counts[x]) || ids[0]; cfg.counts[k] = (cfg.counts[k] || 0) + 1; n++; }
+          while (n > v) { const k = ids.filter((x) => cfg.counts[x]).pop(); cfg.counts[k]--; n--; }
+          changed();
+          return;
+        }
         if (!tb.tech) { cfg.counts[tb.id] = v; changed(); return; }
         // These tabs count their techniques: + adds to the first one, − takes from the last.
         const b = cfg[tb.tech] = MQ.voiceSettings(cfg[tb.tech]);
@@ -1709,6 +1750,10 @@
     });
     R.syncTabs = () => {
       // Keep the per-technique counters showing what the config actually holds.
+      panels.querySelectorAll('.stepper[data-drill]').forEach((el) => {
+        const k = MQ.drillKind(el.dataset.drill);
+        el.sync(cfg.counts[k.id] || 0, k.written ? MQ.drillSettings(cfg.drill).written.length : MQ.DRILLS_MAX);
+      });
       panels.querySelectorAll('.stepper[data-tech]').forEach((el) => {
         const [key, tech] = el.dataset.tech.split(':');
         const b = MQ.voiceSettings(cfg[key]);
@@ -1716,6 +1761,14 @@
       });
       R.tabs.forEach((t) => {
       // Progressions: an automatic entry can supply several questions, so the limit is the pool size.
+      if (t.drill) {
+        const n = MQ.drillGroupCount(cfg, t.id);
+        t.ctr.sync(n, t.drill.kinds.reduce((m, k) => m + (k.written ? MQ.drillSettings(cfg.drill).written.length : MQ.DRILLS_MAX), 0));
+        t.card.classList.toggle('is-on', n > 0);
+        t.panel.classList.toggle('is-off', n === 0);
+        t.btn.querySelector('.qt-status').textContent = n ? '' : 'Off';
+        return;
+      }
       if (t.tech) {
         const b = cfg[t.tech] = MQ.voiceSettings(cfg[t.tech]);
         cfg.counts[t.id] = MQ.TECHNIQUES.reduce((n, x) => n + (b.tech[x.id] || 0), 0);
@@ -1910,7 +1963,7 @@
           ? `Every student sings all ${bank} melod${bank === 1 ? 'y' : 'ies'}, in this order.`
           : `Each student sings ${singAsked(cfg)} of the ${bank}, drawn for them when they start. Your Canvas quiz needs ${singAsked(cfg)} upload question${singAsked(cfg) === 1 ? '' : 's'}.`;
       }
-      R.keyList.replaceChildren(...S.qs.map((q) => q.type === 'sing' ? singKeyItem(q) : q.type === 'melody' ? melodyKeyItem(q) : q.type === 'rhythm' ? rhythmKeyItem(q) : q.type === 'rgrid' ? gridKeyItem(q) : h('li', null, h('span', { class: 'key-q' }, q.text, q.type === 'analysis' || MQ.isGraph(q) ? null : h('span', { class: 'key-clef' }, ' · ' + (q.type === 'term' ? MQ.termCat(q) : MQ.clefLabel(q.clef)))), h('span', { class: 'key-a' }, q.cg ? graphAnswer(q) : q.type === 'analysis' || MQ.isGraph(q) ? accText(MQ.describeAnswer(q, cfg)) : MQ.describeAnswer(q, cfg)))));
+      R.keyList.replaceChildren(...S.qs.map((q) => q.type === 'sing' ? singKeyItem(q) : q.type === 'melody' ? melodyKeyItem(q) : q.type === 'rhythm' ? rhythmKeyItem(q) : q.type === 'rgrid' ? gridKeyItem(q) : h('li', null, h('span', { class: 'key-q' }, q.text, q.type === 'analysis' || MQ.isGraph(q) ? null : h('span', { class: 'key-clef' }, ' · ' + (q.type === 'term' ? MQ.termCat(q) : q.type === 'drill' ? MQ.drillLabel(q) : MQ.clefLabel(q.clef)))), h('span', { class: 'key-a' }, q.cg ? graphAnswer(q) : q.type === 'analysis' || MQ.isGraph(q) ? accText(MQ.describeAnswer(q, cfg)) : MQ.describeAnswer(q, cfg)))));
       if (R.linkSize) {
         const kb = S.aimg ? Math.max(1, Math.round(withScore(S.code).length / 1024)) : 0;
         R.linkSize.replaceChildren(!S.code ? '' : kb > 150
@@ -2042,6 +2095,47 @@
       list, editor);
   }
 
+
+  // ---------- Clefwork Drills: one row per kind, with its counter and its settings ----------
+  function drillPanel(cfg, changed, g) {
+    cfg.drill = MQ.drillSettings(cfg.drill);
+    const rows = g.kinds.map((k) => {
+      const ctr = counter('n-' + k.id, k.label, (v) => { cfg.counts[k.id] = v; changed(); });
+      ctr.dataset.drill = k.id;               // so the tab counter can keep this one in step
+      ctr.sync(cfg.counts[k.id] || 0, k.written ? cfg.drill.written.length : MQ.DRILLS_MAX);
+      const set = (key, v) => { cfg.drill = MQ.drillSettings(cfg.drill); cfg.drill[k.id][key] = v; changed(); };
+      const opts = k.opts.map((op) => grp(op.label, op.kind === 'seg'
+        ? seg(`dr-${k.id}-${op.key}`, op.items.map((label, v) => ({ v, label })), cfg.drill[k.id][op.key], (v) => set(op.key, v))
+        : chips(`dr-${k.id}-${op.key}`, op.items.map((label) => ({ label })), cfg.drill[k.id][op.key], (m) => set(op.key, m), (x) => x.label)));
+      if (k.written) opts.push(writtenEditor(cfg, changed, ctr));
+      return h('div', { class: 'vt-row' + (cfg.counts[k.id] ? ' is-on' : '') },
+        h('div', { class: 'vt-head' }, h('strong', null, k.label), ctr),
+        h('p', { class: 'help' }, k.blurb),
+        opts.length ? h('div', { class: 'vt-opts' }, ...opts) : null);
+    });
+    return h('div', { class: 'qt-body' },
+      h('p', { class: 'help' }, g.kinds.length > 1 ? 'Set how many questions of each kind to ask below — the tab’s counter adds them up. Every student gets the same questions.' : 'Every student gets the same questions.'),
+      ...rows);
+  }
+  // The teacher's written questions: one a line, then | and the answers that count (each one after
+  // another |). A line with no answer is read by the teacher, and any answer earns its credit.
+  function writtenEditor(cfg, changed, ctr) {
+    const id = 'dr-written';
+    const ta = h('textarea', { id, rows: 6, spellcheck: 'true', placeholder: 'What is a cadence?\nWhat is the relative minor of C major? | A minor | Am' });
+    ta.value = cfg.drill.written.map((w) => w.p + (w.a ? ' | ' + w.a : '')).join('\n');
+    ta.addEventListener('input', () => {
+      const before = cfg.drill.written.length;
+      const list = ta.value.split('\n').map((line) => line.split('|').map((x) => x.trim())).filter((x) => x[0])
+        .slice(0, MQ.DRILL_WRITE_MAX).map(([p, ...a]) => ({ p: p.slice(0, 300), a: a.filter(Boolean).join(' | ').slice(0, 300) }));
+      cfg.drill = MQ.drillSettings(cfg.drill);
+      cfg.drill.written = list;
+      // Ask every question, unless the counter was set to fewer.
+      if ((cfg.counts.drwrite || 0) >= before) cfg.counts.drwrite = list.length;
+      ctr.sync(cfg.counts.drwrite || 0, list.length);
+      changed();
+    });
+    return fld('Your questions', ta, 'One question a line. To have Clefwork grade it, add | and the answer — and | before each other answer that counts (a student’s answer counts when it contains one of them). With no answer, any answer earns the credit and you read it on the report.');
+  }
 
   // ---------- voicing categories: one chord, or a whole progression, in a named technique ----------
   function voicePanel(cfg, changed, key, notesPick) {
@@ -3219,7 +3313,7 @@
       tbody.append(h('tr', null,
         h('td', { class: 'num' }, String(i + 1)),
         h('td', null, it.type === 'sing' ? (q ? `Melody ${q.sing.n + 1}` : 'A melody') : q ? q.text : typeOf(it.type).label),
-        h('td', null, it.type === 'sing' ? 'Sung' : it.type === 'analysis' ? 'Score' : it.type === 'rhythm' ? 'Rhythm' : it.type === 'rgrid' ? 'Grid' : it.type === 'cgphrase' ? 'Phrase' : MQ.GRAPH_TYPES.includes(it.type) ? 'Table' : it.type === 'term' ? (q && q.tm ? MQ.termCat(q) : 'Terms') : MQ.CLEFS[it.clef].label),
+        h('td', null, it.type === 'sing' ? 'Sung' : it.type === 'analysis' ? 'Score' : it.type === 'rhythm' ? 'Rhythm' : it.type === 'rgrid' ? 'Grid' : it.type === 'cgphrase' ? 'Phrase' : MQ.GRAPH_TYPES.includes(it.type) ? 'Table' : it.type === 'drill' ? (q ? MQ.drillLabel(q) : 'Drill') : it.type === 'term' ? (q && q.tm ? MQ.termCat(q) : 'Terms') : MQ.CLEFS[it.clef].label),
         key ? h('td', { class: 'ans' + (q && (q.mel || q.rh || q.cg || q.ph || q.blk || q.nh || q.ch) ? ' is-long' : '') },
           it.type === 'sing' && q ? accText(MQ.singSungText(q.mel, rep.answers && rep.answers[i] ? rep.answers[i].value : null))
             : q ? (q.cg ? graphAnswer(q) : q.ph ? accText(MQ.describeAnswer(q, quiz.cfg)) : MQ.describeAnswer(q, quiz.cfg)) : '') : null,

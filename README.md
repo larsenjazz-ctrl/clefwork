@@ -3,8 +3,8 @@
 Music theory quizzes that run entirely in the browser — no server, no accounts, nothing stored online.
 
 - **Landing page:** [index.html](https://larsenjazz-ctrl.github.io/clefwork/) — choose a tool, or paste report codes and results links to open them in the grade checker. Each teacher tool has an **← All tools** link back here. Old `index.html#grade=…` and `#take=…` links are passed on to the quiz builder.
-- **Teacher app:** [clefwork.html](https://larsenjazz-ctrl.github.io/clefwork/clefwork.html) — build a quiz of the basics (placing and naming notes, scale degrees, intervals, chords, scales and key signatures), share its code or link, and grade the report codes or results links students send back.
-- **Clefwork Harmony:** [harmony.html](https://larsenjazz-ctrl.github.io/clefwork/harmony.html) — the harmony question types: single voiced chords, voiced progressions, chord progressions, figured bass chords and progressions, and cadences and modulations. Non-harmonic tones: Clefwork writes a progression in four voices and adds passing tones, suspensions and the other figures from the textbook, highlighted and lettered; students name each one from a menu.
+- **Teacher app:** [clefwork.html](https://larsenjazz-ctrl.github.io/clefwork/clefwork.html) — build a quiz of the basics (placing and naming notes, scale degrees, intervals, chords, scales and key signatures, and the drills below), share its code or link, and grade the report codes or results links students send back.
+- **Clefwork Harmony:** [harmony.html](https://larsenjazz-ctrl.github.io/clefwork/harmony.html) — the harmony question types: single voiced chords, voiced progressions, chord progressions, figured bass chords and progressions, and cadences and modulations, with the harmony and voice-leading drills (below). Non-harmonic tones: Clefwork writes a progression in four voices and adds passing tones, suspensions and the other figures from the textbook, highlighted and lettered; students name each one from a menu.
 - **Student app:** [student.html](https://larsenjazz-ctrl.github.io/clefwork/student.html) — practise with instant feedback, or take a teacher's quiz and send back a report code.
 - **Clefwork Keys:** [keys.html](https://larsenjazz-ctrl.github.io/clefwork/keys.html) — a separate app for reading notes: the grand staff, note names with octaves, and the piano keyboard.
 - **Clefwork Analysis:** [analysis.html](https://larsenjazz-ctrl.github.io/clefwork/analysis.html) — harmonic analysis on real music: upload a picture of a score, box the chords, and students write Roman numerals or chord symbols beside the music.
@@ -22,7 +22,7 @@ A quiz's settings and a random seed are packed into a **quiz code**, so everyone
 
 Because the code carries every setting, a quiz can be read back: **Edit a quiz you already shared**, on the Build tab, takes a quiz code or any Clefwork link carrying one and puts the whole quiz back in the builder — to fix a wrong answer key, change a setting or make next year's version. A code from another Clefwork page says which page to open it on, and offers a link that opens it there ready to edit (`#edit=`). The quiz that was in the builder is kept, so a wrong paste can be put back. Editing makes a new code and link to share; report codes from the old one still grade, because the codes shared from a computer are remembered there. A quiz made by an older Clefwork is brought up to date as it loads, and says so if that changes how many questions it asks.
 
-Question types: place a note, name a note, intervals (simple and compound — written from a printed note, or named from a printed interval), chords (triads through 13ths, inversions, typed chord symbols), scales (including pentatonics and modes), key signatures, chord progressions, figured bass (single chords and progressions), and voicings — single voiced chords and voiced progressions. Clefwork Voice Leading adds block chords, marked by the textbook’s rules.
+Question types: place a note, name a note, intervals (simple and compound, and augmented and diminished ones such as the augmented unison, A2, d3, d4, A5, d6, A6 and d7 — written from a printed note, or named from a printed interval), chords (triads through 13ths, inversions, typed chord symbols), scales (including pentatonics, modes and the chromatic scale, written with sharps going up), key signatures, chord progressions, figured bass (single chords and progressions), and voicings — single voiced chords and voiced progressions. Clefwork Voice Leading adds block chords, marked by the textbook’s rules.
 
 ### Naming intervals
 
@@ -221,6 +221,20 @@ Codes: quiz extension 15 holds the settings and written progressions; other quiz
 
 Codes: quiz extension 16 holds the cadence block (as extension 15 writes it) and the non-harmonic tone settings — 4/6/8 chords, keys, kinds, pairs, naming, labels, scoring, and how many each student gets. Report type `nht` (the 27th) carries which example of the bank it was, each lettered note’s choice, and how many were right.
 
+### Drills
+
+Short questions, each answered with menus, one choice, or typed boxes — letter names, numbers, measure numbers, chord symbols, Roman numerals or words. Each kind has its own counter and settings, on a tab that groups it with others; Clefwork's tabs hold the basics and Clefwork Harmony's the harmony. Every student gets the same questions.
+
+- **Notes & Steps.** The musical alphabet up or down, and paths of whole and half steps written as note names; half or whole step for two notes on the staff, or the note a half or whole step away; another name for a note, or both names of a black key; notes in the **alto clef** (the C clef, also on the staff for printing); counting half steps between two notes, or the note so many half steps up (any spelling counts); consonant or dissonant, with the interval's name if you like (the perfect 4th counts either way, as you choose).
+- **Keys & Degrees.** Relative and parallel keys; spelling a scale in letter names (major, the minors, pentatonic, modes, and chromatic — sharps up, flats down); movable-do **solfège** in major keys, the syllable for a note or the note for a syllable, with the chromatic syllables (Di Ri Fi Si Li, Ra Me Se Le Te) as an option; the note for a scale degree, the degree of a note, and degree names; a mode's parent major scale, or the mode on a degree; closely related keys (or the one that isn't); and tendency tones — stable, less stable or weak, and where each tends to go.
+- **Chord Spelling.** A chord's letter names from its symbol (triads, sevenths, extended chords; any order counts), and the number of a note over a chord symbol — 1, 3, 5, 7 or a tension (♭9, 9, ♯9, 11, ♯11, ♭13, 13) — or the note for a number.
+- **Meter & Form.** A time signature's simple or compound, duple, triple or quadruple, beat unit and beats a measure; tempo math (beats in a stretch of time, seconds a beat or a piece lasts, the tempo from a count of clicks); the names and letters of forms; and **road maps** — repeat signs, first and second endings, D.C. al Fine and D.S. al Coda — answered with the measures in the order they're played (ranges like 1-4 count).
+- **Written Answers.** The teacher's own questions, one a line. Add `| answer` (and more `| answer`s) to have Clefwork grade it — an answer that contains one of them is right; with none, any answer earns its credit and the teacher reads it on the report.
+- **Harmony Drills** (Clefwork Harmony). Chord symbols for a progression in Roman numerals or Nashville numbers in a named key — ii–V–I, turnarounds, the blues, borrowed chords, major and minor — or the numerals for chord symbols; T or D under each chord of a phrase, and whether it's a question or an answer; the one chord that fills a gap in a phrase and follows the chord graph; cadence names (authentic, plagal, deceptive, half, ii–V–I, minor ii–V–i, tritone substitution, backdoor, Mixolydian, Aeolian, suspended dominant, turnaround, minor plagal, minor dominant); secondary dominants named two ways (II7 and V7/V), and which dominant a tritone substitute replaces and where it resolves; and the kind of modulation from a description.
+- **Voice-Leading Facts** (Clefwork Harmony). Two chords voiced in four parts by the Voice Leading engine, on the grand staff, with menus: the motion between two voices, close or open spacing, the doubled member, or whether there are parallel fifths or octaves and between which voices.
+
+Codes: every drill is report type 28 (`drill`), carrying its menus, choice or typed answers. The quiz code keeps the drills — each kind's count, the settings that aren't the defaults, and the written questions — in a block at its very end, after a flag, with the intervals and the chromatic scale past the bits older codes have for them; a quiz without them keeps its code. A report keeps the alto clef as clef 3.
+
 ### The library
 
 Public-domain pieces to use as musical examples, in three kinds — **solo melodies**, **piano**, and **several instruments or voices** — each marked as one that can be heard (its notes are in the library) and/or one with a score picture:
@@ -327,6 +341,10 @@ Set `CLEFWORK_BASE` before building to change the address used in shared links.
 ### Testing cadences and modulations
 
 `node tests/cadences.js` (no dependencies) makes every kind of cadence and modulation on every staff, texture and chord size, and checks that each reads back as what it claims, that its voice leading follows the rules (no parallel 5ths or octaves, 7ths resolved, voices in range, the right bass, a tonic soprano at a PAC), that its model answer is marked right and a blank one wrong, and that quiz and report codes carry everything. It also reads the textbook's example progressions.
+
+### Testing drills
+
+`node tests/drills.js` (no dependencies) makes every kind of drill and checks that its answer key is marked right and a blank answer unanswered, that typed answers are read the ways students type them (F# or F♯, Bb, notes run together or with commas, measure ranges, chord-symbol and Roman-numeral spellings), that quiz codes keep the drills alongside every block that comes before them and report codes keep the answers, and the new intervals, chromatic scale and alto clef.
 
 ### Testing typed answers
 

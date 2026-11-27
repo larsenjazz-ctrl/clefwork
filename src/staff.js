@@ -11,7 +11,7 @@
   const SHARPS_T = [38, 35, 39, 36, 33, 37, 34];
   const FLATS_T = [34, 37, 33, 36, 32, 35, 31];
   const keySigDias = (f, clef) =>
-    (f > 0 ? SHARPS_T.slice(0, f) : FLATS_T.slice(0, -f)).map((d) => d + (clef === 'bass' ? -14 : 0));
+    (f > 0 ? SHARPS_T.slice(0, f) : FLATS_T.slice(0, -f)).map((d) => d + (clef === 'bass' ? -14 : clef === 'alto' ? -7 : 0));
 
   const HEAD = '<path class="head" fill-rule="evenodd" d="M-7.6 0A7.6 5.4 0 1 0 7.6 0A7.6 5.4 0 1 0 -7.6 0ZM2.75 -3.93A4.8 2.6 -55 1 0 -2.75 3.93A4.8 2.6 -55 1 0 2.75 -3.93Z"/>';
   // A half note's head: smaller, tilted, with a narrow hole; its stem is drawn with the chord.
@@ -34,6 +34,15 @@
   // Treble: the curl wraps the G line. Bass: nudged up so its dots flank the F line.
   // The drawn paths are a fallback for when the font can't load (offline).
   function clefSVG(clef, by, x) {
+    // The alto (C) clef: its two arcs meet on the middle line.
+    if (clef === 'alto') {
+      if (MQ.clefFont === false) {
+        return `<g transform="translate(${x + 4} ${by})" fill="currentColor"><rect x="0" y="-48" width="5" height="48"/><rect x="8" y="-48" width="2" height="48"/>`
+          + '<path d="M10 -24L17 -31C25 -40 31 -46 27 -46C22 -46 20 -41 21 -38" fill="none" stroke="currentColor" stroke-width="3"/>'
+          + '<path d="M10 -24L17 -17C25 -8 31 -2 27 -2C22 -2 20 -7 21 -10" fill="none" stroke="currentColor" stroke-width="3"/></g>';
+      }
+      return `<text class="clef-glyph" x="${x}" y="${by}" font-size="48">\u{1D121}</text>`;
+    }
     if (MQ.clefFont === false) {
       return clef === 'treble'
         ? `<g transform="translate(${x + 23} ${by - 12})" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M-1 -3C3 -3 4 3 -1 4C-7 5 -9 -3 -6 -7C-2 -12 9 -10 10 -1C11 8 3 14 -5 13C-13 12 -16 2 -12 -5C-8 -12 0 -20 1 -32C2 -44 -2 -56 -6 -58C-10 -60 -9 -48 -4 -42C1 -36 2 -24 0 -10L-3 18C-4 26 6 28 6 21"/><circle cx="4" cy="21" r="3.6" fill="currentColor" stroke="none"/></g>`

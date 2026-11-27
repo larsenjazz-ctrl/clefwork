@@ -662,7 +662,9 @@
     const pick = Math.max(0, Math.min(127, cfg.pick | 0));
     // Whether students see their answers on the staff once they have submitted — after the draw, behind a flag.
     const show = cfg.flags && cfg.flags.answers ? 1 : 0;
-    if (regions.length || an.img || limit != null || rhythm || melody || degrees || graph || terms || sing || block || cad || nht || chor || ivAsk || pick || show) {
+    // Last of all, behind a flag: Clefwork Drills and the intervals and scales added after them, as JSON.
+    const more = moreBlock(cfg);
+    if (regions.length || an.img || limit != null || rhythm || melody || degrees || graph || terms || sing || block || cad || nht || chor || ivAsk || pick || show || more) {
       const q10 = (v) => Math.max(0, Math.min(1023, Math.round(v * 1023)));
       // Extension 16: Clefwork Harmony with non-harmonic tones — the cadence block as extension 15 writes it
       // (possibly empty), then the non-harmonic tone block.
@@ -773,24 +775,55 @@
       const keys = anScores.some((sc) => sc.keys && sc.keys.length);
       const opens = anScores.some((sc) => sc.open && sc.open.show > 0);
       const extras = keys || opens || anRegs.some((g) => g.link || g.ask === 'nht' || g.ask === 'pivot');
-      if (extras || ivAsk || pick || show) {
+      if (extras || ivAsk || pick || show || more) {
         if (((ext >= 4 && ext <= 8) || ext === 11 || ext === 13) && !tiesWritten) w.u(0, 1);
         w.u(extras ? 1 : 0, 1);
       }
       if (extras) {
         writeAnalysisExtras(w, an, anRegs);
         if (keys) writeKeyChanges(w, an, anScores);
-        else if (opens || ivAsk || pick || show) w.u(0, 1);
+        else if (opens || ivAsk || pick || show || more) w.u(0, 1);
         if (opens) writeOpenKeys(w, anScores);
-        else if (ivAsk || pick || show) w.u(0, 1);
+        else if (ivAsk || pick || show || more) w.u(0, 1);
       }
       if (ivAsk) w.u(1, 1).u(ivAsk, 2);
-      else if (pick || show) w.u(0, 1);
+      else if (pick || show || more) w.u(0, 1);
       if (pick) w.u(1, 1).u(pick, 7);
-      else if (show) w.u(0, 1);
+      else if (show || more) w.u(0, 1);
       if (show) w.u(1, 1);
+      else if (more) w.u(0, 1);
+      if (more) w.u(1, 1).strN(more, 16383, 14);
     }
     return pack(KIND_QUIZ, w.b);
+  }
+
+  // Clefwork Drills (each kind's count, the settings that aren't the defaults, the teacher's written
+  // questions) and the intervals and scales past the bits a code has for them: a JSON string, or ''.
+  const IVX = Math.pow(2, 24), SCX = Math.pow(2, 13);
+  function moreBlock(cfg) {
+    const o = {};
+    if (MQ.DRILL_KINDS) {
+      const c = {};
+      MQ.DRILL_KINDS.forEach((k) => { const n = Math.min(k.written ? MQ.DRILL_WRITE_MAX : MQ.DRILLS_MAX, (cfg.counts && cfg.counts[k.id]) | 0); if (n > 0) c[k.id] = n; });
+      if (Object.keys(c).length) {
+        o.c = c;
+        const d = MQ.drillDiff(cfg.drill);
+        if (Object.keys(d).length) o.s = d;
+      }
+    }
+    const ivx = Math.floor((cfg.intervals || 0) / IVX), scx = Math.floor((cfg.scales || 0) / SCX);
+    if (ivx) o.ivx = ivx;
+    if (scx) o.scx = scx;
+    return Object.keys(o).length ? JSON.stringify(o) : '';
+  }
+  function readMoreBlock(cfg, text) {
+    let o = null;
+    try { o = JSON.parse(text); } catch (e) { throw new CodeError('This quiz code is incomplete.'); }
+    if (!o || typeof o !== 'object') return;
+    if (o.c && MQ.DRILL_KINDS) MQ.DRILL_KINDS.forEach((k) => { if (o.c[k.id]) cfg.counts[k.id] = Math.max(0, o.c[k.id] | 0); });
+    if (MQ.drillSettings) cfg.drill = MQ.drillSettings(o.s || {});
+    if (o.ivx) cfg.intervals = (cfg.intervals % IVX) + (o.ivx | 0) * IVX;
+    if (o.scx) cfg.scales = (cfg.scales % SCX) + (o.scx | 0) * SCX;
   }
 
   function decodeQuiz(code) {
@@ -1051,6 +1084,7 @@
           if (r.b.length > r.p && r.u(1)) cfg.intervalAsk = r.u(2) || 1;
           if (r.b.length > r.p && r.u(1)) cfg.pick = r.u(7);
           if (r.b.length > r.p && r.u(1)) cfg.flags.answers = true;
+          if (r.b.length > r.p && r.u(1)) readMoreBlock(cfg, r.strN(14));
         }
         const sum = (b) => MQ.TECHNIQUES.reduce((n, t) => n + ((b.tech && b.tech[t.id]) || 0), 0);
         cfg.counts.voicing = sum(cfg.vc);
@@ -1129,6 +1163,17 @@
 
   function writeAnswer(w, q, resp, plays) {
     if (q.type === 'cadence') { writeCadAnswer(w, q, resp); return; }
+    if (q.type === 'drill') {
+      // Clefwork Drills: what the question asks with (0 a choice, 1 menus, 2 typed boxes), then the answers.
+      if (q.texts) {
+        w.u(2, 2).u(Math.min(31, q.texts.length), 5);
+        q.texts.slice(0, 31).forEach((f, i) => w.strN(String((resp || [])[i] || '').trim(), 255, 8));
+      } else if (q.dropdowns) {
+        w.u(1, 2).u(Math.min(31, q.dropdowns.length), 5);
+        q.dropdowns.slice(0, 31).forEach((d, i) => { const v = (resp || [])[i]; w.u(v == null ? 0 : Math.min(31, v + 1), 5); });
+      } else w.u(0, 2).u(resp == null ? 0 : Math.min(31, resp + 1), 5);
+      return;
+    }
     // Sight singing: the melody the student was given (its place in the bank), their tick, and how
     // they sang it — moved up or down by up to an octave, and read in the other clef (version 16).
     // Sight singing: the melody the student was given (its place in the bank), and their tick. How
@@ -1288,6 +1333,13 @@
   }
   function readAnswer(r, type, ver) {
     if (type === 'cadence') return readCadAnswer(r);
+    if (type === 'drill') {
+      const how = r.u(2);
+      if (how === 0) { const v = r.u(5); return { kind: 'choice', value: v ? v - 1 : null }; }
+      const n = r.u(5), out = [];
+      for (let j = 0; j < n; j++) { if (how === 2) out.push(r.strN(8)); else { const v = r.u(5); out.push(v ? v - 1 : null); } }
+      return { kind: how === 2 ? 'typed' : 'pick', value: out };
+    }
     if (type === 'ivname') { const a = r.u(3), b = r.u(4); return { kind: 'pick', value: [a ? a - 1 : null, b ? b - 1 : null] }; }
     if (type === 'sing') { const n = r.u(6); return { kind: 'sing', value: { n, done: !!r.u(1), tr: 0, bass: 0 } }; }
     if (type === 'term') {
@@ -1427,7 +1479,7 @@
       const ti = MQ.typeIndex(it.type);
       w.u(Math.min(15, ti), 4);
       if (ti >= 15) w.u(ti - 15, 4);        // version 15 widened this, which was full at 22 types
-      w.u(['treble', 'bass', 'grand'].indexOf(it.clef) & 3, 2);
+      w.u(Math.max(0, ['treble', 'bass', 'grand', 'alto'].indexOf(it.clef)), 2);
       if (report.partial) w.u(it.credit, 3); else w.u(it.credit === 7 ? 1 : 0, 1);
       w.u(it.answered ? 1 : 0, 1).u(Math.min(63, Math.round(it.sec)), 6);
     });
@@ -1547,7 +1599,7 @@
         if (ver >= 14 && ti === 15) ti += r.u(ver >= 15 ? 4 : 3);
         const type = MQ.TYPES[ti];
         // Version 1 reports used one bit for the clef; voicings were always the grand staff then.
-        const clef = ver >= 2 ? ['treble', 'bass', 'grand'][r.u(2)] || 'treble'
+        const clef = ver >= 2 ? ['treble', 'bass', 'grand', 'alto'][r.u(2)] || 'treble'
           : r.u(1) ? (type && type.id === 'voicing' ? 'grand' : 'bass') : type && type.id === 'voicing' ? 'grand' : 'treble';
         const credit = rep.partial ? r.u(3) : r.u(1) * 7;
         rep.items.push({ type: type ? type.id : 'place', clef, credit, answered: !!r.u(1), sec: r.u(6) });
