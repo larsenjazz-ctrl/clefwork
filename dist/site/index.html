@@ -259,6 +259,15 @@ input.pg-in.is-wrong { border-color: var(--bad); background: var(--bad-soft); }
 .dd-cell { display: flex; flex-direction: column; gap: 5px; min-width: 190px; flex: 1; }
 .dd-cell select.is-right { border-color: var(--good); background: var(--good-soft); }
 .dd-cell select.is-wrong { border-color: var(--bad); background: var(--bad-soft); }
+/* Clefwork Drills: typed answers, and a time signature printed large. */
+.dr-texts .dd-cell { min-width: 140px; flex: 0 1 190px; }
+.dr-texts.is-one .dd-cell { flex: 1 1 100%; max-width: 520px; }
+.dr-texts .dd-cell:has(.is-long) { flex: 1 1 100%; max-width: 640px; }
+.dr-texts input.dr-in, .dr-texts textarea.dr-in { width: 100%; text-align: left; font: 700 16px var(--f-mono); }
+.dr-texts textarea.dr-in { font: 16px/1.45 var(--f-body, inherit); resize: vertical; }
+.dr-in.is-right { border-color: var(--good); background: var(--good-soft); }
+.dr-in.is-wrong { border-color: var(--bad); background: var(--bad-soft); }
+.dr-meter { display: inline-flex; flex-direction: column; align-items: center; font: 800 40px/0.95 'Bricolage Grotesque', var(--f-mono); margin: 4px 0 12px 8px; }
 .qt-panel .fld.is-off { opacity: 0.45; pointer-events: none; }
 .staff .clabel.is-small { font-size: 10.5px; fill: var(--muted); }
 .fig-rn { font: 700 20px/1 var(--f-display); white-space: nowrap; }

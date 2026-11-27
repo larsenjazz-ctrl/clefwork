@@ -25,6 +25,8 @@
   const CLEFS = {
     treble: { id: 'treble', label: 'Treble', bottom: 30 },
     bass: { id: 'bass', label: 'Bass', bottom: 18 },
+    // The alto (C) clef: middle C on the middle line, F3 on the bottom one. Clefwork Drills print it.
+    alto: { id: 'alto', label: 'Alto', bottom: 24 },
     grand: { id: 'grand', label: 'Grand', bottom: null },
   };
   const clefLabel = (c) => (c === 'grand' ? 'Grand staff' : CLEFS[c].label + ' clef');
@@ -39,6 +41,8 @@
     // Compound intervals (added after the others so older quiz codes keep their meaning).
     iv('m9', 13), iv('M9', 14), iv('m10', 15), iv('M10', 16), iv('P11', 17), iv('A11', 18),
     iv('P12', 19), iv('m13', 20), iv('M13', 21),
+    // Augmented and diminished intervals besides the tritone (added last, again, for the same reason).
+    iv('A1', 1), iv('A2', 3), iv('d3', 2), iv('d4', 4), iv('A5', 8), iv('d6', 7), iv('A6', 10), iv('d7', 9),
   ];
   const SIMPLE_INTERVALS = 13;
   // What students choose from when they name a printed interval: every quality and every size, so the
@@ -78,6 +82,8 @@
     { id: 'mixolydian', label: 'Mixolydian', name: 'Mixolydian mode', mode: true, iv: [[2, 2], [3, 4], [4, 5], [5, 7], [6, 9], [7, 10], [8, 12]] },
     { id: 'aeolian', label: 'Aeolian', name: 'Aeolian mode', mode: true, iv: [[2, 2], [3, 3], [4, 5], [5, 7], [6, 8], [7, 10], [8, 12]] },
     { id: 'locrian', label: 'Locrian', name: 'Locrian mode', mode: true, iv: [[2, 1], [3, 3], [4, 5], [5, 6], [6, 8], [7, 10], [8, 12]] },
+    // The chromatic scale, written with sharps going up (added last, so older quiz codes keep their meaning).
+    { id: 'chromatic', label: 'Chromatic', name: 'chromatic scale', chrom: true, iv: [[1, 1], [2, 2], [2, 3], [3, 4], [4, 5], [4, 6], [5, 7], [5, 8], [6, 9], [6, 10], [7, 11], [8, 12]] },
   ];
   const SIMPLE_SCALES = 4;
 
@@ -128,6 +134,8 @@
     { id: 'nht', label: 'Non-Harmonic Tones', blurb: 'A progression in four voices with its non-harmonic tones highlighted and lettered; students name each one — passing tone, suspension, appoggiatura…', est: 90, custom: true },
     // Clefwork Voice Leading (see chorale.js): four-part writing, marked by the rules and approved by the teacher.
     { id: 'chorale', label: 'Four-Part Writing', blurb: 'Write chorale-style music for soprano, alto, tenor and bass on the grand staff — over a given melody or bass, from chord symbols or Roman numerals, or on blank measures.', est: 600, custom: true },
+    // Clefwork Drills (see drills.js): every kind of short drill — menus, a choice or typed answers — is this one type.
+    { id: 'drill', label: 'Drills', blurb: 'Short questions answered with menus, a choice, or typed letter names, numbers, chord symbols or words.', est: 25, custom: true },
   ];
   const BUILT_IN = TYPES.filter((t) => !t.custom);
   const MAX_CUSTOM = 20, MAX_CUSTOM_NOTES = 6, MAX_VOICING_NOTES = 8;
@@ -239,6 +247,8 @@
       terms: null,
       // Clefwork Harmony, cadences and modulations: the progressions and how they're asked (see cadences.js).
       cad: null,
+      // Clefwork Drills: each kind's settings, and the teacher's written questions (see drills.js).
+      drill: null,
       custom: [],
       customGrade: 0,
       voicings: [],
@@ -570,8 +580,10 @@
       let best = null;
       for (let k = 0; k < 200 && !best; k++) {
         const sc = pick(rng, scs);
-        const len2 = sc.pent ? 6 : len;
-        const tonic = randPitch(rng, clef, cfg, lo, hi - (len2 - 1), 4 - (len2 - 1) / 2);
+        const len2 = sc.chrom ? 13 : sc.pent ? 6 : len;
+        // A chromatic scale spans an octave on the staff, not one line or space for each note.
+        const span = sc.chrom ? 7 : len2 - 1;
+        const tonic = randPitch(rng, clef, cfg, lo, hi - span, 4 - span / 2);
         const tones = sc.iv.slice(0, len2 - 1).map(([n, s]) => transpose(tonic, n, s, 1));
         if (tones.every(okAlt)) best = { sc, tonic, tones };
       }
@@ -599,8 +611,8 @@
       if (!helpersOn(cfg, 'scale')) {
         return {
           type: 'scale', clef, pcOnly: true,
-          text: `Write the ${pcName(tonic)} ${sc.name} ascending${len === 5 ? ' (first five notes)' : ''}, starting on ${pcName(tonic)}.`,
-          hint: 'Write every note, in any octave. Use sharps and flats, not a key signature.',
+          text: `Write the ${pcName(tonic)} ${sc.name} ascending${len === 5 && !sc.chrom ? ' (first five notes)' : ''}, starting on ${pcName(tonic)}.`,
+          hint: sc.chrom ? 'Write every note, in any octave, with sharps for the black keys.' : 'Write every note, in any octave. Use sharps and flats, not a key signature.',
           columns: [{ given: [], cap: 1 }].concat(tones.map(() => ({ given: [], cap: 1 }))),
           answer: [[tonic]].concat(tones.map((t) => [t])),
           tags, sig: 's' + fullName(tonic) + sc.id,
@@ -608,8 +620,8 @@
       }
       return {
         type: 'scale', clef,
-        text: `Write the ${pcName(tonic)} ${sc.name} ascending${len === 5 ? ' (first five notes)' : ''}.`,
-        hint: 'The first note is printed. Use sharps and flats, not a key signature.',
+        text: `Write the ${pcName(tonic)} ${sc.name} ascending${len === 5 && !sc.chrom ? ' (first five notes)' : ''}.`,
+        hint: sc.chrom ? 'The first note is printed. Use sharps for the black keys, and no key signature.' : 'The first note is printed. Use sharps and flats, not a key signature.',
         columns: [{ given: [tonic], cap: 0 }].concat(tones.map(() => ({ given: [], cap: 1 }))),
         answer: [[]].concat(tones.map((t) => [t])),
         tags, sig: 's' + fullName(tonic) + sc.id,
@@ -783,6 +795,7 @@
     if (MQ.cadenceQuestions && cfg.counts.cadence) MQ.cadenceQuestions(cfg).forEach((q) => qs.push(q));
     if (MQ.nhQuestions && cfg.counts.nht) MQ.nhQuestions(cfg).forEach((q) => qs.push(q));
     if (MQ.chorQuestions && cfg.counts.chorale) MQ.chorQuestions(cfg).forEach((q) => qs.push(q));
+    if (MQ.drillQuestions) MQ.drillQuestions(cfg).forEach((q) => qs.push(q));
     if (cfg.flags.shuffle) shuffle(qs, rng);
     return qs;
   }
@@ -864,6 +877,7 @@
       return got / q.symbolAnswers.length;
     }
     if (q.symbolAnswer) return MQ.gradeChordSymbol(q, response, cfg);
+    if (q.texts) return MQ.gradeTexts(q, response);
     if (q.choices) return response === q.answer ? 1 : 0;
     if (q.dropdowns) {
       const got = q.dropdowns.filter((d, i) => response && response[i] === d.answer).length;
@@ -897,6 +911,7 @@
         : q.type === 'progression' ? !!response && ['r', 's'].some((k) => (response[k] || []).some((x) => x && x.trim()))
       : q.symbolAnswers ? !!response && response.some((v) => String(v || '').trim())
         : q.symbolAnswer ? !!String(response || '').trim()
+        : q.texts ? MQ.hasTexts(q, response)
         : q.dropdowns ? !!response && response.some((v) => v != null)
         : q.choices ? response != null : !!response && response.some((col) => col && col.some(Boolean));
 
@@ -917,6 +932,7 @@
     if (q.symbolAnswers) return q.symbolAnswers.map((a) => a.shown).join('  ');
     if (q.symbolAnswer) return q.symbolAnswer.shown;
     if (q.type === 'ivname') return q.ivName.charAt(0).toUpperCase() + q.ivName.slice(1);
+    if (q.texts) return MQ.describeTexts(q);
     if (q.dropdowns) return q.dropdowns.map((d) => d.options[d.answer]).join(' · ');
     if (q.choices) return q.choices[q.answer];
     if (q.type === 'figured' || q.type === 'figprog') return MQ.describeFigured(q);
